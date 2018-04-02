@@ -2,6 +2,7 @@ run.config:
   engine: nodejs
   extra_steps:
     - npm install
+    - cd client && npm install && npm run build
   extra_packages:
     - nginx
 
