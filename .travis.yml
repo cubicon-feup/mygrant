@@ -9,13 +9,13 @@ cache:
     - "client/node_modules"
 
 before_install:
-  - "cd client/ && npm install"
+  - "cd client/ && npm install && cd .."
 
 jobs:
   include:
     - stage: test
       script: npm test
-      script: "cd client/ && npm test"
+      script: "cd client/ && npm test && cd .."
       if: branch IN (develop, master)
     - stage: deploy-dev
       if: branch = develop
