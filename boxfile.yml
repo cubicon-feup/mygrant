@@ -1,0 +1,9 @@
+run.config:
+  engine: nodejs
+  extra_steps:
+    - npm install
+  extra_packages:
+    - nginx
+
+data.db:
+  image: nanobox/postgresql:9.5

@@ -1,0 +1,27 @@
+dist: trusty
+sudo: required
+language: node_js
+cache:
+  directories:
+    - "node_modules"
+    - "client/node_modules"
+
+before_install:
+  - "cd client/ && npm install"
+
+jobs:
+  include:
+    - stage: test
+      script: npm test
+      script: "cd client/ && npm test"
+      if: branch IN (develop, master)
+    - stage: deploy-dev
+      if: branch = develop
+      script: 
+        - nanobox remote add mygrant-dev
+        - nanobox deploy
+    - stage: deploy-master
+      if: branch = master
+      script:
+        - nanobox remote add mygrant
+        - nanobox deploy
