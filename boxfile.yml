@@ -1,8 +1,8 @@
 run.config:
   engine: nodejs
   extra_steps:
-    - npm install
-    - cd client && npm install && cd ..
+    - npm -s install
+    - cd client && npm -s install && cd ..
   extra_packages:
     - nginx
   cache_dirs:
