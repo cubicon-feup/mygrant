@@ -15,7 +15,7 @@ cache:
     - "client/node_modules"
 
 before_install:
-  - "cd client/ && npm install && cd .."
+  - "cd client/ && npm -s install && cd .."
 
 install: sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 
