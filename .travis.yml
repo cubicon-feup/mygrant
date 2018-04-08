@@ -21,15 +21,13 @@ jobs:
     - stage: test
       script: nanobox run npm test
       if: branch IN (develop, master)
-    - stage: deploy
-      deploy: 
-        provider: script
-        script: bash scripts/deploy_dev.sh
-        on:
-          branch: develop
-    - stage: deploy
-      deploy:
-        provider: script
-        script: bash scripts/deploy_prod.sh
-        on:
-          branch: master
+
+deploy: 
+  provider: script
+  script: bash scripts/deploy_dev.sh
+  on:
+    branch: develop
+  provider: script
+  script: bash scripts/deploy_prod.sh
+  on:
+    branch: master
