@@ -23,11 +23,11 @@ jobs:
       if: branch IN (develop, master)
 
 deploy: 
-  provider: script
-  script: bash scripts/deploy_dev.sh
-  on:
-    branch: develop
-  provider: script
-  script: bash scripts/deploy_prod.sh
-  on:
-    branch: master
+  - provider: script
+    script: bash scripts/deploy_dev.sh
+    on:
+      branch: develop
+  - provider: script
+    script: bash scripts/deploy_prod.sh
+    on:
+      branch: master
