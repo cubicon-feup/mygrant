@@ -1,13 +1,23 @@
 run.config:
   engine: nodejs
   extra_steps:
-    - npm install
-    - cd client && npm install && npm run build
+    - npm install &> /dev/null
+    - cd client && npm install &> /dev/null && npm run build && cd ..
   extra_packages:
     - nginx
+  cache_dirs:
+    - node_modules
+    - client/node_modules
+
+deploy.config:
+  extra_steps:
+    - cd client
 
 data.db:
   image: nanobox/postgresql:9.5
+
+worker.jobs:
+  start: npm start
 
 web.main:
   start:

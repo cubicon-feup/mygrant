@@ -1,3 +1,9 @@
+#safelist
+branches:
+  only:
+    - master
+    - develop
+
 dist: trusty
 sudo: required
 language: node_js
@@ -8,15 +14,12 @@ cache:
     - "node_modules"
     - "client/node_modules"
 
-before_install:
-  - "cd client/ && npm install && cd .."
-
 install: sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 
 jobs:
   include:
     - stage: test
-      script: npm test
+      script: nanobox run npm test
       if: branch IN (develop, master)
     - stage: deploy-dev
       if: branch = develop
