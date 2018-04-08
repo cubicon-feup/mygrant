@@ -27,6 +27,7 @@ jobs:
         script: bash scripts/deploy_dev.sh
         on:
           branch: develop
+    - stage: deploy
       deploy:
         provider: script
         script: bash scripts/deploy_prod.sh
