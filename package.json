@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "PORT=3001 node ./bin/www",
+    "dev": "PORT=3001 nodemon ./bin/www",
     "test": "NODE_ENV=test jest"
   },
   "dependencies": {
