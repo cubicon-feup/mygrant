@@ -22,8 +22,14 @@ class Signin extends Component {
         <div>
           <Header as="h1">Login</Header>
           <Form>
-            <Form.Input label="Email" type="email" placeholder="you@email.com"/>
-            <Form.Input label="Password" type="password"/>
+            <Form.Input label="Your Name" type="text" placeholder="Name"/>
+            <Form.Input label="Your Email" type="email" placeholder="you@email.com"/>
+            <Form.Group widths="equal">
+                <Form.Input label="City" type="email" placeholder="City"/>
+                <Form.Input label="Country" type="email" placeholder="Country"/>
+            </Form.Group>
+            <Form.Input label="Choose a password" type="password" placeholder="Type your password"/>
+            <Form.Input label="Repeat your password" type="password" placeholder="Type your password"/>
           </Form>
         </div>
       </Container>
