@@ -4,7 +4,7 @@ import '../css/App.css';
 
 import { Container, Header, Form } from 'semantic-ui-react';
 
-class Login extends Component {
+class Signin extends Component {
   constructor(props) {
     super(props);
     this.state = { info: [] };
@@ -22,7 +22,7 @@ class Login extends Component {
         <div>
           <Header as="h1">Login</Header>
           <Form>
-            <Form.Input label="Name" type="email" placeholder="you@email.com"/>
+            <Form.Input label="Email" type="email" placeholder="you@email.com"/>
             <Form.Input label="Password" type="password"/>
           </Form>
         </div>
@@ -31,4 +31,4 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default Signin;

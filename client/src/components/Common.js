@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Menu, Container } from 'semantic-ui-react';
 // import '../../css/common.css';
 
-class Header extends Component {
+
+class MygrantHeader extends Component {
     render() {
         return (
             <Menu>
@@ -14,6 +15,17 @@ class Header extends Component {
     }
 }
 
-export default Header;
+class MygrantFooter extends Component {
+    render() {
+        return (
+            <Menu fixed="bottom">
+                <Menu.Item header name="mygrant" >Mygrant</Menu.Item>
+            </Menu>
+        );
+    }
+}
 
-
+export {
+    MygrantHeader,
+    MygrantFooter
+};
