@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
+import 'semantic-ui-css/semantic.min.css';
 import './css/index.css';
 import registerServiceWorker from './registerServiceWorker';
 import App from './components/App';
