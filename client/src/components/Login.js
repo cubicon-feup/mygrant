@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import logo from './../logo.svg';
-import '../css/App.css';
+import '../css/common.css';
 
 import { Container, Header, Form } from 'semantic-ui-react';
 
@@ -18,7 +17,7 @@ class Login extends Component {
 
   render() {
     return (
-      <Container>
+      <Container className="main-container">
         <div>
           <Header as="h1">Login</Header>
           <Form>

@@ -18,7 +18,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "watch-sass": "node_modules/.bin/node-sass -w src/scss -o src/css"
+    "watch-sass": "node_modules/.bin/node-sass -w src/scss -o src/css --output-style compressed"
   },
   "proxy": "http://localhost:3001",
   "devDependencies": {}

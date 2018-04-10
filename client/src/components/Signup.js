@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import logo from './../logo.svg';
-import '../css/App.css';
+import '../css/common.css';
 
 import { Container, Header, Form } from 'semantic-ui-react';
 
@@ -18,9 +17,9 @@ class Signin extends Component {
 
   render() {
     return (
-      <Container>
+      <Container className="main-container">
         <div>
-          <Header as="h1">Login</Header>
+          <Header as="h1">Sign Up</Header>
           <Form>
             <Form.Input label="Your Name" type="text" placeholder="Name"/>
             <Form.Input label="Your Email" type="email" placeholder="you@email.com"/>
