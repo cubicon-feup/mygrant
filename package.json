@@ -1,29 +1,29 @@
 {
-  "name": "mygrant",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "PORT=3001 node ./bin/www",
-    "test": "NODE_ENV=test jest"
-  },
-  "dependencies": {
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.9",
-    "express": "~4.16.0",
-    "http-errors": "~1.6.2",
-    "jade": "~1.11.0",
-    "leaflet": "^1.3.1",
-    "morgan": "~1.9.0",
-    "pg-promise": "^8.2.2"
-  },
-  "devDependencies": {
-    "babel-jest": "^22.4.3",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "eslint": "^4.19.1",
-    "eslint-plugin-react": "^7.7.0",
-    "jest": "^22.4.3",
-    "react-test-renderer": "^16.3.1"
-  }
+    "name": "mygrant",
+    "version": "0.0.0",
+    "private": true,
+    "dependencies": {
+        "cookie-parser": "~1.4.3",
+        "debug": "~2.6.9",
+        "express": "~4.16.0",
+        "http-errors": "~1.6.2",
+        "jade": "~1.11.0",
+        "leaflet": "^1.3.1",
+        "morgan": "~1.9.0",
+        "pg-promise": "^8.2.2"
+    },
+    "devDependencies": {
+        "babel-jest": "^22.4.3",
+        "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-preset-react": "^6.24.1",
+        "eslint": "^4.19.1",
+        "eslint-plugin-react": "^7.7.0",
+        "jest": "^22.4.3",
+        "react-test-renderer": "^16.3.1"
+    },
+    "scripts": {
+        "start": "node ./bin/www",
+        "test": "NODE_ENV=test jest"
+    }
 }
