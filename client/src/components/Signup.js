@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../scss/common.scss';
+import '../css/common.css';
 
 import { Container, Header, Form } from 'semantic-ui-react';
 

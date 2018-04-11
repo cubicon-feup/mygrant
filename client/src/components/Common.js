@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Menu, Container, Header } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import '../scss/common.scss';
+import '../css/common.css';
 
 
 class MygrantHeader extends Component {
