@@ -17,14 +17,9 @@ describe('appInfo routes test', function () {
     it('appName should be Mygrant', function (done) {
         request(app)
             .get('/api/app_info')
-            .set('Accept', 'application/json')
+            //.set('Accept', 'application/json')
             .then((response) => {
                 expect(response.body.appName).toBe("Mygrant");
-                 /*   appName: 'Mygrant',
-                    client: 'Gallyciadas',
-                    company: 'cubicon',
-                    year: 2018
-                });*/
                 done();
             })
     });
@@ -32,14 +27,8 @@ describe('appInfo routes test', function () {
     it('client name  should be Gallyciadas', function (done) {
         request(app)
             .get('/api/app_info')
-            //.set('Accept', 'application/json')
             .then((response) => {
                 expect(response.body.client).toBe("Gallyciadas");
-                /*   appName: 'Mygrant',
-                   client: 'Gallyciadas',
-                   company: 'cubicon',
-                   year: 2018
-               });*/
                 done();
             })
     });
@@ -47,14 +36,8 @@ describe('appInfo routes test', function () {
     it('company should be cubicon', function (done) {
         request(app)
             .get('/api/app_info')
-            //.set('Accept', 'application/json')
             .then((response) => {
                 expect(response.body.company).toBe("cubicon");
-                /*   appName: 'Mygrant',
-                   client: 'Gallyciadas',
-                   company: 'cubicon',
-                   year: 2018
-               });*/
                 done();
             })
     });
@@ -62,14 +45,8 @@ describe('appInfo routes test', function () {
     it('year should be 2018', function (done) {
         request(app)
             .get('/api/app_info')
-            //.set('Accept', 'application/json')
             .then((response) => {
                 expect(response.body.year).toBe(2018);
-                /*   appName: 'Mygrant',
-                   client: 'Gallyciadas',
-                   company: 'cubicon',
-                   year: 2018
-               });*/
                 done();
             })
     });
@@ -78,14 +55,8 @@ describe('appInfo routes test', function () {
     it('year should be 2018', function (done) {
         request(app)
             .get('/api/app_info')
-            //.set('Accept', 'application/json')
             .then((response) => {
                 expect(response.body.year).toBe(2018);
-                /*   appName: 'Mygrant',
-                   client: 'Gallyciadas',
-                   company: 'cubicon',
-                   year: 2018
-               });*/
                 done();
             })
     });
