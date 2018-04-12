@@ -2,11 +2,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as TestUtils from 'react-dom/test-utils';
+import CheckboxWithLabel from './CheckboxWithLabel';
 
 it('CheckboxWithLabel changes the text after click', () => {
     // Render a checkbox with label in the document
     const checkbox = TestUtils.renderIntoDocument(
-        <CheckboxWithLabel labelOn="On" labelOff="Off" />);
+        <CheckboxWithLabel labelOn="On" labelOff="Off" />
+    );
 
     const checkboxNode = ReactDOM.findDOMNode(checkbox);
 
