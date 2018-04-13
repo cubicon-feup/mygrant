@@ -1,8 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var pgp = require('pg-promise');
-var db = require('../database');
-var path = require('path');
+var db = require('../config/database');
 
 // Creates a crowdfunding project.
 router.post('/', function(req, res) {

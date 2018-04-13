@@ -1,14 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var pgp = require('pg-promise');
-var db = require('../database');
+var db = require('../config/database');
 
 //
 //
 // NEWSFEED
 //
 //
-
 
 // Get all posts from friends
 router.get('/', function(req, res) {
