@@ -21,6 +21,8 @@ var sqlGetUserfeed = getQuery('getUserfeed')
 var sqlCreatePost = getQuery('createPost');
 var sqlGetPost = getQuery('getPost');
 var sqlEditPost = getQuery('editPost');
+var sqlLikePost = getQuery('likePost');
+var sqlUnlikePost = getQuery('unlikePost');
 
 
 // Get all posts from friends
@@ -91,6 +93,32 @@ router.put('/post/:id/edit', function(req, res) {
 	.catch(error => {
 		res.json({error});
 	});
+});
+
+// Like a post
+router.put('/post/:id/like', function(req, res) {
+	var user_id = 1;
+	db.none(sqlLikePost, {user_id: user_id, post_id: req.params.id})
+	.then(() => {
+		res.sendStatus(200);
+	})
+	.catch(error => {
+		res.json({error});
+	});
+	
+});
+
+// Unlike a post
+router.delete('/post/:id/unlike', function(req, res) {
+	var user_id = 1;
+	db.none(sqlUnlikePost, {user_id: user_id, post_id: req.params.id})
+	.then(() => {
+		res.sendStatus(200);
+	})
+	.catch(error => {
+		res.json({error});
+	});
+	
 });
 
 /*
