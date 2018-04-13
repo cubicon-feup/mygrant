@@ -10,7 +10,7 @@ var db = require('../config/database');
 
 // Get all posts from friends
 router.get('/', function(req, res) {
-	var user_id = 2; //SESSION.id
+	var user_id = 1; //SESSION.id
 	query = `
 		SELECT post.id AS post_id, message AS post_message, date_posted AS post_date_posted, in_reply_to AS post_in_reply_to, COUNT(like_post.user_id) AS post_n_likes, COUNT(post_image.image_id) AS post_n_images, MIN(post_image_image.filename) AS post_image, array_length(post.edit_history, 1) AS post_n_edits, post.sender_id AS sender_id, users.full_name AS sender_full_name, user_image.filename AS sender_image_url
 		FROM post
@@ -36,12 +36,12 @@ router.get('/', function(req, res) {
 		ON post_image.image_id=post_image_image.id
 		GROUP BY post.id, users.full_name, user_image.filename
 		ORDER BY date_posted DESC`;
-	db.any(query, {user_id: 2})
+	db.any(query, {user_id: user_id})
 	.then(data => {
-		res.sendStatus(200).json({data});
+		res.status(200).json({data});
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 });
 
@@ -65,25 +65,25 @@ router.get('/user/:id', function(req, res) {
 		ORDER BY date_posted DESC`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.sendStatus(200).json({data});
+		res.status(200).json({data});
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 });
 
 // Create a post (missing images)
 router.post('/post', function(req, res) {
-	var user_id = 2; //SESSION.id
+	var user_id = 1; //SESSION.id
 	const query = `
 		INSERT INTO post(sender_id, message, in_reply_to)
 		VALUES ($(user_id), $(message), $(replied_post_id))`;
 	db.none(query, {user_id: user_id, message: req.query.message, replied_post_id: null})
 	.then(() => {
-		res.sendStatus(200);
+		res.status(200);
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 });
 

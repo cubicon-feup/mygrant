@@ -35,12 +35,12 @@ router.get('/:id/friends', function(req, res) {
 });
 
 // Add friend
-router.post('/add_friend/:id', function(req, res) {
+router.post('/add_friend', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		INSERT INTO friend(user1_id, user2_id)
 		VALUES ($(user1_id), $(user2_id))`;
-	db.none(query, {user1_id: user_id, user2_id: req.params.id})
+	db.none(query, {user1_id: user_id, user2_id: req.query.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -51,13 +51,13 @@ router.post('/add_friend/:id', function(req, res) {
 });
 
 // Remove friend
-router.delete('/add_friend/:id', function(req, res) {
+router.delete('/add_friend', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		DELETE FROM friend
 		WHERE (user1_id=$(user1_id) AND user2_id=$(user2_id))
 		OR (user1_id=$(user2_id) AND user2_id=$(user1_id))`;
-	db.none(query, {user1_id: user_id, user2_id: req.params.id})
+	db.none(query, {user1_id: user_id, user2_id: req.query.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -87,12 +87,12 @@ router.get('/:id/blocked', function(req, res) {
 });
 
 // Block user
-router.post('/block_user/:id', function(req, res) {
+router.post('/block_user', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		INSERT INTO blocked(blocker_id, target_id)
 		VALUES ($(blocker_id), $(target_id))`;
-	db.none(query, {blocker_id: user_id, target_id: req.params.id})
+	db.none(query, {blocker_id: user_id, target_id: req.query.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -103,12 +103,12 @@ router.post('/block_user/:id', function(req, res) {
 });
 
 // Unblock user
-router.delete('/block_user/:id', function(req, res) {
+router.delete('/block_user', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		DELETE FROM blocked
 		WHERE blocker_id=$(blocker_id) AND target_id=$(target_id)`;
-	db.none(query, {blocker_id: user_id, target_id: req.params.id})
+	db.none(query, {blocker_id: user_id, target_id: req.query.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
