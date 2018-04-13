@@ -6,7 +6,7 @@ var path = require('path');
 
 function getQuery(filename) {
 	var fullPath = path.join(__dirname, '../database/queries/'+filename+'.sql');
-    return new pgp.QueryFile(fullPath, {minify: true});
+	return new pgp.QueryFile(fullPath, {minify: true});
 };
 
 //
@@ -15,12 +15,78 @@ function getQuery(filename) {
 //
 //
 
+// Queries
+var sqlGetNewsfeed = getQuery('getNewsfeed');
+var sqlGetUserfeed = getQuery('getUserfeed')
+var sqlCreatePost = getQuery('createPost');
+var sqlGetPost = getQuery('getPost');
+var sqlEditPost = getQuery('editPost');
+
+
+// Get all posts from friends
 router.get('/', function(req, res) {
 	var user_id = 2; //SESSION.id
-	var sqlGetNewsfeed = getQuery('getNewsfeed');
 	db.any(sqlGetNewsfeed, {user_id: 2})
 	.then(data => {
 		res.json({data});
+	})
+	.catch(error => {
+		res.json({error});
+	});
+});
+
+// Get all posts by user
+router.get('/user/:id', function(req, res) {
+	db.any(sqlGetUserfeed, {user_id: req.params.id})
+	.then(data => {
+		res.json({data});
+	})
+	.catch(error => {
+		res.json({error});
+	});
+});
+
+// Create a post (missing images)
+router.put('/post', function(req, res) {
+	var user_id = 2; //SESSION.id
+	db.none(sqlCreatePost, {user_id: user_id, message: req.query.message, replied_post_id: null})
+	.then(() => {
+		res.sendStatus(200);
+	})
+	.catch(error => {
+		res.json({error});
+	});
+});
+
+// Get a post by id
+router.get('/post/:id', function(req, res) {
+	db.any(sqlGetPost, {post_id: req.params.id})
+	.then(data => {
+		res.json({data});
+	})
+	.catch(error => {
+		res.json({error});
+	});
+});
+
+// Reply to a post (missing images)
+router.put('/post/:id/reply', function(req, res) {
+	var user_id = 2; //SESSION.id
+	db.none(sqlCreatePost, {user_id: user_id, message: req.query.message, replied_post_id: req.params.id})
+	.then(() => {
+		res.sendStatus(200);
+	})
+	.catch(error => {
+		res.json({error});
+	});
+});
+
+// Edit a post
+router.put('/post/:id/edit', function(req, res) {
+	var user_id = 150; //SESSION.id
+	db.none(sqlEditPost, {post_id: req.params.id, user_id: user_id, message: req.query.message})
+	.then(() => {
+		res.sendStatus(200);
 	})
 	.catch(error => {
 		res.json({error});
