@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../css/common.css";
-import { Container, Header, Form, Select } from "semantic-ui-react";
+import { Container, Header, Form, Select, Radio } from "semantic-ui-react";
 
 const radiusoptions = [
     {
@@ -29,7 +29,7 @@ class CreateService extends Component {
             location: "",
             acceptable_radius: "",
             mygrant_value: "",
-            service_type: "PROVIDE",
+            service_type: "",
             creator_id: "this.user"
         };
     }
@@ -44,7 +44,8 @@ class CreateService extends Component {
             category: "",
             location: "",
             acceptable_radius: "",
-            mygrant_value: ""
+            mygrant_value: "",
+            service_type: ""
         });
 
     render() {
@@ -53,7 +54,8 @@ class CreateService extends Component {
             category,
             location,
             acceptable_radius,
-            mygrant_value
+            mygrant_value,
+            service_type
         } = this.state;
 
         return (
@@ -95,6 +97,22 @@ class CreateService extends Component {
                             onChange={this.handleChange}
                             required
                         />
+                        <Form.Group inline>
+                            <Form.Radio
+                                label="Provide"
+                                name="service_type"
+                                value="PROVIDE"
+                                checked={this.state.service_type === "PROVIDE"}
+                                onChange={this.handleChange}
+                            />
+                            <Form.Radio
+                                label="Request"
+                                name="service_type"
+                                value="REQUEST"
+                                checked={this.state.service_type === "REQUEST"}
+                                onChange={this.handleChange}
+                            />
+                        </Form.Group>
                         <Form.Button content="Submit" />
                     </Form>
                 </div>
