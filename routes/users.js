@@ -27,10 +27,10 @@ router.get('/:id/friends', function(req, res) {
 		ON users.image_id=image.id`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.sendStatus(200).json({data});
+		res.status(200).json({data});
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 });
 
@@ -45,7 +45,7 @@ router.post('/add_friend/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 	
 });
@@ -62,7 +62,7 @@ router.delete('/add_friend/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 	
 });
@@ -79,10 +79,10 @@ router.get('/:id/blocked', function(req, res) {
 		WHERE blocked.blocker_id=$(user_id)`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.sendStatus(200).json({data});
+		res.status(200).json({data});
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 });
 
@@ -97,7 +97,7 @@ router.post('/block_user/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 	
 });
@@ -113,7 +113,7 @@ router.delete('/block_user/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.sendStatus(500).json({error});
+		res.status(500).json({error});
 	});
 	
 });
