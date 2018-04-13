@@ -77,8 +77,7 @@ router.put('/:id', function(req, res) {
 router.delete('/:id', function(req, res) {
     var id = req.params.id;
     var query = 
-        `Delete crowdfunding project:
-        DELETE FROM crowdfunding
+        `DELETE FROM crowdfunding
         WHERE id = $(id);`;
 
     db.none(query, {
@@ -107,27 +106,70 @@ router.get('/:id/rating', function(req, res) {
         res.status(200).json(data);
     }).catch(error => {
         res.status(500).json(error);
-    })
+    });
 });
 
 // Get all the crowdfunding projects.
 router.get('/', function(req, res) {
+    var query =
+        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name
+        FROM crowdfunding
+        INNER JOIN users ON users.id = crowdfunding.creator_id;`;
     
+    db.many(query)
+    .then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 // User donates to crowdfunding project.
 router.post('/:id/donate', function(req, res) {
-
+    var crowdfundingId = req.params.id;
+    var donatorId = req.body.donator_id;
+    var amount = req.body.amount;
+    var query = 
+        `INSERT INTO crowdfunding_donation (crowdfunding_id, donator_id, amount, date_sent)
+        VALUES ($(crowdfunding_id), $(donator_id), $(amount), now());`;
+    
+    db.none(query, {
+        crowdfunding_id: crowdfundingId,
+        donator_id: donatorId,
+        amount: amount
+    }).then(() => {
+        res.status(201).json('Successfully donated to crowdfunding.');
+    }).catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 // Gets all crowdfunding project's donations.
 router.get('/:id/donations', function(req, res) {
-
+    
 });
 
 // Rate a crowdfunding project.
 router.get('/:id/rate', function(req, res) {
-
+    var id = req.params.id;
+    var rating = req.body.rating;
+    var crowdfundingId = req.body.crowdfunding_id;
+    var donator_id = req.body.donatorId;
+    var query =
+        `UPDATE crowdfunding_donation
+        SET rating = $(rating)
+        WHERE crowdfunding_id = $(crowdfunding_id)
+            AND donator_id = $(donator_id);`;
+    
+    db.none(query, {
+        rating: rating,
+        crowdfunding_id: crowdfundingId,
+        donator_id: donatorId
+    }).then(() => {
+        res.status(200).send('Successfully rated the crowdfunding.');
+    }).catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 // Service creator offers a service to the crowdfunding creator.
