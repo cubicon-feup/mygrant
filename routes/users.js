@@ -27,15 +27,15 @@ router.get('/:id/friends', function(req, res) {
 		ON users.image_id=image.id`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.json({data});
+		res.sendStatus(200).json({data});
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
 // Add friend
-router.post('/friends/add/:id', function(req, res) {
+router.post('/add_friend/:id', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		INSERT INTO friend(user1_id, user2_id)
@@ -45,13 +45,13 @@ router.post('/friends/add/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
 
 // Remove friend
-router.delete('/friends/remove/:id', function(req, res) {
+router.delete('/add_friend/:id', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		DELETE FROM friend
@@ -62,7 +62,7 @@ router.delete('/friends/remove/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
@@ -79,15 +79,15 @@ router.get('/:id/blocked', function(req, res) {
 		WHERE blocked.blocker_id=$(user_id)`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.json({data});
+		res.sendStatus(200).json({data});
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
 // Block user
-router.post('/blocked/block/:id', function(req, res) {
+router.post('/block_user/:id', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		INSERT INTO blocked(blocker_id, target_id)
@@ -97,13 +97,13 @@ router.post('/blocked/block/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
 
 // Unblock user
-router.delete('/blocked/unblock/:id', function(req, res) {
+router.delete('/block_user/:id', function(req, res) {
 	var user_id = 1; //SESSION.id
 	const query = `
 		DELETE FROM blocked
@@ -113,7 +113,7 @@ router.delete('/blocked/unblock/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
