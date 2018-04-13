@@ -38,10 +38,10 @@ router.get('/', function(req, res) {
 		ORDER BY date_posted DESC`;
 	db.any(query, {user_id: 2})
 	.then(data => {
-		res.json({data});
+		res.sendStatus(200).json({data});
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -65,10 +65,10 @@ router.get('/user/:id', function(req, res) {
 		ORDER BY date_posted DESC`;
 	db.any(query, {user_id: req.params.id})
 	.then(data => {
-		res.json({data});
+		res.sendStatus(200).json({data});
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -83,7 +83,7 @@ router.post('/post', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -106,10 +106,10 @@ router.get('/post/:id', function(req, res) {
 		GROUP BY post.id, users.full_name, user_image.filename`;
 	db.any(query, {post_id: req.params.id})
 	.then(data => {
-		res.json({data});
+		res.sendStatus(200).json({data});
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -124,7 +124,7 @@ router.post('/post/:id/reply', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -140,7 +140,7 @@ router.put('/post/:id', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 });
 
@@ -159,7 +159,7 @@ router.post('/post/:id/like', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
@@ -175,7 +175,7 @@ router.delete('/post/:id/like', function(req, res) {
 		res.sendStatus(200);
 	})
 	.catch(error => {
-		res.json({error});
+		res.sendStatus(500).json({error});
 	});
 	
 });
