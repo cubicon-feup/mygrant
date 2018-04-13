@@ -16,14 +16,10 @@ ReactDom.render(
     <Router>
         <div>
             <MygrantHeader />
-            <Route exact="exact" path="/" component={App} />
-            <Route exact="exact" path="/login" component={Login} />
-            <Route exact="exact" path="/signup" component={Signup} />
-            <Route
-                exact="exact"
-                path="/createservice"
-                component={CreateService}
-            />
+            <Route exact path="/" component={App} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={Signup} />
+            <Route exact path="/createservice" component={CreateService} />
             <MygrantFooter />
         </div>
     </Router>,
