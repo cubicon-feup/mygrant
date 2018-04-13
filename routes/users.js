@@ -99,5 +99,10 @@ router.delete('/blocked/unblock/:id', function(req, res) {
 	
 });
 
+// Gets all the user's crowdfunding projects.
+router.get('/user/:id/crowdfundings', function(req, res) {
+
+});
+
 
 module.exports = router;
