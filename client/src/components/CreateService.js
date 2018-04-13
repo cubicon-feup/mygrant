@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import "../css/common.css";
-import { Container, Header, Form, Select, Radio } from "semantic-ui-react";
+import React, { Component } from 'react';
+import '../css/common.css';
+import { Container, Header, Form, Select, Radio } from 'semantic-ui-react';
 
 const radiusoptions = [
     {
-        key: "1",
-        text: "10km",
-        value: "10"
+        key: '1',
+        text: '10km',
+        value: '10'
     },
     {
-        key: "2",
-        text: "25km",
-        value: "25"
+        key: '2',
+        text: '25km',
+        value: '25'
     },
     {
-        key: "3",
-        text: "50km",
-        value: "50"
+        key: '3',
+        text: '50km',
+        value: '50'
     }
 ];
 
@@ -24,13 +24,13 @@ class CreateService extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            title: "",
-            category: "",
-            location: "",
-            acceptable_radius: "",
-            mygrant_value: "",
-            service_type: "",
-            creator_id: "this.user"
+            title: '',
+            category: '',
+            location: '',
+            acceptable_radius: '',
+            mygrant_value: '',
+            service_type: '',
+            creator_id: 'this.user'
         };
     }
 
@@ -38,14 +38,14 @@ class CreateService extends Component {
 
     handleSubmit = () =>
         this.setState({
-            email: "",
-            name: "",
-            title: "",
-            category: "",
-            location: "",
-            acceptable_radius: "",
-            mygrant_value: "",
-            service_type: ""
+            email: '',
+            name: '',
+            title: '',
+            category: '',
+            location: '',
+            acceptable_radius: '',
+            mygrant_value: '',
+            service_type: ''
         });
 
     render() {
@@ -102,14 +102,14 @@ class CreateService extends Component {
                                 label="Provide"
                                 name="service_type"
                                 value="PROVIDE"
-                                checked={this.state.service_type === "PROVIDE"}
+                                checked={this.state.service_type === 'PROVIDE'}
                                 onChange={this.handleChange}
                             />
                             <Form.Radio
                                 label="Request"
                                 name="service_type"
                                 value="REQUEST"
-                                checked={this.state.service_type === "REQUEST"}
+                                checked={this.state.service_type === 'REQUEST'}
                                 onChange={this.handleChange}
                             />
                         </Form.Group>
