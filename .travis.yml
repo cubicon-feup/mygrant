@@ -23,9 +23,5 @@ jobs:
       if: branch IN (develop, master)
 
 deploy: 
-  - provider: script
-    script: bash scripts/deploy_dev.sh
-    if: branch IN (develop)
-  - provider: script
-    script: bash scripts/deploy_prod.sh
-    if: branch IN (master)
+    provider: script
+    script: bash scripts/deploy.sh $TRAVIS_BRANCH
