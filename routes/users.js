@@ -40,7 +40,7 @@ router.post('/add_friend', function(req, res) {
 	const query = `
 		INSERT INTO friend(user1_id, user2_id)
 		VALUES ($(user1_id), $(user2_id))`;
-	db.none(query, {user1_id: user_id, user2_id: req.query.id})
+	db.none(query, {user1_id: user_id, user2_id: req.body.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -57,7 +57,7 @@ router.delete('/add_friend', function(req, res) {
 		DELETE FROM friend
 		WHERE (user1_id=$(user1_id) AND user2_id=$(user2_id))
 		OR (user1_id=$(user2_id) AND user2_id=$(user1_id))`;
-	db.none(query, {user1_id: user_id, user2_id: req.query.id})
+	db.none(query, {user1_id: user_id, user2_id: req.body.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -92,7 +92,7 @@ router.post('/block_user', function(req, res) {
 	const query = `
 		INSERT INTO blocked(blocker_id, target_id)
 		VALUES ($(blocker_id), $(target_id))`;
-	db.none(query, {blocker_id: user_id, target_id: req.query.id})
+	db.none(query, {blocker_id: user_id, target_id: req.body.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
@@ -108,7 +108,7 @@ router.delete('/block_user', function(req, res) {
 	const query = `
 		DELETE FROM blocked
 		WHERE blocker_id=$(blocker_id) AND target_id=$(target_id)`;
-	db.none(query, {blocker_id: user_id, target_id: req.query.id})
+	db.none(query, {blocker_id: user_id, target_id: req.body.id})
 	.then(() => {
 		res.sendStatus(200);
 	})
