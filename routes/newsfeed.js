@@ -49,7 +49,7 @@ router.get('/user/:id', function(req, res) {
 });
 
 // Create a post (missing images)
-router.put('/post', function(req, res) {
+router.post('/post', function(req, res) {
 	var user_id = 2; //SESSION.id
 	db.none(sqlCreatePost, {user_id: user_id, message: req.query.message, replied_post_id: null})
 	.then(() => {
@@ -72,7 +72,7 @@ router.get('/post/:id', function(req, res) {
 });
 
 // Reply to a post (missing images)
-router.put('/post/:id/reply', function(req, res) {
+router.post('/post/:id/reply', function(req, res) {
 	var user_id = 2; //SESSION.id
 	db.none(sqlCreatePost, {user_id: user_id, message: req.query.message, replied_post_id: req.params.id})
 	.then(() => {
@@ -96,11 +96,11 @@ router.put('/post/:id/edit', function(req, res) {
 });
 
 // Delete a post
-router.put('post/:id/delete', function(req, res) {
+router.delete('post/:id/delete', function(req, res) {
 });
 
 // Like a post
-router.put('/post/:id/like', function(req, res) {
+router.post('/post/:id/like', function(req, res) {
 	var user_id = 1;
 	db.none(sqlLikePost, {user_id: user_id, post_id: req.params.id})
 	.then(() => {
