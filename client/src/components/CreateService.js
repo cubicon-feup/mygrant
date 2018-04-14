@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../css/common.css';
-import { Container, Header, Form, Select, Radio } from 'semantic-ui-react';
+import { Container, Header, Form, Select } from 'semantic-ui-react';
 
 const radiusoptions = [
     {
@@ -30,13 +30,40 @@ class CreateService extends Component {
             acceptable_radius: '',
             mygrant_value: '',
             service_type: '',
-            creator_id: 'this.user'
+            creator_id: 'this.user',
+            touched: {
+                title: false,
+                category: false,
+                mygrant_value: false,
+                service_type: false
+            }
+        };
+        this.errors = {};
+    }
+
+    validInput() {
+        return {
+            title: this.state.title.length === 0,
+            category: this.state.category.length === 0,
+            mygrant_value: this.state.mygrant_value.length === 0,
+            service_type: this.state.service_type.length === 0
         };
     }
 
+    shouldMarkError(name) {
+        console.log(name, this.errors, this.state.touched);
+        return this.errors[name] ? this.state.touched[name] : false;
+    }
+
+    handleBlur = e => {
+        this.setState({
+            touched: { ...this.state.touched, [e.target.name]: true }
+        });
+    };
+
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    handleSubmit = () =>
+    handleSubmit = e =>
         this.setState({
             email: '',
             name: '',
@@ -49,14 +76,8 @@ class CreateService extends Component {
         });
 
     render() {
-        const {
-            title,
-            category,
-            location,
-            acceptable_radius,
-            mygrant_value,
-            service_type
-        } = this.state;
+        const { title, category, location, mygrant_value } = this.state;
+        this.errors = this.validInput();
 
         return (
             <Container className="main-container">
@@ -64,10 +85,14 @@ class CreateService extends Component {
                     <Header as="h1">Create a Service</Header>
                     <Form onSubmit={this.handleSubmit}>
                         <Form.Input
+                            className={
+                                this.shouldMarkError('title') ? 'error' : ''
+                            }
                             placeholder="Title"
                             name="title"
                             value={title}
                             onChange={this.handleChange}
+                            onBlur={this.handleBlur}
                             required
                         />
                         <Form.Input
