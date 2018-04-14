@@ -49,7 +49,7 @@ class CreateService extends Component {
         var initErrors = {};
         for (var name of this.required) {
             var t = { [name]: false };
-            var e = { [name]: this.invalidInput(name) };
+            var e = { [name]: true };
             initTouched = { ...initTouched, ...t };
             initErrors = { ...initErrors, ...e };
         }
