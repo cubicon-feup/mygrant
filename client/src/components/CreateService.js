@@ -54,7 +54,7 @@ class CreateService extends Component {
     }
 
     invalidInput(name) {
-        return this.state[name].length === 0;
+        return this.state[name].length < 3;
     }
 
     shouldMarkError(name) {
