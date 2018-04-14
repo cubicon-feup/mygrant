@@ -20,6 +20,9 @@ const radiusoptions = [
     }
 ];
 
+/**
+ * Creates the form that allows the creation of a new Service.
+ */
 class CreateService extends Component {
     constructor(props) {
         super(props);
@@ -37,6 +40,10 @@ class CreateService extends Component {
         this.required = ['title', 'category', 'mygrant_value', 'service_type'];
     }
 
+    /**
+     * When the component is ready,
+     * the touched and errors variables are initialized.
+     */
     componentDidMount() {
         var initTouched = {};
         var initErrors = {};
@@ -53,8 +60,12 @@ class CreateService extends Component {
         });
     }
 
-    invalidInput(name) {
-        return this.state[name].length < 3;
+    /**
+     * Checks if the user input is valid.
+     */
+    invalidInput(value) {
+        const test = /[^\wÀ-û\s]/;
+        return test.test(value) || value.length < 5;
     }
 
     shouldMarkError(name) {
@@ -72,7 +83,7 @@ class CreateService extends Component {
             [name]: value,
             errors: {
                 ...this.state.errors,
-                [name]: this.invalidInput(name)
+                [name]: this.invalidInput(value)
             }
         });
     };
@@ -109,10 +120,14 @@ class CreateService extends Component {
                             required
                         />
                         <Form.Input
+                            className={
+                                this.shouldMarkError('category') ? 'error' : ''
+                            }
                             placeholder="Category"
                             name="category"
                             value={category}
                             onChange={this.handleChange}
+                            onBlur={this.handleBlur}
                             required
                         />
                         <Form.Input
@@ -129,10 +144,16 @@ class CreateService extends Component {
                             onChange={this.handleChange}
                         />
                         <Form.Input
+                            className={
+                                this.shouldMarkError('mygrant_value')
+                                    ? 'error'
+                                    : ''
+                            }
                             placeholder="MyGrant Value"
                             name="mygrant_value"
                             value={mygrant_value}
                             onChange={this.handleChange}
+                            onBlur={this.handleBlur}
                             required
                         />
                         <Form.Group inline>
