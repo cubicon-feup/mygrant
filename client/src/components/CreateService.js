@@ -31,28 +31,34 @@ class CreateService extends Component {
             mygrant_value: '',
             service_type: '',
             creator_id: 'this.user',
-            touched: {
-                title: false,
-                category: false,
-                mygrant_value: false,
-                service_type: false
-            }
+            touched: {},
+            errors: {}
         };
-        this.errors = {};
+        this.required = ['title', 'category', 'mygrant_value', 'service_type'];
     }
 
-    validInput() {
-        return {
-            title: this.state.title.length === 0,
-            category: this.state.category.length === 0,
-            mygrant_value: this.state.mygrant_value.length === 0,
-            service_type: this.state.service_type.length === 0
-        };
+    componentDidMount() {
+        var initTouched = {};
+        var initErrors = {};
+        for (var name of this.required) {
+            var t = { [name]: false };
+            var e = { [name]: this.invalidInput(name) };
+            initTouched = { ...initTouched, ...t };
+            initErrors = { ...initErrors, ...e };
+        }
+
+        this.setState({
+            touched: initTouched,
+            errors: initErrors
+        });
+    }
+
+    invalidInput(name) {
+        return this.state[name].length === 0;
     }
 
     shouldMarkError(name) {
-        console.log(name, this.errors, this.state.touched);
-        return this.errors[name] ? this.state.touched[name] : false;
+        return this.state.errors[name] ? this.state.touched[name] : false;
     }
 
     handleBlur = e => {
@@ -61,7 +67,15 @@ class CreateService extends Component {
         });
     };
 
-    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+    handleChange = (e, { name, value }) => {
+        this.setState({
+            [name]: value,
+            errors: {
+                ...this.state.errors,
+                [name]: this.invalidInput(name)
+            }
+        });
+    };
 
     handleSubmit = e =>
         this.setState({
@@ -77,7 +91,6 @@ class CreateService extends Component {
 
     render() {
         const { title, category, location, mygrant_value } = this.state;
-        this.errors = this.validInput();
 
         return (
             <Container className="main-container">
