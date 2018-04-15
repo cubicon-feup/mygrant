@@ -14,13 +14,14 @@ import { MygrantHeader, MygrantFooter } from './components/Common';
 ReactDom.render(
     <Router>
         <div>
-            <MygrantHeader/>
-            <Route exact path="/" component={App}/>
-            <Route exact path="/login" component={Login}/>
-            <Route exact path="/signup" component={Signup}/>
-            <MygrantFooter/>
+            <MygrantHeader />
+            <Route exact path="/" component={App} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={Signup} />
+            <MygrantFooter />
         </div>
-    </Router>, document.getElementById('root')
-    );
+    </Router>,
+    document.getElementById('root')
+);
 
 registerServiceWorker();

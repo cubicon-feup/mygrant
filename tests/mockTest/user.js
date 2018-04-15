@@ -1,20 +1,17 @@
-let user = {
-    name : 'mark',
-    password : 'secret',
-    age : 27
+const user = {
+    name: 'mark',
+    password: 'secret',
+    age: 27
 };
 
-exports.getUser = () => {
-    return user;
-};
+exports.getUser = () => user;
 
-exports.setUser = (name,password,age) => {
+exports.setUser = (name, password, age) => {
     user.name = name;
     user.password = password;
     user.age = age;
 };
 
-
-exports.setName = (name) => {
+exports.setName = name => {
     user.name = name;
 };
