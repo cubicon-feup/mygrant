@@ -2,6 +2,16 @@
     "name": "mygrant",
     "version": "0.0.0",
     "private": true,
+    "babel": {
+        "env": {
+            "test": {
+                "plugins": ["transform-es2015-modules-commonjs"]
+            }
+        }
+    },
+    "jest": {
+        "testPathIgnorePatterns": ["<rootDir>/client"]
+    },
     "dependencies": {
         "cookie-parser": "~1.4.3",
         "debug": "~2.6.9",
@@ -13,19 +23,22 @@
         "pg-promise": "^8.2.2"
     },
     "devDependencies": {
+        "babel-cli": "^6.26.0",
         "babel-jest": "^22.4.3",
         "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
         "babel-preset-es2015": "^6.24.1",
-        "babel-preset-react": "^6.24.1",
         "eslint": "^4.19.1",
         "eslint-plugin-react": "^7.7.0",
         "jest": "^22.4.3",
-        "react-test-renderer": "^16.3.1",
+        "super": "^0.2.3",
+        "superagent": "^3.8.2",
+        "supertest": "^3.0.0",
         "nodemon": "^1.17.3"
     },
     "scripts": {
         "start": "node ./bin/www",
         "dev": "nodemon ./bin/www",
-        "test": "NODE_ENV=test jest"
+        "test": "jest"
     }
 }
