@@ -30,9 +30,17 @@ class App extends Component {
                         <Button fluid circular className="mygrant-button">Sign Up</Button>
                     </Grid.Column>
                 </Grid.Row>
-                <Grid.Row>
+                <Grid.Row textAlign="center" >
                     <Grid.Column></Grid.Column>
                     <Grid.Column>
+                        <Icon name="fas fa-circle" />
+                        <Icon name="fas fa-circle" />
+                        <Icon name="fas fa-circle" />
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column text-align="center" vertical-align="middle" >
                         <Button fluid circular color="facebook">
                             <Icon name="fab fa-facebook" />Log In with Facebook
                         </Button>

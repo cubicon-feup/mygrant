@@ -1,6 +1,8 @@
 /* Color settings */
 $green: #8EE8BC;
 $dark-green: #2EC88F;
+$purple: #482D4F;
+$grey: #696969;
 
 html, body {
   height: 100%;
@@ -19,7 +21,16 @@ html, body {
 
 /* Header Start */
 div.site-header {
+    height: 50px;
     border-bottom: 5px solid $green !important;
+
+    a {
+        color: $grey;
+    }
+
+    .item.header a {
+        color: $dark-green;
+    }    
 }
 /* Header End */
 
@@ -39,12 +50,4 @@ div.site-header {
 }
 /* Main Container End */
 
-button.ui.button.mygrant-button {
-    background-color: $dark-green;
-    color: white;
-
-    &:hover {
-        background-color: $green;
-    }
-}
 
