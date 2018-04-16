@@ -8,7 +8,7 @@ class MygrantHeader extends Component {
     render() {
         return (
             <Menu className="site-header" fixed="top">
-                <Menu.Item header name="mygrant" >Mygrant</Menu.Item>
+                <Menu.Item header name="mygrant" >mygrant</Menu.Item>
                 <Menu.Item position="right">
                     <Link to="/login">
                         Login

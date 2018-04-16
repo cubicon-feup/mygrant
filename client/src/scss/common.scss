@@ -1,14 +1,26 @@
+/* Color settings */
+$green: #8EE8BC;
+$dark-green: #2EC88F;
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
 }
+
+* {
+  font-family: Helvetica, sans-serif !important;
+}
+
 #root {
     min-height: 100%;
-    position: relative
+    position: relative;
 }
+
 /* Header Start */
+div.site-header {
+    border-bottom: 5px solid $green !important;
+}
 /* Header End */
 
 /* Footer Start */
@@ -26,3 +38,13 @@ html, body {
     padding-bottom: 75px;
 }
 /* Main Container End */
+
+button.ui.button.mygrant-button {
+    background-color: $dark-green;
+    color: white;
+
+    &:hover {
+        background-color: $green;
+    }
+}
+

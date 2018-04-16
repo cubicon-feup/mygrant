@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import logo from './../logo.svg';
+import { Button, Container, Grid, Icon } from 'semantic-ui-react';
 import '../css/App.css';
 
 class App extends Component {
@@ -16,14 +16,30 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">
-          {this.state.info.appName} developed for {this.state.info.client} by {this.state.info.company}
-          </h1>
-        </header>
-      </div>
+        <Container className="main-container">
+            <Grid columns={2}>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column>
+                        <Button fluid circular className="mygrant-button" >Log In</Button>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column>
+                        <Button fluid circular className="mygrant-button">Sign Up</Button>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column>
+                        <Button fluid circular color="facebook">
+                            <Icon name="fab fa-facebook" />Log In with Facebook
+                        </Button>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
+        </Container>
     );
   }
 }
