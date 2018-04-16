@@ -1,5 +1,11 @@
 @import 'common';
 
+/* Buttons section Start */
+
+div.landing-page-buttons {
+    margin-top: 100px;
+}
+
 button.ui.button.mygrant-button {
     background-color: $dark-green;
     color: white;
@@ -17,4 +23,13 @@ button.ui.button.mygrant-button {
         margin-left: 20px;
     }
 }
+
+/* Buttons section End */
+
+/* Intro section Start */
+div.app-intro.container {
+    margin: 100px 20px auto;
+}
+/* Intro section End */
+
 
