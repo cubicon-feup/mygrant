@@ -146,7 +146,20 @@ router.post('/:id/donate', function(req, res) {
 
 // Gets all crowdfunding project's donations.
 router.get('/:id/donations', function(req, res) {
-    
+    var crowdfundingId = req.params.id;
+    var query = 
+        `SELECT users.id as donator_id, full_name as donator_name, amount
+        FROM crowdfunding_donation
+        INNER JOIN users ON users.id = crowdfunding_donation.donator_id
+        WHERE crowdfunding_id = $(crowdfunding_id);`;
+
+    db.many(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json(error);
+    })
 });
 
 // Rate a crowdfunding project.
@@ -172,14 +185,85 @@ router.get('/:id/rate', function(req, res) {
     });
 });
 
+// Gets all the service offers for the crowdfunding.
+router.get('/:id/service_offer', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var query = 
+        `SELECT service_id, service.title as service_title, service.category as service_category, service.service_type
+        FROM crowdfunding_offer
+        INNER JOIN service ON service.id = crowdfunding_offer.service_id
+        WHERE crowdfunding_id = $(crowdfunding_id);`;
+
+    db.many(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json(error);
+    })
+});
+
 // Service creator offers a service to the crowdfunding creator.
 router.post('/:id/service_offer', function(req, res) {
-
+    var crowdfundingId = req.params.id;
+    var serviceId = req.body.service_id;
+    var query = 
+        `INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
+        VALUES ($(service_id), $(crowdfunding_id));`;
+    
+    db.none(query, {
+        service_id: serviceId,
+        crowdfunding_id: crowdfundingId
+    }).then(() => {
+        res.status(201).send('Successfully offered a service to the crowdfunding.');
+    }).catch(error => {
+        res.status(500).json(error);
+    })
 });
 
 // Deletes a service offer from the available offers.
 router.delete('/:id/service_offer', function(req, res) {
-
+    var crowdfundingId = req.params.id;
+    var serviceId = req.body.service_id;
+    var query = 
+        `DELETE FROM crowdfunding_offer
+        WHERE service_id = $(service_id)
+            AND crowdfunding_id = $(crowdfunding_id);`;
+    
+    db.none(query, {
+        service_id: serviceId,
+        crowdfunding_id: crowdfundingId
+    }).then(() => {
+        res.status(200).send('Successfully deleted the service offer.');
+    }).catch(error => {
+        res.status(500).json(error);
+    })
 });
+
+// SERVICE REQUESTED.
+// ===============================================================================
+
+// Get all services requested for the crowdfunding.
+router.get('/:id/service_requested', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var query = 
+        `SELECT title, mygrant_value, category
+        FROM service
+        WHERE service.crowdfunding_id = 1;`;
+    
+    db.many(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json(error);
+    })
+});
+
+router.post('/:id/service_requested', function(req, res) {
+
+    var query = 
+        `INSERT INTO `;
+})
 
 module.exports = router;
