@@ -3,13 +3,14 @@
 /* Buttons section Start */
 
 div.landing-page-buttons {
-    margin-top: 100px;
-    margin-bottom: 100px;
+    margin-top: 150px;
+    margin-bottom: 150px;
 }
 
 button.ui.button.mygrant-button {
     background-color: $dark-green;
     color: white;
+    height: 40px;
 
     &:hover {
         background-color: $green;
@@ -27,26 +28,71 @@ button.ui.button.mygrant-button {
 
 /* Buttons section End */
 
-/* Segment section Start */
-div.oneliner-container.container {
-    .oneliner-segment.segment {
-        h2 {
-            color: white;
-        }
+/* Segment sections Start */
+div.oneliner-container.container, div.use-case-container.container {
+    overflow: hidden; // Respect the height of the children
+    margin-bottom: 150px;
+
+    .segment {
         background-color: $purple;
         color: white;
-        padding: 30px 0 30px;
+
+        .header {
+            color: white;
+        }
+    }
+
+    .oneliner-segment.segment {
+
         width: 90%;
+
+        padding: 50px 0 50px;
         margin-right: 0;
+
         border-top-left-radius: 500em;
         border-bottom-left-radius: 500em;
     }
+
+    .use-case-segment.segment {
+        border-top-right-radius: 500em;
+        border-bottom-right-radius: 500em;
+
+        width: 80%;
+    }
 }
-/* Segment section End */
+/* Segment sections End */
 
 /* Intro section Start */
-div.app-intro.container {
-    margin: 100px 20px auto;
+.header.intro-header {
+    color: $dark-green;
+}
+
+div.intro-divider.divider {
+    min-height: 9px;
+    background-color: $purple;
+
+    &.first-divider {
+        width: 90%;
+        border-top-left-radius: 500em;
+        border-bottom-left-radius: 500em;
+        float: right;
+        margin-right: 0;
+    }
+
+    &.second-divider {
+        margin-top: 35px;
+        width: 20%;
+        border-top-right-radius: 500em;
+        border-bottom-right-radius: 500em;
+        margin-right: 0;
+        margin-bottom: 100px;
+    }
+}
+
+div.intro-container.container {
+    line-height: 2;
+    color: $grey;
+    margin-bottom: 150px;
 }
 /* Intro section End */
 
