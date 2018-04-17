@@ -21,26 +21,26 @@ class App extends Component {
 
             { /* Buttons Start */ }
             <Container className="landing-page-buttons" >
-                <Grid columns={3} > 
+                <Grid > 
                     <Grid.Row >
-                        <Grid.Column floated="right" >
+                        <Grid.Column computer={6} mobile={16} floated="right" >
                             <Button fluid circular className="mygrant-button" >Log In</Button>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row>
-                        <Grid.Column floated="right" >
+                        <Grid.Column computer={6} mobile={16} floated="right" >
                             <Button fluid circular className="mygrant-button">Sign Up</Button>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row textAlign="center" >
-                        <Grid.Column floated="right" >
+                        <Grid.Column computer={6} mobile={16} floated="right" >
                             <Icon name="fas fa-circle" />
                             <Icon name="fas fa-circle" />
                             <Icon name="fas fa-circle" />
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row>
-                        <Grid.Column floated="right" >
+                        <Grid.Column computer={6} mobile={16} floated="right" >
                             <Button fluid circular color="facebook" verticalAlign="middle" >
                                 <Icon name="fab fa-facebook-f" />Log In with Facebook
                             </Button>
