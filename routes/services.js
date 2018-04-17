@@ -303,7 +303,7 @@ router.put('/:id/images', function(req, res) {
         SELECT $(service_id), id FROM rows`;
     // place query
     db.any(query, {
-        "filename": filename
+        "filename": filename,
         "service_id": service_id
     })
     .then((data) => {
@@ -334,7 +334,7 @@ router.delete('/:id/images/:image', function(req, res) {
         WHERE id=$(image_id)`;
     // place query
     db.none(query, {
-        "service_id": service_id
+        "service_id": service_id,
         "image_id": image_id
     })
     .then(() => {
