@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
+// CROWDFUNDING.
+// ===============================================================================
+
 // Creates a crowdfunding project.
 router.post('/', function(req, res) {
     var title = req.body.title;
@@ -184,6 +187,21 @@ router.put('/:id/rate', function(req, res) {
     });
 });
 
+router.post('/:id/image', function(req, res) {
+    console.log('Entering here');
+    console.log(req.files);
+    if(!req.files)
+        return res.status(400).send('No files were uploaded.');
+    var picture = req.files.picture;
+    picture.mv('C:\Users\Evenilink\Documents\Faculdade\LGP\Project\images', function(error) {
+        if(error)
+            res.status(500).json({error});
+        else res.send('File uploaded.');
+    })
+
+
+})
+
 // SERVICES OFFERS.
 // ===============================================================================
 
@@ -310,6 +328,7 @@ router.delete('/:id/services_requested', function(req, res) {
 // ===============================================================================
 
 // Select a service from the available offered ones. This service is then instantiated as an agreed service.
+// FIXME: giving an error when trying out in Postman.
 router.post('/:id/services', function(req, res) {
     var crowdfundingId = req.params.id;
     var serviceId = req.body.service_id;
@@ -332,6 +351,7 @@ router.post('/:id/services', function(req, res) {
 });
 
 // Gets all the services that were already agreed to happen.
+// TODO: test.
 router.get('/:id/services', function(req, res) {
     var crowdfundingId = req.params.id;
     var query = 
@@ -351,6 +371,7 @@ router.get('/:id/services', function(req, res) {
 });
 
 // Deletes a service that was agreed to happen.
+// TODO: test.
 // TODO: is this desired behaviour?
 router.delete('/:id/services', function(req, res) {
     var crowdfundingId = req.params.id;
