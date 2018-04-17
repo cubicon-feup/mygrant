@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Container, Grid, Header, Icon, Segment } from 'semantic-ui-react';
+import { Button, Container, Grid, Header, Icon, Responsive, Segment } from 'semantic-ui-react';
 import { MygrantDivider } from './Common';
 import '../css/App.css';
 
@@ -18,6 +18,9 @@ class App extends Component {
   render() {
     return (
         <Container fluid className="main-container">
+
+            { /* Mobile only header */ }
+            <Responsive maxWidth={768} className="mobile-only-header" textAlign="center" size="huge" as={Header} >mygrant</Responsive>
 
             { /* Buttons Start */ }
             <Container className="landing-page-buttons" >
@@ -52,7 +55,9 @@ class App extends Component {
 
             { /* Segment Start */ }
             <Container fluid className="oneliner-container" >
-                <Segment floated="right" size="big" className="oneliner-segment" >
+
+                { /* Computer only start */ }
+                <Responsive as={Segment} minWidth={768} floated="right" size="big" className="oneliner-segment" >
                     <Grid columns={2} >
                         <Grid.Row >
                             <Grid.Column floated="right" textAlign="center" >
@@ -61,7 +66,22 @@ class App extends Component {
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
-                </Segment>
+                </Responsive>
+                { /* Computer only end */ }
+
+                { /* Mobile only start */ }
+                <Responsive as={Segment} maxWidth={768} fluid size="big" className="oneliner-segment-mobile" >
+                    <Grid >
+                        <Grid.Row >
+                            <Grid.Column textAlign="center" >
+                                <Header size="huge" >Glocal Exchange Trading System</Header>
+                                <Header.Subheader >Your service-based system for community building</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                </Responsive>
+                { /* Mobile only end */ }
+
             </Container>
             { /* Segment End */ }
 

@@ -7,6 +7,12 @@ div.landing-page-buttons {
     margin-bottom: 150px;
 }
 
+div.huge.header.mobile-only-header {
+    color: $dark-green;
+    margin-top: 2em;
+    margin-bottom: -4em;
+}
+
 button.ui.button.mygrant-button {
     background-color: $dark-green;
     color: white;
@@ -33,17 +39,24 @@ div.oneliner-container.container, div.use-case-container.container {
     overflow: hidden; // Respect the height of the children
     margin-bottom: 150px;
 
-    .segment {
-        background-color: $purple;
-        color: white;
-
+    .oneliner-segment-mobile.segment {
+        width: 100%;
+        color: $purple;
+        border: 0;
 
         .header {
-            color: white;
+            color: $purple;
         }
     }
 
     .oneliner-segment.segment {
+        background-color: $purple;
+        color: white;
+
+        .header {
+            color: white;
+        }
+
         width: 90%;
 
         padding-top: 50px;
