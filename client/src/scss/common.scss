@@ -100,6 +100,18 @@ div.mygrant-divider {
 }
 /* Footer End */
 
+/* Nav Start */
+div.site-nav-mobile {
+    border-top: 5px solid $green !important;
+    
+    .item.header {
+        color: $dark-green;
+        border: none;
+    }
+    text-align: center;
+}
+/* Nav End */
+
 /* Main Container Start */
 .main-container {
     padding-top: 75px;

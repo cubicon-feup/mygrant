@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Container, Grid, Header, Icon, Responsive, Segment } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import { MygrantDivider } from './Common';
 import '../css/App.css';
 
@@ -27,12 +28,12 @@ class App extends Component {
                 <Grid > 
                     <Grid.Row >
                         <Grid.Column computer={6} mobile={16} floated="right" >
-                            <Button fluid circular className="mygrant-button" >Log In</Button>
+                            <Link to='/login'><Button fluid circular className="mygrant-button" >Log In</Button></Link>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row>
                         <Grid.Column computer={6} mobile={16} floated="right" >
-                            <Button fluid circular className="mygrant-button">Sign Up</Button>
+                            <Link to='/signup'><Button fluid circular className="mygrant-button">Sign Up</Button></Link>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row textAlign="center" >
@@ -87,19 +88,19 @@ class App extends Component {
 
             { /* Intro Start */ }
             <Container fluid>
-                <Grid columns={6} >
+                <Grid >
                     <Grid.Row >
-                        <Grid.Column textAlign="center" >
+                        <Grid.Column mobile={16} computer={6} textAlign="center" >
                             <Header size="huge" className="intro-header" >What is mygrant?</Header>
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
             </Container>
-            <MygrantDivider className="intro-divider" color="purple" />
+            <Responsive as={MygrantDivider} minWidth={768} className="intro-divider" color="purple" />
             <Container className="intro-container" >
-                <Grid columns={2} >
+                <Grid >
                     <Grid.Row >
-                        <Grid.Column >
+                        <Grid.Column mobile={16} computer={2} >
                             Mygrant is a free and user-friendly platform for trading proximity services
                             in your local community and beyond.
                             Mygrant is inspired on “Fureai Kippu”, a Japanese currency created in 1995 by the Sawayaka Welfare
@@ -114,7 +115,8 @@ class App extends Component {
 
             { /* Use Cases Start */ }
             <Container fluid className="use-case-container" >
-                <Segment className="use-case-segment" >
+                { /* Computer only start */ }
+                <Responsive as={Segment} minWidth={768} className="use-case-segment" >
                     <Header as="h1" textAlign="center" >How we can help at home and abroad</Header>
                     <Grid columns={3} >
                         <Grid.Row textAlign="center" >
@@ -146,7 +148,52 @@ class App extends Component {
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
-                </Segment>
+                </Responsive>
+                { /* Computer only end */ }
+
+                { /* Mobile only start */ }
+                <Responsive as={Container} maxWidth={768} className="use-case-mobile" >
+                    <Header as="h1" textAlign="center" >How we can help at home and abroad</Header>
+                    <Grid>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="far fa-money-bill-alt fa-10x" /></p>
+                                <Header.Subheader>Acess a Trading System</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="fas fa-users fa-10x" /></p>
+                                <Header.Subheader >Crowdfund your community's activities</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="fas fa-wrench fa-10x" /></p>
+                                <Header.Subheader >Find useful services nearby</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="fas fa-university fa-10x" /></p>
+                                <Header.Subheader >Get administrative and cultural help</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="fas fa-info-circle fa-10x" /></p>
+                                <Header.Subheader >Get info from local agents</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="far fa-compass fa-10x" /></p>
+                                <Header.Subheader >Discover places that don't come in guidebooks</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                </Responsive>
+                { /* Mobile only end */ }
             </Container>
             { /* Use Cases End */ }
         </Container>

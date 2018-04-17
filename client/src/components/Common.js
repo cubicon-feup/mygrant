@@ -49,8 +49,19 @@ class MygrantFooter extends Component {
     }
 }
 
+class MygrantNav extends Component {
+    render() {
+        return (
+            <Menu borderless className="site-nav-mobile" fixed="bottom" textAlign="center" >
+                <Menu.Item header as="h2" textAlign="center" name="mygrant" >mygrant</Menu.Item>
+            </Menu>
+        );
+    }
+}
+
 export {
-    MygrantHeader,
     MygrantDivider,
-    MygrantFooter
+    MygrantFooter,
+    MygrantHeader,
+    MygrantNav
 };

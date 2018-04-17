@@ -9,7 +9,7 @@ div.landing-page-buttons {
 
 div.huge.header.mobile-only-header {
     color: $dark-green;
-    margin-top: 2em;
+    margin-top: -1em;
     margin-bottom: -4em;
 }
 
@@ -91,6 +91,18 @@ div.oneliner-container.container, div.use-case-container.container {
     }
 }
 /* Segment sections End */
+
+/* Use case segment mobile start */
+div.use-case-mobile.container {
+    .header {
+        color: $dark-green;
+    }
+
+    .sub.header {
+        color: $grey;
+    }
+}
+/* Use case segment mobile end */
 
 /* Intro section Start */
 .header.intro-header {
