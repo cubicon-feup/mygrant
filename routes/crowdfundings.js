@@ -4,7 +4,6 @@ var db = require('../config/database');
 
 // Creates a crowdfunding project.
 router.post('/', function(req, res) {
-    console.log(req);
     var title = req.body.title;
     var description = req.body.description;
     var category = req.body.category;
@@ -246,23 +245,6 @@ router.delete('/:id/services_offers', function(req, res) {
 // SERVICE REQUESTED.
 // ===============================================================================
 
-// Get all services requested for the crowdfunding.
-router.get('/:id/services_requested', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var query = 
-        `SELECT title, mygrant_value, category
-        FROM service
-        WHERE service.crowdfunding_id = 1;`;
-    
-    db.many(query, {
-        crowdfunding_id: crowdfundingId
-    }).then(data => {
-        res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error});
-    })
-});
-
 // Create a new service request for the crowdfunding.
 router.post('/:id/services_requested', function(req, res) {
     var crowdfundingId = req.params.id;    
@@ -291,18 +273,101 @@ router.post('/:id/services_requested', function(req, res) {
     })
 });
 
+// Get all services requested for the crowdfunding.
 router.get('/:id/services_requested', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var query = 
+        `SELECT title, mygrant_value, category
+        FROM service
+        WHERE service.crowdfunding_id = 1;`;
+    
+    db.many(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+});
 
-    var query
+// Deletes a service request from the services that the crowdfunding creator is looking to get. 
+router.delete('/:id/services_requested', function(req, res) {
+    var serviceId = req.body.service_id;
+    var query = 
+        `DELETE FROM service
+        WHERE id = $(service_id)`;
+    
+    db.none(query, {
+        service_id: serviceId
+    }).then(() => {
+        res.status(200).send('Successfully removed the service.');
+    }).catch(error => {
+        res.status(500).json({error});
+    })
 });
 
 // SERVICES ACCORDED
 // ===============================================================================
 
-// Select a service from the available ones.
+// Select a service from the available offered ones. This service is then instantiated as an agreed service.
 router.post('/:id/services', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var serviceId = req.body.service_id;
+    var partnerId = req.body.partner_id;
+    //var dateScheduled = req.body.date_scheduled;    // Format: 'yyyy-mm-dd hh:m:ss'.
     var query = 
-        ``;
+        `INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_agreed, date_scheduled)
+        VALUES ($(service_id), $(partner_id), $(crowdfunding_id), now(), now() + interval '1 week');`;
+    
+    db.none(query, {
+        service_id: serviceId,
+        partner_id: partnerId,
+        crowdfunding_id: crowdfundingId,
+        //date_scheduled: dateScheduled
+    }).then(() => {
+        res.status(201).send('Successfully agreed with a service for the crowdfunding.');
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+});
+
+// Gets all the services that were already agreed to happen.
+router.get('/:id/services', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var query = 
+        `SELECT service_instance.service_id, service_instance.date_scheduled, service_instance.partner_id, service.title, service.mygrant_value, service.description, users.full_name as user_full_name
+        FROM service_instance
+        INNER JOIN service ON service.id = service_instance.service_id
+        INNER JOIN users ON users.id = service_instance.partner_id
+        WHERE service_instance.crowdfunding_id = $(crowdfunding_id);`;
+
+    db.many(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+});
+
+// Deletes a service that was agreed to happen.
+// TODO: is this desired behaviour?
+router.delete('/:id/services', function(req, res) {
+    var crowdfundingId = req.params.id;
+    var serviceId = req.body.service_id;
+    var query = 
+        `DELETE FROM service_instance
+        WHERE service_id = $(service_id)
+            AND crowdfunding_id = $(crowdfunding_id);`;
+
+    db.none(query, {
+        service_id: serviceId,
+        crowdfunding_id: crowdfundingId
+    }).then(() => {
+        res.status(200).send('Successfully deleted the service instance');
+    }).catch(error => {
+        res.status(500).json({error});
+    })
 })
 
 module.exports = router;
