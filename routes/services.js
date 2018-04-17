@@ -365,7 +365,7 @@ router.get('/:id/offers', function(req, res) {
     }
     // define query
     const query = `
-        SELECT users.id as requester_id, users.full_name as requester_name, 
+        SELECT users.id as requester_id, users.full_name as requester_name
         FROM users
         INNER JOIN service_offer ON service_offer.candidate_id = users.id
         INNER JOIN service ON service_offer.service_id = service.id
@@ -396,12 +396,11 @@ router.get('/:id/offers/:candidate', function(req, res) {
     }
     // define query
     const query = `
-        SELECT users.id as requester_id, users.full_name as requester_name, 
+        SELECT users.id as requester_id, users.full_name as requester_name
         FROM users
         INNER JOIN service_offer ON service_offer.candidate_id = users.id
         INNER JOIN service ON service_offer.service_id = service.id
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
-        // service.id = $(service_id) is redundant
     // place query
     db.any(query, {
         "service_id": service_id,
@@ -419,7 +418,6 @@ router.get('/:id/offers/:candidate', function(req, res) {
 // Pick an offer.
 router.post('/:id/offers/:candidate', function(req, res) {
     // TODO
-
 });
 
 
@@ -435,6 +433,7 @@ router.delete('/:id/offers/:candidate', function(req, res) {
         return;
     }
     // define query
+    // TODO: constraint problem
     const query = `
         DELETE FROM service_offer
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
