@@ -84,28 +84,6 @@ div.oneliner-container.container, div.use-case-container.container {
     color: $dark-green;
 }
 
-div.intro-divider.divider {
-    min-height: 9px;
-    background-color: $purple;
-
-    &.first-divider {
-        width: 90%;
-        border-top-left-radius: 500em;
-        border-bottom-left-radius: 500em;
-        float: right;
-        margin-right: 0;
-    }
-
-    &.second-divider {
-        margin-top: 35px;
-        width: 20%;
-        border-top-right-radius: 500em;
-        border-bottom-right-radius: 500em;
-        margin-right: 0;
-        margin-bottom: 100px;
-    }
-}
-
 div.intro-container.container {
     line-height: 2;
     color: $grey;

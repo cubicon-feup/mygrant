@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Container, Divider, Grid, Header, Icon, Segment } from 'semantic-ui-react';
+import { Button, Container, Grid, Header, Icon, Segment } from 'semantic-ui-react';
+import { MygrantDivider } from './Common';
 import '../css/App.css';
 
 class App extends Component {
@@ -74,8 +75,7 @@ class App extends Component {
                     </Grid.Row>
                 </Grid>
             </Container>
-            <Divider className="intro-divider first-divider" />
-            <Divider className="intro-divider second-divider" />
+            <MygrantDivider className="intro-divider" color="purple" />
             <Container className="intro-container" >
                 <Grid columns={2} >
                     <Grid.Row >
@@ -129,7 +129,6 @@ class App extends Component {
                 </Segment>
             </Container>
             { /* Use Cases End */ }
-
         </Container>
     );
   }
