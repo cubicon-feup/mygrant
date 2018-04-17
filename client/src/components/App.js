@@ -94,17 +94,39 @@ class App extends Component {
 
             { /* Use Cases Start */ }
             <Container fluid className="use-case-container" >
-                <Segment size="massive" className="use-case-segment" >
-                    <Header size="big" textAlign="center" >How we can help at home and abroad</Header>
+                <Segment className="use-case-segment" >
+                    <Header as="h1" textAlign="center" >How we can help at home and abroad</Header>
+                    <Grid columns={3} >
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="far fa-money-bill-alt fa-10x" /></p>
+                                <Header.Subheader>Acess a Trading System</Header.Subheader>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <p><Icon className="fas fa-users fa-10x" /></p>
+                                <Header.Subheader >Crowdfund your community's activities</Header.Subheader>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <p><Icon className="fas fa-wrench fa-10x" /></p>
+                                <Header.Subheader >Find useful services nearby</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row textAlign="center" >
+                            <Grid.Column>
+                                <p><Icon className="fas fa-university fa-10x" /></p>
+                                <Header.Subheader >Get administrative and cultural help</Header.Subheader>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <p><Icon className="fas fa-info-circle fa-10x" /></p>
+                                <Header.Subheader >Get info from local agents</Header.Subheader>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <p><Icon className="far fa-compass fa-10x" /></p>
+                                <Header.Subheader >Discover places that don't come in guidebooks</Header.Subheader>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                 </Segment>
-                <Grid columns={3} textAlign="center" >
-                    <Grid.Row >
-                        <Grid.Column>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row >
-                    </Grid.Row>
-                </Grid>
             </Container>
             { /* Use Cases End */ }
 

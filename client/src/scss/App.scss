@@ -37,16 +37,18 @@ div.oneliner-container.container, div.use-case-container.container {
         background-color: $purple;
         color: white;
 
+
         .header {
             color: white;
         }
     }
 
     .oneliner-segment.segment {
-
         width: 90%;
 
-        padding: 50px 0 50px;
+        padding-top: 50px;
+        padding-bottom: 50px;
+
         margin-right: 0;
 
         border-top-left-radius: 500em;
@@ -54,10 +56,25 @@ div.oneliner-container.container, div.use-case-container.container {
     }
 
     .use-case-segment.segment {
+        .row {
+            margin-bottom: 75px;
+        }
+
+        div.sub.header {
+            margin-top: 25px;
+            font-size: 1.1em;
+        }
+
         border-top-right-radius: 500em;
         border-bottom-right-radius: 500em;
 
+        padding-top: 100px;
+        padding-bottom: 25px;;
+
         width: 80%;
+        padding-right: 150px;
+
+        box-shadow: 0 0 4000px 100px $green;
     }
 }
 /* Segment sections End */
