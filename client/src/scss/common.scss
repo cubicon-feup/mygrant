@@ -1,28 +1,122 @@
+/* Color settings */
+$green: #8EE8BC;
+$dark-green: #2EC88F;
+$purple: #482D4F;
+$grey: #696969;
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
 }
+
+* {
+  font-family: Helvetica, sans-serif !important;
+}
+
 #root {
     min-height: 100%;
-    position: relative
+    position: relative;
 }
+
 /* Header Start */
+div.site-header {
+    height: 50px;
+    border-bottom: 5px solid $green !important;
+
+    a {
+        color: $purple;
+    }
+
+    .item.header a {
+        color: $dark-green;
+    }    
+}
 /* Header End */
+
+/* Divider Start */
+div.mygrant-divider {
+
+    &.green {
+        .divider {
+            background-color: $green;
+        }
+    }
+
+    &.purple {
+        .divider {
+            background-color: $purple;
+        }
+    }
+
+    .divider {
+        min-height: 9px;
+    }
+
+    .first-divider.divider {
+    border: 0;
+    box-shadow: 0;
+        width: 90%;
+        border-top-left-radius: 500em;
+        border-bottom-left-radius: 500em;
+        float: right;
+        margin-right: 0;
+    }
+
+    .second-divider.divider {
+    border: 0;
+    box-shadow: 0;
+        margin-top: 35px;
+        width: 20%;
+        border-top-right-radius: 500em;
+        border-bottom-right-radius: 500em;
+        margin-right: 0;
+        margin-bottom: 100px;
+    }
+}
+/* Divider End */
 
 /* Footer Start */
 .container.site-footer {
     position: absolute;
     bottom: 0;
     left: 0;
+    padding-bottom: 50px;
     width: 100%;
+
+    .mygrant-divider {
+        margin-bottom: -35px;
+    }
+
+    .header {
+        color: $dark-green;
+        padding-left: 30px;
+        margin-bottom: -20px;
+    }
+
+    .sub.header {
+        color: $grey;
+    }
 }
 /* Footer End */
+
+/* Nav Start */
+div.site-nav-mobile {
+    border-top: 5px solid $green !important;
+    
+    .item.header {
+        color: $dark-green;
+        border: none;
+    }
+    text-align: center;
+}
+/* Nav End */
 
 /* Main Container Start */
 .main-container {
     padding-top: 75px;
-    padding-bottom: 75px;
+    padding-bottom: 150px;
 }
 /* Main Container End */
+
+
