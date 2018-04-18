@@ -41,7 +41,7 @@ router.get('/:id', function(req, res) {
                 SELECT rating
                 FROM crowdfunding_donation
                 WHERE crowdfunding_id = $(id)
-            ) as total_ratings)
+            ) as total_ratings), ARRAY( SELECT filename FROM crowdfunding_image WHERE crowdfunding_id = $(id)) as images
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE crowdfunding.id = $(id);`;
@@ -194,11 +194,23 @@ router.put('/:id/rate', function(req, res) {
 });
 
 router.post('/:id/image', function(req, res) {
-    let uploaded = image.uploadImage(req, res);
-    if(uploaded) {
-        
+    let filename = image.uploadImage(req, res, 'crowdfunding/');
+    if(filename !== false) {
+        let crowdfundingId = req.params.id;
+        let query = 
+            `INSERT INTO crowdfunding_image (crowdfunding_id, filename)
+            VALUES ($(crowdfunding_id), $(filename));`;
+
+        db.none(query, {
+            crowdfunding_id: crowdfundingId,
+            filename: filename
+        });
     }
-})
+});
+
+router.delete('/:id/image', function(req, res) {
+
+});
 
 // SERVICES OFFERS.
 // ===============================================================================
