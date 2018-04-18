@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+var image = require('../images/Image');
 
 // CROWDFUNDING.
 // ===============================================================================
@@ -188,18 +189,10 @@ router.put('/:id/rate', function(req, res) {
 });
 
 router.post('/:id/image', function(req, res) {
-    console.log('Entering here');
-    console.log(req.files);
-    if(!req.files)
-        return res.status(400).send('No files were uploaded.');
-    var picture = req.files.picture;
-    picture.mv('C:\Users\Evenilink\Documents\Faculdade\LGP\Project\images', function(error) {
-        if(error)
-            res.status(500).json({error});
-        else res.send('File uploaded.');
-    })
-
-
+    let uploaded = image.uploadImage(req, res);
+    if(uploaded) {
+        
+    }
 })
 
 // SERVICES OFFERS.
