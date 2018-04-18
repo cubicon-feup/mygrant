@@ -36,7 +36,12 @@ router.post('/', function(req, res) {
 router.get('/:id', function(req, res) {
     var id = req.params.id;
     var query = 
-        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name
+        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, ( SELECT avg (total_ratings.rating) as average_rating
+            FROM (
+                SELECT rating
+                FROM crowdfunding_donation
+                WHERE crowdfunding_id = $(id)
+            ) as total_ratings)
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE crowdfunding.id = $(id);`;
@@ -115,7 +120,7 @@ router.get('/:id/rating', function(req, res) {
 // Get all the crowdfunding projects.
 router.get('/', function(req, res) {
     var query =
-        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name
+        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
     
