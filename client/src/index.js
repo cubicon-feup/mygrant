@@ -10,17 +10,19 @@ import App from "./components/App";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import CreateService from "./components/CreateService";
-import { MygrantHeader, MygrantFooter } from "./components/Common";
+import { Responsive } from "semantic-ui-react";
+import { MygrantFooter, MygrantHeader, MygrantNav } from "./components/Common";
 
 ReactDom.render(
     <Router>
         <div>
-            <MygrantHeader />
+            <Responsive as={MygrantHeader} minWidth={768} />
             <Route exact path="/" component={App} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <Route exact path="/createservice" component={CreateService} />
-            <MygrantFooter />
+            <Responsive as={MygrantFooter} minWidth={768} />
+            <Responsive as={MygrantNav} maxWidth={768} />
         </div>
     </Router>,
     document.getElementById("root")
