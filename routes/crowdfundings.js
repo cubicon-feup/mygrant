@@ -209,7 +209,21 @@ router.post('/:id/image', function(req, res) {
 });
 
 router.delete('/:id/image', function(req, res) {
-
+    let crowdfundingId = req.params.id;
+    let filename = req.body.filename;
+    let query = 
+        `DELETE FROM crowdfunding_image
+        WHERE crowdfunding_id = $(crowdfunding_id)
+            AND filename = $(filename)`;
+    
+    db.none(query, {
+        crowdfunding_id: crowdfundingId,
+        filename: filename
+    }).then(() => {
+        res.status(200).send('Successfully deleted an image.');
+    }).catch(error => {
+        res.status(500).send({error});
+    })
 });
 
 // SERVICES OFFERS.
