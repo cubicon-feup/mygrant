@@ -81,11 +81,11 @@ router.get('/:id', function(req, res) {
         INNER JOIN users on users.id = service.creator_id
         WHERE service.id = $(id)`;
     // place query
-    db.none(query, {
+    db.any(query, {
         "id": id
     })
-    .then(() => {
-        res.sendStatus(200);
+    .then((data) => {
+        res.status(200).json({data});
     })
     .catch(error => {
         res.status(500).json(error);
@@ -109,7 +109,7 @@ router.put('/', function(req, res) {
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
     }  
     catch(err) {
-        res.sendStatus(400).json({"error": err.toString()});
+        res.status(400).json({"error": err.toString()});
         return;
     }
     // define query
@@ -188,14 +188,14 @@ router.put('/:id', function(req, res) {
         query_obj.service_type = req.body.service_type;
 
     // does the client want to change the creator_id?
-    if (req.body.hasOwnProperty('creator_id')) 
+    /*if (req.body.hasOwnProperty('creator_id')) 
         query += ` creator_id=$(creator_id),`;
-        query_obj.creator_id = req.body.creator_id;
+        query_obj.creator_id = req.body.creator_id;*/
 
     // does the client want to change the crowdfunding_id?
-    if (req.body.hasOwnProperty('crowdfunding_id')) 
+    /*if (req.body.hasOwnProperty('crowdfunding_id')) 
         query += ` crowdfunding_id=$(crowdfunding_id),`;
-        query_obj.crowdfunding_id = req.body.crowdfunding_id;
+        query_obj.crowdfunding_id = req.body.crowdfunding_id;*/
 
     // check if query has changed at all
     if (query == `UPDATE service SET`){
@@ -265,7 +265,7 @@ router.get('/:id/images', function(req, res) {
     }
     // define query
     const query = `
-        SELECT image.filename
+        SELECT image.id, image.filename
         FROM image
         INNER JOIN service_image ON service_image.image_id = image.id
         WHERE service_image.service_id = $(id)`;
@@ -416,8 +416,36 @@ router.get('/:id/offers/:candidate', function(req, res) {
 
 
 // Pick an offer.
-router.post('/:id/offers/:candidate', function(req, res) {
-    // TODO
+router.post('/:id/offers/choose', function(req, res) {
+    // check for valid input
+    try {
+        var service_id = req.params.id;
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        var date_scheduled = req.body.date_scheduled;
+    }
+    catch(err) {
+        res.status(400).json({"error": err.toString()});
+        return;
+    }
+    // define query 
+    // TODO: fix db constraint error
+    const query = ` 
+        INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
+        VALUES ($(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled));`;
+    // place query
+    db.none(query, {
+        "service_id": service_id,
+        "partner_id": partner_id,
+        "crowdfunding_id": crowdfunding_id,
+        "date_scheduled": date_scheduled
+    })
+    .then(() => {
+        res.sendStatus(200);
+    })
+    .catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 
@@ -433,7 +461,7 @@ router.delete('/:id/offers/:candidate', function(req, res) {
         return;
     }
     // define query
-    // TODO: constraint problem
+    // TODO: fix db constraint error
     const query = `
         DELETE FROM service_offer
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
