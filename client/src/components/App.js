@@ -100,7 +100,7 @@ class App extends Component {
             <Container className="intro-container" >
                 <Grid >
                     <Grid.Row >
-                        <Grid.Column mobile={16} computer={2} >
+                        <Grid.Column mobile={16} computer={8} >
                             Mygrant is a free and user-friendly platform for trading proximity services
                             in your local community and beyond.
                             Mygrant is inspired on “Fureai Kippu”, a Japanese currency created in 1995 by the Sawayaka Welfare
