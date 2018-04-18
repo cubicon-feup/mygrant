@@ -4,17 +4,18 @@ import { Link } from 'react-router-dom';
 import { MygrantDivider } from './Common';
 import '../css/App.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { info: [] };
-  }
 
-  componentDidMount() {
-    fetch('/api/app_info')
-      .then(res => res.json())
-      .then(info => this.setState({ info }));
-  }
+class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { info: [] };
+    }
+
+    componentDidMount() {
+        fetch('/api/app_info')
+            .then(res => res.json())
+            .then(info => this.setState({ info }));
+    }
 
   render() {
     return (
