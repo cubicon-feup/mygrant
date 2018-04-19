@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
     const limit = 10;
     // define query
     const query = `
-        SELECT service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name
+        SELECT service.id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name
         FROM service
         INNER JOIN users on users.id = service.creator_id
         LIMIT $(limit)`;
@@ -81,7 +81,7 @@ router.get('/:id', function(req, res) {
         INNER JOIN users on users.id = service.creator_id
         WHERE service.id = $(id)`;
     // place query
-    db.any(query, {
+    db.one(query, {
         "id": id
     })
     .then((data) => {
