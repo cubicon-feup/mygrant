@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+import '../css/App.css';
 import { Container, Header, Form, Select } from 'semantic-ui-react';
 
 const radiusoptions = [

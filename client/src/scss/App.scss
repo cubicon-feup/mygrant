@@ -7,7 +7,6 @@ div.landing-page-buttons {
     margin-bottom: 150px;
 }
 
-
 div.huge.header.mobile-only-header {
     color: $dark-green;
     margin-top: 0em;
@@ -36,7 +35,8 @@ button.ui.button.mygrant-button {
 /* Buttons section End */
 
 /* Segment sections Start */
-div.oneliner-container.container, div.use-case-container.container {
+div.oneliner-container.container,
+div.use-case-container.container {
     overflow: hidden; // Respect the height of the children
     margin-bottom: 150px;
 
@@ -89,7 +89,7 @@ div.oneliner-container.container, div.use-case-container.container {
         border-bottom-right-radius: 500em;
 
         padding-top: 100px;
-        padding-bottom: 25px;;
+        padding-bottom: 25px;
 
         width: 80%;
         padding-right: 150px;
@@ -127,4 +127,7 @@ div.intro-container.container {
 }
 /* Intro section End */
 
-
+.modal-container {
+    display: flex;
+    height: 0vh;
+}
