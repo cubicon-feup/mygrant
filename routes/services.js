@@ -20,11 +20,9 @@ router.get('/', function(req, res) {
         INNER JOIN users on users.id = service.creator_id
         LIMIT $(limit)`;
     // place query
-    db.any(query, {
-        "limit": limit
-    })
+    db.any(query, { limit })
     .then(data => {
-        res.status(200).json({data});
+        res.status(200).json({ data });
     })
     .catch(error => {
         res.status(500).json(error);
@@ -34,16 +32,13 @@ router.get('/', function(req, res) {
 
 // Search service by various parameters
 // filters: by name, by date, by distance, by popularity, by user
-router.get(['/search/:q','/search'], function(req, res) 
-{    // check for valid input
+router.get(['/search/:q','/search'], function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q : req.params.q;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
-
     // define query
     const query = `
         SELECT service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name
@@ -52,11 +47,9 @@ router.get(['/search/:q','/search'], function(req, res)
         WHERE to_tsvector(service.title || '. ' || service.description || '. ' || service.location || '. ' || users.full_name) @@ to_tsquery($(q))`;
 
     // place query
-    db.any(query, {
-        "q": q
-    })
-    .then((data) => {
-        res.status(200).json({data});
+    db.any(query, { q })
+    .then(data => {
+        res.status(200).json({ data });
     })
     .catch(error => {
         res.status(500).json(error);
@@ -69,9 +62,8 @@ router.get('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -81,11 +73,9 @@ router.get('/:id', function(req, res) {
         INNER JOIN users on users.id = service.creator_id
         WHERE service.id = $(id)`;
     // place query
-    db.one(query, {
-        "id": id
-    })
-    .then((data) => {
-        res.status(200).json({data});
+    db.one(query, { id })
+    .then(data => {
+        res.status(200).json({ data });
     })
     .catch(error => {
         res.status(500).json(error);
@@ -107,9 +97,8 @@ router.put('/', function(req, res) {
         // check either for provider or crowdfunder
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-    }  
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -118,15 +107,15 @@ router.put('/', function(req, res) {
         VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id))`;
     // place query
     db.none(query, {
-        "title": title,
-        "description": description,
-        "category": category,
-        "location": location,
-        "acceptable_radius": acceptable_radius,
-        "mygrant_value": mygrant_value,
-        "service_type": service_type,
-        "creator_id": creator_id,
-        "crowdfunding_id": crowdfunding_id
+        title,
+        description,
+        category,
+        location,
+        acceptable_radius,
+        mygrant_value,
+        service_type,
+        creator_id,
+        crowdfunding_id
     })
     .then(() => {
         res.sendStatus(200);
@@ -142,71 +131,77 @@ router.put('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
-    }
-    catch(err) {
-        res.sendStatus(400).json({"error": err.toString()});
+    } catch (err) {
+        res.sendStatus(400).json({ 'error': err.toString() });
         return;
     }
 
     // define initial query & query object
-    let query = `UPDATE service SET`; //edit_history=array_append(edit_history, message), message=$(message)
-    let query_obj = {"id": req.params.id};
+    let query = 'UPDATE service SET'; // edit_history=array_append(edit_history, message), message=$(message)
+    const query_obj = { 'id': req.params.id };
 
     // does the client want to change the title?
-    if (req.body.hasOwnProperty('title')) 
-        query += ` title=$(title),`;
+    if (req.body.hasOwnProperty('title')) {
+        query += ' title=$(title),';
         query_obj.title = req.body.title;
+    }
 
     // does the client want to change the description?
-    if (req.body.hasOwnProperty('description')) 
-        query += ` description=$(description),`;
+    if (req.body.hasOwnProperty('description')) {
+        query += ' description=$(description),';
         query_obj.description = req.body.description;
+    }
 
     // does the client want to change the category?
-    if (req.body.hasOwnProperty('category')) 
-        query += ` category=$(category),`;
+    if (req.body.hasOwnProperty('category')) {
+        query += ' category=$(category),';
         query_obj.category = req.body.category;
+    }
 
     // does the client want to change the location?
-    if (req.body.hasOwnProperty('location')) 
-        query += ` location=$(location),`;
+    if (req.body.hasOwnProperty('location')) {
+        query += ' location=$(location),';
         query_obj.location = req.body.location;
+    }
 
     // does the client want to change the acceptable_radius?
-    if (req.body.hasOwnProperty('acceptable_radius')) 
-        query += ` acceptable_radius=$(acceptable_radius),`;
+    if (req.body.hasOwnProperty('acceptable_radius')) {
+        query += ' acceptable_radius=$(acceptable_radius),';
         query_obj.acceptable_radius = req.body.acceptable_radius;
+    }
 
     // does the client want to change the mygrant_value?
-    if (req.body.hasOwnProperty('mygrant_value')) 
-        query += ` mygrant_value=$(mygrant_value),`;
+    if (req.body.hasOwnProperty('mygrant_value')) {
+        query += ' mygrant_value=$(mygrant_value),';
         query_obj.mygrant_value = req.body.mygrant_value;
+    }
 
     // does the client want to change the service_type?
-    if (req.body.hasOwnProperty('service_type')) 
-        query += ` service_type=$(service_type),`;
+    if (req.body.hasOwnProperty('service_type')) {
+        query += ' service_type=$(service_type),';
         query_obj.service_type = req.body.service_type;
+    }
 
     // does the client want to change the creator_id?
-    /*if (req.body.hasOwnProperty('creator_id')) 
-        query += ` creator_id=$(creator_id),`;
-        query_obj.creator_id = req.body.creator_id;*/
+    // if (req.body.hasOwnProperty('creator_id'))
+    // query += ` creator_id=$(creator_id),`;
+    // query_obj.creator_id = req.body.creator_id;
 
     // does the client want to change the crowdfunding_id?
-    /*if (req.body.hasOwnProperty('crowdfunding_id')) 
-        query += ` crowdfunding_id=$(crowdfunding_id),`;
-        query_obj.crowdfunding_id = req.body.crowdfunding_id;*/
+    // if (req.body.hasOwnProperty('crowdfunding_id'))
+    // query += ` crowdfunding_id=$(crowdfunding_id),`;
+    // query_obj.crowdfunding_id = req.body.crowdfunding_id;
 
     // check if query has changed at all
-    if (query == `UPDATE service SET`){
+    if (query == 'UPDATE service SET') {
         // chop off last comma
-        res.sendStatus(400).json({"error":"No valid properties have been sent."});
+        res.sendStatus(400).json({ 'error': 'No valid properties have been sent.' });
         return;
     }
-    
+
     // complete last part of query
     query = query.substring(0, query.length - 1);
-    query += ` WHERE id=$(id)`;
+    query += ' WHERE id=$(id)';
 
     // place query
     db.none(query, query_obj)
@@ -224,9 +219,8 @@ router.delete('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -234,9 +228,7 @@ router.delete('/:id', function(req, res) {
         DELETE FROM service
         WHERE id=$(id)`;
     // place query
-    db.none(query, {
-        "id": id
-    })
+    db.none(query, { id })
     .then(() => {
         res.sendStatus(200);
     })
@@ -258,9 +250,8 @@ router.get('/:id/images', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -270,10 +261,8 @@ router.get('/:id/images', function(req, res) {
         INNER JOIN service_image ON service_image.image_id = image.id
         WHERE service_image.service_id = $(id)`;
     // place query
-    db.any(query, {
-        "id": id
-    })
-    .then((data) => {
+    db.any(query, { id })
+    .then(data => {
         res.status(200).json(data);
     })
     .catch(error => {
@@ -287,11 +276,10 @@ router.put('/:id/images', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var filename = "TODO";
-        //TODO: save filename from req.files.image?? and pass filename onwards
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+        var filename = 'TODO';
+        // TODO: save filename from req.files.image?? and pass filename onwards
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -303,10 +291,10 @@ router.put('/:id/images', function(req, res) {
         SELECT $(service_id), id FROM rows`;
     // place query
     db.any(query, {
-        "filename": filename,
-        "service_id": service_id
+        filename,
+        service_id
     })
-    .then((data) => {
+    .then(data => {
         res.status(200).json(data);
     })
     .catch(error => {
@@ -321,9 +309,8 @@ router.delete('/:id/images/:image', function(req, res) {
     try {
         var service_id = req.params.id;
         var image_id = req.params.image;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -334,8 +321,8 @@ router.delete('/:id/images/:image', function(req, res) {
         WHERE id=$(image_id)`;
     // place query
     db.none(query, {
-        "service_id": service_id,
-        "image_id": image_id
+        service_id,
+        image_id
     })
     .then(() => {
         res.sendStatus(200);
@@ -358,9 +345,8 @@ router.get('/:id/offers', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -371,10 +357,8 @@ router.get('/:id/offers', function(req, res) {
         INNER JOIN service ON service_offer.service_id = service.id
         WHERE service_offer.service_id = $(service_id)`;
     // place query
-    db.any(query, {
-        "service_id": service_id
-    })
-    .then((data) => {
+    db.any(query, { service_id })
+    .then(data => {
         res.status(200).json(data);
     })
     .catch(error => {
@@ -389,9 +373,8 @@ router.get('/:id/offers/:candidate', function(req, res) {
     try {
         var service_id = req.params.id;
         var candidate_id = req.params.candidate;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -403,10 +386,10 @@ router.get('/:id/offers/:candidate', function(req, res) {
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
     // place query
     db.any(query, {
-        "service_id": service_id,
-        "candidate_id": candidate_id
+        service_id,
+        candidate_id
     })
-    .then((data) => {
+    .then(data => {
         res.status(200).json(data);
     })
     .catch(error => {
@@ -423,22 +406,21 @@ router.post('/:id/offers/choose', function(req, res) {
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var date_scheduled = req.body.date_scheduled;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define query 
+    // define query
     // TODO: fix db constraint error
     const query = ` 
         INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
         VALUES ($(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled));`;
     // place query
     db.none(query, {
-        "service_id": service_id,
-        "partner_id": partner_id,
-        "crowdfunding_id": crowdfunding_id,
-        "date_scheduled": date_scheduled
+        service_id,
+        partner_id,
+        crowdfunding_id,
+        date_scheduled
     })
     .then(() => {
         res.sendStatus(200);
@@ -455,9 +437,8 @@ router.delete('/:id/offers/:candidate', function(req, res) {
     try {
         var service_id = req.params.id;
         var candidate_id = req.params.candidate;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -467,8 +448,8 @@ router.delete('/:id/offers/:candidate', function(req, res) {
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
     // place query
     db.none(query, {
-        "service_id": service_id,
-        "candidate_id": candidate_id
+        service_id,
+        candidate_id
     })
     .then(() => {
         res.sendStatus(200);
