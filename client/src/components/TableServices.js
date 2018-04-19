@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+import '../css/App.css';
 import { Link } from 'react-router-dom';
-import { Container, Header, Table } from 'semantic-ui-react';
+import { Container, Header, Table, Modal } from 'semantic-ui-react';
+import Service from './Service';
 
 class TableHeader extends React.Component {
     render() {
@@ -24,11 +25,12 @@ class TableRow extends React.Component {
     render() {
         return (
             <Table.Row>
-                <Table.Cell>
-                    <Link to={`/service/${this.props.obj.id}`}>
-                        {this.props.obj.title}
-                    </Link>
-                </Table.Cell>
+                <Modal
+                    className="modal-container"
+                    trigger={<Table.Cell>{this.props.obj.title}</Table.Cell>}
+                >
+                    <Service id={this.props.obj.id} />
+                </Modal>
                 <Table.Cell>{this.props.obj.category}</Table.Cell>
                 <Table.Cell>{this.props.obj.location}</Table.Cell>
                 <Table.Cell>{this.props.obj.acceptable_radius}</Table.Cell>
