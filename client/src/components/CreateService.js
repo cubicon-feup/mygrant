@@ -2,21 +2,23 @@ import React, { Component } from 'react';
 import '../css/App.css';
 import { Container, Header, Form, Select } from 'semantic-ui-react';
 
+const urlForData = 'http://localhost:3001/api/services';
+
 const radiusoptions = [
     {
         key: '1',
         text: '10km',
-        value: '10'
+        value: 10
     },
     {
         key: '2',
         text: '25km',
-        value: '25'
+        value: 25
     },
     {
         key: '3',
         text: '50km',
-        value: '50'
+        value: 50
     }
 ];
 
@@ -83,12 +85,13 @@ class CreateService extends Component {
         super(props);
         this.state = {
             title: '',
+            description: '',
             category: '',
             location: '',
             acceptable_radius: '',
             mygrant_value: '',
             service_type: '',
-            creator_id: 'this.user'
+            creator_id: 1
         };
         this.required = ['title', 'category', 'mygrant_value', 'service_type'];
     }
@@ -99,21 +102,48 @@ class CreateService extends Component {
         });
     };
 
-    handleSubmit = e =>
+    handleNumberChange = (e, { name, value }) => {
+        var newValue = parseInt(value);
         this.setState({
-            email: '',
-            name: '',
-            title: '',
-            category: '',
-            location: '',
-            acceptable_radius: '',
-            mygrant_value: '',
-            service_type: ''
+            [name]: newValue
+        });
+    };
+
+    handleSubmit = e => {
+        e.preventDefault();
+        this.setState({
+            acceptable_radius: parseInt(this.state.acceptable_radius),
+            mygrant_value: parseInt(this.state.mygrant_value),
+            creator_id: parseInt(this.state.creator_id)
         });
 
-    render() {
-        const { title, category, location, mygrant_value } = this.state;
+        console.log(JSON.stringify(this.state));
 
+        fetch(urlForData, {
+            method: 'PUT',
+            body: JSON.stringify(this.state),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(result => {
+                result.json();
+                console.log(result);
+            })
+            .then(result =>
+                this.setState({
+                    title: '',
+                    description: '',
+                    category: '',
+                    location: '',
+                    acceptable_radius: 0,
+                    mygrant_value: 0,
+                    service_type: ''
+                })
+            );
+    };
+
+    render() {
         var radioServiceTypes = service_types.map(type => {
             return (
                 <Form.Radio
@@ -130,20 +160,25 @@ class CreateService extends Component {
             <Container className="main-container">
                 <div>
                     <Header as="h1">Create a Service</Header>
-                    <Form onSubmit={this.handleSubmit}>
+                    <Form method="POST" onSubmit={this.handleSubmit}>
                         <TextInput
                             placeholder="Title"
-                            value={title}
+                            value={this.state.title}
+                            onChange={this.handleChange}
+                        />
+                        <TextInput
+                            placeholder="Description"
+                            value={this.state.description}
                             onChange={this.handleChange}
                         />
                         <TextInput
                             placeholder="Category"
-                            value={category}
+                            value={this.state.category}
                             onChange={this.handleChange}
                         />
                         <TextInput
                             placeholder="Location"
-                            value={location}
+                            value={this.state.location}
                             onChange={this.handleChange}
                         />
                         <Form.Field
@@ -151,12 +186,15 @@ class CreateService extends Component {
                             name="acceptable_radius"
                             control={Select}
                             options={radiusoptions}
-                            onChange={this.handleChange}
+                            onChange={this.handleNumberChange}
                         />
-                        <TextInput
+                        <Form.Input
                             placeholder="MyGrant Value"
-                            value={mygrant_value}
-                            onChange={this.handleChange}
+                            name="mygrant_value"
+                            value={this.state.mygrant_value}
+                            type="number"
+                            onChange={this.handleNumberChange}
+                            required
                         />
                         <Form.Group inline>{radioServiceTypes}</Form.Group>
                         <Form.Button content="Submit" />
