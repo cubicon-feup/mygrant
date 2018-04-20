@@ -10,33 +10,63 @@ var db = require('../config/database');
 //
 
 
-// Get list of all services
+/**
+ * [GET SERVICES LIST]
+ * description:
+ *      Get a list of services, by page, containing up to N items.
+ *      The maximum of items/page is 50.
+ * syntax:
+ *      /api/services?page=<PAGE>&items=<ITEMS>
+ * example:
+ *      /api/services?page=3
+ *      /api/services?page=1&items=25
+ */
 router.get('/', function(req, res) {
-    const limit = 10;
+    // TODO apply sorting (by field), asc, desc.
+    // ORDER BY n ASC
+    let itemsPerPage = 50;
+    try {
+        // itemPerPage
+        if (req.query.hasOwnProperty('items') && req.query.items < 50)
+            itemsPerPage = req.query.items;
+        // offset
+        const page = req.query.hasOwnProperty('page') ? req.query.page : 1;
+        var offset = (page - 1) * itemsPerPage;
+    } catch (err) {
+        res.status(400).json({
+            'error': err.toString()
+        });
+        return;
+    }
     // define query
     const query = `
         SELECT service.id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name
         FROM service
         INNER JOIN users on users.id = service.creator_id
-        LIMIT $(limit)`;
+        LIMIT $(itemsPerPage) OFFSET $(offset)`;
     // place query
-    db.any(query, { limit })
-    .then(data => {
-        res.status(200).json({ data });
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.any(query, {
+            "itemsPerPage": itemsPerPage,
+            "offset": offset
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
 // Search service by various parameters
-// filters: by name, by date, by distance, by popularity, by user
-router.get(['/search/:q','/search'], function(req, res) { // check for valid input
+// TODO get search to work on more than 1 word
+router.get(['/search/:q', '/search'], function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q : req.params.q;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -47,13 +77,15 @@ router.get(['/search/:q','/search'], function(req, res) { // check for valid inp
         WHERE to_tsvector(service.title || '. ' || service.description || '. ' || service.location || '. ' || users.full_name) @@ to_tsquery($(q))`;
 
     // place query
-    db.any(query, { q })
-    .then(data => {
-        res.status(200).json({ data });
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.any(query, {
+            q
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -63,7 +95,9 @@ router.get('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -73,13 +107,15 @@ router.get('/:id', function(req, res) {
         INNER JOIN users on users.id = service.creator_id
         WHERE service.id = $(id)`;
     // place query
-    db.one(query, { id })
-    .then(data => {
-        res.status(200).json({ data });
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.one(query, {
+            id
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -98,7 +134,9 @@ router.put('/', function(req, res) {
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -107,22 +145,22 @@ router.put('/', function(req, res) {
         VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id))`;
     // place query
     db.none(query, {
-        title,
-        description,
-        category,
-        location,
-        acceptable_radius,
-        mygrant_value,
-        service_type,
-        creator_id,
-        crowdfunding_id
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            title,
+            description,
+            category,
+            location,
+            acceptable_radius,
+            mygrant_value,
+            service_type,
+            creator_id,
+            crowdfunding_id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -132,13 +170,17 @@ router.put('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.sendStatus(400).json({ 'error': err.toString() });
+        res.sendStatus(400).json({
+            'error': err.toString()
+        });
         return;
     }
 
     // define initial query & query object
     let query = 'UPDATE service SET'; // edit_history=array_append(edit_history, message), message=$(message)
-    const query_obj = { 'id': req.params.id };
+    const query_obj = {
+        'id': req.params.id
+    };
 
     // does the client want to change the title?
     if (req.body.hasOwnProperty('title')) {
@@ -195,7 +237,9 @@ router.put('/:id', function(req, res) {
     // check if query has changed at all
     if (query == 'UPDATE service SET') {
         // chop off last comma
-        res.sendStatus(400).json({ 'error': 'No valid properties have been sent.' });
+        res.sendStatus(400).json({
+            'error': 'No valid properties have been sent.'
+        });
         return;
     }
 
@@ -205,12 +249,12 @@ router.put('/:id', function(req, res) {
 
     // place query
     db.none(query, query_obj)
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -220,7 +264,9 @@ router.delete('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -228,13 +274,15 @@ router.delete('/:id', function(req, res) {
         DELETE FROM service
         WHERE id=$(id)`;
     // place query
-    db.none(query, { id })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.none(query, {
+            id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -251,7 +299,9 @@ router.get('/:id/images', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -261,13 +311,15 @@ router.get('/:id/images', function(req, res) {
         INNER JOIN service_image ON service_image.image_id = image.id
         WHERE service_image.service_id = $(id)`;
     // place query
-    db.any(query, { id })
-    .then(data => {
-        res.status(200).json(data);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.any(query, {
+            id
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -279,7 +331,9 @@ router.put('/:id/images', function(req, res) {
         var filename = 'TODO';
         // TODO: save filename from req.files.image?? and pass filename onwards
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -291,15 +345,15 @@ router.put('/:id/images', function(req, res) {
         SELECT $(service_id), id FROM rows`;
     // place query
     db.any(query, {
-        filename,
-        service_id
-    })
-    .then(data => {
-        res.status(200).json(data);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            filename,
+            service_id
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -310,7 +364,9 @@ router.delete('/:id/images/:image', function(req, res) {
         var service_id = req.params.id;
         var image_id = req.params.image;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -321,15 +377,15 @@ router.delete('/:id/images/:image', function(req, res) {
         WHERE id=$(image_id)`;
     // place query
     db.none(query, {
-        service_id,
-        image_id
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            service_id,
+            image_id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -346,7 +402,9 @@ router.get('/:id/offers', function(req, res) {
     try {
         var service_id = req.params.id;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -357,13 +415,15 @@ router.get('/:id/offers', function(req, res) {
         INNER JOIN service ON service_offer.service_id = service.id
         WHERE service_offer.service_id = $(service_id)`;
     // place query
-    db.any(query, { service_id })
-    .then(data => {
-        res.status(200).json(data);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+    db.any(query, {
+            service_id
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
@@ -374,7 +434,9 @@ router.get('/:id/offers/:candidate', function(req, res) {
         var service_id = req.params.id;
         var candidate_id = req.params.candidate;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -386,28 +448,31 @@ router.get('/:id/offers/:candidate', function(req, res) {
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
     // place query
     db.any(query, {
-        service_id,
-        candidate_id
-    })
-    .then(data => {
-        res.status(200).json(data);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            service_id,
+            candidate_id
+        })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
 // Pick an offer.
-router.post('/:id/offers/choose', function(req, res) {
+router.post('/:id/offers/accept', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        // TODO never must have partner + crowdfunding at same time
         var date_scheduled = req.body.date_scheduled;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
@@ -417,46 +482,48 @@ router.post('/:id/offers/choose', function(req, res) {
         VALUES ($(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled));`;
     // place query
     db.none(query, {
-        service_id,
-        partner_id,
-        crowdfunding_id,
-        date_scheduled
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            service_id,
+            partner_id,
+            crowdfunding_id,
+            date_scheduled
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
-// Remove offer.
-router.delete('/:id/offers/:candidate', function(req, res) {
+// Remove offer. //TODO changed from delte to post
+router.post('/:id/offers/decline', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
         var candidate_id = req.params.candidate;
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({
+            'error': err.toString()
+        });
         return;
     }
     // define query
-    // TODO: fix db constraint error
+    // TODO: fix db constraint error for services of type REQUEST
     const query = `
         DELETE FROM service_offer
         WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
     // place query
     db.none(query, {
-        service_id,
-        candidate_id
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
+            service_id,
+            candidate_id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
 });
 
 
