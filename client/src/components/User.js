@@ -8,15 +8,15 @@ const urlForUser = id => `http://localhost:3001/api/users/${id}`;
 class User extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            offers: [{}],
-            request: '',
-            requestFailed: false
-        };
+        this.state = { id: this.getID() };
+    }
+
+    getID() {
+        return this.props.id ? this.props.id : this.props.match.params.id;
     }
 
     componentDidMount() {
-        fetch(urlForUser(this.props.match.params.id))
+        fetch(urlForUser(this.state.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
