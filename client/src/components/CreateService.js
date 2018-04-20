@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../css/App.css';
-import { Container, Header, Form, Select } from 'semantic-ui-react';
+import { Container, Header, Form, Select, Dropdown } from 'semantic-ui-react';
 
 const urlForData = 'http://localhost:3001/api/services';
 
@@ -21,7 +21,48 @@ const radiusoptions = [
         value: 50
     }
 ];
-
+const service_categories = [
+    {
+        key: '0',
+        text: 'ARTS',
+        value: 'ARTS'
+    },
+    {
+        key: '1',
+        text: 'BUSINESS',
+        value: 'BUSINESS'
+    },
+    {
+        key: '2',
+        text: 'FITNESS',
+        value: 'FITNESS'
+    },
+    {
+        key: '3',
+        text: 'FUN',
+        value: 'FUN'
+    },
+    {
+        key: '4',
+        text: 'HOME',
+        value: 'HOME'
+    },
+    {
+        key: '5',
+        text: 'LEARNING',
+        value: 'LEARNING'
+    },
+    {
+        key: '6',
+        text: 'PETS',
+        value: 'PETS'
+    },
+    {
+        key: '7',
+        text: 'REQUEST',
+        value: 'REQUEST'
+    }
+];
 const service_types = ['PROVIDE', 'REQUEST'];
 
 class TextInput extends Component {
@@ -171,9 +212,20 @@ class CreateService extends Component {
                             value={this.state.description}
                             onChange={this.handleChange}
                         />
-                        <TextInput
+                        <Form.Field
+                            placeholder="Acceptable Radius"
+                            name="acceptable_radius"
+                            control={Select}
+                            options={radiusoptions}
+                            onChange={this.handleNumberChange}
+                        />
+                        <Form.Dropdown
                             placeholder="Category"
-                            value={this.state.category}
+                            name="category"
+                            fluid
+                            search
+                            selection
+                            options={service_categories}
                             onChange={this.handleChange}
                         />
                         <TextInput
