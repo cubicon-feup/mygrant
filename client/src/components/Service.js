@@ -1,22 +1,33 @@
 import React, { Component } from 'react';
 import '../css/App.css';
+import ServiceOffer from './ServiceOffers';
 
-import { Container, Header, Segment, Form, Loader } from 'semantic-ui-react';
+import {
+    Container,
+    Header,
+    Segment,
+    Form,
+    Loader,
+    Modal,
+    Button
+} from 'semantic-ui-react';
 
-const urlForData = id => `http://localhost:3001/api/services/${id}`;
+const urlForData = id => 'http://localhost:3001/api/services/' + id;
 
 class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            id: this.props.match.params.id,
             service: { data: [{}] },
             request: '',
-            requestFailed: false
+            requestFailed: false,
+            isFetching: true
         };
     }
 
     componentDidMount() {
-        fetch(urlForData(this.props.id))
+        fetch(urlForData(this.state.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -27,7 +38,7 @@ class Service extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState({ service: result });
+                    this.setState({ service: result, isFetching: false });
                 },
                 () => {
                     console.log('ERROR');
@@ -51,7 +62,7 @@ class Service extends Component {
     };
 
     render() {
-        if (!this.state.service.data.title) {
+        if (this.state.isFetching) {
             return (
                 <Container className="main-container">
                     <div>
@@ -72,7 +83,7 @@ class Service extends Component {
         }
 
         return (
-            <Container>
+            <Container className="main-container">
                 <Segment>
                     <Header as="h1">{this.state.service.data.title}</Header>
                     <p>{this.state.service.data.category}</p>
@@ -93,6 +104,12 @@ class Service extends Component {
                         />
                         <Form.Button content="Request" />
                     </Form>
+                    <Modal
+                        className="modal-container"
+                        trigger={<Button>Offers</Button>}
+                    >
+                        <ServiceOffer idService={this.state.id} />
+                    </Modal>
                 </Segment>
             </Container>
         );
