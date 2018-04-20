@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../css/App.css';
-import { Container, Header, Form, Select, Dropdown } from 'semantic-ui-react';
+import { Container, Header, Form, Select } from 'semantic-ui-react';
 
 const urlForData = 'http://localhost:3001/api/services';
 
@@ -211,13 +211,6 @@ class CreateService extends Component {
                             placeholder="Description"
                             value={this.state.description}
                             onChange={this.handleChange}
-                        />
-                        <Form.Field
-                            placeholder="Acceptable Radius"
-                            name="acceptable_radius"
-                            control={Select}
-                            options={radiusoptions}
-                            onChange={this.handleNumberChange}
                         />
                         <Form.Dropdown
                             placeholder="Category"
