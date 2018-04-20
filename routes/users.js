@@ -8,7 +8,6 @@ var db = require('../config/database');
 //
 //
 
-
 // Get user by id
 router.get('/:id', function(req, res) {
     // check for valid input
@@ -35,7 +34,6 @@ router.get('/:id', function(req, res) {
         res.status(500).json(error);
     });
 });
-
 
 // Get friends
 router.get('/:id/friends', function(req, res) {
