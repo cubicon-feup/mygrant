@@ -42,8 +42,11 @@ class User extends Component {
                     <Header as="h1">{this.state.full_name}</Header>
                     <p>{this.state.city}</p>
                     <p>{this.state.country}</p>
-                    <p>{this.state.level}</p>
-                    <p>{this.state.high_level}</p>
+                    {this.state.high_level
+                        ? <strong>{this.state.level}</strong>
+                     : <p>{this.state.level}</p>
+                    }
+                    <p>{this.state.date_joined}</p>
                 </Segment>
             </Container>
         );
