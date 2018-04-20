@@ -103,7 +103,7 @@ class CreateService extends Component {
     };
 
     handleNumberChange = (e, { name, value }) => {
-        var newValue = parseInt(value);
+        var newValue = parseInt(value, 10);
         this.setState({
             [name]: newValue
         });
@@ -112,9 +112,9 @@ class CreateService extends Component {
     handleSubmit = e => {
         e.preventDefault();
         this.setState({
-            acceptable_radius: parseInt(this.state.acceptable_radius),
-            mygrant_value: parseInt(this.state.mygrant_value),
-            creator_id: parseInt(this.state.creator_id)
+            acceptable_radius: parseInt(this.state.acceptable_radius, 10),
+            mygrant_value: parseInt(this.state.mygrant_value, 10),
+            creator_id: parseInt(this.state.creator_id, 10)
         });
 
         console.log(JSON.stringify(this.state));

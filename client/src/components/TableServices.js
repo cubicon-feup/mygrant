@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import '../css/App.css';
-import { Link } from 'react-router-dom';
 import { Container, Header, Table, Modal } from 'semantic-ui-react';
 import Service from './Service';
 

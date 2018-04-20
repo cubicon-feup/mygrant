@@ -51,7 +51,7 @@ class Service extends Component {
     };
 
     render() {
-        if (!this.state.service.data[0].title) {
+        if (!this.state.service.data.title) {
             return (
                 <Container className="main-container">
                     <div>
@@ -74,13 +74,13 @@ class Service extends Component {
         return (
             <Container>
                 <Segment>
-                    <Header as="h1">{this.state.service.data[0].title}</Header>
-                    <p>{this.state.service.data[0].category}</p>
-                    <p>{this.state.service.data[0].description}</p>
-                    <p>{this.state.service.data[0].location}</p>
-                    <p>{this.state.service.data[0].acceptable_radius}</p>
-                    <p>{this.state.service.data[0].mygrant_value}</p>
-                    <p>{this.state.service.data[0].service_type}</p>
+                    <Header as="h1">{this.state.service.data.title}</Header>
+                    <p>{this.state.service.data.category}</p>
+                    <p>{this.state.service.data.description}</p>
+                    <p>{this.state.service.data.location}</p>
+                    <p>{this.state.service.data.acceptable_radius}</p>
+                    <p>{this.state.service.data.mygrant_value}</p>
+                    <p>{this.state.service.data.service_type}</p>
                     <h5>Request Date</h5>
                     <Form method="POST" onSubmit={this.handleSubmit}>
                         <Form.Input
