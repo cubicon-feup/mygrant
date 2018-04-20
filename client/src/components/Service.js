@@ -13,17 +13,23 @@ import {
 } from 'semantic-ui-react';
 
 const urlForData = id => 'http://localhost:3001/api/services/' + id;
+//TODO: check urlForCreateOffer
+const urlForCreateOffer = id =>
+    'http://localhost:3001/api/services/' + id + '/offers';
 
 class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: this.props.match.params.id,
+            id: this.getServiceID(),
             service: { data: [{}] },
             request: '',
-            requestFailed: false,
             isFetching: true
         };
+    }
+
+    getServiceID() {
+        return this.props.id ? this.props.id : this.props.match.params.id;
     }
 
     componentDidMount() {
@@ -48,17 +54,27 @@ class Service extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    handleSubmit = event => {
-        this.setState({
-            request: ''
-        });
-        alert(
-            JSON.stringify({
-                id: this.state.id,
-                userID: 'logged.in.user.id',
-                request: this.state.request
+    //TODO: Check body of the message
+    handleSubmit = e => {
+        e.preventDefault();
+        fetch(urlForCreateOffer(this.state.id), {
+            method: 'POST',
+            body: JSON.stringify(this.props.idUser, this.state.request),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(result => {
+                result.json();
             })
-        );
+            .then(
+                result => {
+                    this.setState({ request: '' });
+                },
+                () => {
+                    console.log('ERROR');
+                }
+            );
     };
 
     render() {
@@ -67,16 +83,6 @@ class Service extends Component {
                 <Container className="main-container">
                     <div>
                         <Loader active inline="centered" />
-                    </div>
-                </Container>
-            );
-        }
-
-        if (this.state.requestFailed) {
-            return (
-                <Container className="main-container">
-                    <div>
-                        <h1>Request Failed</h1>
                     </div>
                 </Container>
             );
