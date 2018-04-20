@@ -58,6 +58,49 @@ router.get('/', function(req, res) {
 });
 
 
+/**
+ * [GET NUMBER OF PAGES OF SERVICES LIST]
+ * description:
+ *      Returns the number of pages (with each page having up to N items)
+ * syntax:
+ *      /api/services/num-pages?items=<ITEMS>
+ * example:
+ *      /api/services/num-pages?items=30
+ */
+router.get('/num-pages', function(req, res) {
+    let itemsPerPage = 50;
+    try {
+        // itemPerPage
+        if (req.query.hasOwnProperty('items') && req.query.items < 50)
+            itemsPerPage = req.query.items;
+    } catch (err) {
+        res.status(400).json({
+            'error': err.toString()
+        });
+        return;
+    }
+    // define query
+    const query = `SELECT COUNT(id) as npages from service;`;
+    // place query
+    db.one(query, {})
+        .then(data => {
+            res.status(200).json(Math.ceil(data.npages / itemsPerPage));
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+
+
+/**
+ * [SEARCH FOR SERVICES]
+ * description:
+ *      Search using: name, date, distance, popularity, user
+ * syntax:
+ *      /api/services/num-pages?items=<ITEMS>
+ * example:
+ *      /api/services/num-pages?items=30
+ */
 // Search service by various parameters
 // TODO get search to work on more than 1 word
 router.get(['/search/:q', '/search'], function(req, res) { // check for valid input
