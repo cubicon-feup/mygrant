@@ -16,7 +16,7 @@ class User extends Component {
     }
 
     componentDidMount() {
-        fetch(urlForUser(this.props.match.params.id))
+        fetch(urlForUser(this.props.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -37,7 +37,7 @@ class User extends Component {
 
     render() {
         return (
-            <Container className="main-container">
+            <Container>
                 <Segment>
                     <Header as="h1">{this.state.full_name}</Header>
                     <p>{this.state.city}</p>

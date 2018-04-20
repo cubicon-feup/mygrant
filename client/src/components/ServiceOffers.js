@@ -131,14 +131,14 @@ class ServiceOffer extends Component {
                     <User id={offer.requester_id} />
                     <AnswerProposal
                         idUser={offer.requester_id}
-                        idService={this.props.match.params.id}
+                        idService={this.props.idService}
                     />
                 </Modal>
             </Card>
         ));
 
         return (
-            <Container className="main-container">
+            <Container>
                 <Segment>
                     <Header as="h1">Users that offered to the service</Header>
                     <Card.Group>{allCards}</Card.Group>
