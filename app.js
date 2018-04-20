@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -13,6 +14,9 @@ const usersRouter = require('./routes/users');
 const crowdfundingsRouter = require('./routes/crowdfundings');
 
 const app = express();
+
+// All requests enabled - TODO only allow requests originating from our server
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
