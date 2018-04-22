@@ -114,7 +114,10 @@ class Service extends Component {
                         className="modal-container"
                         trigger={<Button>Offers</Button>}
                     >
-                        <ServiceOffer idService={this.state.id} />
+                        <ServiceOffer
+                            idService={this.state.id}
+                            typeService={this.state.service.data.service_type}
+                        />
                     </Modal>
                 </Segment>
             </Container>

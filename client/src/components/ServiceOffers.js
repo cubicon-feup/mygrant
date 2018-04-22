@@ -65,6 +65,17 @@ class AnswerProposal extends Component {
     }
 }
 
+class OffersListHeader extends Component {
+    render() {
+        if (this.props.typeService == 'REQUEST') {
+            return <Header as="h1">Users offered to do the service</Header>;
+        } else if (this.props.typeService == 'PROVIDE') {
+            return <Header as="h1">Users that asked for the service</Header>;
+        }
+        return 'ERROR';
+    }
+}
+
 class ServiceOffer extends Component {
     constructor(props) {
         super(props);
@@ -140,7 +151,7 @@ class ServiceOffer extends Component {
         return (
             <Container>
                 <Segment>
-                    <Header as="h1">Users that offered to the service</Header>
+                    <OffersListHeader typeService={this.props.typeService} />
                     <Card.Group>{allCards}</Card.Group>
                 </Segment>
             </Container>
