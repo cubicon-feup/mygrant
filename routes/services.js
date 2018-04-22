@@ -95,17 +95,39 @@ router.get('/num-pages', function(req, res) {
 /**
  * [SEARCH FOR SERVICES]
  * description:
- *      Search using: name, date, distance, popularity, user
+ *      Search among services' titles and descriptions using the given query text
  * syntax:
- *      /api/services/num-pages?items=<ITEMS>
- * example:
- *      /api/services/num-pages?items=30
+ *      /api/services/search?q=...
+ * optional parameters:
+ *     limit: maximum number of results (Default is 50)
+ *     lang: 'portuguese' | 'english' (Default is english)
+ *     desc: yes | no . Searches in description also (Default is yes)
+ *     cat: restricts results to given category
+ *     type: REQUEST | PROVIDE . restricts results to a given service_type
+ *     mygmax: Max bound for mygrant_value
+ *     mygmin: Min bound for mygrant_value
+ *     datemax: Max bound for created_date
+ *     datemin: Min bound for created_date
+ * examples:
+ *      /api/services/search?q=support+tangible+extranet
+ *      /api/services/search?q=tangible services&desc=no
+ *      /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
+ *      /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
  */
-// TODO get search to work on more than 1 word
-// TODO make filters optional
-router.get(['/search/:q', '/search'], function(req, res) { // check for valid input
+router.get(['/search'], function(req, res) { // check for valid input
     try {
-        var q = req.query.hasOwnProperty('q') ? req.query.q : req.params.q;
+        var q = req.query.q.split(" ").join(" | ");
+        var limit = req.query.hasOwnProperty('limit') ? req.query.limit : 50;
+        // lang can either be 'english' or 'portuguese':
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english';
+        var search_desc = req.query.hasOwnProperty('desc') ? req.query.desc!='no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        //var loc = req.query.hasOwnProperty('loc') ? req.query.loc : null;
+        var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
+        var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
+        var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -114,14 +136,35 @@ router.get(['/search/:q', '/search'], function(req, res) { // check for valid in
     }
     // define query
     const query = `
-        SELECT service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name
-        FROM service
-        INNER JOIN users on users.id = service.creator_id
-        WHERE to_tsvector(service.title || '. ' || service.description || '. ' || service.location || '. ' || users.full_name) @@ to_tsquery($(q))`;
+        SELECT *
+        FROM (
+        SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.id AS user_id, users.full_name AS provider_name,
+        ts_rank_cd(to_tsvector($(lang), service.title `+(search_desc?`|| '. ' || service.description`:``)+` || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score
+        FROM service INNER JOIN users ON users.id = service.creator_id
+        WHERE true`
+        +(cat ? ` AND category = $(cat)` : ``)
+        +(type ? ` AND service_type = $(type)` : ``)
+        +(mygmax ? ` AND mygrant_value <= $(mygmax)` : ``)
+        +(mygmin ? ` AND mygrant_value >= $(mygmin)` : ``)
+        +(datemax ? ` AND date_created <= $(datemax)` : ``)
+        +(datemin ? ` AND date_created >= $(datemin)` : ``)
+        +`) s
+        WHERE search_score > 0
+        ORDER BY search_score DESC
+        LIMIT $(limit);`;   
 
     // place query
     db.any(query, {
-            q
+            "q": q,
+            "lang": lang,
+            "limit": limit,
+            "cat": cat,
+            "type": type,
+            "mygmax": mygmax,
+            "mygmin": mygmin,
+            "datemax": datemax,
+            "datemin": datemin
         })
         .then(data => {
             res.status(200).json(data);
@@ -132,7 +175,7 @@ router.get(['/search/:q', '/search'], function(req, res) { // check for valid in
 });
 
 
-// TODO document
+// TODO documentation
 // Get service by id
 router.get('/:id', function(req, res) {
     // check for valid input
@@ -163,7 +206,7 @@ router.get('/:id', function(req, res) {
 });
 
 
-// TODO document
+// TODO documentation
 // Put (create) service.
 router.put('/', function(req, res) {
     // check for valid input
@@ -210,7 +253,7 @@ router.put('/', function(req, res) {
 
 
 
-// TODO document
+// TODO documentation
 // Put (update) service.
 router.put('/:id', function(req, res) {
     // check for valid input
@@ -295,7 +338,7 @@ router.put('/:id', function(req, res) {
 });
 
 
-// TODO document
+// TODO documentation
 // Delete service.
 router.delete('/:id', function(req, res) {
     // check for valid input
@@ -331,7 +374,7 @@ router.delete('/:id', function(req, res) {
 //
 
 
-// TODO document
+// TODO documentation
 // TODO Get images from amazon s3
 router.get('/:id/images', function(req, res) {
     // check for valid input
@@ -362,7 +405,7 @@ router.get('/:id/images', function(req, res) {
 });
 
 
-// TODO document
+// TODO documentation
 // TODO save file to amazon s3
 // Add image.
 router.put('/:id/images', function(req, res) {
