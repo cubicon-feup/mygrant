@@ -259,76 +259,46 @@ router.put('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
+        // optionals:
+        var title = req.body.hasOwnProperty('title') ? req.body.title : null;
+        var description = req.body.hasOwnProperty('description') ? req.body.description : null;
+        var category = req.body.hasOwnProperty('category') ? req.body.category : null;
+        var location = req.body.hasOwnProperty('location') ? req.body.location : null;
+        var acceptable_radius = req.body.hasOwnProperty('acceptable_radius') ? req.body.acceptable_radius : null;
+        var mygrant_value = req.body.hasOwnProperty('mygrant_value') ? req.body.mygrant_value : null;
+        var service_type = req.body.hasOwnProperty('service_type') ? req.body.service_type : null;
+        var acceptable_radius = req.body.hasOwnProperty('acceptable_radius') ? req.body.acceptable_radius : null;
     } catch (err) {
         res.sendStatus(400).json({
             'error': err.toString()
         });
         return;
     }
-
-    // define initial query & query object
-    let query = 'UPDATE service SET'; // edit_history=array_append(edit_history, message), message=$(message)
-    const query_obj = {
-        'id': req.params.id
-    };
-
-    // does the client want to change the title?
-    if (req.body.hasOwnProperty('title')) {
-        query += ' title=$(title),';
-        query_obj.title = req.body.title;
-    }
-
-    // does the client want to change the description?
-    if (req.body.hasOwnProperty('description')) {
-        query += ' description=$(description),';
-        query_obj.description = req.body.description;
-    }
-
-    // does the client want to change the category?
-    if (req.body.hasOwnProperty('category')) {
-        query += ' category=$(category),';
-        query_obj.category = req.body.category;
-    }
-
-    // does the client want to change the location?
-    if (req.body.hasOwnProperty('location')) {
-        query += ' location=$(location),';
-        query_obj.location = req.body.location;
-    }
-
-    // does the client want to change the acceptable_radius?
-    if (req.body.hasOwnProperty('acceptable_radius')) {
-        query += ' acceptable_radius=$(acceptable_radius),';
-        query_obj.acceptable_radius = req.body.acceptable_radius;
-    }
-
-    // does the client want to change the mygrant_value?
-    if (req.body.hasOwnProperty('mygrant_value')) {
-        query += ' mygrant_value=$(mygrant_value),';
-        query_obj.mygrant_value = req.body.mygrant_value;
-    }
-
-    // does the client want to change the service_type?
-    if (req.body.hasOwnProperty('service_type')) {
-        query += ' service_type=$(service_type),';
-        query_obj.service_type = req.body.service_type;
-    }
-
-    // check if query has changed at all
-    if (query == 'UPDATE service SET') {
-        // chop off last comma
-        res.sendStatus(400).json({
-            'error': 'No valid properties have been sent.'
-        });
-        return;
-    }
-
-    // complete last part of query
-    query = query.substring(0, query.length - 1);
-    query += ' WHERE id=$(id)';
-
+    // define query
+    const query = 'UPDATE service SET '
+        + [
+            title ? 'title=$(title)' : null,
+            description ? 'description=$(description)' : null,
+            category ? 'category=$(category)' : null,
+            location ? 'location=$(location)' : null,
+            acceptable_radius ? 'acceptable_radius=$(acceptable_radius)' : null,
+            mygrant_value ? 'mygrant_value=$(mygrant_value)' : null,
+            service_type ? 'service_type=$(service_type)' : null,
+            acceptable_radius ? 'acceptable_radius=$(acceptable_radius)' : null,
+        ].filter(Boolean).join(', ')
+        +' WHERE id=$(id)';
     // place query
-    db.none(query, query_obj)
+    db.none(query, {
+        "id": id,
+        "title": title,
+        "description": description,
+        "category": category,
+        "location": location,
+        "acceptable_radius": acceptable_radius,
+        "mygrant_value": mygrant_value,
+        "service_type": service_type,
+        "acceptable_radius": acceptable_radius,
+        })
         .then(() => {
             res.sendStatus(200);
         })
