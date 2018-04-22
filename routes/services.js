@@ -101,8 +101,8 @@ router.get('/num-pages', function(req, res) {
  * example:
  *      /api/services/num-pages?items=30
  */
-// Search service by various parameters
 // TODO get search to work on more than 1 word
+// TODO make filters optional
 router.get(['/search/:q', '/search'], function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q : req.params.q;
@@ -132,6 +132,7 @@ router.get(['/search/:q', '/search'], function(req, res) { // check for valid in
 });
 
 
+// TODO document
 // Get service by id
 router.get('/:id', function(req, res) {
     // check for valid input
@@ -162,6 +163,7 @@ router.get('/:id', function(req, res) {
 });
 
 
+// TODO document
 // Put (create) service.
 router.put('/', function(req, res) {
     // check for valid input
@@ -207,6 +209,8 @@ router.put('/', function(req, res) {
 });
 
 
+
+// TODO document
 // Put (update) service.
 router.put('/:id', function(req, res) {
     // check for valid input
@@ -267,16 +271,6 @@ router.put('/:id', function(req, res) {
         query_obj.service_type = req.body.service_type;
     }
 
-    // does the client want to change the creator_id?
-    // if (req.body.hasOwnProperty('creator_id'))
-    // query += ` creator_id=$(creator_id),`;
-    // query_obj.creator_id = req.body.creator_id;
-
-    // does the client want to change the crowdfunding_id?
-    // if (req.body.hasOwnProperty('crowdfunding_id'))
-    // query += ` crowdfunding_id=$(crowdfunding_id),`;
-    // query_obj.crowdfunding_id = req.body.crowdfunding_id;
-
     // check if query has changed at all
     if (query == 'UPDATE service SET') {
         // chop off last comma
@@ -301,6 +295,7 @@ router.put('/:id', function(req, res) {
 });
 
 
+// TODO document
 // Delete service.
 router.delete('/:id', function(req, res) {
     // check for valid input
@@ -336,7 +331,8 @@ router.delete('/:id', function(req, res) {
 //
 
 
-// Get images.
+// TODO document
+// TODO Get images from amazon s3
 router.get('/:id/images', function(req, res) {
     // check for valid input
     try {
@@ -366,6 +362,8 @@ router.get('/:id/images', function(req, res) {
 });
 
 
+// TODO document
+// TODO save file to amazon s3
 // Add image.
 router.put('/:id/images', function(req, res) {
     // check for valid input
@@ -400,6 +398,7 @@ router.put('/:id/images', function(req, res) {
 });
 
 
+// TODO delete file from amazon s3
 // Delete image.
 router.delete('/:id/images/:image', function(req, res) {
     // check for valid input
