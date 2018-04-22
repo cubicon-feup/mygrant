@@ -59,7 +59,11 @@ class Service extends Component {
         e.preventDefault();
         fetch(urlForCreateOffer(this.state.id), {
             method: 'POST',
-            body: JSON.stringify(this.props.idUser, this.state.request),
+            body: JSON.stringify({
+                service_id: this.state.id,
+                partner_id: this.props.idUser,
+                date_scheduled: this.state.request
+            }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -77,6 +81,14 @@ class Service extends Component {
             );
     };
 
+    oppositeServiceType() {
+        if (this.state.service.data.service_type === 'PROVIDE') {
+            return 'Request';
+        } else if (this.state.service.data.service_type === 'REQUEST') {
+            return 'Provide';
+        }
+    }
+
     render() {
         if (this.state.isFetching) {
             return (
@@ -91,24 +103,25 @@ class Service extends Component {
         return (
             <Container className="main-container">
                 <Segment>
-                    <Header as="h1">{this.state.service.data.title}</Header>
+                    <Header as="h1">
+                        {this.state.service.data.service_type +
+                            ': ' +
+                            this.state.service.data.title}
+                    </Header>
                     <p>{this.state.service.data.category}</p>
                     <p>{this.state.service.data.description}</p>
                     <p>{this.state.service.data.location}</p>
                     <p>{this.state.service.data.acceptable_radius}</p>
                     <p>{this.state.service.data.mygrant_value}</p>
-                    <p>{this.state.service.data.service_type}</p>
-                    <h5>Request Date</h5>
+                    <h5>{this.oppositeServiceType()} Date</h5>
                     <Form method="POST" onSubmit={this.handleSubmit}>
                         <Form.Input
-                            labelPosition="right"
-                            type="date"
-                            placeholder="Request Date"
+                            type="datetime-local"
                             name="request"
                             value={this.state.request}
                             onChange={this.handleChange}
                         />
-                        <Form.Button content="Request" />
+                        <Form.Button content={this.oppositeServiceType()} />
                     </Form>
                     <Modal
                         className="modal-container"

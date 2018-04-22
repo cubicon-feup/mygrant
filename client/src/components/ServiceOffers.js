@@ -67,9 +67,9 @@ class AnswerProposal extends Component {
 
 class OffersListHeader extends Component {
     render() {
-        if (this.props.typeService == 'REQUEST') {
+        if (this.props.typeService === 'REQUEST') {
             return <Header as="h1">Users offered to do the service</Header>;
-        } else if (this.props.typeService == 'PROVIDE') {
+        } else if (this.props.typeService === 'PROVIDE') {
             return <Header as="h1">Users that asked for the service</Header>;
         }
         return 'ERROR';
