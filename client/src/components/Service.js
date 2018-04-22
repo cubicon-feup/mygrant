@@ -21,14 +21,14 @@ class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: this.getServiceID(),
+            id: this.getID(),
             service: { data: [{}] },
             request: '',
             isFetching: true
         };
     }
 
-    getServiceID() {
+    getID() {
         return this.props.id ? this.props.id : this.props.match.params.id;
     }
 

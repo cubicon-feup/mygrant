@@ -139,11 +139,15 @@ class ServiceOffer extends Component {
                     className="modal-container"
                     trigger={<Card.Content header={offer.requester_name} />}
                 >
-                    <User id={offer.requester_id} />
-                    <AnswerProposal
-                        idUser={offer.requester_id}
-                        idService={this.props.idService}
-                    />
+                    <Container>
+                        <Segment>
+                            <User id={offer.requester_id} />
+                            <AnswerProposal
+                                idUser={offer.requester_id}
+                                idService={this.props.idService}
+                            />
+                        </Segment>
+                    </Container>
                 </Modal>
             </Card>
         ));

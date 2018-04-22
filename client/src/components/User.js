@@ -9,14 +9,19 @@ class User extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            id: this.getID(),
             offers: [{}],
             request: '',
             requestFailed: false
         };
     }
 
+    getID() {
+        return this.props.id ? this.props.id : this.props.match.params.id;
+    }
+
     componentDidMount() {
-        fetch(urlForUser(this.props.id))
+        fetch(urlForUser(this.state.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
