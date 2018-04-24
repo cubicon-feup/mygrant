@@ -27,7 +27,7 @@ class User extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState(result.data);
+                    this.setState(result);
                 },
                 () => {
                     console.log('ERROR');
