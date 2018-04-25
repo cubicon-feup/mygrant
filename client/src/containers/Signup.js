@@ -12,7 +12,7 @@ class SignUp extends Component {
             emailError: false, 
             password: '', 
             passwordError: false, 
-            repeatPasswordError: false,
+            repeatPassword: ''
         };
     }
 
@@ -20,27 +20,43 @@ class SignUp extends Component {
     }
 
     handleEmailInput(event) {
-        this.setState({email: event.target.value});
+        this.setState({
+            email: event.target.value,
+            disableSubmit: this.checkForm()
+        });
     }
 
     handlePasswordInput(event, data) {
         this.setState({
             password: data.value,
-            passwordError: data.value.length < 8
+            disableSubmit: this.checkForm(),
+            passwordError: !this.checkPasswords()
+        });
+    }
+
+    handleRepeatPasswordInput(event, data) {
+        this.setState({
+            repeatPassword: data.value,
+            disableSubmit: this.checkForm(),
+            passwordError: !this.checkPasswords()
         });
     }
 
     /*
      * Check if the passwords match
+     * returns true if the passwords match and are valid
      */
-    checkPasswords(event, data) {
-        const passwordsMatch = (data.value === this.state.password);
-        
-        this.setState({ 
-            passwordError: (!passwordsMatch || this.state.password.length < 8),
-            repeatPasswordError: !passwordsMatch,
-            disableSubmit: (this.state.passwordError || this.state.email === '')
-        });
+    checkPasswords() {
+        console.log(this.state);
+        console.log(this.state.password.length >= 8 && this.state.password === this.state.repeatPassword)
+        return (this.state.password.length >= 8 && this.state.password === this.state.repeatPassword);
+    }
+
+    /*
+     * Check input validity
+     */
+    checkForm() {
+        return !this.checkPasswords() || this.state.email === '';
     }
 
     render() {
@@ -69,10 +85,10 @@ class SignUp extends Component {
                         <Form.Input 
                             required
                             label={"repeat your password".toUpperCase()}
-                            onChange={this.checkPasswords.bind(this)} 
+                            onChange={this.handleRepeatPasswordInput.bind(this)} 
                             type="password" 
                             placeholder="Type your password"
-                            error={this.state.repeatPasswordError}
+                            error={this.state.passwordError}
                         />
                         <Button disabled={this.state.disableSubmit}>
                             Sign Up
