@@ -6,9 +6,9 @@ import "semantic-ui-css/semantic.min.css";
 import "./css/common.css";
 
 import registerServiceWorker from "./registerServiceWorker";
-import App from "./components/App";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
+import App from "./containers/App";
+import Login from "./containers/Login";
+import Signup from "./containers/Signup";
 import CreateService from "./components/CreateService";
 import { Responsive } from "semantic-ui-react";
 import { MygrantFooter, MygrantHeader, MygrantNav } from "./components/Common";
