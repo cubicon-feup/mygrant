@@ -8,8 +8,9 @@ const fileUpload = require('express-fileupload');
 
 const indexRouter = require('./routes/index');
 const appInfoRouter = require('./routes/appInfo');
-const servicesRouter = require('./routes/services');
+const countriesRouter = require('./routes/countries');
 const newsfeedRouter = require('./routes/newsfeed');
+const servicesRouter = require('./routes/services');
 const usersRouter = require('./routes/users');
 const crowdfundingsRouter = require('./routes/crowdfundings');
 
@@ -30,6 +31,7 @@ app.use(fileUpload());
 
 app.use('/', indexRouter);
 app.use('/api/app_info', appInfoRouter);
+app.use('/api/countries', countriesRouter);
 app.use('/api/services', servicesRouter);
 app.use('/api/newsfeed', newsfeedRouter);
 app.use('/api/users', usersRouter);
