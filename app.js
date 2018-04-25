@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload');
 
 const indexRouter = require('./routes/index');
 const appInfoRouter = require('./routes/appInfo');
+const authRouter = require('./routes/auth');
 const countriesRouter = require('./routes/countries');
 const newsfeedRouter = require('./routes/newsfeed');
 const servicesRouter = require('./routes/services');
@@ -30,6 +31,7 @@ app.use(cookieParser());
 app.use(fileUpload());
 
 app.use('/', indexRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/app_info', appInfoRouter);
 app.use('/api/countries', countriesRouter);
 app.use('/api/services', servicesRouter);

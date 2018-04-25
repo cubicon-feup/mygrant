@@ -10,6 +10,9 @@ class SignUpInfo extends Component {
     this.state = { regions: [], countries: [], countryCode: '',cities: [] };
   }
 
+  /*
+   * Get the countries from the DB
+   */
   componentDidMount() {
       fetch('/api/countries/as_options')
         .then(res => res.json())
@@ -21,9 +24,9 @@ class SignUpInfo extends Component {
   /*
    * Make a request to Battuta to get the regions from the selected country
    */
-  getRegions(e, data) {
+  getRegions(event, data) {
       const countryCode =  this.state.countries[data.value-1].code;
-      this.setState({countryCode: countryCode});
+      this.setState({countryCode: countryCode, cities: [], regions:[]});
       
       // Get regions from the country using Batutta's JSONP API
       // API by medunes -  https://battuta.medunes.net
@@ -48,8 +51,9 @@ class SignUpInfo extends Component {
   /*
    * Make a request to Battuta to get the cities from the selected region
    */
-  getCities(e, data) {
+  getCities(event, data) {
       const region =  data.value;
+      this.setState({ cities: [] });
       
       // Get regions from the country using Batutta's JSONP API
       // API by medunes -  https://battuta.medunes.net
