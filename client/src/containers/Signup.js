@@ -8,32 +8,20 @@ class SignUp extends Component {
         super(props);
         this.state = { 
             email: '', 
-            emailError: false, 
+            name: '',
             password: '', 
-            passwordError: false, 
-            repeatPassword: ''
+            phone:'',
+            repeatPassword: '',
+            passwordError: false
         };
     }
 
     componentDidMount() {
     }
 
-    handleEmailInput(event) {
-        this.setState({
-            email: event.target.value,
-        });
-    }
-
-    handlePasswordInput(event, data) {
-        this.setState({
-            password: data.value
-        });
-    }
-
-    handleRepeatPasswordInput(event, data) {
-        this.setState({
-            repeatPassword: data.value,
-        });
+    handleInput(event, data) {
+        this.setState({ [data.name]: data.value });
+        console.log(this.state);
     }
 
     /*
@@ -54,7 +42,12 @@ class SignUp extends Component {
             return;
         };
 
-        const data = { email: this.state.email, password: this.state.password };
+        const data = { 
+            email: this.state.email, 
+            name: this.state.name,
+            password: this.state.password,
+            phone: this.state.phone
+        };
 
         fetch('/api/auth/signup', {
             method: 'POST',
@@ -77,21 +70,23 @@ class SignUp extends Component {
                             type="email" 
                             name="email"
                             placeholder="you@email.com"
-                            onBlur={this.handleEmailInput.bind(this)}
+                            onChange={this.handleInput.bind(this)}
                         />
-                        { /* TODO handle input */ }
                         <Form.Input 
                             required
                             label={"Your Name".toUpperCase()} 
+                            name="name"
                             type="text" 
                             placeholder="Name"
+                            onChange={this.handleInput.bind(this)}
                         />
-                        { /* TODO handle input */ }
                         <Form.Input 
                             required
                             label={"Your phone number".toUpperCase()} 
+                            name="phone"
                             type="text" 
                             placeholder="Phone Number"
+                            onChange={this.handleInput.bind(this)}
                         />
                         <Form.Input 
                             required
@@ -99,16 +94,17 @@ class SignUp extends Component {
                             type="password" 
                             name="password"
                             placeholder="Type your password"
-                            onChange={this.handlePasswordInput.bind(this)}
                             error={this.state.passwordError}
+                            onChange={this.handleInput.bind(this)}
                         />
                         <Form.Input 
                             required
+                            name="repeatPassword"
                             label={"repeat your password".toUpperCase()}
-                            onChange={this.handleRepeatPasswordInput.bind(this)} 
                             type="password" 
                             placeholder="Type your password"
                             error={this.state.passwordError}
+                            onChange={this.handleInput.bind(this)}
                         />
                         <Button >
                             Sign Up

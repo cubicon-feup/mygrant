@@ -9,14 +9,30 @@ const saltRounds = 10;
  * Register a user
  **/
 router.post('/signup', function(req, res) {
+
+    let query = 'SELECT EXISTS ( SELECT * FROM users WHERE email = $(email))';
+    db.one(query, {email: req.body.email})
+    .then(data => {
+        console.log(data);
+        if (data.exists) {
+            res.status(409).end();
+            return;
+        }
+    }).catch(err => {
+        res.status(500).json({err});
+    });
+
     bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-        console.log(hash);
-        const query = 'INSERT INTO users (email, pass_hash) VALUES ($(email), $(hash))';
+        query = 'INSERT INTO users (email, pass_hash, full_name, phone) VALUES ($(email), $(hash), $(full_name), $(phone)) RETURNING id';
         db.one(query, {
             email: req.body.email,
-            hash: hash
+            hash: hash,
+            full_name: req.body.name,
+            phone: req.body.phone
         }).then(data => {
-            console.log(data);
+            res.status(201).send('Sucessfully added user');
+        }).catch(err => {
+            res.status(500).json({err});
         });
     });
 });
@@ -32,10 +48,8 @@ router.post('/login', function(req, res) {
     //});
 });
 
-router.get('/email-exists/:email', function(req, res) {
-    console.log(req.params.email);
-    res.status(200).json('emailExists: true');
-});
+function isRepeatedEmail(email) {
+}
 
 module.exports = router;
 
