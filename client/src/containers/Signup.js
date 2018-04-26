@@ -7,7 +7,6 @@ class SignUp extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            disableSubmit: true, 
             email: '', 
             emailError: false, 
             password: '', 
@@ -22,23 +21,18 @@ class SignUp extends Component {
     handleEmailInput(event) {
         this.setState({
             email: event.target.value,
-            disableSubmit: this.checkForm()
         });
     }
 
     handlePasswordInput(event, data) {
         this.setState({
-            password: data.value,
-            disableSubmit: this.checkForm(),
-            passwordError: !this.checkPasswords()
+            password: data.value
         });
     }
 
     handleRepeatPasswordInput(event, data) {
         this.setState({
             repeatPassword: data.value,
-            disableSubmit: this.checkForm(),
-            passwordError: !this.checkPasswords()
         });
     }
 
@@ -47,16 +41,28 @@ class SignUp extends Component {
      * returns true if the passwords match and are valid
      */
     checkPasswords() {
-        console.log(this.state);
-        console.log(this.state.password.length >= 8 && this.state.password === this.state.repeatPassword)
         return (this.state.password.length >= 8 && this.state.password === this.state.repeatPassword);
     }
 
     /*
-     * Check input validity
+     * Submit the form
      */
-    checkForm() {
-        return !this.checkPasswords() || this.state.email === '';
+    submitForm(event){
+        if (!this.checkPasswords()) {
+            this.setState({ passwordError: true });
+            console.log(this.state);
+            return;
+        };
+
+        const data = { email: this.state.email, password: this.state.password };
+
+        fetch('/api/auth/signup', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }).then(res => console.log(res));
     }
 
     render() {
@@ -64,7 +70,7 @@ class SignUp extends Component {
             <Container className="main-container">
                 <div>
                     <Header as="h1">create an account</Header>
-                    <Form >
+                    <Form onSubmit={this.submitForm.bind(this)} >
                         <Form.Input 
                             required
                             label={"Your Email".toUpperCase()} 
@@ -72,6 +78,20 @@ class SignUp extends Component {
                             name="email"
                             placeholder="you@email.com"
                             onBlur={this.handleEmailInput.bind(this)}
+                        />
+                        <Form.Input 
+                            required
+                            label={"Your Name".toUpperCase()} 
+                            { /* TODO handle input */ }
+                            type="text" 
+                            placeholder="Name"
+                        />
+                        <Form.Input 
+                            required
+                            label={"Your phone number".toUpperCase()} 
+                            { /* TODO handle input */ }
+                            type="text" 
+                            placeholder="Phone Number"
                         />
                         <Form.Input 
                             required
@@ -90,7 +110,7 @@ class SignUp extends Component {
                             placeholder="Type your password"
                             error={this.state.passwordError}
                         />
-                        <Button disabled={this.state.disableSubmit}>
+                        <Button >
                             Sign Up
                         </Button>
                     </Form>

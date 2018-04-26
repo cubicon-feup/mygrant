@@ -82,8 +82,6 @@ class SignUpInfo extends Component {
         <div>
           <Header as="h1">{"Tell us more about yourself".toLowerCase()}</Header>
           <Form>
-            <Form.Input label={"Your Name".toUpperCase()} type="text" placeholder="Name"/>
-            <Form.Input label={"Your phone number".toUpperCase()} type="text" placeholder="Phone Number"/>
             <Form.Select onChange={this.getRegions.bind(this)} label={"Your Country".toUpperCase()} placeholder={"Country"} options={this.state.countries}/>
             <Form.Select onChange={this.getCities.bind(this)} label={"Your Region".toUpperCase()} placeholder="Region" options={this.state.regions}/>
             <Form.Select label={"Your City".toUpperCase()} placeholder="City" options={this.state.cities}/>
