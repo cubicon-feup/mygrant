@@ -79,17 +79,17 @@ class SignUp extends Component {
                             placeholder="you@email.com"
                             onBlur={this.handleEmailInput.bind(this)}
                         />
+                        { /* TODO handle input */ }
                         <Form.Input 
                             required
                             label={"Your Name".toUpperCase()} 
-                            { /* TODO handle input */ }
                             type="text" 
                             placeholder="Name"
                         />
+                        { /* TODO handle input */ }
                         <Form.Input 
                             required
                             label={"Your phone number".toUpperCase()} 
-                            { /* TODO handle input */ }
                             type="text" 
                             placeholder="Phone Number"
                         />
