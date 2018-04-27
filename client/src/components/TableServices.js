@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../css/App.css';
-import { Container, Header, Table, Modal } from 'semantic-ui-react';
+import { Container, Header, Icon, Table, Modal } from 'semantic-ui-react';
 import Service from './Service';
 
 const urlForData = 'http://localhost:3001/api/services';
@@ -76,9 +76,14 @@ class TableServices extends Component {
         return (
             <Container className="main-container">
                 <div>
-                    <Header as="h1">Services</Header>
-                    <Table celled selectable>
+                    <Header size="huge" textAlign="center">
+                        <Icon name="folder" />
+                        My Services
+                    </Header>
+
+                    <Table selectable basic="very">
                         <TableHeader />
+                        <Container fluid className="purple-divider" />
                         <Table.Body>{tableRows}</Table.Body>
                     </Table>
                 </div>
