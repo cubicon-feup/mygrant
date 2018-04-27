@@ -4,6 +4,7 @@ var db = require('../config/database');
 var image = require('../images/Image');
 const expressJoi = require('express-joi-validator');
 const policy = require('../policies/crowdfundingsPolicy');
+const crobJob = require('../cronjob');
 
 // CROWDFUNDING.
 // ===============================================================================
@@ -33,15 +34,19 @@ router.post('/', policy.valid, function(req, res) {
     let creatorId = req.body.creator_id;
     let query = 
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), 'BUSINESS'::service_categories, $(location), $(mygrant_target), now(), now() + interval '1 week', 'COLLECTING'::crowdfunding_statuses, $(creator_id));`;
+        VALUES ($(title), $(description), 'BUSINESS'::service_categories, $(location), $(mygrant_target), now(), now() + interval '1 week', 'COLLECTING'::crowdfunding_statuses, $(creator_id))
+        RETURNING id;`;
     
-    db.none(query, {
+    db.one(query, {
         title: title,
         description: description,
         location: location,
         mygrant_target: mygrantTarget,
         creator_id: creatorId
-    }).then(() => {
+    }).then(data => {
+        let id = data.id;
+        let date = new Date(2018, 3, 27, 18, 23, 0);
+        crobJob.scheduleJob(id, date);
         res.status(201).send('Sucessfully created a crowdfunding project.');
     }).catch(error => {
         res.status(500).json({error});
