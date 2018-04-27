@@ -59,6 +59,7 @@ class SignUp extends Component {
             headers: { 'content-type': 'application/json' },
             method: 'POST'
         }).then(res => console.log(res));
+        // TODO: deal with this
     }
 
     render() {
