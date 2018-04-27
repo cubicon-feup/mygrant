@@ -82,9 +82,9 @@ class Service extends Component {
     };
 
     oppositeServiceType() {
-        if (this.state.service.data.service_type === 'PROVIDE') {
+        if (this.state.service.service_type === 'PROVIDE') {
             return 'Request';
-        } else if (this.state.service.data.service_type === 'REQUEST') {
+        } else if (this.state.service.service_type === 'REQUEST') {
             return 'Provide';
         }
     }
@@ -104,15 +104,15 @@ class Service extends Component {
             <Container className="main-container">
                 <Segment>
                     <Header as="h1">
-                        {this.state.service.data.service_type +
+                        {this.state.service.service_type +
                             ': ' +
-                            this.state.service.data.title}
+                            this.state.service.title}
                     </Header>
-                    <p>{this.state.service.data.category}</p>
-                    <p>{this.state.service.data.description}</p>
-                    <p>{this.state.service.data.location}</p>
-                    <p>{this.state.service.data.acceptable_radius}</p>
-                    <p>{this.state.service.data.mygrant_value}</p>
+                    <p>{this.state.service.category}</p>
+                    <p>{this.state.service.description}</p>
+                    <p>{this.state.service.location}</p>
+                    <p>{this.state.service.acceptable_radius}</p>
+                    <p>{this.state.service.mygrant_value}</p>
                     <h5>{this.oppositeServiceType()} Date</h5>
                     <Form method="POST" onSubmit={this.handleSubmit}>
                         <Form.Input
@@ -129,7 +129,7 @@ class Service extends Component {
                     >
                         <ServiceOffer
                             idService={this.state.id}
-                            typeService={this.state.service.data.service_type}
+                            typeService={this.state.service.service_type}
                         />
                     </Modal>
                 </Segment>
