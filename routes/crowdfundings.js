@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
+const expressJoi = require('express-joi-validator');
+const policy = require('../policies/crowdfundingsPolicy');
 
 // CROWDFUNDING.
 // ===============================================================================
@@ -21,7 +23,7 @@ var image = require('../images/Image');
  * 
  * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
  */
-router.post('/', function(req, res) {
+router.post('/', policy.valid, function(req, res) {
     let title = req.body.title;
     let description = req.body.description;
     let category = req.body.category;
