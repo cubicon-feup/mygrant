@@ -10,11 +10,12 @@ module.exports = {
             description: Joi.string().regex(
                 new RegExp(config.regex.line)
             ).required(),
+            category: Joi.string().required(),
             location: Joi.string().regex(
                 new RegExp(config.regex.line)
             ),
             mygrant_target: Joi.number().required(),
-            // dateFinished: Joi.date().required(),
+            dateFinished: Joi.date().required(),
             creator_id: Joi.number().required()
         }
 
