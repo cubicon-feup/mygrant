@@ -22,7 +22,7 @@ class Service extends Component {
         super(props);
         this.state = {
             id: this.getID(),
-            service: { data: [{}] },
+            service: {},
             request: '',
             isFetching: true
         };
