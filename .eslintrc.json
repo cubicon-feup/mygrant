@@ -4,7 +4,10 @@
         "es6": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
     "parserOptions": {
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
@@ -253,6 +256,7 @@
             "single"
         ],
         "radix": "error",
+        "react/jsx-uses-vars": [2],
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",

@@ -1,33 +1,83 @@
 import React, { Component } from 'react';
 import '../css/common.css';
 
-import { Container, Header, Form } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
 
 class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { info: [] };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            email: '',
+            errorMessage: '',
+            password: ''
+        };
 
-  componentDidMount() {
-    fetch('/api/app_info')
-      .then(res => res.json())
-      .then(info => this.setState({ info }));
-  }
+        this.emailField = null;
 
-  render() {
-    return (
-      <Container className="main-container">
-        <div>
-          <Header as="h1">Login</Header>
-          <Form>
-            <Form.Input label="Name" type="email" placeholder="you@email.com"/>
-            <Form.Input label="Password" type="password"/>
-          </Form>
-        </div>
-      </Container>
-    );
-  }
+        this.setEmailField = component => {
+            this.emailField = component;
+        };
+    }
+
+    // Focus on the email input
+    componentDidMount() {
+        this.emailField.focus();
+    }
+
+    // Update the state with the data that was inserted
+    handleInput(event, data) {
+        this.setState({ [data.name]: data.value })
+    }
+
+    // Submit the form
+    submitForm(event) {
+        event.preventDefault();
+        if (this.state.email === '' || this.state.password === '') {
+            return;
+        }
+
+        const data = {
+            email: this.state.email,
+            password: this.state.password
+        };
+
+        fetch('api/auth/login', {
+            body: JSON.stringify(data),
+            headers: { 'content-type': 'application/json' },
+            method: 'POST'
+        }).then(res => console.log(res));
+    }
+
+    render() {
+        return (
+            <Container className="main-container">
+                <div>
+                    <Header as="h1">Login</Header>
+                    <Form onSubmit={this.submitForm.bind(this)} >
+                        <Form.Field >
+                            <label>{'your email'.toUpperCase()}</label>
+                            <Input
+                            type="email"
+                            name="email"
+                            placeholder="you@email.com"
+                            onChange={this.handleInput.bind(this)}
+                            ref={this.setEmailField}
+                            />
+                        </Form.Field>
+                        <Form.Field >
+                            <label>{'your password'.toUpperCase()}</label>
+                            <Input
+                            type="password"
+                            name="password"
+                            onChange={this.handleInput.bind(this)}
+                            />
+                        </Form.Field>
+                        <Button content={'log in'.toUpperCase()}></Button>
+                    </Form>
+                </div>
+            </Container>
+        );
+    }
 }
 
 export default Login;
