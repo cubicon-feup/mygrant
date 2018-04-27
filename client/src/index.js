@@ -1,15 +1,18 @@
-import React from "react";
-import ReactDom from "react-dom";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import React from 'react';
+import ReactDom from 'react-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import "semantic-ui-css/semantic.min.css";
-import "./css/common.css";
+import 'semantic-ui-css/semantic.min.css';
+import './css/common.css';
 
 import registerServiceWorker from "./registerServiceWorker";
 import App from "./components/App";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import CreateService from "./components/CreateService";
+import User from './components/User';
+import Service from './components/Service';
+import TableServices from './components/TableServices';
 import Search from "./components/SearchStandard";
 import CreateCrowdfunding from "./components/CreateCrowdfunding";
 import Crowdfunding from "./components/Crowdfunding";
@@ -25,6 +28,9 @@ ReactDom.render(
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <Route exact path="/createservice" component={CreateService} />
+            <Route exact path="/user/:id" component={User} />
+            <Route exact path="/service/:id" component={Service} />
+            <Route exact path="/tableservices" component={TableServices} />
             <Route exact path="/search" component={Search} />
             <Route exact path="/crowdfundings" component={Crowdfundings} />
             <Route exact path="/crowdfunding/:id" component={Crowdfunding} />
@@ -33,7 +39,7 @@ ReactDom.render(
             <Responsive as={MygrantNav} maxWidth={768} />
         </div>
     </Router>,
-    document.getElementById("root")
+    document.getElementById('root')
 );
 
 registerServiceWorker();
