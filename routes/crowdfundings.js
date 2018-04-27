@@ -2,20 +2,36 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
+const expressJoi = require('express-joi-validator');
+const policy = require('../policies/crowdfundingsPolicy');
 
 // CROWDFUNDING.
 // ===============================================================================
 
 // Creates a crowdfunding project.
-router.post('/', function(req, res) {
-    var title = req.body.title;
-    var description = req.body.description;
-    var category = req.body.category;
-    var location = req.body.location;
-    var mygrantTarget = req.body.mygrant_target;
-    var dateFinished = req.body.date_finished;
-    var creatorId = req.body.creator_id;
-    var query = 
+
+/**
+ * @api {post} /crowdfunding/ Creates a new crowdfunding project.
+ * @apiName PostCrowdfunding
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ * 
+ * @apiParam (RequestBody) {String} title
+ * @apiParam (RequestBody) {String} description
+ * @apiParam (RequestBody) {String} category
+ * @apiParam (RequestBody) {String} location
+ * 
+ * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
+ */
+router.post('/', policy.valid, function(req, res) {
+    let title = req.body.title;
+    let description = req.body.description;
+    let category = req.body.category;
+    let location = req.body.location;
+    let mygrantTarget = req.body.mygrant_target;
+    let dateFinished = req.body.date_finished;
+    let creatorId = req.body.creator_id;
+    let query = 
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
         VALUES ($(title), $(description), 'BUSINESS'::service_categories, $(location), $(mygrant_target), now(), now() + interval '1 week', 'COLLECTING'::crowdfunding_statuses, $(creator_id));`;
     
@@ -34,8 +50,8 @@ router.post('/', function(req, res) {
 
 // Gets a crowdfunding project.
 router.get('/:id', function(req, res) {
-    var id = req.params.id;
-    var query = 
+    let id = req.params.id;
+    let query = 
         `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, ( SELECT avg (total_ratings.rating) as average_rating
             FROM (
                 SELECT rating
@@ -57,11 +73,11 @@ router.get('/:id', function(req, res) {
 
 // Updates a crowdfunding project.
 router.put('/:id', function(req, res) {
-    var id = req.params.id;
-    var title = req.body.title;
-    var description = req.body.description;
-    var location = req.body.location;
-    var query = 
+    let id = req.params.id;
+    let title = req.body.title;
+    let description = req.body.description;
+    let location = req.body.location;
+    let query = 
         `UPDATE crowdfunding
         SET title = $(title),
             description = $(description),
@@ -83,8 +99,8 @@ router.put('/:id', function(req, res) {
 
 // Deletes a crowdfunding project.
 router.delete('/:id', function(req, res) {
-    var id = req.params.id;
-    var query = 
+    let id = req.params.id;
+    let query = 
         `DELETE FROM crowdfunding
         WHERE id = $(id);`;
 
@@ -99,8 +115,8 @@ router.delete('/:id', function(req, res) {
 
 // Gets a crowdfunding project average rating.
 router.get('/:id/rating', function(req, res) {
-    var id = req.params.id;
-    var query = 
+    let id = req.params.id;
+    let query = 
         `SELECT avg(total_ratings.rating) as average_rating
         FROM (
             SELECT rating
@@ -119,7 +135,7 @@ router.get('/:id/rating', function(req, res) {
 
 // Get all the crowdfunding projects.
 router.get('/', function(req, res) {
-    var query =
+    let query =
         `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
@@ -134,10 +150,10 @@ router.get('/', function(req, res) {
 
 // User donates to crowdfunding project.
 router.post('/:id/donations', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var donatorId = req.body.donator_id;
-    var amount = req.body.amount;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let donatorId = req.body.donator_id;
+    let amount = req.body.amount;
+    let query = 
         `INSERT INTO crowdfunding_donation (crowdfunding_id, donator_id, amount, date_sent)
         VALUES ($(crowdfunding_id), $(donator_id), $(amount), now());`;
     
@@ -154,8 +170,8 @@ router.post('/:id/donations', function(req, res) {
 
 // Gets all crowdfunding project's donations.
 router.get('/:id/donations', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let query = 
         `SELECT users.id as donator_id, full_name as donator_name, amount
         FROM crowdfunding_donation
         INNER JOIN users ON users.id = crowdfunding_donation.donator_id
@@ -172,11 +188,11 @@ router.get('/:id/donations', function(req, res) {
 
 // Rate a crowdfunding project.
 router.put('/:id/rate', function(req, res) {
-    var id = req.params.id;
-    var rating = req.body.rating;
-    var crowdfundingId = req.body.crowdfunding_id;
-    var donatorId = req.body.donator_id;
-    var query =
+    let id = req.params.id;
+    let rating = req.body.rating;
+    let crowdfundingId = req.body.crowdfunding_id;
+    let donatorId = req.body.donator_id;
+    let query =
         `UPDATE crowdfunding_donation
         SET rating = $(rating)
         WHERE crowdfunding_id = $(crowdfunding_id)
@@ -230,9 +246,9 @@ router.delete('/:id/image', function(req, res) {
 
 // Service creator offers a service to the crowdfunding creator.
 router.post('/:id/services_offers', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var serviceId = req.body.service_id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let serviceId = req.body.service_id;
+    let query = 
         `INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
         VALUES ($(service_id), $(crowdfunding_id));`;
     
@@ -248,8 +264,8 @@ router.post('/:id/services_offers', function(req, res) {
 
 // Gets all the service offers for the crowdfunding.
 router.get('/:id/services_offers', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let query = 
         `SELECT service.id as service_id, service.title as service_title, service.category as service_category, service.service_type
         FROM service
         INNER JOIN crowdfunding_offer ON crowdfunding_offer.service_id = service.id
@@ -266,9 +282,9 @@ router.get('/:id/services_offers', function(req, res) {
 
 // Deletes a service offer from the available offers.
 router.delete('/:id/services_offers', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var serviceId = req.body.service_id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let serviceId = req.body.service_id;
+    let query = 
         `DELETE FROM crowdfunding_offer
         WHERE service_id = $(service_id)
             AND crowdfunding_id = $(crowdfunding_id);`;
@@ -288,14 +304,14 @@ router.delete('/:id/services_offers', function(req, res) {
 
 // Create a new service request for the crowdfunding.
 router.post('/:id/services_requested', function(req, res) {
-    var crowdfundingId = req.params.id;    
-    var title = req.body.title;
-    var description = req.body.description;
-    var category = req.body.category;
-    var location = req.body.location;
-    var acceptableRadius = req.body.acceptable_radius;
-    var mygrantValue = req.body.mygrant_value;
-    var query = 
+    let crowdfundingId = req.params.id;    
+    let title = req.body.title;
+    let description = req.body.description;
+    let category = req.body.category;
+    let location = req.body.location;
+    let acceptableRadius = req.body.acceptable_radius;
+    let mygrantValue = req.body.mygrant_value;
+    let query = 
         `INSERT INTO service (title, description, category, location, acceptable_radius, mygrant_value, date_created, service_type, crowdfunding_id)
         VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), now(), 'REQUEST', $(crowdfunding_id));`;
 
@@ -316,8 +332,8 @@ router.post('/:id/services_requested', function(req, res) {
 
 // Get all services requested for the crowdfunding.
 router.get('/:id/services_requested', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let query = 
         `SELECT title, mygrant_value, category
         FROM service
         WHERE service.crowdfunding_id = 1;`;
@@ -333,8 +349,8 @@ router.get('/:id/services_requested', function(req, res) {
 
 // Deletes a service request from the services that the crowdfunding creator is looking to get. 
 router.delete('/:id/services_requested', function(req, res) {
-    var serviceId = req.body.service_id;
-    var query = 
+    let serviceId = req.body.service_id;
+    let query = 
         `DELETE FROM service
         WHERE id = $(service_id)`;
     
@@ -353,11 +369,11 @@ router.delete('/:id/services_requested', function(req, res) {
 // Select a service from the available offered ones. This service is then instantiated as an agreed service.
 // FIXME: giving an error when trying out in Postman.
 router.post('/:id/services', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var serviceId = req.body.service_id;
-    var partnerId = req.body.partner_id;
-    //var dateScheduled = req.body.date_scheduled;    // Format: 'yyyy-mm-dd hh:m:ss'.
-    var query = 
+    let crowdfundingId = req.params.id;
+    let serviceId = req.body.service_id;
+    let partnerId = req.body.partner_id;
+    //let dateScheduled = req.body.date_scheduled;    // Format: 'yyyy-mm-dd hh:m:ss'.
+    let query = 
         `INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_agreed, date_scheduled)
         VALUES ($(service_id), $(partner_id), $(crowdfunding_id), now(), now() + interval '1 week');`;
     
@@ -376,8 +392,8 @@ router.post('/:id/services', function(req, res) {
 // Gets all the services that were already agreed to happen.
 // TODO: test.
 router.get('/:id/services', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let query = 
         `SELECT service_instance.service_id, service_instance.date_scheduled, service_instance.partner_id, service.title, service.mygrant_value, service.description, users.full_name as user_full_name
         FROM service_instance
         INNER JOIN service ON service.id = service_instance.service_id
@@ -397,9 +413,9 @@ router.get('/:id/services', function(req, res) {
 // TODO: test.
 // TODO: is this desired behaviour?
 router.delete('/:id/services', function(req, res) {
-    var crowdfundingId = req.params.id;
-    var serviceId = req.body.service_id;
-    var query = 
+    let crowdfundingId = req.params.id;
+    let serviceId = req.body.service_id;
+    let query = 
         `DELETE FROM service_instance
         WHERE service_id = $(service_id)
             AND crowdfunding_id = $(crowdfunding_id);`;
