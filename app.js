@@ -1,7 +1,10 @@
 const createError = require('http-errors');
 const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
+const passport = require('passport');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -21,8 +24,13 @@ const app = express();
 // All requests enabled - TODO only allow requests originating from our server
 app.use(cors());
 
-// Enable helmet
 app.use(helmet());
+
+// Setup session
+app.use(session({ secret: 'carbonbytunicgym' }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -49,7 +57,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

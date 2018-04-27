@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../config/database');
+const express = require('express');
+const passport = require('../auth/local');
+const router = express.Router();
+const db = require('../config/database');
 
-var bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // Register a user
@@ -17,7 +18,7 @@ router.post('/signup', function(req, res) {
             if (data.exists) {
                 res.status(409).send('Email already in use');
             } else {
-                // register new user +
+                // register new user
                 bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
                     query = 'INSERT INTO users (email, pass_hash, full_name, phone) VALUES ($(email), $(passHash), $(fullName), $(phone)) RETURNING id';
                     db.one(query, {
@@ -40,10 +41,27 @@ router.post('/signup', function(req, res) {
         });
 });
 
-
 // Login
 router.post('/login', function(req, res) {
+    passport.authenticate('local', (err, user) => {
+        if (err) {
+            res.status(500).send('error');
+        }
+        if (user) {
+            req.logIn(user, function(error) {
+                if (error) {
+                    res.status(500).send('error');
+                } else {
+                    res.status(200).send('success');
+                }
+            });
+        } else {
+            res.status(400).json({ error: 'Invalid email or password' });
+        }
+    })(req, res);
+});
 
+/*
     // Get password from db
     const query = 'SELECT pass_hash FROM users where email = $(email)';
 
@@ -64,7 +82,7 @@ router.post('/login', function(req, res) {
         .catch(() => {
             res.status(400).json({ error: 'Invalid email or password' });
         });
-});
+});*/
 
 module.exports = router;
 

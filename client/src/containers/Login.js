@@ -37,8 +37,8 @@ class Login extends Component {
         }
 
         const data = {
-            email: this.state.email,
-            password: this.state.password
+            password: this.state.password,
+            username: this.state.email
         };
 
         fetch('api/auth/login', {
