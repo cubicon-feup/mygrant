@@ -49,7 +49,7 @@ router.post('/login', function(req, res) {
 
     db.one(query, { email: req.body.email })
         .then(data => {
-            bcrypt.compare(req.body.password, data.pass_hash, function(result) {
+            bcrypt.compare(req.body.password, data.pass_hash, function(_err, result) {
                 if (result) {
                     // password matches
                     res.status(200).send('Logged in');
@@ -59,8 +59,10 @@ router.post('/login', function(req, res) {
                 }
             });
         })
-        .catch(err => {
-            res.status(500).json({ err });
+
+        // Query error - no user with that email
+        .catch(() => {
+            res.status(400).json({ error: 'Invalid email or password' });
         });
 });
 
