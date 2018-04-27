@@ -1,9 +1,12 @@
 var schedule = require('node-schedule');
 
-module.exports.scheduleJob = (date,query) => {
-    db.none(query).then(() => {
-        res.status(201).send('Sucessfully created a crowdfunding project.');
-    }).catch(error => {
-        res.status(500).json({error});
+module.exports.scheduleJob = (someFunction,crowdfundingId,date) => {
+    //var date = new Date(2018, 3, 26, 5, 46, 30);
+     job = schedule.scheduleJob(date, function(){
+
+        do{
+
+        }while(!someFunction(cronfundingId));
     });
+
 };
