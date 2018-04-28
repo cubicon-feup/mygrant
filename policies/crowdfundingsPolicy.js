@@ -122,7 +122,8 @@ module.exports = {
             sorting_method: Joi.string(),
             category: Joi.string(),
             location: Joi.string(),
-            keywords: Joi.string()
+            keywords: Joi.string(),
+            status: Joi.string()
         }
 
         const {error} = Joi.validate(req.params, schema, config.joiOptions);

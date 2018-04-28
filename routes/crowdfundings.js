@@ -3,7 +3,7 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 const policy = require('../policies/crowdfundingsPolicy');
-const allowedSortingMethods = ["date_created", "date_finished", "title", "target_percentage", "rating"];
+const allowedSortingMethods = ["date_created", "date_finished", "title", "percentage_achieved"];
 
 // CROWDFUNDING.
 // ===============================================================================
@@ -81,12 +81,14 @@ router.post('/', policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, ( SELECT avg (total_ratings.rating) as average_rating
-            FROM (
-                SELECT rating
-                FROM crowdfunding_donation
-                WHERE crowdfunding_id = $(id)
-            ) as total_ratings), ARRAY( SELECT image_url FROM crowdfunding_image WHERE crowdfunding_id = $(id)) as images
+        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id,
+            ( SELECT avg (total_ratings.rating) as average_rating
+                FROM (
+                    SELECT rating
+                    FROM crowdfunding_donation
+                    WHERE crowdfunding_id = $(id)
+            ) as total_ratings),
+            ARRAY( SELECT image_url FROM crowdfunding_image WHERE crowdfunding_id = $(id)) as images
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE crowdfunding.id = $(id);`;
@@ -291,7 +293,7 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
 });
 
 /**
- * @api {put} /crowdfundings/:crowdfunding_id/rate Rate.
+ * @api {put} /crowdfundings/:crowdfunding_id/rating Rate.
  * @apiName Rate
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -305,7 +307,7 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid rate data.
  * @apiError (Error 500) InternalServerError Couldn't get donations.
  */
-router.put('/:crowdfunding_id/rate', policy.rate, function(req, res) {
+router.put('/:crowdfunding_id/rating', policy.rate, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let rating = req.body.rating;
     let donatorId = req.body.donator_id;
@@ -641,7 +643,8 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
  * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
- * @apiParam (RequestQuery) {String=date_created, date_finished, title, target_percentage, rating} [sorting_method] Sorting method selected.
+ * @apiParam (RequestQuery) {String=date_created, date_finished, title, percentage_achieved} [sorting_method] Sorting method selected.
+ * @apiParam (RequestQuery) {String=COLLECTING, RECRUITING, FINISHED} [status] Current status.
  * @apiParam (RequestQuery) {String} [category] Category to search.
  * @apiParam (RequestQuery) {String} [location] Location to search.
  * @apiParam (RequestQuery) {String} [keywords] Keywords to search either in the title or description.
@@ -665,24 +668,27 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
 router.get('/filter/:from-:to', policy.search, function(req, res) {
     let from = req.params.from - 1; // We're subtracting so that we can include the 'from' crowdfunding.
     let to = req.params.to;
-    let sortingMethod = req.query.hasOwnProperty('sorting_method') ? req.query.sorting_method : false;
+    let sortingMethod = req.query.hasOwnProperty('sorting_method') && (allowedSortingMethods.indexOf(req.query.sorting_method) >= 0) ? req.query.sorting_method : false;
     let category = req.query.hasOwnProperty('category') ? req.query.category.toUpperCase() : false;    // Category enumators are upper case.
     let location = req.query.hasOwnProperty('location') ? req.query.location : false;
     let keywords = req.query.hasOwnProperty('keywords') ? req.query.keywords : false;
+    let status = req.query.hasOwnProperty('status') ? req.query.status.toUpperCase() : false;   // Status enumators are upper case.
 
     let textSearch = `to_tsvector('english', title || ' ' || description)`;
     let textSearchQuery = `plainto_tsquery('english', $(keywords))`;
 
-    switch(sortingMethod) {
-        case 'target_percentage':
-            sortingMethod = `(crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target) DESC`;
-            break;
-        case 'rating':
-            
-            break;
-        default:
-            sortingMethod = `crowdfunding.${sortingMethod} ASC`;    
-            break;
+    if(sortingMethod) {
+        switch(sortingMethod) {
+            case 'percentage_achieved':
+                sortingMethod = `(crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target) DESC`;
+                break;
+            /*case 'rating':
+                sortingMethod = `total_ratings DESC`;
+                break;*/
+            default:
+                sortingMethod = `crowdfunding.${sortingMethod} ASC`;    
+                break;
+        }
     }
 
     var query =
@@ -692,6 +698,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
         WHERE true `
         + (category ? `AND crowdfunding.category = $(category) ` : ``)
         + (location ? `AND crowdfunding.location = $(location) ` : ``)
+        + (status ? `AND crowdfunding.status = $(status) ` : ``)
         + (keywords ? `AND ${textSearch} @@ ${textSearchQuery} ` : ``)
         + (sortingMethod ? `ORDER BY ${sortingMethod} ` + (
             keywords ? `, ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
@@ -708,7 +715,8 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
         num_crowdfundings: (to - from),
         num_offset: from,
         category: category,
-        location: location
+        location: location,
+        status: status
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {

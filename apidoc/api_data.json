@@ -1,7 +1,7 @@
 [
   {
     "type": "delete",
-    "url": "/crowdfunding/:crowdfunding_id",
+    "url": "/crowdfundings/:crowdfunding_id",
     "title": "Delete crowdfunding.",
     "name": "DeleteCrowdfunding",
     "group": "Crowdfunding",
@@ -54,7 +54,7 @@
   },
   {
     "type": "delete",
-    "url": "/crowdfunding/:crowdfunding_id/services_offers",
+    "url": "/crowdfundings/:crowdfunding_id/services_offers",
     "title": "Delete crowdfunding service offer.",
     "name": "DeleteServiceOffer",
     "group": "Crowdfunding",
@@ -124,7 +124,7 @@
   },
   {
     "type": "delete",
-    "url": "/crowdfunding/:crowdfunding_id/services_requested",
+    "url": "/crowdfundings/:crowdfunding_id/services_requested",
     "title": "Delete a service request.",
     "name": "DeleteServiceRequest",
     "group": "Crowdfunding",
@@ -194,7 +194,7 @@
   },
   {
     "type": "post",
-    "url": "/crowdfunding/:crowdfunding_id/donations",
+    "url": "/crowdfundings/:crowdfunding_id/donations",
     "title": "Donate.",
     "name": "Donate",
     "group": "Crowdfunding",
@@ -271,7 +271,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/:crowdfunding_id/services_offers",
+    "url": "/crowdfundings/:crowdfunding_id/services_offers",
     "title": "Get all crowdfunding service offers.",
     "name": "GetAllServiceOffer",
     "group": "Crowdfunding",
@@ -345,7 +345,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/:crowdfunding_id/services_requested",
+    "url": "/crowdfundings/:crowdfunding_id/services_requested",
     "title": "Get all service requests.",
     "name": "GetAllServiceRequests",
     "group": "Crowdfunding",
@@ -412,7 +412,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/:crowdfunding_id",
+    "url": "/crowdfundings/:crowdfunding_id",
     "title": "Get crowdfunding project.",
     "name": "GetCrowdfunding",
     "group": "Crowdfunding",
@@ -542,7 +542,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/:crowdfunding_id/rating",
+    "url": "/crowdfundings/:crowdfunding_id/rating",
     "title": "Get crowdfunding average rating.",
     "name": "GetCrowdfundingAverageRating",
     "group": "Crowdfunding",
@@ -595,7 +595,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/",
+    "url": "/crowdfundings/",
     "title": "Get all crowdfundings.",
     "name": "GetCrowdfundings",
     "group": "Crowdfunding",
@@ -677,7 +677,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/:crowdfunding_id/donations",
+    "url": "/crowdfundings/:crowdfunding_id/donations",
     "title": "Get donations.",
     "name": "GetDonations",
     "group": "Crowdfunding",
@@ -744,7 +744,7 @@
   },
   {
     "type": "post",
-    "url": "/crowdfunding/:crowdfunding_id/services_offers",
+    "url": "/crowdfundings/:crowdfunding_id/services_offers",
     "title": "Offer service to crowdfunding.",
     "name": "OfferService",
     "group": "Crowdfunding",
@@ -814,7 +814,7 @@
   },
   {
     "type": "post",
-    "url": "/crowdfunding/",
+    "url": "/crowdfundings/",
     "title": "Creates a new crowdfunding project.",
     "name": "PostCrowdfunding",
     "group": "Crowdfunding",
@@ -917,7 +917,7 @@
   },
   {
     "type": "put",
-    "url": "/crowdfunding/:crowdfunding_id/rate",
+    "url": "/crowdfundings/:crowdfunding_id/rating",
     "title": "Rate.",
     "name": "Rate",
     "group": "Crowdfunding",
@@ -994,7 +994,7 @@
   },
   {
     "type": "get",
-    "url": "/crowdfunding/filter/:from-:to",
+    "url": "/crowdfundings/filter/:from-:to",
     "title": "Search crowdfunding.",
     "name": "SearchCrowdfunding",
     "group": "Crowdfunding",
@@ -1006,14 +1006,14 @@
             "type": "Integer",
             "optional": false,
             "field": "from",
-            "description": "<p>Crowdfunding id associated with the service requests.</p>"
+            "description": "<p>Crowdfunding number from returned.</p>"
           },
           {
             "group": "RequestParam",
             "type": "Integer",
             "optional": false,
             "field": "to",
-            "description": "<p>Crowdfunding id associated with the service requests.</p>"
+            "description": "<p>Crowdfunding number to returned.</p>"
           }
         ],
         "RequestQuery": [
@@ -1023,11 +1023,24 @@
             "allowedValues": [
               "date_created",
               "date_finished",
-              "title"
+              "title",
+              "percentage_achieved"
             ],
             "optional": true,
             "field": "sorting_method",
             "description": "<p>Sorting method selected.</p>"
+          },
+          {
+            "group": "RequestQuery",
+            "type": "String",
+            "allowedValues": [
+              "COLLECTING",
+              "RECRUITING",
+              "FINISHED"
+            ],
+            "optional": true,
+            "field": "status",
+            "description": "<p>Current status.</p>"
           },
           {
             "group": "RequestQuery",
@@ -1142,13 +1155,20 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "URL example:",
+        "content": "http://localhost:3001/api/crowdfundings/filter/1-10?&sorting_method=date_created&category=BUSINESS",
+        "type": "json"
+      }
+    ],
     "version": "0.0.0",
     "filename": "routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
     "type": "post",
-    "url": "/crowdfunding/:crowdfunding_id/services_requested",
+    "url": "/crowdfundings/:crowdfunding_id/services_requested",
     "title": "Create service request.",
     "name": "ServiceRequest",
     "group": "Crowdfunding",
@@ -1246,7 +1266,7 @@
   },
   {
     "type": "put",
-    "url": "/crowdfunding/:crowdfunding_id",
+    "url": "/crowdfundings/:crowdfunding_id",
     "title": "Update crowdfunding.",
     "name": "UpdateCrowdfunding",
     "group": "Crowdfunding",
