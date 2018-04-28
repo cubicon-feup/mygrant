@@ -3,13 +3,13 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 const policy = require('../policies/crowdfundingsPolicy');
-const allowedSortingMethods = ["date_created", "date_finished", "title"];
+const allowedSortingMethods = ["date_created", "date_finished", "title", "target_percentage", "rating"];
 
 // CROWDFUNDING.
 // ===============================================================================
 
 /**
- * @api {post} /crowdfunding/ Creates a new crowdfunding project.
+ * @api {post} /crowdfundings/ Creates a new crowdfunding project.
  * @apiName PostCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -56,7 +56,7 @@ router.post('/', policy.valid, function(req, res) {
 });
 
 /**
- * @api {get} /crowdfunding/:crowdfunding_id Get crowdfunding project.
+ * @api {get} /crowdfundings/:crowdfunding_id Get crowdfunding project.
  * @apiName GetCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -101,7 +101,7 @@ router.get('/:crowdfunding_id', function(req, res) {
 });
 
 /**
- * @api {put} /crowdfunding/:crowdfunding_id Update crowdfunding.
+ * @api {put} /crowdfundings/:crowdfunding_id Update crowdfunding.
  * @apiName UpdateCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -138,7 +138,7 @@ router.put('/:crowdfunding_id', policy.edit, function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfunding/:crowdfunding_id Delete crowdfunding.
+ * @api {delete} /crowdfundings/:crowdfunding_id Delete crowdfunding.
  * @apiName DeleteCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -165,7 +165,7 @@ router.delete('/:crowdfunding_id', function(req, res) {
 });
 
 /**
- * @api {get} /crowdfunding/:crowdfunding_id/rating Get crowdfunding average rating.
+ * @api {get} /crowdfundings/:crowdfunding_id/rating Get crowdfunding average rating.
  * @apiName GetCrowdfundingAverageRating
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -196,7 +196,7 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
 });
 
 /**
- * @api {get} /crowdfunding/ Get all crowdfundings.
+ * @api {get} /crowdfundings/ Get all crowdfundings.
  * @apiName GetCrowdfundings
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -226,7 +226,7 @@ router.get('/', function(req, res) {
 });
 
 /**
- * @api {post} /crowdfunding/:crowdfunding_id/donations Donate.
+ * @api {post} /crowdfundings/:crowdfunding_id/donations Donate.
  * @apiName Donate
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -260,7 +260,7 @@ router.post('/:crowdfunding_id/donations', policy.donate, function(req, res) {
 });
 
 /**
- * @api {get} /crowdfunding/:crowdfunding_id/donations Get donations.
+ * @api {get} /crowdfundings/:crowdfunding_id/donations Get donations.
  * @apiName GetDonations
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -291,7 +291,7 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
 });
 
 /**
- * @api {put} /crowdfunding/:crowdfunding_id/rate Rate.
+ * @api {put} /crowdfundings/:crowdfunding_id/rate Rate.
  * @apiName Rate
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -362,7 +362,7 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
 // ===============================================================================
 
 /**
- * @api {post} /crowdfunding/:crowdfunding_id/services_offers Offer service to crowdfunding.
+ * @api {post} /crowdfundings/:crowdfunding_id/services_offers Offer service to crowdfunding.
  * @apiName OfferService
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -393,7 +393,7 @@ router.post('/:crowdfunding_id/services_offers', function(req, res) {
 });
 
 /**
- * @api {get} /crowdfunding/:crowdfunding_id/services_offers Get all crowdfunding service offers.
+ * @api {get} /crowdfundings/:crowdfunding_id/services_offers Get all crowdfunding service offers.
  * @apiName GetAllServiceOffer
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -425,7 +425,7 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfunding/:crowdfunding_id/services_offers Delete crowdfunding service offer.
+ * @api {delete} /crowdfundings/:crowdfunding_id/services_offers Delete crowdfunding service offer.
  * @apiName DeleteServiceOffer
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -460,7 +460,7 @@ router.delete('/:crowdfunding_id/services_offers', policy.offerService, function
 // ===============================================================================
 
 /**
- * @api {post} /crowdfunding/:crowdfunding_id/services_requested Create service request.
+ * @api {post} /crowdfundings/:crowdfunding_id/services_requested Create service request.
  * @apiName ServiceRequest
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -503,7 +503,7 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
 });
 
 /**
- * @api {get} /crowdfunding/:crowdfunding_id/services_requested Get all service requests.
+ * @api {get} /crowdfundings/:crowdfunding_id/services_requested Get all service requests.
  * @apiName GetAllServiceRequests
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -533,7 +533,7 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfunding/:crowdfunding_id/services_requested Delete a service request.
+ * @api {delete} /crowdfundings/:crowdfunding_id/services_requested Delete a service request.
  * @apiName DeleteServiceRequest
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -635,13 +635,13 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
 // ===============================================================================
 
 /**
- * @api {get} /crowdfunding/filter/:from-:to Search crowdfunding.
+ * @api {get} /crowdfundings/filter/:from-:to Search crowdfunding.
  * @apiName SearchCrowdfunding
  * @apiGroup Crowdfunding
  *
  * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
  * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
- * @apiParam (RequestQuery) {String=date_created, date_finished, title} [sorting_method] Sorting method selected.
+ * @apiParam (RequestQuery) {String=date_created, date_finished, title, target_percentage, rating} [sorting_method] Sorting method selected.
  * @apiParam (RequestQuery) {String} [category] Category to search.
  * @apiParam (RequestQuery) {String} [location] Location to search.
  * @apiParam (RequestQuery) {String} [keywords] Keywords to search either in the title or description.
@@ -658,6 +658,9 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
  * 
  * @apiError (Error 400) BadRequest Invalid search data.
  * @apiError (Error 500) InternalServerError Couldn't get crowdfundings.
+ * 
+ * @apiExample URL example:
+ * http://localhost:3001/api/crowdfundings/filter/1-10?&sorting_method=date_created&category=BUSINESS
  */
 router.get('/filter/:from-:to', policy.search, function(req, res) {
     let from = req.params.from - 1; // We're subtracting so that we can include the 'from' crowdfunding.
@@ -670,21 +673,35 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
     let textSearch = `to_tsvector('english', title || ' ' || description)`;
     let textSearchQuery = `plainto_tsquery('english', $(keywords))`;
 
+    switch(sortingMethod) {
+        case 'target_percentage':
+            sortingMethod = `(crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target) DESC`;
+            break;
+        case 'rating':
+            
+            break;
+        default:
+            sortingMethod = `crowdfunding.${sortingMethod} ASC`;    
+            break;
+    }
+
     var query =
-        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
+        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, crowdfunding.mygrant_balance, crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target as percentage_achieved, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE true `
         + (category ? `AND crowdfunding.category = $(category) ` : ``)
         + (location ? `AND crowdfunding.location = $(location) ` : ``)
         + (keywords ? `AND ${textSearch} @@ ${textSearchQuery} ` : ``)
-        + (sortingMethod ? `ORDER BY crowdfunding.${sortingMethod} ASC ` + (
+        + (sortingMethod ? `ORDER BY ${sortingMethod} ` + (
             keywords ? `, ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
         ) : (
             keywords ? `ORDER BY ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
         ))
         + `LIMIT $(num_crowdfundings)
         OFFSET $(num_offset);`;
+
+    console.log(query);
 
     db.many(query, {
         keywords: keywords,
@@ -695,6 +712,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.error(error);
         res.status(500).json({error: 'Couldn\'t get crowdfundings.'})
     });
 })
