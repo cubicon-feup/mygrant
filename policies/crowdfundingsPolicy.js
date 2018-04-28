@@ -93,7 +93,6 @@ module.exports = {
             location: Joi.string().regex(
                 new RegExp(config.regex.line)
             ),
-            acceptable_radious: Joi.number().min(1).required(),
             mygrant_value: Joi.number().min(1).required(),
         }
 

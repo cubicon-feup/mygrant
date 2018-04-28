@@ -469,7 +469,6 @@ router.delete('/:crowdfunding_id/services_offers', policy.offerService, function
  * @apiParam (RequestBody) {Integer} description Request service description.
  * @apiParam (RequestBody) {Integer} category Request service category.
  * @apiParam (RequestBody) {Integer} location Location for the service to happen.
- * @apiParam (RequestBody) {Integer} acceptable_radius FIXME: To use?????.
  * @apiParam (RequestBody) {Integer} mygrant_value Mygrants amount to transfer.
  * 
  * @apiSuccess (Success 201) {String} message Successfully created a new service request for the crowdfunding.
@@ -483,18 +482,16 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
     let description = req.body.description;
     let category = req.body.category;
     let location = req.body.location;
-    let acceptableRadius = req.body.acceptable_radius;
     let mygrantValue = req.body.mygrant_value;
     let query =
-        `INSERT INTO service (title, description, category, location, acceptable_radius, mygrant_value, date_created, service_type, crowdfunding_id)
-        VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), NOW(), 'REQUEST', $(crowdfunding_id));`;
+        `INSERT INTO service (title, description, category, location, mygrant_value, date_created, service_type, crowdfunding_id)
+        VALUES ($(title), $(description), $(category), $(location), $(mygrant_value), NOW(), 'REQUEST', $(crowdfunding_id));`;
 
     db.none(query, {
         title: title,
         description: description,
         category: category,
         location: location,
-        acceptable_radius: acceptableRadius,
         mygrant_value: mygrantValue,
         crowdfunding_id: crowdfundingId
     }).then(() => {
