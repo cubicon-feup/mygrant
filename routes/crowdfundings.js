@@ -3,6 +3,7 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 const policy = require('../policies/crowdfundingsPolicy');
+const allowedSortingMethods = ["date_created", "date_finished", "title"];
 
 // CROWDFUNDING.
 // ===============================================================================
@@ -629,6 +630,36 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
     }).catch(error => {
         res.status(500).json({error});
     })
+});
+
+// SEARCH
+// ===============================================================================
+
+router.get('/filter/:from-:to', function(req, res) {
+    let from = req.params.from - 1; // We're subtracting so that we can include the 'from' crowdfunding.
+    let to = req.params.to;
+    let sortingMethod = req.query.sorting_method;
+    let category = req.query.category;
+    let location = req.query.location;
+    var query =
+        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_created, crowdfunding.date_finished
+        FROM crowdfunding
+        INNER JOIN users ON users.id = crowdfunding.creator_id `;
+    
+    if(allowedSortingMethods.indexOf(sortingMethod) >= 0)
+        query += `ORDER BY crowdfunding.${sortingMethod} ASC `;
+    query +=
+        `LIMIT $(num_crowdfundings)
+        OFFSET $(num_offset)`;
+
+    db.many(query, {
+        num_crowdfundings: (to - from),
+        num_offset: from
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get crowdfundings.'})
+    });
 })
 
 module.exports = router;
