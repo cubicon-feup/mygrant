@@ -71,11 +71,11 @@ class SignUp extends Component {
                         <Form.Field required >
                             <label>{'Your Email'.toUpperCase()}</label>
                             <Input
-                            name="email"
-                            placeholder="you@email.com"
-                            onChange={this.handleInput.bind(this)}
-                            ref={this.setEmailField}
-                            type="email"
+                                name="email"
+                                placeholder="you@email.com"
+                                onChange={this.handleInput.bind(this)}
+                                ref={this.setEmailField}
+                                type="email"
                             />
                         </Form.Field>
                         <Form.Input

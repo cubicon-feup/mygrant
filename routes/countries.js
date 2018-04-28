@@ -18,7 +18,7 @@ router.get('/', function(req, res) {
 });
 
 // Get a list of countries with the correct names to appear as options in the client
-router.get('/as_options', authenticate, function(req, res) {
+router.get('/as_options', function(req, res) {
     const query = 'SELECT id as value, name as text, code FROM country ORDER BY id ASC';
     db.any(query)
         .then(data => {

@@ -8,6 +8,7 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
@@ -281,7 +282,7 @@
             "error",
             "always"
         ],
-        "strict": "error",
+        "strict": 0,
         "switch-colon-spacing": "error",
         "symbol-description": "error",
         "template-curly-spacing": [

@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
+import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 import '../css/common.css';
 
-import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
 
 class Login extends Component {
+    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -17,6 +21,7 @@ class Login extends Component {
         this.setEmailField = component => {
             this.emailField = component;
         };
+
     }
 
     // Focus on the email input
@@ -26,12 +31,15 @@ class Login extends Component {
 
     // Update the state with the data that was inserted
     handleInput(event, data) {
-        this.setState({ [data.name]: data.value })
+        this.setState({ [data.name]: data.value });
     }
 
     // Submit the form
     submitForm(event) {
         event.preventDefault();
+
+        const { cookies } = this.props;
+
         if (this.state.email === '' || this.state.password === '') {
             return;
         }
@@ -49,8 +57,11 @@ class Login extends Component {
             if (res.status === 200) {
                 res.json()
                     .then(parsed => {
-                        localStorage.setItem('id_token', parsed.token);
-                        console.log(localStorage);
+                        cookies.set('id_token', parsed.token, {
+                            // httpOnly: true,
+                            // secure: true
+                            path: '/'
+                        });
                     });
             }
         });
@@ -65,19 +76,19 @@ class Login extends Component {
                         <Form.Field >
                             <label>{'your email'.toUpperCase()}</label>
                             <Input
-                            type="email"
-                            name="email"
-                            placeholder="you@email.com"
-                            onChange={this.handleInput.bind(this)}
-                            ref={this.setEmailField}
+                                type="email"
+                                name="email"
+                                placeholder="you@email.com"
+                                onChange={this.handleInput.bind(this)}
+                                ref={this.setEmailField}
                             />
                         </Form.Field>
                         <Form.Field >
                             <label>{'your password'.toUpperCase()}</label>
                             <Input
-                            type="password"
-                            name="password"
-                            onChange={this.handleInput.bind(this)}
+                                type="password"
+                                name="password"
+                                onChange={this.handleInput.bind(this)}
                             />
                         </Form.Field>
                         <Button content={'log in'.toUpperCase()}></Button>
@@ -88,4 +99,4 @@ class Login extends Component {
     }
 }
 
-export default Login;
+export default withCookies(Login);
