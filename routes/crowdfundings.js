@@ -641,20 +641,39 @@ router.get('/filter/:from-:to', function(req, res) {
     let sortingMethod = req.query.sorting_method;
     let category = req.query.category;
     let location = req.query.location;
+    console.log(req.query);
     var query =
         `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_created, crowdfunding.date_finished
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id `;
-    
+    if(typeof category === 'string' || typeof location === 'string') {
+        query += `WHERE `;
+        let addAnd = false;
+        if(typeof category === 'string') {
+            category = category.toUpperCase();  // Category enumators are upper case.
+            query += `crowdfunding.category = $(category) `;
+            addAnd = true;
+        }
+        if(typeof location === 'string') {
+            if(addAnd)
+                query += `AND `;
+            query += `crowdfunding.location = $(location) `;
+            addAnd = true;
+        }
+    }
     if(allowedSortingMethods.indexOf(sortingMethod) >= 0)
         query += `ORDER BY crowdfunding.${sortingMethod} ASC `;
     query +=
         `LIMIT $(num_crowdfundings)
         OFFSET $(num_offset)`;
 
+    console.log(query);
+
     db.many(query, {
         num_crowdfundings: (to - from),
-        num_offset: from
+        num_offset: from,
+        category: category,
+        location: location
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
