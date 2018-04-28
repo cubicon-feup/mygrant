@@ -14,17 +14,105 @@ module.exports = {
             location: Joi.string().regex(
                 new RegExp(config.regex.line)
             ),
-            mygrant_target: Joi.number().required(),
-            dateFinished: Joi.date().required(),
+            mygrant_target: Joi.number().min(1).required(),
+            time_interval: Joi.number().min(1).required(),
             creator_id: Joi.number().required()
         }
 
         const {error} = Joi.validate(req.body, schema, config.joiOptions);
 
-        if(error) {
-            res.status(400).send({error: 'Invalid mission data.'});
-            console.log(error);
+        if(error)
+            res.status(400).send({error: 'Invalid crowdfunding data.'});
+        else next();
+    },
+
+    edit(req, res, next) {
+        const schema = {
+            title: Joi.string().regex(
+                new RegExp(config.regex.line)
+            ).required(),
+            description: Joi.string().regex(
+                new RegExp(config.regex.line)
+            ).required()
         }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid crowdfunding data.'});
+        else next();
+    },
+
+    donate(req, res, next) {
+        const schema = {
+            donator_id: Joi.number().required(),
+            amount: Joi.number.min(1).required()
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid donation data.'});
+        else next();
+    },
+
+    rate(req, res, next) {
+        const schema = {
+            rating: Joi.number().min(1).max(3).required(),
+            donator_id: Joi.number().required()
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid rate data.'});
+        else next();
+    },
+
+    offerService(req, res, next) {
+        const schema = {
+            service_id: Joi.number().required()
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid service offer data.'});
+        else next();
+    },
+
+    requestService(req, res, next) {
+        const schema = {
+            title: Joi.string().regex(
+                new RegExp(config.regex.line)
+            ).required(),
+            description: Joi.string().regex(
+                new RegExp(config.regex.line)
+            ).required(),
+            category: Joi.string().required(),
+            location: Joi.string().regex(
+                new RegExp(config.regex.line)
+            ),
+            acceptable_radious: Joi.number().min(1).required(),
+            mygrant_value: Joi.number().min(1).required(),
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid service request data.'});
+        else next();
+    },
+
+    deleteRequestService(req, res, next) {
+        const schema = {
+            service_id: Joi.number().required()
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid service request data.'});
         else next();
     }
 }

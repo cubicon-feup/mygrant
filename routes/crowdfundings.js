@@ -13,12 +13,17 @@ const policy = require('../policies/crowdfundingsPolicy');
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
- * @apiParam (RequestBody) {String} title
- * @apiParam (RequestBody) {String} description
- * @apiParam (RequestBody) {String} category
- * @apiParam (RequestBody) {String} location
+ * @apiParam (RequestBody) {String} title Crowdfunding title.
+ * @apiParam (RequestBody) {String} description Crowdfunding description.
+ * @apiParam (RequestBody) {String} category Crowdfunding category.
+ * @apiParam (RequestBody) {String} location Location where the crowdfunding is going to take place.
+ * @apiParam (RequestBody) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiParam (RequestBody) {Integer} time_interval Number of week to collect donators.
+ * @apiParam (RequestBody) {Integer} creator_id Creator user id.
  *
  * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
+ * 
+ * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
 router.post('/', policy.valid, function(req, res) {
@@ -27,11 +32,11 @@ router.post('/', policy.valid, function(req, res) {
     let category = req.body.category;
     let location = req.body.location;
     let mygrantTarget = req.body.mygrant_target;
-    let dateFinished = req.body.date_finished;
+    let timeInterval = req.body.time_interval;
     let creatorId = req.body.creator_id;
     let query =
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), now(), now() + interval '1 week', COLLECTING, $(creator_id));`;
+        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) week', 'COLLECTING', $(creator_id));`;
 
     db.none(query, {
         title: title,
@@ -39,10 +44,12 @@ router.post('/', policy.valid, function(req, res) {
         category: category,
         location: location,
         mygrant_target: mygrantTarget,
+        time_interval: timeInterval,
         creator_id: creatorId
     }).then(() => {
         res.status(201).send({message: 'Sucessfully created a crowdfunding project.'});
     }).catch(error => {
+        console.log(error)
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
 });
@@ -55,19 +62,18 @@ router.post('/', policy.valid, function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
  *
- * @apiSuccess (Success 200) {String} title
- * @apiSuccess (Success 200) {String} description
- * @apiSuccess (Success 200) {String} category
- * @apiSuccess (Success 200) {String} location
- * @apiSuccess (Success 200) {Integer} mygrant_target
- * @apiSuccess (Success 200) {Date} date_created
- * @apiSuccess (Success 200) {Date} date_finished
- * @apiSuccess (Success 200) {String} status
- * @apiSuccess (Success 200) {Integer} creator_id
- * @apiSuccess (Success 200) {String} creator_name
- * @apiSuccess (Success 200) {Integer} creator_id
- * @apiSuccess (Success 200) {Integer} average_rating
- * @apiSuccess (Success 200) {Array} images
+ * @apiSuccess (Success 200) {String} title Crowdfunding title.
+ * @apiSuccess (Success 200) {String} description Crowdfunding description.
+ * @apiSuccess (Success 200) {String} category Crowdfunding category.
+ * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
+ * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {Date} date_created Creation date.
+ * @apiSuccess (Success 200) {Date} date_finished Close date.
+ * @apiSuccess (Success 200) {String} status Current crowdfunding status. 
+ * @apiSuccess (Success 200) {String} creator_name Creator user name.
+ * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
+ * @apiSuccess (Success 200) {Integer} average_rating Average rating given by donators.
+ * @apiSuccess (Success 200) {Array} images Array of images.
  * 
  * @apiError (Error 500) InternalServerError Could't get the crowdfunding.
  */
@@ -102,29 +108,26 @@ router.get('/:crowdfunding_id', function(req, res) {
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding project id.
  * @apiParam (RequestBody) {String} title
  * @apiParam (RequestBody) {String} description
- * @apiParam (RequestBody) {String} location
  *
  * @apiSuccess (Success 200) {String} message Successfully updated crowdfunding project.
  * 
+ * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
  */
-router.put('/:crowdfunding_id', function(req, res) {
+router.put('/:crowdfunding_id', policy.edit, function(req, res) {
     let id = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
-    let location = req.body.location;
     let query =
         `UPDATE crowdfunding
         SET title = $(title),
             description = $(description),
-            category = 'ARTS'::service_categories,
-            location = $(location)
+            category = 'ARTS'::service_categories
         WHERE id = $(id);`;
 
     db.none(query, {
         title: title,
         description: description,
-        location: location,
         id: id
     }).then(() => {
         res.status(200).send({message: 'Successfully updated crowdfunding project.'});
@@ -156,7 +159,7 @@ router.delete('/:crowdfunding_id', function(req, res) {
     }).then(() => {
         res.status(200).send({message: 'Sucessfully deleted crowdfunding project.'});
     }).catch(error => {
-        res.status(500).json({error: 'Could\'t update the crowdfunding project.'});
+        res.status(500).json({error: 'Could\'t delete the crowdfunding project.'});
     });
 });
 
@@ -221,27 +224,54 @@ router.get('/', function(req, res) {
     });
 });
 
-// User donates to crowdfunding project.
-router.post('/:crowdfunding_id/donations', function(req, res) {
+/**
+ * @api {post} /crowdfunding/:crowdfunding_id/donations Donate.
+ * @apiName Donate
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * @apiParam (RequestBody) {Integer} donator_id Donator user id.
+ * @apiParam (RequestBody) {Integer} amount Number of mygrant to donate.
+ * 
+ * @apiSuccess (Success 201) {String} message Successfully donated to crowdfunding.
+ * 
+ * @apiError (Error 400) BadRequest Invalid donation data.
+ * @apiError (Error 500) InternalServerError Couldn't donate.
+ */
+router.post('/:crowdfunding_id/donations', policy.donate, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let donatorId = req.body.donator_id;
     let amount = req.body.amount;
     let query =
         `INSERT INTO crowdfunding_donation (crowdfunding_id, donator_id, amount, date_sent)
-        VALUES ($(crowdfunding_id), $(donator_id), $(amount), now());`;
+        VALUES ($(crowdfunding_id), $(donator_id), $(amount), NOW());`;
 
     db.none(query, {
         crowdfunding_id: crowdfundingId,
         donator_id: donatorId,
         amount: amount
     }).then(() => {
-        res.status(201).send('Successfully donated to crowdfunding.');
+        res.status(201).send({message: 'Successfully donated to crowdfunding.'});
     }).catch(error => {
         res.status(500).json({error});
     });
 });
 
-// Gets all crowdfunding project's donations.
+/**
+ * @api {get} /crowdfunding/:crowdfunding_id/donations Get donations.
+ * @apiName GetDonations
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * 
+ * @apiSuccess (Success 200) {Integer} donator_id Donator user id.
+ * @apiSuccess (Success 200) {String} donator_name Donator user name.
+ * @apiSuccess (Success 200) {Integer} amount Number of mygrants donated.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get donations.
+ */
 router.get('/:crowdfunding_id/donations', function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
@@ -255,15 +285,28 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get donations'});
     })
 });
 
-// Rate a crowdfunding project.
-router.put('/:crowdfunding_id/rate', function(req, res) {
-    let id = req.params.crowdfunding_id;
+/**
+ * @api {put} /crowdfunding/:crowdfunding_id/rate Rate.
+ * @apiName Rate
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * @apiParam (RequestBody) {Integer} rating Donator user rating.
+ * @apiParam (RequestBody) {Integer} donator_id Donator user id.
+ * 
+ * @apiSuccess (Success 200) {Integer} message Successfully rated the crowdfunding.
+ * 
+ * @apiError (Error 400) BadRequest Invalid rate data.
+ * @apiError (Error 500) InternalServerError Couldn't get donations.
+ */
+router.put('/:crowdfunding_id/rate', policy.rate, function(req, res) {
+    let crowdfundingId = req.params.crowdfunding_id;
     let rating = req.body.rating;
-    let crowdfundingId = req.body.crowdfunding_id;
     let donatorId = req.body.donator_id;
     let query =
         `UPDATE crowdfunding_donation
@@ -276,13 +319,13 @@ router.put('/:crowdfunding_id/rate', function(req, res) {
         crowdfunding_id: crowdfundingId,
         donator_id: donatorId
     }).then(() => {
-        res.status(200).send('Successfully rated the crowdfunding.');
+        res.status(200).send({message: 'Successfully rated the crowdfunding.'});
     }).catch(error => {
         res.status(500).json({error});
     });
 });
 
-router.post('/:crowdfunding_id/image', function(req, res) {
+/*router.post('/:crowdfunding_id/image', function(req, res) {
     let filename = image.uploadImage(req, res, 'crowdfunding/');
     if(filename !== false) {
         let crowdfundingId = req.params.crowdfunding_id;
@@ -312,12 +355,25 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
             filename: filename
         });
     }
-});
+});*/
 
 // SERVICES OFFERS.
 // ===============================================================================
 
-// Service creator offers a service to the crowdfunding creator.
+/**
+ * @api {post} /crowdfunding/:crowdfunding_id/services_offers Offer service to crowdfunding.
+ * @apiName OfferService
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that is offered the service.
+ * @apiParam (RequestBody) {Integer} service_id Service id to offer.
+ * 
+ * @apiSuccess (Success 201) {Integer} message Successfully offered a service to the crowdfunding.
+ * 
+ * @apiError (Error 400) BadRequest Invalid service offer data.
+ * @apiError (Error 500) InternalServerError Couldn't offer service.
+ */
 router.post('/:crowdfunding_id/services_offers', function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
@@ -329,13 +385,27 @@ router.post('/:crowdfunding_id/services_offers', function(req, res) {
         service_id: serviceId,
         crowdfunding_id: crowdfundingId
     }).then(() => {
-        res.status(201).send('Successfully offered a service to the crowdfunding.');
+        res.status(201).send({message: 'Successfully offered a service to the crowdfunding.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t offer service.'});
     })
 });
 
-// Gets all the service offers for the crowdfunding.
+/**
+ * @api {get} /crowdfunding/:crowdfunding_id/services_offers Get all crowdfunding service offers.
+ * @apiName GetAllServiceOffer
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the services are offered.
+ * 
+ * @apiSuccess (Success 200) {Integer} service_id Offered service id.
+ * @apiSuccess (Success 200) {String} service_title Offered service title.
+ * @apiSuccess (Success 200) {String} service_category Offered service category.
+ * @apiSuccess (Success 200) {String} service_type Offered service type.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get service offers.
+ */
 router.get('/:crowdfunding_id/services_offers', function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
@@ -349,12 +419,25 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get service offers.'});
     })
 });
 
-// Deletes a service offer from the available offers.
-router.delete('/:crowdfunding_id/services_offers', function(req, res) {
+/**
+ * @api {delete} /crowdfunding/:crowdfunding_id/services_offers Delete crowdfunding service offer.
+ * @apiName DeleteServiceOffer
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is offered.
+ * @apiParam (RequestBody) {Integer} service_id Service id to remove from the offers.
+ * 
+ * @apiSuccess (Success 200) {String} message Successfully deleted the service offer.
+ * 
+ * @apiError (Error 400) BadRequest Invalid service offer data.
+ * @apiError (Error 500) InternalServerError Couldn't delete the service offer.
+ */
+router.delete('/:crowdfunding_id/services_offers', policy.offerService, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -366,17 +449,35 @@ router.delete('/:crowdfunding_id/services_offers', function(req, res) {
         service_id: serviceId,
         crowdfunding_id: crowdfundingId
     }).then(() => {
-        res.status(200).send('Successfully deleted the service offer.');
+        res.status(200).send({message: 'Successfully deleted the service offer.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t delete the service offer.'});
     })
 });
 
 // SERVICE REQUESTED.
 // ===============================================================================
 
-// Create a new service request for the crowdfunding.
-router.post('/:crowdfunding_id/services_requested', function(req, res) {
+/**
+ * @api {post} /crowdfunding/:crowdfunding_id/services_requested Create service request.
+ * @apiName ServiceRequest
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service request.
+ * @apiParam (RequestBody) {Integer} title Request service title.
+ * @apiParam (RequestBody) {Integer} description Request service description.
+ * @apiParam (RequestBody) {Integer} category Request service category.
+ * @apiParam (RequestBody) {Integer} location Location for the service to happen.
+ * @apiParam (RequestBody) {Integer} acceptable_radius FIXME: To use?????.
+ * @apiParam (RequestBody) {Integer} mygrant_value Mygrants amount to transfer.
+ * 
+ * @apiSuccess (Success 201) {String} message Successfully created a new service request for the crowdfunding.
+ * 
+ * @apiError (Error 400) BadRequest Invalid service request data.
+ * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
+ */
+router.post('/:crowdfunding_id/services_requested', policy.requestService, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
@@ -386,7 +487,7 @@ router.post('/:crowdfunding_id/services_requested', function(req, res) {
     let mygrantValue = req.body.mygrant_value;
     let query =
         `INSERT INTO service (title, description, category, location, acceptable_radius, mygrant_value, date_created, service_type, crowdfunding_id)
-        VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), now(), 'REQUEST', $(crowdfunding_id));`;
+        VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), NOW(), 'REQUEST', $(crowdfunding_id));`;
 
     db.none(query, {
         title: title,
@@ -397,13 +498,26 @@ router.post('/:crowdfunding_id/services_requested', function(req, res) {
         mygrant_value: mygrantValue,
         crowdfunding_id: crowdfundingId
     }).then(() => {
-        res.status(201).send('Successfully created a new service request for the crowdfunding.');
+        res.status(201).send({message: 'Successfully created a new service request for the crowdfunding.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t create a service request.'});
     })
 });
 
-// Get all services requested for the crowdfunding.
+/**
+ * @api {get} /crowdfunding/:crowdfunding_id/services_requested Get all service requests.
+ * @apiName GetAllServiceRequests
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
+ * 
+ * @apiSuccess (Success 200) {String} title Service request title.
+ * @apiSuccess (Success 200) {Integer} mygrant_value Mygrants amount to transfer.
+ * @apiSuccess (Success 200) {String} category Service request category.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get service requests.
+ */
 router.get('/:crowdfunding_id/services_requested', function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
@@ -416,21 +530,38 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get service requests.'});
     })
 });
 
 // Deletes a service request from the services that the crowdfunding creator is looking to get.
-router.delete('/:crowdfunding_id/services_requested', function(req, res) {
+/**
+ * @api {delete} /crowdfunding/:crowdfunding_id/services_requested Delete a service request.
+ * @apiName DeleteServiceRequest
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
+ * @apiParam (RequestBody) {Integer} service_id Service request id.
+ * 
+ * @apiSuccess (Success 200) {String} message Successfully removed the service requested.
+ * 
+ * @apiError (Error 400) BadRequest Invalid service request data.
+ * @apiError (Error 500) InternalServerError Couldn't get service requests.
+ */
+router.delete('/:crowdfunding_id/services_requested', policy.deleteRequestService, function(req, res) {
+    let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
         `DELETE FROM service
-        WHERE id = $(service_id)`;
+        WHERE id = $(service_id)
+            AND crowdfunding_id = $(crowdfunding_id);`;
 
     db.none(query, {
-        service_id: serviceId
+        service_id: serviceId,
+        crowdfunding_id: crowdfundingId
     }).then(() => {
-        res.status(200).send('Successfully removed the service.');
+        res.status(200).send({message: 'Successfully removed the service requested.'});
     }).catch(error => {
         res.status(500).json({error});
     })
@@ -448,7 +579,7 @@ router.post('/:crowdfunding_id/services', function(req, res) {
     //let dateScheduled = req.body.date_scheduled;    // Format: 'yyyy-mm-dd hh:m:ss'.
     let query =
         `INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_agreed, date_scheduled)
-        VALUES ($(service_id), $(partner_id), $(crowdfunding_id), now(), now() + interval '1 week');`;
+        VALUES ($(service_id), $(partner_id), $(crowdfunding_id), NOW(), NOW() + interval '1 week');`;
 
     db.none(query, {
         service_id: serviceId,
