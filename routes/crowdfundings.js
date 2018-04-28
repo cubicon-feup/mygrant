@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const crobJob = require('../cronjob');
 var db = require('../config/database');
 var image = require('../images/Image');
 const policy = require('../policies/crowdfundingsPolicy');
@@ -37,9 +38,10 @@ router.post('/', policy.valid, function(req, res) {
     let creatorId = req.body.creator_id;
     let query =
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) week', 'COLLECTING', $(creator_id));`;
+        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) week', 'COLLECTING', $(creator_id))
+        RETURNING id;`;
 
-    db.none(query, {
+    db.one(query, {
         title: title,
         description: description,
         category: category,
@@ -47,10 +49,12 @@ router.post('/', policy.valid, function(req, res) {
         mygrant_target: mygrantTarget,
         time_interval: timeInterval,
         creator_id: creatorId
-    }).then(() => {
+    }).then(data => {
+        let id = data.id;
+        let date = new Date(2018, 3, 27, 18, 23, 0);
+        crobJob.scheduleJob(id, date);
         res.status(201).send({message: 'Sucessfully created a crowdfunding project.'});
     }).catch(error => {
-        console.log(error)
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
 });
@@ -361,7 +365,10 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
 });*/
 
 // SERVICES OFFERS.
-// ===============================================================================
+// 
+
+
+==========================================================================
 
 /**
  * @api {post} /crowdfundings/:crowdfunding_id/services_offers Offer service to crowdfunding.
