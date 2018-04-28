@@ -113,5 +113,22 @@ module.exports = {
         if(error)
             res.status(400).send({error: 'Invalid service request data.'});
         else next();
+    },
+
+    search(req, res, next) {
+        const schema = {
+            from: Joi.number().min(1).required().less(parseInt(req.params.to)),
+            to: Joi.number().min(2).required(),
+            sorting_method: Joi.string(),
+            category: Joi.string(),
+            location: Joi.string(),
+            keywords: Joi.string()
+        }
+
+        const {error} = Joi.validate(req.params, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid search data.'});
+        else next();
     }
 }

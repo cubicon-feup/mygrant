@@ -532,7 +532,6 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
     })
 });
 
-// Deletes a service request from the services that the crowdfunding creator is looking to get.
 /**
  * @api {delete} /crowdfunding/:crowdfunding_id/services_requested Delete a service request.
  * @apiName DeleteServiceRequest
@@ -635,41 +634,60 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
 // SEARCH
 // ===============================================================================
 
-router.get('/filter/:from-:to', function(req, res) {
+/**
+ * @api {get} /crowdfunding/filter/:from-:to Search crowdfunding.
+ * @apiName SearchCrowdfunding
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} from Crowdfunding id associated with the service requests.
+ * @apiParam (RequestParam) {Integer} to Crowdfunding id associated with the service requests.
+ * @apiParam (RequestQuery) {String=date_created, date_finished, title} [sorting_method] Sorting method selected.
+ * @apiParam (RequestQuery) {String} [category] Category to search.
+ * @apiParam (RequestQuery) {String} [location] Location to search.
+ * @apiParam (RequestQuery) {String} [keywords] Keywords to search either in the title or description.
+ * 
+ * @apiSuccess (Success 200) {Integer} crowdfunding_id Crowdfunding id.
+ * @apiSuccess (Success 200) {String} title Crowdfunding title.
+ * @apiSuccess (Success 200) {String} category Crowdfunding category.
+ * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
+ * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {String} status Current crowdfunding status.
+ * @apiSuccess (Success 200) {String} creator_name Creator user name.
+ * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
+ * @apiSuccess (Success 200) {Date} date_finished Closing date.
+ * 
+ * @apiError (Error 400) BadRequest Invalid search data.
+ * @apiError (Error 500) InternalServerError Couldn't get crowdfundings.
+ */
+router.get('/filter/:from-:to', policy.search, function(req, res) {
     let from = req.params.from - 1; // We're subtracting so that we can include the 'from' crowdfunding.
     let to = req.params.to;
-    let sortingMethod = req.query.sorting_method;
-    let category = req.query.category;
-    let location = req.query.location;
-    console.log(req.query);
-    var query =
-        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_created, crowdfunding.date_finished
-        FROM crowdfunding
-        INNER JOIN users ON users.id = crowdfunding.creator_id `;
-    if(typeof category === 'string' || typeof location === 'string') {
-        query += `WHERE `;
-        let addAnd = false;
-        if(typeof category === 'string') {
-            category = category.toUpperCase();  // Category enumators are upper case.
-            query += `crowdfunding.category = $(category) `;
-            addAnd = true;
-        }
-        if(typeof location === 'string') {
-            if(addAnd)
-                query += `AND `;
-            query += `crowdfunding.location = $(location) `;
-            addAnd = true;
-        }
-    }
-    if(allowedSortingMethods.indexOf(sortingMethod) >= 0)
-        query += `ORDER BY crowdfunding.${sortingMethod} ASC `;
-    query +=
-        `LIMIT $(num_crowdfundings)
-        OFFSET $(num_offset)`;
+    let sortingMethod = req.query.hasOwnProperty('sorting_method') ? req.query.sorting_method : false;
+    let category = req.query.hasOwnProperty('category') ? req.query.category.toUpperCase() : false;    // Category enumators are upper case.
+    let location = req.query.hasOwnProperty('location') ? req.query.location : false;
+    let keywords = req.query.hasOwnProperty('keywords') ? req.query.keywords : false;
 
-    console.log(query);
+    let textSearch = `to_tsvector('english', title || ' ' || description)`;
+    let textSearchQuery = `plainto_tsquery('english', $(keywords))`;
+
+    var query =
+        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
+        FROM crowdfunding
+        INNER JOIN users ON users.id = crowdfunding.creator_id
+        WHERE true `
+        + (category ? `AND crowdfunding.category = $(category) ` : ``)
+        + (location ? `AND crowdfunding.location = $(location) ` : ``)
+        + (keywords ? `AND ${textSearch} @@ ${textSearchQuery} ` : ``)
+        + (sortingMethod ? `ORDER BY crowdfunding.${sortingMethod} ASC ` + (
+            keywords ? `, ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
+        ) : (
+            keywords ? `ORDER BY ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
+        ))
+        + `LIMIT $(num_crowdfundings)
+        OFFSET $(num_offset);`;
 
     db.many(query, {
+        keywords: keywords,
         num_crowdfundings: (to - from),
         num_offset: from,
         category: category,
