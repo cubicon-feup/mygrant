@@ -27,7 +27,13 @@ app.use(cors());
 app.use(helmet());
 
 // Setup session
-app.use(session({ secret: 'carbonbytunicgym' }));
+app.set('trust proxy', 1);
+app.use(session({
+    cookie: { secure: true },
+    resave: false,
+    saveUninitialized: true,
+    secret: 'carbonbytunicgym'
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -39,7 +45,7 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('carbonbytunicgym'));
 app.use(fileUpload());
 
 app.use('/', indexRouter);

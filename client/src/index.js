@@ -13,6 +13,7 @@ import SignUpInfo from "./containers/SignupInfo";
 import CreateService from "./components/CreateService";
 import { Responsive } from "semantic-ui-react";
 import { MygrantFooter, MygrantHeader, MygrantNav } from "./components/Common";
+import AuthGuard from "./components/AuthGuard";
 
 ReactDom.render(
     <Router>
@@ -27,7 +28,7 @@ ReactDom.render(
             <Responsive as={MygrantNav} maxWidth={768} />
         </div>
     </Router>,
-    document.getElementById("root")
+    document.getElementById('root')
 );
 
 registerServiceWorker();

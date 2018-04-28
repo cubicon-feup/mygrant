@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('../auth/local');
 const router = express.Router();
 const db = require('../config/database');
-
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -21,18 +21,19 @@ router.post('/signup', function(req, res) {
                 // register new user
                 bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
                     query = 'INSERT INTO users (email, pass_hash, full_name, phone) VALUES ($(email), $(passHash), $(fullName), $(phone)) RETURNING id';
+
                     db.one(query, {
                         email: req.body.email,
                         fullName: req.body.name,
                         passHash: hash,
                         phone: req.body.phone
-                    }
-                    ).then(() => {
-                        res.status(201).send('Sucessfully added user');
                     })
-                    .catch(error => {
-                        res.status(500).json({ error });
-                    });
+                        .then(() => {
+                            res.status(201).send('Sucessfully added user');
+                        })
+                        .catch(error => {
+                            res.status(500).json({ error });
+                        });
                 });
             }
         })
@@ -52,7 +53,18 @@ router.post('/login', function(req, res) {
                 if (error) {
                     res.status(500).send('error');
                 } else {
-                    res.status(200).send('success');
+                    req.session.save(sessionErr => {
+                        if (sessionErr) {
+                            res.status(500).send('error');
+                        } else {
+                            const token = jwt.sign({ id: req.user.id }, 'carbonbytunicgym');
+                            res.status(200)
+                                .json({
+                                    token,
+                                    user: req.user
+                                });
+                        }
+                    });
                 }
             });
         } else {
@@ -60,29 +72,36 @@ router.post('/login', function(req, res) {
         }
     })(req, res);
 });
-
 /*
-    // Get password from db
-    const query = 'SELECT pass_hash FROM users where email = $(email)';
-
-    db.one(query, { email: req.body.email })
-        .then(data => {
-            bcrypt.compare(req.body.password, data.pass_hash, function(_err, result) {
-                if (result) {
-                    // password matches
-                    res.status(200).send('Logged in');
+router.post('/login', function(req, res) {
+    passport.authenticate('local', (err, user) => {
+        if (err) {
+            res.status(500).send('error');
+        }
+        if (user) {
+            req.logIn(user, function(error) {
+                if (error) {
+                    res.status(500).send('error');
                 } else {
-                    // password doesn't match
-                    res.status(400).json({ error: 'Invalid email or password' });
+                    req.session.save(sessionErr => {
+                        if (sessionErr) {
+                            res.status(500).send('error');
+                        } else {
+                            res.status(200)
+                                .send('success')
+                                .json({
+                                    token: req.token,
+                                    user: req.user
+                                });
+                        }
+                    });
                 }
             });
-        })
-
-        // Query error - no user with that email
-        .catch(() => {
+        } else {
             res.status(400).json({ error: 'Invalid email or password' });
-        });
-});*/
-
+        }
+    })(req, res);
+});
+*/
 module.exports = router;
 

@@ -16,6 +16,7 @@ class SignUpInfo extends Component {
   }
 
   componentDidMount() {
+      console.log(localStorage);
       // Get countries from the database
       fetch('/api/countries/as_options')
         .then(res => res.json())

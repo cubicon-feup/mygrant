@@ -45,7 +45,15 @@ class Login extends Component {
             body: JSON.stringify(data),
             headers: { 'content-type': 'application/json' },
             method: 'POST'
-        }).then(res => console.log(res));
+        }).then(res => {
+            if (res.status === 200) {
+                res.json()
+                    .then(parsed => {
+                        localStorage.setItem('id_token', parsed.token);
+                        console.log(localStorage);
+                    });
+            }
+        });
     }
 
     render() {
