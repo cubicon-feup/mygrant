@@ -639,8 +639,8 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
  * @apiName SearchCrowdfunding
  * @apiGroup Crowdfunding
  *
- * @apiParam (RequestParam) {Integer} from Crowdfunding id associated with the service requests.
- * @apiParam (RequestParam) {Integer} to Crowdfunding id associated with the service requests.
+ * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
+ * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
  * @apiParam (RequestQuery) {String=date_created, date_finished, title} [sorting_method] Sorting method selected.
  * @apiParam (RequestQuery) {String} [category] Category to search.
  * @apiParam (RequestQuery) {String} [location] Location to search.
