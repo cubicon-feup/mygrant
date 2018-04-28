@@ -72,36 +72,6 @@ router.post('/login', function(req, res) {
         }
     })(req, res);
 });
-/*
-router.post('/login', function(req, res) {
-    passport.authenticate('local', (err, user) => {
-        if (err) {
-            res.status(500).send('error');
-        }
-        if (user) {
-            req.logIn(user, function(error) {
-                if (error) {
-                    res.status(500).send('error');
-                } else {
-                    req.session.save(sessionErr => {
-                        if (sessionErr) {
-                            res.status(500).send('error');
-                        } else {
-                            res.status(200)
-                                .send('success')
-                                .json({
-                                    token: req.token,
-                                    user: req.user
-                                });
-                        }
-                    });
-                }
-            });
-        } else {
-            res.status(400).json({ error: 'Invalid email or password' });
-        }
-    })(req, res);
-});
-*/
+
 module.exports = router;
 

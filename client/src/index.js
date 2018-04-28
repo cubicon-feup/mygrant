@@ -8,8 +8,8 @@ import 'semantic-ui-css/semantic.min.css';
 import './css/common.css';
 
 import registerServiceWorker from './registerServiceWorker';
-import App from './components/App';
-import Login from './components/Login';
+import App from './containers/App';
+import Login from './containers/Login';
 import SignUp from './containers/Signup';
 import SignUpInfo from './containers/SignupInfo';
 import CreateService from './components/CreateService';
