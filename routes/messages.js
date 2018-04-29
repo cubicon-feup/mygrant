@@ -16,7 +16,8 @@ var db = require('../config/database');
  * @apiParam (RequestBody) {String} content Message to send.
  * 
  * @apiSuccess (Success 201) message Successfully sent a message.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't send the message.
  */
 router.post('/', function(req, res) {
     let senderId = req.body.sender_id;
@@ -33,7 +34,7 @@ router.post('/', function(req, res) {
     }).then(() => {
         res.status(201).json({message: 'Successfully sent a message.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t send the message.'});
     });
 });
 
@@ -48,7 +49,8 @@ router.post('/', function(req, res) {
  * @apiSuccess (Success 200) sender_id User that sent a message.
  * @apiSuccess (Success 200) content Message content.
  * @apiSuccess (Success 200) date_sent Date the message was sent.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get the messages.
  */
 router.get('/:other_user', function(req, res) {
     let loggedUser = 1; //TODO: Use the session cookie id.
@@ -71,19 +73,20 @@ router.get('/:other_user', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get the messages.'});
     });
 });
 
 /**
- * @api {get} /messages/ Get conversations.
- * @apiName GetConversations
+ * @api {get} /messages/ Get topics for user.
+ * @apiName GetTopics
  * @apiGroup Messages
  * @apiPermission authenticated user
  * 
- * @apiSuccess (Success 200) other_user_id Other user unique id.
- * @apiSuccess (Success 200) other_user_full_name Other user name.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * @apiSuccess (Success 200) other_user_id User id with a conversation topic.
+ * @apiSuccess (Success 200) other_user_full_name User name with a conversation topic.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get message topics.
  */
 router.get('/', function(req, res) {
     let loggedUser = 1; //TODO: Use the session cookie id.
@@ -104,7 +107,7 @@ router.get('/', function(req, res) {
     }).then(data => {
         res.status(200).send(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get message topics.'});
     });
 });
 
