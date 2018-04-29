@@ -13,13 +13,13 @@ var db = require('../config/database');
 /**
  * [GET SERVICES LIST]
  * description:
- *      Get a list of services, by page, containing up to N items.
- *      The maximum of items/page is 50.
+ *     Get a list of services, by page, containing up to N items.
+ *     The maximum of items/page is 50.
  * syntax:
- *      /api/services?page=<PAGE>&items=<ITEMS>
+ *     GET: /api/services?page=<PAGE>&items=<ITEMS>
  * example:
- *      /api/services?page=3
- *      /api/services?page=1&items=25
+ *     GET: /api/services?page=3
+ *     GET: /api/services?page=1&items=25
  */
 router.get('/', function(req, res) {
     // TODO apply sorting (by field), asc, desc.
@@ -61,11 +61,11 @@ router.get('/', function(req, res) {
 /**
  * [GET NUMBER OF PAGES OF SERVICES LIST]
  * description:
- *      Returns the number of pages (with each page having up to N items)
+ *     Returns the number of pages (with each page having up to N items)
  * syntax:
- *      /api/services/num-pages?items=<ITEMS>
+ *     GET: /api/services/num-pages?items=<ITEMS>
  * example:
- *      /api/services/num-pages?items=30
+ *     GET: /api/services/num-pages?items=30
  */
 router.get('/num-pages', function(req, res) {
     let itemsPerPage = 50;
@@ -95,9 +95,9 @@ router.get('/num-pages', function(req, res) {
 /**
  * [SEARCH FOR SERVICES]
  * description:
- *      Search among services' titles and descriptions using the given query text
+ *     Search among services' titles and descriptions using the given query text
  * syntax:
- *      /api/services/search?q=...
+ *     GET: /api/services/search?q=...
  * optional parameters:
  *     limit: maximum number of results (Default is 50)
  *     lang: 'portuguese' | 'english' (Default is english)
@@ -109,10 +109,10 @@ router.get('/num-pages', function(req, res) {
  *     datemax: Max bound for created_date
  *     datemin: Min bound for created_date
  * examples:
- *      /api/services/search?q=support+tangible+extranet
- *      /api/services/search?q=tangible services&desc=no
- *      /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
- *      /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
+ *     GET: /api/services/search?q=support+tangible+extranet
+ *     GET: /api/services/search?q=tangible services&desc=no
+ *     GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
+ *     GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
  */
 router.get(['/search'], function(req, res) { // check for valid input
     try {
@@ -175,8 +175,15 @@ router.get(['/search'], function(req, res) { // check for valid input
 });
 
 
-// TODO documentation
-// Get service by id
+/**
+ * [GET SERVICE BY ID]
+ * description:
+ *     Get a service by its id
+ * syntax:
+ *     GET: /api/services/:id
+ * example:
+ *     GET: /api/services/5
+ */
 router.get('/:id', function(req, res) {
     // check for valid input
     try {
@@ -207,8 +214,35 @@ router.get('/:id', function(req, res) {
 });
 
 
-// TODO documentation
-// Put (create) service.
+/**
+ * [CREATE SERVICE]
+ * description:
+ *     Create a new service
+ * syntax:
+ *     PUT: /api/services
+ * body attributes:
+ *     title
+ *     description
+ *     category
+ *     location
+ *     acceptable_radius
+ *     mygrant_value
+ *     service_type
+ *     acceptable_radius
+ *     creator_id OR crowdfunding_id
+ * example:
+ *     PUT: /api/services
+ *     body: {
+ *         title: 'A new title',
+ *         description: 'A new description',
+ *         category: 'FUN',
+ *         location: '353 st',
+ *         acceptable_radius: '2540',
+ *         mygrant_value: '50',
+ *         service_type: 'REQUEST',
+ *         creator_id: '4'
+ *     }
+ */
 router.put('/', function(req, res) {
     // check for valid input
     try {
@@ -253,9 +287,28 @@ router.put('/', function(req, res) {
 });
 
 
-
-// TODO documentation
-// Put (update) service.
+/**
+ * [UPDATE SERVICE BY ID]
+ * description:
+ *     Get a service by its id
+ * syntax:
+ *     PUT: /api/services/:id
+ * optional body attributes:
+ *     title
+ *     description
+ *     category
+ *     location
+ *     acceptable_radius
+ *     mygrant_value
+ *     service_type
+ *     acceptable_radius
+ * example:
+ *     PUT: /api/services/5
+ *     body: {
+ *         title: 'A new title',
+ *         description: 'A new description'
+ *     }
+ */
 router.put('/:id', function(req, res) {
     // check for valid input
     try {
@@ -309,8 +362,15 @@ router.put('/:id', function(req, res) {
 });
 
 
-// TODO documentation
-// Delete service.
+/**
+ * [DELETE SERVICE BY ID]
+ * description:
+ *     Delete a service by its id
+ * syntax:
+ *     DELETE: /api/services/:id
+ * example:
+ *     DELETE: /api/services/5
+ */
 router.delete('/:id', function(req, res) {
     // check for valid input
     try {
