@@ -909,6 +909,107 @@ router.post('/:id/offers/decline', function(req, res) {
 });
 
 
+//
+//
+// REVIEW
+//
+//
+
+
+/**
+ * @api {put} /instance/701
+ * @apiName ReviewServiceInstance
+ * @apiGroup Service
+ * @apiPermission service creator/partner
+ *
+ * @apiParam (RequestParam) {Integer} id ID of the service instance to review
+ * @apiParam (RequestBody) {Integer} rating Rating to be given to the service instance
+ * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding reviewing a service (Only applicable to services provided to a crowdfunding)
+ *
+ * @apiSuccess (Success 200) OK
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.put('/instance/:id', function(req, res) {
+    // check for valid input
+    try {
+        var service_instance_id = req.params.id;
+        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 404; // TODO SESSION ID
+        var rating = req.body.rating;
+    } catch (err) {
+        res.status(400).json({
+            'error': err.toString()
+        });
+        return;
+    }
+    // define query
+    let query;
+    if (req.body.hasOwnProperty('crowdfunding_id')) {
+        query =
+            `WITH partner AS (
+                UPDATE service_instance
+                SET partner_rating=$(rating)
+                WHERE id=$(service_instance_id)
+                AND crowdfunding_id=$(candidate_id)
+                RETURNING id
+            ),
+            creator AS (
+                UPDATE service_instance
+                SET creator_rating=$(rating)
+                WHERE id=$(service_instance_id)
+                AND EXISTS (
+                    SELECT *
+                    FROM service
+                    JOIN service_instance
+                    ON service.id=service_instance.service_id
+                    WHERE service_instance.id=$(service_instance_id)
+                    AND service.crowdfunding_id=$(candidate_id))
+                RETURNING id
+            )
+            SELECT * FROM partner
+            UNION
+            SELECT * FROM creator`;
+    }
+    else {
+        query =
+            `WITH partner AS (
+                UPDATE service_instance
+                SET partner_rating=$(rating)
+                WHERE id=$(service_instance_id)
+                AND partner_id=$(candidate_id)
+                RETURNING id
+            ),
+            creator AS (
+                UPDATE service_instance
+                SET creator_rating=$(rating)
+                WHERE id=$(service_instance_id)
+                AND EXISTS (
+                    SELECT *
+                    FROM service
+                    JOIN service_instance
+                    ON service.id=service_instance.service_id
+                    WHERE service_instance.id=$(service_instance_id)
+                    AND service.creator_id=$(candidate_id))
+                RETURNING id
+            )
+            SELECT * FROM partner
+            UNION
+            SELECT * FROM creator`;
+    }
+    // place query
+    db.one(query, {
+        service_instance_id,
+        candidate_id,
+        rating
+    })
+    .then(data => {
+        res.status(200);
+    })
+    .catch(error => {
+        res.status(500).json(error);
+    });
+
+});
 
 
 module.exports = router;
