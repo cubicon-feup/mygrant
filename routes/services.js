@@ -11,13 +11,22 @@ var db = require('../config/database');
 
 
 /**
- * @api {get} /services/ Get every active service
+ * @api {get} /services/ 01 - Get service list
  * @apiName GetServices
  * @apiGroup Service
  * @apiPermission visitor
  *
+ * @apiDescription Get a list of active services, by page, containing up to N items. The maximum of items/page is 50.
+ *
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/services?page=<PAGE>&items=<ITEMS>
+ * @apiExample Example 1
+ * GET: /api/services?page=3
+ * @apiExample Example 2
+ * GET: /api/services?page=1&items=25
  *
  * @apiSuccess (Success 200) {Integer} id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -76,12 +85,19 @@ router.get('/', function(req, res) {
 
 
 /**
- * @api {get} /services/num-pages Get number of pages of active service list
+ * @api {get} /services/num-pages 02 - Get number of pages of service list
  * @apiName GetServicesNumPages
  * @apiGroup Service
  * @apiPermission visitor
  *
+ * @apiDescription Returns the number of pages of active services (with each page having up to N items)
+ *
  * @apiParam (RequestQueryParams) {Integer} Items number of items per page default/max: 50 (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/services/num-pages?items=<ITEMS>
+ * @apiExample Example
+ * GET: /api/services/num-pages?items=30
  *
  * @apiSuccess (Success 200) {Integer} n Returns only the integer of the number of pages (No JSON key: value)
  *
@@ -114,10 +130,12 @@ router.get('/num-pages', function(req, res) {
 
 
 /**
- * @api {get} /services/search Search among active services' titles and descriptions using the given query text
+ * @api {get} /services/search 03 - Search for services
  * @apiName SearchService
  * @apiGroup Service
  * @apiPermission visitor
+ *
+ * @apiDescription Search among active services' titles and descriptions using the given query text
  *
  * @apiParam (RequestQueryParams) {String} q Search query (Required)
  * @apiParam (RequestQueryParams) {Integer} limit Maximum number of results default: 50 (Optional)
@@ -129,6 +147,17 @@ router.get('/num-pages', function(req, res) {
  * @apiParam (RequestQueryParams) {Integer} mygmin Min bound for mygrant_value (Optional)
  * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
  * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/services/search?q=<QUERY>
+ * @apiExample Example 1
+ * GET: /api/services/search?q=support+tangible+extranet
+ * @apiExample Example 2
+ * GET: /api/services/search?q=tangible services&desc=no
+ * @apiExample Example 3
+ * GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
+ * @apiExample Example 4
+ * GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
  *
  * @apiSuccess (Success 200) {Integer} service_id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -211,12 +240,19 @@ router.get(['/search'], function(req, res) { // check for valid input
 
 
 /**
- * @api {get} /services/:id Get service info by ID
+ * @api {get} /services/:id 04 - Get service by ID
  * @apiName GetServiceByID
  * @apiGroup Service
  * @apiPermission visitor
  *
+ * @apiDescription Get service info by ID
+ *
  * @apiParam (RequestParams) {Integer} id ID of the service
+ *
+ * @apiExample Syntax
+ * GET: /api/services/<ID>
+ * @apiExample Example
+ * GET: /api/services/5
  *
  * @apiSuccess (Success 200) {Integer} service_id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -267,10 +303,12 @@ router.get('/:id', function(req, res) {
 
 
 /**
- * @api {put} / Create Service
+ * @api {put} /services/ 05 - Create service
  * @apiName CreateService
  * @apiGroup Service
  * @apiPermission authenticated user
+ *
+ * @apiDescription Create a new service
  *
  * @apiParam (RequestBody) {String} title Title of the service
  * @apiParam (RequestBody) {String} description Description of the service (Optional)
@@ -282,6 +320,21 @@ router.get('/:id', function(req, res) {
  * @apiParam (RequestBody) {Integer} creator_id ID of the creator if created by a user (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding (XOR creator_id)
  * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time
+ *
+ * @apiExample Syntax
+ * PUT: /api/services
+ * @apiExample Example
+ * PUT: /api/services
+ * body: {
+ *      title: 'A new title',
+ *      description: 'A new description',
+ *      category: 'FUN',
+ *      location: '353 st',
+ *      acceptable_radius: '2540',
+ *      mygrant_value: '50',
+ *      service_type: 'REQUEST',
+ *      creator_id: '4'
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -334,10 +387,12 @@ router.put('/', function(req, res) {
 
 
 /**
- * @api {put} /:id Edit Service
+ * @api {put} /services/:id 06 - Edit service
  * @apiName EditService
  * @apiGroup Service
  * @apiPermission service creator
+ *
+ * @apiDescription Edit a service by its ID
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to update
  * @apiParam (RequestBody) {String} title Title of the service (Optional)
@@ -350,6 +405,15 @@ router.put('/', function(req, res) {
  * @apiParam (RequestBody) {Integer} creator_id ID of the creator if created by a user (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding (XOR creator_id)
  * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time (Optional)
+ *
+ * @apiExample Syntax
+ * PUT: /api/services/<ID>
+ * @apiExample Example
+ * PUT: /api/services/5
+ * body: {
+ *      title: 'An edited title',
+ *      description: 'An edit description',
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -445,12 +509,19 @@ router.put('/:id', function(req, res) {
 
 
 /**
- * @api {delete} /:id Delete Service
+ * @api {delete} /services/:id 07 - Delete service
  * @apiName DeleteService
  * @apiGroup Service
  * @apiPermission service creator
  *
+ * @apiDescription Delete a service by its ID
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to delete
+ *
+ * @apiExample Syntax
+ * DELETE: /api/services/<ID>
+ * @apiExample Example
+ * DELETE: /api/services/5
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -492,12 +563,19 @@ router.delete('/:id', function(req, res) {
 
 
 /**
- * @api {get} /:id/images Get Service Images
+ * @api {get} /services/:id/images 08 - Get service images
  * @apiName GetServiceImages
  * @apiGroup Service
  * @apiPermission visitor
  *
+ * @apiDescription Get images of a service
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
+ *
+ * @apiExample Syntax
+ * GET: /api/services/<ID>/images
+ * @apiExample Example
+ * GET: /api/services/5/images
  *
  * @apiSuccess (Success 200) images List of images of the service {service_id, image_url}
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -533,13 +611,21 @@ router.get('/:id/images', function(req, res) {
 
 
 /**
- * @api {put} /:id/images Create Service Image
+ * @api {put} /services/:id/images 09 - Create service image
  * @apiName CreateServiceImage
  * @apiGroup Service
  * @apiPermission service creator
  *
+ * @apiDescription Upload image and add it to the service's images
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
  * @apiParam (RequestFiles) {File} file Image file of the image
+ *
+ * @apiExample Syntax
+ * PUT: /api/services/<ID>/images
+ * @apiExample Example
+ * PUT: /api/services/5/images
+ * files.image?
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -577,13 +663,20 @@ router.put('/:id/images', function(req, res) {
 
 
 /**
- * @api {delete} /:id/images/:image Delete Service Image
+ * @api {delete} /services/:id/images/:image 10 - Delete service image
  * @apiName DeleteServiceImage
  * @apiGroup Service
  * @apiPermission service creator
  *
+ * @apiDescription Delete image of a service by its URL
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
  * @apiParam (RequestParam) {String} image URL of the image to delete
+ *
+ * @apiExample Syntax
+ * DELETE: /api/services/<ID>/images/<IMAGE_URL>
+ * @apiExample Example
+ * DELETE: /api/services/5/images/http://dummyimage.com/965x531.png/dddddd/000000
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -627,12 +720,19 @@ router.delete('/:id/images/:image', function(req, res) {
 
 
 /**
- * @api {get} /:id/offers Get Service Offers
+ * @api {get} /services/:id/offers 11 - Get service offers
  * @apiName GetServiceOffers
  * @apiGroup Service
  * @apiPermission service creator
  *
+ * @apiDescription Get list of offers made to a service by a user or crowdfunding
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to get offers of
+ *
+ * @apiExample Syntax
+ * GET: /api/services/<ID>/offers
+ * @apiExample Example
+ * GET: /api/services/5/offers
  *
  * @apiSuccess (Success 200) requesters List of the users making the offers {type, requester_id, requester_name}
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -676,14 +776,23 @@ router.get('/:id/offers', function(req, res) {
 
 
 /**
- * @api {get} /:id/offers/:type/:candidate Get Service Specific Offer
+ * @api {get} /services/:id/offers/:type/:candidate 12 - Get specific offer
  * @apiName GetServiceSpecificOffer
  * @apiGroup Service
  * @apiPermission service creator
  *
+ * @apiDescription Get offer made to a service by a user or crowdfunding
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service of the offer
  * @apiParam (RequestParam) {String} type Depends if the offer was made by a crowdfunding or by a user ('crowdfunding, 'user')
  * @apiParam (RequestParam) {Integer} candidate ID of the candidate that made the offer
+ *
+ * @apiExample Syntax
+ * GET: /api/services/<ID>/offers/<TYPE>/<CANDIDATE>
+ * @apiExample Example 1
+ * GET: /api/services/5/offers/user/10
+ * @apiExample Example 2
+ * GET: /api/services/5/offers/crowdfunding/10
  *
  * @apiSuccess (Success 200) requester Users making the offers {requester_id, requester_name}
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -741,13 +850,27 @@ router.get('/:id/offers/:type/:candidate', function(req, res) {
 
 
 /**
- * @api {post} /:id/offers Make Service Offer
+ * @api {post} /services/:id/offers 13 - Make service offer
  * @apiName MakeServiceOffer
  * @apiGroup Service
  * @apiPermission authenticated user
  *
+ * @apiDescription Create offer to a service
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service to make offer to (service can't have deleted=true)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (Optional)
+ *
+ * @apiExample Syntax
+ * POST: /api/services/<ID>/offers
+ * @apiExample Example 1
+ * [When the offer is being made in the name of a the logged in user]
+ * POST: /api/services/5/offers
+ * @apiExample Example 2
+ * [When the offer is being made in the name of a crowdfunding]
+ * POST: /api/services/5/offers
+ * body: {
+ *      crowdfunding_id: 10,
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -802,15 +925,32 @@ router.post('/:id/offers', function(req, res) {
 
 
 /**
- * @api {post} /:id/offers/accept Accept Service Offer
+ * @api {post} /services/:id/offers/accept 14 - Accept service offer
  * @apiName AcceptServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
+ *
+ * @apiDescription Accept service offer
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept (service can't have deleted=true)
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
  * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
+ *
+ * @apiExample Syntax
+ * POST: /api/services/<ID>/offers/accept
+ * @apiExample Example 1
+ * [When the offer was made by a user]
+ * POST: /api/services/5/offers/accept
+ * body: {
+ *      partner_id: 10,
+ * }
+ * @apiExample Example 2
+ * [When the offer was made by a crowdfunding]
+ * POST: /api/services/5/offers/accept
+ * body: {
+ *      crowdfunding_id: 10,
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -819,6 +959,7 @@ router.post('/:id/offers', function(req, res) {
 router.post('/:id/offers/accept', function(req, res) {
     // check for valid input
     try {
+        // TODO check if SESSION USER is service creator
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
@@ -840,30 +981,47 @@ router.post('/:id/offers/accept', function(req, res) {
         RETURNING service_id;`;
     // place query
     db.one(query, {
-            service_id,
-            partner_id,
-            crowdfunding_id,
-            date_scheduled
-        })
-        .then(() => {
-            res.sendStatus(200);
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
+        service_id,
+        partner_id,
+        crowdfunding_id,
+        date_scheduled
+    })
+    .then(() => {
+        res.sendStatus(200);
+    })
+    .catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 
 /**
- * @api {post} /:id/offers/decline Decline Service Offer
+ * @api {post} /services/:id/offers/decline 15 - Decline service offer
  * @apiName DeclineServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
+ *
+ * @apiDescription Removes service offer
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
  * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
+ *
+ * @apiExample Syntax
+ * POST: /api/services/<ID>/offers/decline
+ * @apiExample Example 1
+ * [When the offer was made by a user]
+ * POST: /api/services/5/offers/decline
+ * body: {
+ *      partner_id: 10,
+ * }
+ * @apiExample Example 2
+ * [When the offer was made by a crowdfunding]
+ * POST: /api/services/5/offers/decline
+ * body: {
+ *      crowdfunding_id: 10,
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
@@ -917,14 +1075,32 @@ router.post('/:id/offers/decline', function(req, res) {
 
 
 /**
- * @api {put} /instance/701
+ * @api {put} /services/instance/:id 16 - Rate a service
  * @apiName ReviewServiceInstance
  * @apiGroup Service
  * @apiPermission service creator/partner
  *
+ * @apiDescription Adds rating given by participant to a service instance
+ *
  * @apiParam (RequestParam) {Integer} id ID of the service instance to review
  * @apiParam (RequestBody) {Integer} rating Rating to be given to the service instance
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding reviewing a service (Only applicable to services provided to a crowdfunding)
+ *
+ * @apiExample Syntax
+ * POST: /api/instance/<ID>
+ * @apiExample Example 1
+ * [When the participant doing the rating is a user]
+ * POST: /api/services/instance/<ID>
+ * body: {
+ *      rating: 2
+ * }
+ * @apiExample Example 2
+ * [When the participant doing the rating is a crowdfunding]
+ * POST: /api/services/instance/<ID>
+ * body: {
+ *      crowdfunding_id: 10,
+ *      rating: 2
+ * }
  *
  * @apiSuccess (Success 200) OK
  * @apiError (Error 400) BadRequestError Invalid URL Parameters

@@ -238,8 +238,8 @@
   },
   {
     "type": "post",
-    "url": "/:id/offers/accept",
-    "title": "Accept Service Offer",
+    "url": "/services/:id/offers/accept",
+    "title": "14 - Accept service offer",
     "name": "AcceptServiceOffer",
     "group": "Service",
     "permission": [
@@ -247,6 +247,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Accept service offer</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -283,6 +284,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/services/<ID>/offers/accept",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "[When the offer was made by a user]\nPOST: /api/services/5/offers/accept\nbody: {\n     partner_id: 10,\n}",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "[When the offer was made by a crowdfunding]\nPOST: /api/services/5/offers/accept\nbody: {\n     crowdfunding_id: 10,\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -321,8 +339,8 @@
   },
   {
     "type": "put",
-    "url": "/",
-    "title": "Create Service",
+    "url": "/services/",
+    "title": "05 - Create service",
     "name": "CreateService",
     "group": "Service",
     "permission": [
@@ -330,6 +348,7 @@
         "name": "authenticated user"
       }
     ],
+    "description": "<p>Create a new service</p>",
     "parameter": {
       "fields": {
         "RequestBody": [
@@ -406,6 +425,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/services",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/services\nbody: {\n     title: 'A new title',\n     description: 'A new description',\n     category: 'FUN',\n     location: '353 st',\n     acceptable_radius: '2540',\n     mygrant_value: '50',\n     service_type: 'REQUEST',\n     creator_id: '4'\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -444,8 +475,8 @@
   },
   {
     "type": "put",
-    "url": "/:id/images",
-    "title": "Create Service Image",
+    "url": "/services/:id/images",
+    "title": "09 - Create service image",
     "name": "CreateServiceImage",
     "group": "Service",
     "permission": [
@@ -453,6 +484,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Upload image and add it to the service's images</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -475,6 +507,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/services/<ID>/images",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/services/5/images\nfiles.image?",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -513,8 +557,8 @@
   },
   {
     "type": "post",
-    "url": "/:id/offers/decline",
-    "title": "Decline Service Offer",
+    "url": "/services/:id/offers/decline",
+    "title": "15 - Decline service offer",
     "name": "DeclineServiceOffer",
     "group": "Service",
     "permission": [
@@ -522,6 +566,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Removes service offer</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -558,6 +603,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/services/<ID>/offers/decline",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "[When the offer was made by a user]\nPOST: /api/services/5/offers/decline\nbody: {\n     partner_id: 10,\n}",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "[When the offer was made by a crowdfunding]\nPOST: /api/services/5/offers/decline\nbody: {\n     crowdfunding_id: 10,\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -596,8 +658,8 @@
   },
   {
     "type": "delete",
-    "url": "/:id",
-    "title": "Delete Service",
+    "url": "/services/:id",
+    "title": "07 - Delete service",
     "name": "DeleteService",
     "group": "Service",
     "permission": [
@@ -605,6 +667,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Delete a service by its ID</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -618,6 +681,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/services/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/services/5",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -656,8 +731,8 @@
   },
   {
     "type": "delete",
-    "url": "/:id/images/:image",
-    "title": "Delete Service Image",
+    "url": "/services/:id/images/:image",
+    "title": "10 - Delete service image",
     "name": "DeleteServiceImage",
     "group": "Service",
     "permission": [
@@ -665,6 +740,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Delete image of a service by its URL</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -685,6 +761,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/services/<ID>/images/<IMAGE_URL>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/services/5/images/http://dummyimage.com/965x531.png/dddddd/000000",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -723,8 +811,8 @@
   },
   {
     "type": "put",
-    "url": "/:id",
-    "title": "Edit Service",
+    "url": "/services/:id",
+    "title": "06 - Edit service",
     "name": "EditService",
     "group": "Service",
     "permission": [
@@ -732,6 +820,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Edit a service by its ID</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -817,6 +906,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/services/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/services/5\nbody: {\n     title: 'An edited title',\n     description: 'An edit description',\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -856,7 +957,7 @@
   {
     "type": "get",
     "url": "/services/:id",
-    "title": "Get service info by ID",
+    "title": "04 - Get service by ID",
     "name": "GetServiceByID",
     "group": "Service",
     "permission": [
@@ -864,6 +965,7 @@
         "name": "visitor"
       }
     ],
+    "description": "<p>Get service info by ID</p>",
     "parameter": {
       "fields": {
         "RequestParams": [
@@ -877,6 +979,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/services/5",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1000,8 +1114,8 @@
   },
   {
     "type": "get",
-    "url": "/:id/images",
-    "title": "Get Service Images",
+    "url": "/services/:id/images",
+    "title": "08 - Get service images",
     "name": "GetServiceImages",
     "group": "Service",
     "permission": [
@@ -1009,6 +1123,7 @@
         "name": "visitor"
       }
     ],
+    "description": "<p>Get images of a service</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -1022,6 +1137,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/<ID>/images",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/services/5/images",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1060,8 +1187,8 @@
   },
   {
     "type": "get",
-    "url": "/:id/offers",
-    "title": "Get Service Offers",
+    "url": "/services/:id/offers",
+    "title": "11 - Get service offers",
     "name": "GetServiceOffers",
     "group": "Service",
     "permission": [
@@ -1069,6 +1196,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Get list of offers made to a service by a user or crowdfunding</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -1082,6 +1210,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/<ID>/offers",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/services/5/offers",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1120,8 +1260,8 @@
   },
   {
     "type": "get",
-    "url": "/:id/offers/:type/:candidate",
-    "title": "Get Service Specific Offer",
+    "url": "/services/:id/offers/:type/:candidate",
+    "title": "12 - Get specific offer",
     "name": "GetServiceSpecificOffer",
     "group": "Service",
     "permission": [
@@ -1129,6 +1269,7 @@
         "name": "service creator"
       }
     ],
+    "description": "<p>Get offer made to a service by a user or crowdfunding</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -1156,6 +1297,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/<ID>/offers/<TYPE>/<CANDIDATE>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "GET: /api/services/5/offers/user/10",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/services/5/offers/crowdfunding/10",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1195,7 +1353,7 @@
   {
     "type": "get",
     "url": "/services/",
-    "title": "Get every active service",
+    "title": "01 - Get service list",
     "name": "GetServices",
     "group": "Service",
     "permission": [
@@ -1203,6 +1361,7 @@
         "name": "visitor"
       }
     ],
+    "description": "<p>Get a list of active services, by page, containing up to N items. The maximum of items/page is 50.</p>",
     "parameter": {
       "fields": {
         "RequestQueryParams": [
@@ -1223,6 +1382,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services?page=<PAGE>&items=<ITEMS>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "GET: /api/services?page=3",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/services?page=1&items=25",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1347,7 +1523,7 @@
   {
     "type": "get",
     "url": "/services/num-pages",
-    "title": "Get number of pages of active service list",
+    "title": "02 - Get number of pages of service list",
     "name": "GetServicesNumPages",
     "group": "Service",
     "permission": [
@@ -1355,6 +1531,7 @@
         "name": "visitor"
       }
     ],
+    "description": "<p>Returns the number of pages of active services (with each page having up to N items)</p>",
     "parameter": {
       "fields": {
         "RequestQueryParams": [
@@ -1368,6 +1545,18 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/num-pages?items=<ITEMS>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/services/num-pages?items=30",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1407,8 +1596,8 @@
   },
   {
     "type": "post",
-    "url": "/:id/offers",
-    "title": "Make Service Offer",
+    "url": "/services/:id/offers",
+    "title": "13 - Make service offer",
     "name": "MakeServiceOffer",
     "group": "Service",
     "permission": [
@@ -1416,6 +1605,7 @@
         "name": "authenticated user"
       }
     ],
+    "description": "<p>Create offer to a service</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -1438,6 +1628,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/services/<ID>/offers",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "[When the offer is being made in the name of a the logged in user]\nPOST: /api/services/5/offers",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "[When the offer is being made in the name of a crowdfunding]\nPOST: /api/services/5/offers\nbody: {\n     crowdfunding_id: 10,\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1476,8 +1683,8 @@
   },
   {
     "type": "put",
-    "url": "/instance/701",
-    "title": "",
+    "url": "/services/instance/:id",
+    "title": "16 - Rate a service",
     "name": "ReviewServiceInstance",
     "group": "Service",
     "permission": [
@@ -1485,6 +1692,7 @@
         "name": "service creator/partner"
       }
     ],
+    "description": "<p>Adds rating given by participant to a service instance</p>",
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -1514,6 +1722,23 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/instance/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "[When the participant doing the rating is a user]\nPOST: /api/services/instance/<ID>\nbody: {\n     rating: 2\n}",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "[When the participant doing the rating is a crowdfunding]\nPOST: /api/services/instance/<ID>\nbody: {\n     crowdfunding_id: 10,\n     rating: 2\n}",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1553,7 +1778,7 @@
   {
     "type": "get",
     "url": "/services/search",
-    "title": "Search among active services' titles and descriptions using the given query text",
+    "title": "03 - Search for services",
     "name": "SearchService",
     "group": "Service",
     "permission": [
@@ -1561,6 +1786,7 @@
         "name": "visitor"
       }
     ],
+    "description": "<p>Search among active services' titles and descriptions using the given query text</p>",
     "parameter": {
       "fields": {
         "RequestQueryParams": [
@@ -1637,6 +1863,33 @@
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/search?q=<QUERY>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "GET: /api/services/search?q=support+tangible+extranet",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/services/search?q=tangible services&desc=no",
+        "type": "json"
+      },
+      {
+        "title": "Example 3",
+        "content": "GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request",
+        "type": "json"
+      },
+      {
+        "title": "Example 4",
+        "content": "GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
