@@ -338,6 +338,95 @@
     "groupTitle": "Service"
   },
   {
+    "type": "post",
+    "url": "/services/:id/comments",
+    "title": "18 - Comment on a service",
+    "name": "CommentService",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Create a new comment on a service. in_reply_to overrides :id in order make sure both reply and replied have the same service</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the service to comment on</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Content of the comment</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>ID of the message this one is replying to (Optional)</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/services/<ID>/comments",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "POST: /api/services/5/comments\nbody: {\n     message: 'This is a comment',\n     in_reply_to: 10\n}",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
     "type": "put",
     "url": "/services/",
     "title": "05 - Create service",
@@ -658,6 +747,79 @@
   },
   {
     "type": "delete",
+    "url": "/services/comments/:id",
+    "title": "20 - Delete a comment",
+    "name": "DeleteComment",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "comment sender"
+      }
+    ],
+    "description": "<p>Deletes the comment with the given id</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the comment to delete</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/services/comments/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/services/comments/5",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
+    "type": "delete",
     "url": "/services/:id",
     "title": "07 - Delete service",
     "name": "DeleteService",
@@ -770,6 +932,88 @@
       {
         "title": "Example",
         "content": "DELETE: /api/services/5/images/http://dummyimage.com/965x531.png/dddddd/000000",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
+    "type": "put",
+    "url": "/services/comments/:id",
+    "title": "19 - Edit a comment",
+    "name": "EditComment",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "comment sender"
+      }
+    ],
+    "description": "<p>Edits the content of a comment</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the comment to edit</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>New content of the comment</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/services/comments/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/services/comments/5\nbody: {\n     message: 'This is an edited comment'\n}",
         "type": "json"
       }
     ],
@@ -1084,6 +1328,122 @@
             "optional": false,
             "field": "crowdfunding_title",
             "description": "<p>Title of the crowdfunding if created by a crowdfunding</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
+    "type": "get",
+    "url": "/services/:id/comments",
+    "title": "17 - Get service comments",
+    "name": "GetServiceComments",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "visitor"
+      }
+    ],
+    "description": "<p>Gets comments made on service</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the service the comments are about</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/services/<ID>/comments",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/services/5/comments",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_id",
+            "description": "<p>ID of the comment</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "sender_id",
+            "description": "<p>ID of the user that made the comment</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_name",
+            "description": "<p>Name of the user that made the comment</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Content of the comment</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_posted",
+            "description": "<p>Date the comment was made</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>ID of the comment this is replying to</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "edited",
+            "description": "<p>If the comment has been edited</p>"
           }
         ]
       }
@@ -1725,7 +2085,7 @@
     "examples": [
       {
         "title": "Syntax",
-        "content": "POST: /api/instance/<ID>",
+        "content": "POST: /api/services/instance/<ID>",
         "type": "json"
       },
       {
