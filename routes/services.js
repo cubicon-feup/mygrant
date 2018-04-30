@@ -462,7 +462,7 @@ router.put('/:id', function(req, res) {
         "acceptable_radius": acceptable_radius,
         "mygrant_value": mygrant_value,
         "service_type": service_type,
-        "repeatable"; repeatable,
+        "repeatable": repeatable,
         })
         .then(() => {
             res.sendStatus(200);
