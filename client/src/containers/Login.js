@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Container, Form, Icon, Input } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Icon, Input, Message, Responsive } from 'semantic-ui-react';
+import { MygrantDivider } from '../components/Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -12,7 +13,7 @@ class Login extends Component {
         super(props);
         this.state = {
             email: '',
-            errorMessage: '',
+            formError: false,
             password: ''
         };
 
@@ -31,7 +32,10 @@ class Login extends Component {
 
     // Update the state with the data that was inserted
     handleInput(event, data) {
-        this.setState({ [data.name]: data.value });
+        this.setState({
+            [data.name]: data.value,
+            formError: false
+        });
     }
 
     // Submit the form
@@ -41,6 +45,8 @@ class Login extends Component {
         const { cookies } = this.props;
 
         if (this.state.email === '' || this.state.password === '') {
+            this.setState({ formError: true });
+
             return;
         }
 
@@ -63,40 +69,56 @@ class Login extends Component {
                             path: '/'
                         });
                     });
+            } else {
+                this.setState({ formError: true });
             }
         });
     }
 
     render() {
         return (
-            <Container className="main-container login">
-                <div>
-                    <Form onSubmit={this.submitForm.bind(this)} >
-                        <Form.Field >
-                            <label>{'email'.toUpperCase()}</label>
-                            <Input
-                                type="email"
-                                name="email"
-                                placeholder="you@email.com"
-                                onChange={this.handleInput.bind(this)}
-                                ref={this.setEmailField}
+            <div>
+                <Responsive as={'div'} maxWidth={768} >
+                    <Container fluid className="login-title-container" >
+                        <Header as={'h1'}>{'Mygrant'.toLowerCase()} </Header>
+                    </Container>
+                </Responsive>
+                <Responsive as={MygrantDivider} maxWidth={768} color="light-purple" />
+                <Container className="main-container login">
+                    <div>
+                        <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)} >
+                            <Form.Field >
+                                <label>{'email'.toUpperCase()}</label>
+                                <Input
+                                    error={this.state.formError}
+                                    type="email"
+                                    name="email"
+                                    placeholder="you@email.com"
+                                    onChange={this.handleInput.bind(this)}
+                                    ref={this.setEmailField}
+                                />
+                            </Form.Field>
+                            <Form.Field >
+                                <label>{'password'.toUpperCase()}</label>
+                                <Input
+                                    error={this.state.formError}
+                                    type="password"
+                                    name="password"
+                                    onChange={this.handleInput.bind(this)}
+                                />
+                            </Form.Field>
+                            <Message
+                                error
+                                content={'invalid email or password'}
                             />
-                        </Form.Field>
-                        <Form.Field >
-                            <label>{'password'.toUpperCase()}</label>
-                            <Input
-                                type="password"
-                                name="password"
-                                onChange={this.handleInput.bind(this)}
-                            />
-                        </Form.Field>
-                        <Button fluid circular className="mygrant-button" content={'log in'.toUpperCase()}></Button>
-                        <Button fluid circular color="google plus" verticalAlign="middle" >
-                            <Icon name="google" />Log In with Google
-                        </Button>
-                    </Form>
-                </div>
-            </Container>
+                            <Button fluid circular className="mygrant-button" content={'log in'.toUpperCase()}></Button>
+                            <Button fluid circular color="google plus" verticalAlign="middle" >
+                                <Icon name="google" />Log In with Google
+                            </Button>
+                        </Form>
+                    </div>
+                </Container>
+            </div>
         );
     }
 }

@@ -3,6 +3,7 @@ $green: #8EE8BC;
 $text-green: #5A9B73;
 $dark-green: #2EC88F;
 $purple: #593569;
+$light-purple: #9872A8;
 $grey: #696969;
 $light-grey: #BEC0C1;
 
@@ -43,7 +44,7 @@ button.ui.button.mygrant-button {
 /* Header Start */
 div.site-header {
     height: 50px;
-    border-bottom: 5px solid $green !important;
+    border-bottom: 5px solid $light-purple !important;
 
     a {
         color: $purple;
@@ -57,6 +58,7 @@ div.site-header {
 
 /* Divider Start */
 div.mygrant-divider {
+    overflow: auto;
 
     &.green {
         .divider {
@@ -70,6 +72,12 @@ div.mygrant-divider {
         }
     }
 
+    &.light-purple {
+        .divider {
+            background-color: $light-purple;
+        }
+    }
+
     .divider {
         min-height: 9px;
     }
@@ -77,22 +85,22 @@ div.mygrant-divider {
     .first-divider.divider {
         border: 0;
         box-shadow: 0;
-        width: 90%;
+        width: 95%;
         border-top-left-radius: 500em;
         border-bottom-left-radius: 500em;
         float: right;
         margin-right: 0;
+        margin-bottom: 26px;
     }
 
     .second-divider.divider {
         border: 0;
         box-shadow: 0;
-        margin-top: 35px;
-        width: 20%;
+        margin-top: 45px;
+        width: 80%;
         border-top-right-radius: 500em;
         border-bottom-right-radius: 500em;
         margin-right: 0;
-        margin-bottom: 100px;
     }
 }
 /* Divider End */
