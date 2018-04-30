@@ -46,8 +46,8 @@ class App extends Component {
                     </Grid.Row>
                     <Grid.Row>
                         <Grid.Column computer={6} mobile={16} floated="right" >
-                            <Button fluid circular color="facebook" verticalAlign="middle" >
-                                <Icon name="fab fa-facebook-f" />Log In with Facebook
+                            <Button fluid circular color="google plus" verticalAlign="middle" >
+                                <Icon name="google" />Log In with Google
                             </Button>
                         </Grid.Column>
                     </Grid.Row>

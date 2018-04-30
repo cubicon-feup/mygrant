@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Container, Divider, Icon, Header, Menu } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import '../css/common.css';
-
 
 class MygrantHeader extends Component {
     render() {

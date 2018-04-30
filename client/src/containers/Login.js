@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
+import { Button, Container, Form, Icon, Input } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import '../css/Login.css';
 
+import '../css/Login.css';
 
 class Login extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -69,12 +69,11 @@ class Login extends Component {
 
     render() {
         return (
-            <Container className="main-container">
+            <Container className="main-container login">
                 <div>
-                    <Header as="h1">Login</Header>
                     <Form onSubmit={this.submitForm.bind(this)} >
                         <Form.Field >
-                            <label>{'your email'.toUpperCase()}</label>
+                            <label>{'email'.toUpperCase()}</label>
                             <Input
                                 type="email"
                                 name="email"
@@ -84,7 +83,7 @@ class Login extends Component {
                             />
                         </Form.Field>
                         <Form.Field >
-                            <label>{'your password'.toUpperCase()}</label>
+                            <label>{'password'.toUpperCase()}</label>
                             <Input
                                 type="password"
                                 name="password"
@@ -92,6 +91,9 @@ class Login extends Component {
                             />
                         </Form.Field>
                         <Button fluid circular className="mygrant-button" content={'log in'.toUpperCase()}></Button>
+                        <Button fluid circular color="google plus" verticalAlign="middle" >
+                            <Icon name="google" />Log In with Google
+                        </Button>
                     </Form>
                 </div>
             </Container>

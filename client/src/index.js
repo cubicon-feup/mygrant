@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { CookiesProvider } from 'react-cookie';
 
 import 'semantic-ui-css/semantic.min.css';
-import './css/common.css';
 
 import registerServiceWorker from './registerServiceWorker';
 import App from './containers/App';

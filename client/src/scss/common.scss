@@ -1,18 +1,21 @@
 /* Color settings */
 $green: #8EE8BC;
+$text-green: #5A9B73;
 $dark-green: #2EC88F;
 $purple: #593569;
 $grey: #696969;
 $light-grey: #BEC0C1;
 
 html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-* {
-  font-family: Helvetica, sans-serif !important;
+div.ui.container.main-container {
+    div{
+        font-family: Helvetica, sans-serif !important;
+    }
 }
 
 #root {
@@ -20,11 +23,16 @@ html, body {
     position: relative;
 }
 
+
+button.ui.button {
+    font-family: Helvetica, sans-serif !important;
+    height: 50px;
+}
+
 /* Mygrant button start */
 button.ui.button.mygrant-button {
     background-color: $dark-green;
     color: white;
-    height: 40px;
 
     &:hover {
         background-color: $green;
@@ -67,8 +75,8 @@ div.mygrant-divider {
     }
 
     .first-divider.divider {
-    border: 0;
-    box-shadow: 0;
+        border: 0;
+        box-shadow: 0;
         width: 90%;
         border-top-left-radius: 500em;
         border-bottom-left-radius: 500em;
@@ -77,8 +85,8 @@ div.mygrant-divider {
     }
 
     .second-divider.divider {
-    border: 0;
-    box-shadow: 0;
+        border: 0;
+        box-shadow: 0;
         margin-top: 35px;
         width: 20%;
         border-top-right-radius: 500em;
@@ -116,7 +124,7 @@ div.mygrant-divider {
 /* Nav Start */
 div.site-nav-mobile {
     border-top: 5px solid $green !important;
-    
+
     .item.header {
         color: $dark-green;
         border: none;
