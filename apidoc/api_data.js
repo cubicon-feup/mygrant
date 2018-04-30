@@ -1475,6 +1475,82 @@ define({ "api": [
     "groupTitle": "Service"
   },
   {
+    "type": "put",
+    "url": "/instance/701",
+    "title": "",
+    "name": "ReviewServiceInstance",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "service creator/partner"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the service instance to review</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "rating",
+            "description": "<p>Rating to be given to the service instance</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>ID of the crowdfunding reviewing a service (Only applicable to services provided to a crowdfunding)</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
     "type": "get",
     "url": "/services/search",
     "title": "Search among active services' titles and descriptions using the given query text",
