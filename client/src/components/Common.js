@@ -25,10 +25,12 @@ class MygrantHeader extends Component {
 }
 
 class MygrantDivider extends Component {
+    static propTypes = { color: String }
+
     render() {
         return (
-            <div class={`mygrant-divider ${this.props.color}`}>
-                <Divider className="first-divider"  />
+            <div className={`mygrant-divider ${this.props.color}`}>
+                <Divider className="first-divider" />
                 <Divider className="second-divider" />
             </div>
         );

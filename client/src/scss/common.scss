@@ -1,8 +1,9 @@
 /* Color settings */
 $green: #8EE8BC;
 $dark-green: #2EC88F;
-$purple: #482D4F;
+$purple: #593569;
 $grey: #696969;
+$light-grey: #BEC0C1;
 
 html, body {
   height: 100%;
@@ -19,6 +20,18 @@ html, body {
     position: relative;
 }
 
+/* Mygrant button start */
+button.ui.button.mygrant-button {
+    background-color: $dark-green;
+    color: white;
+    height: 40px;
+
+    &:hover {
+        background-color: $green;
+    }
+}
+/* Mygrant button end */
+
 /* Header Start */
 div.site-header {
     height: 50px;
@@ -29,7 +42,7 @@ div.site-header {
     }
 
     .item.header a {
-        color: $dark-green;
+        color: $purple;
     }    
 }
 /* Header End */

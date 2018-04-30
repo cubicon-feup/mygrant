@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import '../css/common.css';
+import '../css/Login.css';
 
 
 class Login extends Component {
@@ -91,7 +91,7 @@ class Login extends Component {
                                 onChange={this.handleInput.bind(this)}
                             />
                         </Form.Field>
-                        <Button content={'log in'.toUpperCase()}></Button>
+                        <Button fluid circular className="mygrant-button" content={'log in'.toUpperCase()}></Button>
                     </Form>
                 </div>
             </Container>

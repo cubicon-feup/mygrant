@@ -11,10 +11,18 @@ class ProtectedRoute extends Component {
 
     render() {
         const { cookies } = this.props;
-        const { component } = this.props;
+        const { component, ...rest } = this.props;
+        const idToken = cookies.get('id_token');
 
         // Check if the id_token is set - meaning the user is logged in
-        return cookies.get('id_token') ? <Route component={component}/> : <Redirect to={{ pathname: '/login' }} />;
+        return <Route
+            {...rest}
+            render={ function(props) {
+                    return idToken ? <Component component={component} {...props} /> : <Redirect to={{ pathname: '/login' }} />;
+            }
+            }
+        />;
+        // return cookies.get('id_token') ? <Component component={component}/> : <Redirect to={{ pathname: '/login' }} />;
     }
 }
 

@@ -26,7 +26,7 @@ class App extends Component {
 
             { /* Buttons Start */ }
             <Container className="landing-page-buttons" >
-                <Grid > 
+                <Grid >
                     <Grid.Row >
                         <Grid.Column computer={6} mobile={16} floated="right" >
                             <Link to='/login'><Button fluid circular className="mygrant-button" >Log In</Button></Link>
