@@ -45,7 +45,7 @@ class TableRow extends React.Component {
 class TableServices extends Component {
     constructor(props) {
         super(props);
-        this.state = { services: { data: [] } };
+        this.state = { services: [] };
     }
 
     componentDidMount() {
@@ -69,7 +69,7 @@ class TableServices extends Component {
     }
 
     render() {
-        var tableRows = this.state.services.data.map(service =>
+        var tableRows = this.state.services.map(service =>
             <TableRow obj={service} />
         );
 

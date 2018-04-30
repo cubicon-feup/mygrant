@@ -8,12 +8,7 @@ const urlForUser = id => `http://localhost:3001/api/users/${id}`;
 class User extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            id: this.getID(),
-            offers: [{}],
-            request: '',
-            requestFailed: false
-        };
+        this.state = { id: this.getID() };
     }
 
     getID() {
@@ -32,7 +27,7 @@ class User extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState(result.data);
+                    this.setState(result);
                 },
                 () => {
                     console.log('ERROR');
@@ -42,13 +37,16 @@ class User extends Component {
 
     render() {
         return (
-            <Container>
+            <Container className="main-container">
                 <Segment>
                     <Header as="h1">{this.state.full_name}</Header>
                     <p>{this.state.city}</p>
                     <p>{this.state.country}</p>
-                    <p>{this.state.level}</p>
-                    <p>{this.state.high_level}</p>
+                    {this.state.high_level
+                        ? <strong>{this.state.level}</strong>
+                     : <p>{this.state.level}</p>
+                    }
+                    <p>{this.state.date_joined}</p>
                 </Segment>
             </Container>
         );
