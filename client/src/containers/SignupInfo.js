@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import fetchJsonp from 'fetch-jsonp';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import { Container, Form, Header } from 'semantic-ui-react';
+import { Button, Container, Form, Header } from 'semantic-ui-react';
 
-import '../css/common.css';
+import '../css/SignupInfo.css';
 
 
 class SignUpInfo extends Component {
@@ -15,9 +15,14 @@ class SignUpInfo extends Component {
 
         this.state = {
             cities: [],
+            codes: [],
             countries: [],
             countryCode: '',
-            regions: []
+            regions: [],
+            requestCities: true,
+            selectedCity: '',
+            selectedCountry: '',
+            selectedRegion: ''
         };
     }
 
@@ -29,19 +34,34 @@ class SignUpInfo extends Component {
         fetch('/api/countries/as_options', { headers })
             .then(res => res.json())
             .then(countryList => {
+
+                const countryCodes = [];
+
+                countryList.forEach(country => {
+                        countryCodes[country.value] = {};
+                        countryCodes[country.value].key = country.code;
+                        countryCodes[country.value].value = country.text;
+                        countryCodes[country.value].text = country.text;
+                    }
+                );
+
                 this.setState({
                     cities: this.state.cities,
+                    codes: countryCodes,
                     countries: countryList
                 });
             });
     }
 
     getRegions(event, data) {
-        const countryCode = this.state.countries[data.value - 1].code;
+        const countryCode = this.state.codes[data.value].key;
+
         this.setState({
             cities: [],
             countryCode,
-            regions: []
+            regions: [],
+            requestCities: true,
+            selectedCountry: data.value
         });
 
         // Get regions from the country using Batutta's JSONP API
@@ -50,73 +70,119 @@ class SignUpInfo extends Component {
         fetchJsonp(`https://battuta.medunes.net/api/region/${countryCode}/all/?key=bf7d51e0fe349bcc96b9233057599869&callback=`)
             .then(res => res.json())
             .then(regionsList => {
-                const regionsArray = [];
 
-                // Create an options array from the information fetched
-                regionsList.forEach(item => {
-                    regionsArray.push({
-                        text: item.region,
-                        value: item.region
+                // If the selected country has no regions (e.g. Kosovo), set the regions as the country itself
+                if (regionsList.length === 0) {
+                    this.setState({
+                        cities: [this.state.codes[data.value]],
+                        regions: [this.state.codes[data.value]],
+                        requestCities: false
                     });
-                });
+                } else {
 
-                // Sort alphabetically
-                regionsArray.sort(function(item1, item2) {
-                    if (item1.text > item2.text) {
-                        return 1;
-                    } else if (item2.text > item1.text) {
-                        return -1;
-                    }
+                    const regionsArray = [];
 
-                    return 0;
-                });
+                    // Create an options array from the information fetched
+                    regionsList.forEach(item => {
+                        regionsArray.push({
+                            text: item.region,
+                            value: item.region
+                        });
+                    });
 
-                this.setState({ regions: regionsArray });
+                    // Sort alphabetically
+                    regionsArray.sort(function(item1, item2) {
+                        if (item1.text > item2.text) {
+                            return 1;
+                        } else if (item2.text > item1.text) {
+                            return -1;
+                        }
+
+                        return 0;
+                    });
+
+                    this.setState({ regions: regionsArray });
+                }
             });
     }
 
     getCities(event, data) {
+        // Avoid bad requests when region was manually set (see getRegions)
+        if (!this.state.requestCities) {
+            this.setState({ selectedRegion: data.options[0].text });
+
+            return;
+        }
+
         const region = data.value;
-        this.setState({ cities: [] });
+
+        this.setState({
+            cities: [],
+            selectedRegion: region
+        });
 
         // Get cities from the region using Batutta's JSONP API
         // API by medunes -  https://battuta.medunes.net
         // TODO: Create a mygrant account
-        fetchJsonp(`https://battuta.medunes.net/api/city/${this.state.countryCode}/search/?region=
-      ${region}&key=bf7d51e0fe349bcc96b9233057599869&callback=`)
-            .then(res => res.json())
+        fetchJsonp(
+            `https://battuta.medunes.net/api/city/${this.state.countryCode}/search/?region=${region}&key=bf7d51e0fe349bcc96b9233057599869&callback=`
+        ).then(res => res.json())
             .then(citiesList => {
-                const citiesArray = [];
 
-                // Create an options array from the information fetched
-                citiesList.forEach(item => {
-                    citiesArray.push({
-                        text: item.city,
-                        value: item.city
+                if (citiesList.length === 0) {
+                    this.setState({
+                        cities: [
+                            {
+                                key: data.value,
+                                text: data.value,
+                                value: data.value
+                            }
+                        ]
                     });
-                });
+                } else {
+                    const citiesArray = [];
 
-                // Sort alphabetically
-                citiesArray.sort(function(item1, item2) {
-                    if (item1.text > item2.text) {
-                        return 1;
-                    } else if (item2.text > item1.text) {
-                        return -1;
-                    }
+                    // Create an options array from the information fetched
+                    citiesList.forEach(item => {
+                        citiesArray.push({
+                            text: item.city,
+                            value: item.city
+                        });
+                    });
 
-                    return 0;
-                });
+                    // Sort alphabetically
+                    citiesArray.sort(function(item1, item2) {
+                        if (item1.text > item2.text) {
+                            return 1;
+                        } else if (item2.text > item1.text) {
+                            return -1;
+                        }
 
-                this.setState({ cities: citiesArray });
+                        return 0;
+                    });
+
+                    this.setState({ cities: citiesArray });
+                }
             });
+    }
+
+    setCity(event, data) {
+        this.setState({ selectedCity: data.value });
+    }
+
+    // Submit the form, altering the user's fields regarding their location
+    submitForm(event) {
+        event.preventDefault();
+        console.log(this.state);
+
+        const { cookies } = this.props;
     }
 
     render() {
         return (
-            <Container className="main-container">
+            <Container className="main-container signupinfo">
                 <div>
-                    <Header as="h1">{'Tell us more about yourself'.toLowerCase()}</Header>
-                    <Form>
+                    <Form onSubmit={this.submitForm.bind(this)}>
                         <Form.Select
                             onChange={this.getRegions.bind(this)}
                             label={'country'.toUpperCase()}
@@ -130,10 +196,12 @@ class SignUpInfo extends Component {
                             options={this.state.regions}
                         />
                         <Form.Select
+                            onChange={this.setCity.bind(this)}
                             label={'city'.toUpperCase()}
                             placeholder={'City'}
                             options={this.state.cities}
                         />
+                        <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
                     </Form>
                 </div>
             </Container>

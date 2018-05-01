@@ -19,7 +19,7 @@ router.get('/', function(req, res) {
 
 // Get a list of countries with the correct names to appear as options in the client
 router.get('/as_options', authenticate, function(req, res) {
-    const query = 'SELECT id as value, name as text, code FROM country ORDER BY id ASC';
+    const query = 'SELECT id as value, name as text, code FROM country ORDER BY name ASC';
     db.any(query)
         .then(data => {
             res.status(200).json(data);

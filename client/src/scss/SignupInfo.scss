@@ -1,0 +1,35 @@
+@import './common';
+
+@media (min-width: 768px) {
+
+    .ui.container.main-container.signupinfo {
+        width: 35%;
+    }
+
+    form.ui.form {
+        margin-top: 100px;
+        button.mygrant-button {
+            margin: 100px 0 25px;
+        }
+    }
+}
+
+form.ui.form {
+    font-family: Helvetica, sans-serif !important;
+
+    div.field {
+        label {
+            padding-left: 10px;
+            color: $grey;
+            font-weight: lighter;
+        }
+        div.ui.selection, div.ui.selection:focus {
+            color: $text-green;
+            font-size: 1.2em;
+            font-weight: normal;
+            border: none;
+            border-radius: 0;
+            border-bottom: 1px solid $light-grey;
+        }
+    }
+}
