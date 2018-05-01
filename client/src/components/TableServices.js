@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import '../css/App.css';
+import '../css/Service.css';
 import {
     Button,
     Container,
@@ -94,12 +94,10 @@ class TableServices extends Component {
                     <Table.Body>{tableRows}</Table.Body>
                 </Table>
 
-                <Link to="/createservice">
-                    <Button color="green" className="mygrant-button2">
-                        Create Service
-                    </Button>
+                <Link to="/createservice/PROVIDE">
+                    <Button className="mygrant-button2">Provide Service</Button>
                 </Link>
-                <Link to="/requestservice">
+                <Link to="/createservice/REQUEST">
                     <Button className="mygrant-button2">Request Service</Button>
                 </Link>
             </Container>

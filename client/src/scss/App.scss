@@ -23,19 +23,6 @@ button.ui.button.mygrant-button {
     }
 }
 
-button.ui.button.mygrant-button2 {
-    margin-top: 10px;
-    margin-right: 20px;
-    background-color: #5a9b73;
-    color: white;
-    width: auto;
-    height: 39px;
-
-    &:hover {
-        background-color: darken(#5a9b73, 20%);
-    }
-}
-
 .fa-circle {
     color: $green;
     margin-right: 20px;
@@ -139,19 +126,3 @@ div.intro-container.container {
     margin-bottom: 150px;
 }
 /* Intro section End */
-
-.modal-container {
-    display: flex;
-    height: 0vh;
-}
-
-.purple-divider {
-    position: absolute;
-    width: 80%;
-    left: -15%;
-    margin-top: -0.8em;
-    padding-bottom: 1em;
-    background: $purple;
-    border-top-right-radius: 500em;
-    border-bottom-right-radius: 500em;
-}

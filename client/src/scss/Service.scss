@@ -1,0 +1,45 @@
+@import 'App';
+
+$green: #50c889;
+$light-green: lighten($green, 5%);
+$dark-green: #5a9b73;
+
+.modal-container {
+    display: flex;
+    height: 0vh;
+}
+
+#dark-button,
+button.ui.button.mygrant-button2 {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: $dark-green;
+    color: white;
+    width: auto;
+    height: 39px;
+
+    &:hover {
+        background-color: darken($dark-green, 20%);
+    }
+}
+
+.purple-divider {
+    position: absolute;
+    width: 80%;
+    left: -15%;
+    margin-top: -0.8em;
+    padding-bottom: 1em;
+    background: $purple;
+    border-top-right-radius: 500em;
+    border-bottom-right-radius: 500em;
+}
+
+.ui.form .field .ui.input input,
+.ui.form .field > .selection.dropdown {
+    border-color: $light-green;
+}
+
+.ui.center.aligned.header,
+.ui.centered.header {
+    color: $green;
+}

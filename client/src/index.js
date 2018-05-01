@@ -23,7 +23,10 @@ ReactDom.render(
             <Route exact path="/" component={App} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
-            <Route exact path="/createservice" component={CreateService} />
+            <Route
+                path="/createservice/:type(PROVIDE|REQUEST)"
+                component={CreateService}
+            />
             <Route exact path="/user/:id" component={User} />
             <Route exact path="/service/:id" component={Service} />
             <Route exact path="/tableservices" component={TableServices} />
