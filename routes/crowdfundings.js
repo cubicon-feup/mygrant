@@ -500,8 +500,8 @@ router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function
 // ===============================================================================
 
 /**
- * @api {post} /crowdfundings/:crowdfunding_id/services_requested Create service request.
- * @apiName ServiceRequest
+ * @api {post} /crowdfundings/:crowdfunding_id/services_requested Create service request
+ * @apiName CreateServiceRequest
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
@@ -518,6 +518,7 @@ router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function
  * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
  */
 router.post('/:crowdfunding_id/services_requested', policy.requestService, function(req, res) {
+    let creatorId = 1;  // TODO: authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
@@ -525,8 +526,19 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
     let location = req.body.location;
     let mygrantValue = req.body.mygrant_value;
     let query =
-        `INSERT INTO service (title, description, category, location, mygrant_value, date_created, service_type, crowdfunding_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_value), NOW(), 'REQUEST', $(crowdfunding_id));`;
+        `DO
+        $do$
+        BEGIN
+            IF EXISTS (
+                SELECT 1
+                FROM crowdfunding
+                WHERE crowdfunding.id = $(crowdfunding_id)
+                    AND crowdfunding.creator_id = $(creator_id)
+            ) THEN INSERT INTO service (title, description, category, location, mygrant_value, date_created, service_type, crowdfunding_id)
+                    VALUES ($(title), $(description), $(category), $(location), $(mygrant_value), NOW(), 'REQUEST', $(crowdfunding_id));
+            END IF;
+        END;
+        $do$`;
 
     db.none(query, {
         title: title,
@@ -534,7 +546,8 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
         category: category,
         location: location,
         mygrant_value: mygrantValue,
-        crowdfunding_id: crowdfundingId
+        crowdfunding_id: crowdfundingId,
+        creator_id: creatorId
     }).then(() => {
         res.status(201).send({message: 'Successfully created a new service request for the crowdfunding.'});
     }).catch(error => {
