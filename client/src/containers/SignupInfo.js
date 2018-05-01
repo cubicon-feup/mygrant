@@ -9,9 +9,9 @@ import '../css/SignupInfo.css';
 
 
 class SignUpInfo extends Component {
-    static proptypes = {
-        cookies: instanceOf(Cookies).isrequired,
-        history: ReactRouterPropTypes.history.isrequired
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        history: ReactRouterPropTypes.history.isRequired
     };
 
     constructor(props) {
@@ -22,7 +22,7 @@ class SignUpInfo extends Component {
             codes: [],
             countries: [],
             countryCode: '',
-            formError: true,
+            formError: false,
             regions: [],
             requestCities: true,
             selectedCity: '',
@@ -180,7 +180,6 @@ class SignUpInfo extends Component {
     // Submit the form, altering the user's fields regarding their location
     submitForm(event) {
         event.preventDefault();
-        console.log(this.state);
 
         const { cookies } = this.props;
 
@@ -193,15 +192,15 @@ class SignUpInfo extends Component {
             city: this.state.selectedCity,
             country: this.state.selectedCountry,
             region: this.state.selectedRegion
-        }
+        };
 
         fetch(
-            '/api/user/set-location', {
+            '/api/users/set_location', {
                 body: JSON.stringify(data),
                 headers,
                 method: 'POST'
             })
-            .then(res =>  {
+            .then(res => {
                 if (res.status === 200) {
                     // Everything went well, go to root
                     this.props.history.push('/');
@@ -225,12 +224,14 @@ class SignUpInfo extends Component {
                             options={this.state.countries}
                         />
                         <Form.Select
+                            search
                             onChange={this.getCities.bind(this)}
                             label={'region'.toUpperCase()}
                             placeholder={'Region'}
                             options={this.state.regions}
                         />
                         <Form.Select
+                            search
                             onChange={this.setCity.bind(this)}
                             label={'city'.toUpperCase()}
                             placeholder={'City'}

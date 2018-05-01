@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
+const expressJwt = require('express-jwt');
+const authenticate = expressJwt({ secret: 'carbonbytunicgym' });
+
 // Get user by id
 router.get('/:id', function(req, res) {
     try {
@@ -168,6 +171,26 @@ router.delete('/block_user', function(req, res) {
             blocker_id: user_id,
             target_id: req.body.id
         })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Set location (Country, region, city) info
+router.post('/set_location', authenticate, function(req, res) {
+    const query =
+        `UPDATE users SET country_id = $(country), city = $(city), region = $(region) 
+        WHERE id = $(id)`;
+
+    db.none(query, {
+        city: req.body.city,
+        country: req.body.country,
+        id: req.user.id,
+        region: req.body.region
+    })
         .then(() => {
             res.sendStatus(200);
         })
