@@ -7,9 +7,9 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { Button, Container, Form, Input, Message } from 'semantic-ui-react';
 
 class SignUp extends Component {
-    static propTypes = {
-        cookies: instanceOf(Cookies).isRequired,
-        history: ReactRouterPropTypes.history.isRequired
+    static proptypes = {
+        cookies: instanceOf(Cookies).isrequired,
+        history: ReactRouterPropTypes.history.isrequired
     };
 
     constructor(props) {

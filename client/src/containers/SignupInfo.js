@@ -2,13 +2,17 @@ import React, { Component } from 'react';
 import fetchJsonp from 'fetch-jsonp';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import { Button, Container, Form, Header } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Message } from 'semantic-ui-react';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import '../css/SignupInfo.css';
 
 
 class SignUpInfo extends Component {
-    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+    static proptypes = {
+        cookies: instanceOf(Cookies).isrequired,
+        history: ReactRouterPropTypes.history.isrequired
+    };
 
     constructor(props) {
         super(props);
@@ -18,6 +22,7 @@ class SignUpInfo extends Component {
             codes: [],
             countries: [],
             countryCode: '',
+            formError: true,
             regions: [],
             requestCities: true,
             selectedCity: '',
@@ -38,11 +43,11 @@ class SignUpInfo extends Component {
                 const countryCodes = [];
 
                 countryList.forEach(country => {
-                        countryCodes[country.value] = {};
-                        countryCodes[country.value].key = country.code;
-                        countryCodes[country.value].value = country.text;
-                        countryCodes[country.value].text = country.text;
-                    }
+                    countryCodes[country.value] = {};
+                    countryCodes[country.value].key = country.code;
+                    countryCodes[country.value].value = country.text;
+                    countryCodes[country.value].text = country.text;
+                }
                 );
 
                 this.setState({
@@ -59,6 +64,7 @@ class SignUpInfo extends Component {
         this.setState({
             cities: [],
             countryCode,
+            formError: false,
             regions: [],
             requestCities: true,
             selectedCountry: data.value
@@ -118,6 +124,7 @@ class SignUpInfo extends Component {
 
         this.setState({
             cities: [],
+            formError: false,
             selectedRegion: region
         });
 
@@ -176,13 +183,40 @@ class SignUpInfo extends Component {
         console.log(this.state);
 
         const { cookies } = this.props;
+
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = {
+            city: this.state.selectedCity,
+            country: this.state.selectedCountry,
+            region: this.state.selectedRegion
+        }
+
+        fetch(
+            '/api/user/set-location', {
+                body: JSON.stringify(data),
+                headers,
+                method: 'POST'
+            })
+            .then(res =>  {
+                if (res.status === 200) {
+                    // Everything went well, go to root
+                    this.props.history.push('/');
+                } else {
+                    // Should not happen, display an error
+                    this.setState({ formError: true });
+                }
+            });
     }
 
     render() {
         return (
             <Container className="main-container signupinfo">
                 <div>
-                    <Form onSubmit={this.submitForm.bind(this)}>
+                    <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)}>
                         <Form.Select
                             search
                             onChange={this.getRegions.bind(this)}
@@ -201,6 +235,10 @@ class SignUpInfo extends Component {
                             label={'city'.toUpperCase()}
                             placeholder={'City'}
                             options={this.state.cities}
+                        />
+                        <Message
+                            error
+                            content={'something went wrong, please try again'}
                         />
                         <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
                     </Form>
