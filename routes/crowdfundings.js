@@ -10,8 +10,8 @@ const allowedSortingMethods = ["date_created", "date_finished", "title", "percen
 // ===============================================================================
 
 /**
- * @api {post} /crowdfundings/ Creates a new crowdfunding project.
- * @apiName PostCrowdfunding
+ * @api {post} /crowdfundings/ Create crowdfunding
+ * @apiName CreateCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
@@ -21,10 +21,9 @@ const allowedSortingMethods = ["date_created", "date_finished", "title", "percen
  * @apiParam (RequestBody) {String} location Location where the crowdfunding is going to take place.
  * @apiParam (RequestBody) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
  * @apiParam (RequestBody) {Integer} time_interval Number of week to collect donators.
- * @apiParam (RequestBody) {Integer} creator_id Creator user id.
  *
  * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
@@ -35,7 +34,7 @@ router.post('/', policy.valid, function(req, res) {
     let location = req.body.location;
     let mygrantTarget = req.body.mygrant_target;
     let timeInterval = req.body.time_interval;
-    let creatorId = req.body.creator_id;
+    let creatorId = 1;   // TODO: authenticated user.
     let query =
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
         VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) week', 'COLLECTING', $(creator_id))
@@ -60,10 +59,9 @@ router.post('/', policy.valid, function(req, res) {
 });
 
 /**
- * @api {get} /crowdfundings/:crowdfunding_id Get crowdfunding project.
+ * @api {get} /crowdfundings/:crowdfunding_id Get crowdfunding
  * @apiName GetCrowdfunding
  * @apiGroup Crowdfunding
- * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
  *
@@ -80,7 +78,7 @@ router.post('/', policy.valid, function(req, res) {
  * @apiSuccess (Success 200) {Integer} average_rating Average rating given by donators.
  * @apiSuccess (Success 200) {Array} images Array of images.
  * 
- * @apiError (Error 500) InternalServerError Could't get the crowdfunding.
+ * @apiError (Error 500) InternalServerError Could't get the crowdfunding project.
  */
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
@@ -97,7 +95,7 @@ router.get('/:crowdfunding_id', function(req, res) {
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE crowdfunding.id = $(id);`;
 
-    db.one(query, {
+    db.oneOrNone(query, {
         id: id
     }).then(data => {
         res.status(200).json(data);
@@ -107,7 +105,7 @@ router.get('/:crowdfunding_id', function(req, res) {
 });
 
 /**
- * @api {put} /crowdfundings/:crowdfunding_id Update crowdfunding.
+ * @api {put} /crowdfundings/:crowdfunding_id Update crowdfunding
  * @apiName UpdateCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -122,20 +120,22 @@ router.get('/:crowdfunding_id', function(req, res) {
  * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
  */
 router.put('/:crowdfunding_id', policy.edit, function(req, res) {
-    let id = req.params.crowdfunding_id;
+    let creatorId = 1;  // TODO: authenticated user.
+    let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
     let query =
         `UPDATE crowdfunding
         SET title = $(title),
-            description = $(description),
-            category = 'ARTS'::service_categories
-        WHERE id = $(id);`;
+            description = $(description)
+        WHERE id = $(id)
+            AND creator_id = $(creator_id);`;
 
     db.none(query, {
         title: title,
         description: description,
-        id: id
+        id: crowdfundingId,
+        creator_id: creatorId
     }).then(() => {
         res.status(200).send({message: 'Successfully updated crowdfunding project.'});
     }).catch(error => {
@@ -144,7 +144,7 @@ router.put('/:crowdfunding_id', policy.edit, function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfundings/:crowdfunding_id Delete crowdfunding.
+ * @api {delete} /crowdfundings/:crowdfunding_id Delete crowdfunding
  * @apiName DeleteCrowdfunding
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -153,16 +153,19 @@ router.put('/:crowdfunding_id', policy.edit, function(req, res) {
  *
  * @apiSuccess (Success 200) {String} message Successfully deleted crowdfunding project.
  * 
- * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
+ * @apiError (Error 500) InternalServerError Could't delete the crowdfunding project.
  */
 router.delete('/:crowdfunding_id', function(req, res) {
-    let id = req.params.crowdfunding_id;
+    let creatorId = 1; // TODO: Use session id.
+    let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `DELETE FROM crowdfunding
-        WHERE id = $(id);`;
+        WHERE id = $(id)
+            AND creator_id = $(creator_id);`;
 
     db.none(query, {
-        id: id
+        id: crowdfundingId,
+        creator_id: creatorId
     }).then(() => {
         res.status(200).send({message: 'Sucessfully deleted crowdfunding project.'});
     }).catch(error => {
@@ -171,19 +174,18 @@ router.delete('/:crowdfunding_id', function(req, res) {
 });
 
 /**
- * @api {get} /crowdfundings/:crowdfunding_id/rating Get crowdfunding average rating.
+ * @api {get} /crowdfundings/:crowdfunding_id/rating Get crowdfunding average rating
  * @apiName GetCrowdfundingAverageRating
  * @apiGroup Crowdfunding
- * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding project id.
  *
  * @apiSuccess (Success 200) {String} average_rating Crowdfunding average rating.
  * 
- * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
+ * @apiError (Error 500) InternalServerError Couldn't get the rating.
  */
 router.get('/:crowdfunding_id/rating', function(req, res) {
-    let id = req.params.crowdfunding_id;
+    let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `SELECT avg(total_ratings.rating) as average_rating
         FROM (
@@ -193,29 +195,29 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
         ) as total_ratings;`;
 
     db.one(query, {
-        id: id
+        id: crowdfundingId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get the rating.'});
     });
 });
 
 /**
- * @api {get} /crowdfundings/ Get all crowdfundings.
- * @apiName GetCrowdfundings
+ * @api {get} /crowdfundings/ Get all crowdfundings
+ * @apiName GetAllCrowdfundings
  * @apiGroup Crowdfunding
- * @apiPermission authenticated user
+ * @apiDeprecated use now (#Crowdfunding:SearchCrowdfunding).
  *
- * @apiSuccess (Success 200) {String} title Crowdfunding average rating.
- * @apiSuccess (Success 200) {String} category Crowdfunding average rating.
- * @apiSuccess (Success 200) {String} location Crowdfunding average rating.
- * @apiSuccess (Success 200) {Integer} mygrant_target Crowdfunding average rating.
- * @apiSuccess (Success 200) {String} status Crowdfunding average rating.
- * @apiSuccess (Success 200) {String} creator_name Crowdfunding average rating.
- * @apiSuccess (Success 200) {Integer} creator_id Crowdfunding average rating.
-
- * @apiError (Error 500) InternalServerError Couldn't get crowdfundings.
+ * @apiSuccess (Success 200) {String} title Crowdfunding title.
+ * @apiSuccess (Success 200) {String} category Crowdfunding category.
+ * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
+ * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {String} status Current crowdfunding status. 
+ * @apiSuccess (Success 200) {String} creator_name Creator user name.
+ * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
+ *
+ * @apiError (Error 500) InternalServerError Couldn't get crowdfunding projects.
  */
 router.get('/', function(req, res) {
     let query =
@@ -223,23 +225,22 @@ router.get('/', function(req, res) {
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
 
-    db.many(query)
+    db.manyOrNone(query)
     .then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get crowdfundings.'});
+        res.status(500).json({error: 'Couldn\'t get crowdfunding projects.'});
     });
 });
 
 /**
- * @api {post} /crowdfundings/:crowdfunding_id/donations Donate.
- * @apiName Donate
+ * @api {post} /crowdfundings/:crowdfunding_id/donations Create donation.
+ * @apiName CreateDonation
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
- * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
- * @apiParam (RequestBody) {Integer} donator_id Donator user id.
- * @apiParam (RequestBody) {Integer} amount Number of mygrant to donate.
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that gets the donation.
+ * @apiParam (RequestBody) {Integer} amount Number of mygrants to donate.
  * 
  * @apiSuccess (Success 201) {String} message Successfully donated to crowdfunding.
  * 
@@ -247,8 +248,8 @@ router.get('/', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't donate.
  */
 router.post('/:crowdfunding_id/donations', policy.donate, function(req, res) {
+    let donatorId = 2; // TODO: authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
-    let donatorId = req.body.donator_id;
     let amount = req.body.amount;
     let query =
         `INSERT INTO crowdfunding_donation (crowdfunding_id, donator_id, amount, date_sent)
@@ -261,7 +262,7 @@ router.post('/:crowdfunding_id/donations', policy.donate, function(req, res) {
     }).then(() => {
         res.status(201).send({message: 'Successfully donated to crowdfunding.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t donate.'});
     });
 });
 
@@ -287,7 +288,7 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
         INNER JOIN users ON users.id = crowdfunding_donation.donator_id
         WHERE crowdfunding_id = $(crowdfunding_id);`;
 
-    db.many(query, {
+    db.manyOrNone(query, {
         crowdfunding_id: crowdfundingId
     }).then(data => {
         res.status(200).json(data);
@@ -297,14 +298,13 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
 });
 
 /**
- * @api {put} /crowdfundings/:crowdfunding_id/rating Rate.
- * @apiName Rate
+ * @api {put} /crowdfundings/:crowdfunding_id/rating Create rate
+ * @apiName CreateRate
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
  * @apiParam (RequestBody) {Integer} rating Donator user rating.
- * @apiParam (RequestBody) {Integer} donator_id Donator user id.
  * 
  * @apiSuccess (Success 200) {Integer} message Successfully rated the crowdfunding.
  * 
@@ -312,9 +312,9 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't get donations.
  */
 router.put('/:crowdfunding_id/rating', policy.rate, function(req, res) {
+    let donatorId = 2;  // TODO: authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
     let rating = req.body.rating;
-    let donatorId = req.body.donator_id;
     let query =
         `UPDATE crowdfunding_donation
         SET rating = $(rating)
@@ -328,9 +328,15 @@ router.put('/:crowdfunding_id/rating', policy.rate, function(req, res) {
     }).then(() => {
         res.status(200).send({message: 'Successfully rated the crowdfunding.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t rate crowdfunding.'});
     });
 });
+
+// IMAGES
+// DEPRECATED. Wait for new version.
+// TODO: new image API version.
+// ===============================================================================
+
 
 /*router.post('/:crowdfunding_id/image', function(req, res) {
     let filename = image.uploadImage(req, res, 'crowdfunding/');
@@ -366,9 +372,6 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
 
 // SERVICES OFFERS.
 // 
-
-
-==========================================================================
 
 /**
  * @api {post} /crowdfundings/:crowdfunding_id/services_offers Offer service to crowdfunding.

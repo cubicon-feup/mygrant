@@ -45,8 +45,7 @@ module.exports = {
 
     donate(req, res, next) {
         const schema = {
-            donator_id: Joi.number().required(),
-            amount: Joi.number.min(1).required()
+            amount: Joi.number().min(1).required()
         }
 
         const {error} = Joi.validate(req.body, schema, config.joiOptions);
@@ -58,14 +57,13 @@ module.exports = {
 
     rate(req, res, next) {
         const schema = {
-            rating: Joi.number().min(1).max(3).required(),
-            donator_id: Joi.number().required()
+            rating: Joi.number().min(config.rating.min).max(config.rating.max).required(),
         }
 
         const {error} = Joi.validate(req.body, schema, config.joiOptions);
 
         if(error)
-            res.status(400).send({error: 'Invalid rate data.'});
+            res.status(400).send({error: 'Invalid rating data.'});
         else next();
     },
 
