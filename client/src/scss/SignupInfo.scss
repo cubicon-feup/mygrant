@@ -31,5 +31,11 @@ form.ui.form {
             border-radius: 0;
             border-bottom: 1px solid $light-grey;
         }
+
+        input.search {
+            font-size: 1em;
+            line-height: 1.2em;
+        }
     }
+
 }

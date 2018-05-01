@@ -184,6 +184,7 @@ class SignUpInfo extends Component {
                 <div>
                     <Form onSubmit={this.submitForm.bind(this)}>
                         <Form.Select
+                            search
                             onChange={this.getRegions.bind(this)}
                             label={'country'.toUpperCase()}
                             placeholder={'Country'}
