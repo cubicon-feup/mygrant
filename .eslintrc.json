@@ -4,7 +4,11 @@
         "es6": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
@@ -253,6 +257,7 @@
             "single"
         ],
         "radix": "error",
+        "react/jsx-uses-vars": [2],
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
@@ -277,7 +282,7 @@
             "error",
             "always"
         ],
-        "strict": "error",
+        "strict": 0,
         "switch-colon-spacing": "error",
         "symbol-description": "error",
         "template-curly-spacing": [
