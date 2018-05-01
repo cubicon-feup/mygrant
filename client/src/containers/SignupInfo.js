@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import fetchJsonp from 'fetch-jsonp';
 import { instanceOf } from 'prop-types';
-import { withCookies, Cookies } from 'react-cookie';
-import { Button, Container, Form, Header, Message } from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+
+import { Button, Container, Form, Header, Message, Responsive } from 'semantic-ui-react';
+import { MygrantDivider } from '../components/Common';
 
 import '../css/SignupInfo.css';
 
@@ -213,38 +215,46 @@ class SignUpInfo extends Component {
 
     render() {
         return (
-            <Container className="main-container signupinfo">
-                <div>
-                    <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)}>
-                        <Form.Select
-                            search
-                            onChange={this.getRegions.bind(this)}
-                            label={'country'.toUpperCase()}
-                            placeholder={'Country'}
-                            options={this.state.countries}
-                        />
-                        <Form.Select
-                            search
-                            onChange={this.getCities.bind(this)}
-                            label={'region'.toUpperCase()}
-                            placeholder={'Region'}
-                            options={this.state.regions}
-                        />
-                        <Form.Select
-                            search
-                            onChange={this.setCity.bind(this)}
-                            label={'city'.toUpperCase()}
-                            placeholder={'City'}
-                            options={this.state.cities}
-                        />
-                        <Message
-                            error
-                            content={'something went wrong, please try again'}
-                        />
-                        <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
-                    </Form>
-                </div>
-            </Container>
+            <div>
+                <Responsive as={'div'} maxWidth={768} >
+                    <Container fluid className="signupinfo-title-container" >
+                        <Header as={'h1'}>{'tell us more'.toLowerCase()}<br/>{'about yourself'.toLowerCase()}</Header>
+                    </Container>
+                </Responsive>
+                <Responsive as={MygrantDivider} maxWidth={768} color="green" />
+                <Container className="main-container signupinfo">
+                    <div>
+                        <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)}>
+                            <Form.Select
+                                search
+                                onChange={this.getRegions.bind(this)}
+                                label={'country'.toUpperCase()}
+                                placeholder={'Country'}
+                                options={this.state.countries}
+                            />
+                            <Form.Select
+                                search
+                                onChange={this.getCities.bind(this)}
+                                label={'region'.toUpperCase()}
+                                placeholder={'Region'}
+                                options={this.state.regions}
+                            />
+                            <Form.Select
+                                search
+                                onChange={this.setCity.bind(this)}
+                                label={'city'.toUpperCase()}
+                                placeholder={'City'}
+                                options={this.state.cities}
+                            />
+                            <Message
+                                error
+                                content={'something went wrong, please try again'}
+                            />
+                            <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
+                        </Form>
+                    </div>
+                </Container>
+            </div>
         );
     }
 }

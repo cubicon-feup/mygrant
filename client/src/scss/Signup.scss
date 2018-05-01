@@ -14,6 +14,31 @@
     }
 }
 
+@media (max-width: 768px) {
+    .ui.container.signup-title-container {
+        .header { 
+            width: 70%;
+            color: $green;
+            font-size: 3em;
+            padding-left: 20px;
+            margin-top: 50px;
+        }
+    }
+
+    form.ui.form {
+        padding-left: 30px;
+        padding-right: 30px;
+        input {
+            height:2em;
+        }
+        margin-top: -30px;
+        button.mygrant-button {
+            margin-top: 50px;
+            margin-bottom: 20px;
+        }
+    }
+}
+
 form.ui.form {
     font-family: Helvetica, sans-serif !important;
 

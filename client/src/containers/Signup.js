@@ -4,7 +4,8 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Button, Container, Form, Input, Message } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Input, Message, Responsive } from 'semantic-ui-react';
+import { MygrantDivider } from '../components/Common';
 
 class SignUp extends Component {
     static propTypes = {
@@ -95,69 +96,77 @@ class SignUp extends Component {
 
     render() {
         return (
-            <Container className="signup main-container">
-                <div>
-                    <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)} >
-                        <Form.Field required >
-                            <label>{'email'.toUpperCase()}</label>
-                            <Input
-                                error={this.state.emailError}
-                                name="email"
-                                placeholder="you@email.com"
-                                onChange={this.handleInput.bind(this)}
-                                ref={this.setEmailField}
-                                type="email"
-                            />
-                        </Form.Field>
-                        <Form.Input
-                            required
-                            label={'name'.toUpperCase()}
-                            name="name"
-                            type="text"
-                            placeholder="Name"
-                            onChange={this.handleInput.bind(this)}
-                        />
-                        <Form.Input
-                            required
-                            label={'phone number'.toUpperCase()}
-                            name="phone"
-                            type="text"
-                            placeholder="Phone Number"
-                            onChange={this.handleInput.bind(this)}
-                        />
-                        <Form.Field >
-                            <label>{'password'.toUpperCase()}</label>
-                            <Input
+            <div>
+                <Responsive as={'div'} maxWidth={768} >
+                    <Container fluid className="signup-title-container" >
+                        <Header as={'h1'}>{'create'.toLowerCase()}<br/>{'an account'.toLowerCase()}</Header>
+                    </Container>
+                </Responsive>
+                <Responsive as={MygrantDivider} maxWidth={768} color="green" />
+                <Container className="signup main-container">
+                    <div>
+                        <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)} >
+                            <Form.Field required >
+                                <label>{'email'.toUpperCase()}</label>
+                                <Input
+                                    error={this.state.emailError}
+                                    name="email"
+                                    placeholder="you@email.com"
+                                    onChange={this.handleInput.bind(this)}
+                                    ref={this.setEmailField}
+                                    type="email"
+                                />
+                            </Form.Field>
+                            <Form.Input
                                 required
-                                type="password"
-                                name="password"
-                                minLength={8}
-                                placeholder="Type your password"
-                                error={this.state.passwordError}
+                                label={'name'.toUpperCase()}
+                                name="name"
+                                type="text"
+                                placeholder="Name"
                                 onChange={this.handleInput.bind(this)}
                             />
-                        </Form.Field>
-                        <Form.Field >
-                            <label>{'repeat your password'.toUpperCase()}</label>
-                            <Input
+                            <Form.Input
                                 required
-                                placeholder="Type your password"
-                                name="repeatPassword"
-                                minLength={8}
-                                type="password"
-                                error={this.state.passwordError}
+                                label={'phone number'.toUpperCase()}
+                                name="phone"
+                                type="text"
+                                placeholder="Phone Number"
                                 onChange={this.handleInput.bind(this)}
-                            >
-                            </Input>
-                            <Message
-                                error
-                                content={this.state.errorMessage}
                             />
-                        </Form.Field>
-                        <Button circular fluid className={'mygrant-button'} content={'sign up'.toUpperCase()}></Button>
-                    </Form>
-                </div>
-            </Container>
+                            <Form.Field >
+                                <label>{'password'.toUpperCase()}</label>
+                                <Input
+                                    required
+                                    type="password"
+                                    name="password"
+                                    minLength={8}
+                                    placeholder="Type your password"
+                                    error={this.state.passwordError}
+                                    onChange={this.handleInput.bind(this)}
+                                />
+                            </Form.Field>
+                            <Form.Field >
+                                <label>{'repeat your password'.toUpperCase()}</label>
+                                <Input
+                                    required
+                                    placeholder="Type your password"
+                                    name="repeatPassword"
+                                    minLength={8}
+                                    type="password"
+                                    error={this.state.passwordError}
+                                    onChange={this.handleInput.bind(this)}
+                                >
+                                </Input>
+                                <Message
+                                    error
+                                    content={this.state.errorMessage}
+                                />
+                            </Form.Field>
+                            <Button circular fluid className={'mygrant-button'} content={'sign up'.toUpperCase()}></Button>
+                        </Form>
+                    </div>
+                </Container>
+            </div>
         );
     }
 }
