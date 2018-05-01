@@ -365,10 +365,7 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
 });*/
 
 // SERVICES OFFERS.
-// 
-
-
-==========================================================================
+// ==========================================================================
 
 /**
  * @api {post} /crowdfundings/:crowdfunding_id/services_offers Offer service to crowdfunding.

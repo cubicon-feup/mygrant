@@ -20,6 +20,8 @@ var db = require('../config/database');
  *
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to title) (Optional)
+ * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
  *
  * @apiExample Syntax
  * GET: /api/services?page=<PAGE>&items=<ITEMS>
@@ -27,6 +29,8 @@ var db = require('../config/database');
  * GET: /api/services?page=3
  * @apiExample Example 2
  * GET: /api/services?page=1&items=25
+ * @apiExample Example 3
+ * GET: /api/services?page=1&items=25&order=description&asc=false
  *
  * @apiSuccess (Success 200) {Integer} id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -46,17 +50,15 @@ var db = require('../config/database');
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
 router.get('/', function(req, res) {
-    // TODO apply sorting (by field), asc, desc.
-    // ORDER BY n ASC
-    let itemsPerPage = 50;
     try {
-        // itemPerPage
-        if (req.query.hasOwnProperty('items') && req.query.items < 50) {
-            itemsPerPage = req.query.items;
-        }
-        // offset
-        const page = req.query.hasOwnProperty('page') ? req.query.page : 1;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items<50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page>1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
+        // order by:
+        const order = req.query.hasOwnProperty('order') ? req.query.order : 'title';
+        // ascending / descending
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc=='true' : true;        
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -71,11 +73,14 @@ router.get('/', function(req, res) {
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.deleted = false
+        ORDER BY $(order) ${asc ? `ASC` : `DESC`}
         LIMIT $(itemsPerPage) OFFSET $(offset)`;
     // place query
     db.any(query, {
             itemsPerPage,
-            offset
+            offset,
+            order,
+            asc
         })
         .then(data => {
             res.status(200).json(data);
@@ -142,7 +147,8 @@ router.get('/num-pages', function(req, res) {
  * @apiDescription Search among active services' titles and descriptions using the given query text
  *
  * @apiParam (RequestQueryParams) {String} q Search query (Required)
- * @apiParam (RequestQueryParams) {Integer} limit Maximum number of results default: 50 (Optional)
+ * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
  * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
  * @apiParam (RequestQueryParams) {String} cat Category of the service [BUSINESS, ARTS, ...] (Optional)
@@ -183,12 +189,15 @@ router.get('/num-pages', function(req, res) {
 router.get(['/search'], function(req, res) { // check for valid input
     try {
         var q = req.query.q.split(' ').join(' | ');
-        var limit = req.query.hasOwnProperty('limit') ? req.query.limit : 50;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items<50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page>1 ? req.query.page : 1;
+        var offset = (page - 1) * itemsPerPage;
         // lang can either be 'english' or 'portuguese':
         var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english';
         var search_desc = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
         var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
-        // var loc = req.query.hasOwnProperty('loc') ? req.query.loc : null;
+        // var loc = req.query.hasOwnProperty('loc') ? req.query.loc : null; // TODO loc distance needs to be calculated
         var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
         var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
@@ -206,28 +215,29 @@ router.get(['/search'], function(req, res) { // check for valid input
         SELECT *
         FROM (
         SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        ts_rank_cd(to_tsvector($(lang), service.title ${search_desc ? '|| \'. \' || service.description' : ''} || '. ' || users.full_name),
+        ts_rank_cd(to_tsvector($(lang), service.title ${search_desc ? `|| '. ' || service.description` : ``} || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
-        WHERE service.deleted = false${
-        cat ? ' AND service.category = $(cat)' : ''
-        }${type ? ' AND service.service_type = $(type)' : ''
-        }${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''
-        }${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''
-        }${datemax ? ' AND service.date_created <= $(datemax)' : ''
-        }${datemin ? ' AND service.date_created >= $(datemin)' : ''
-        }) s
+        WHERE service.deleted = false
+        ${cat ? ` AND service.category = $(cat)` : ``}
+        ${type ? ` AND service.service_type = $(type)` : ``}
+        ${mygmax ? ` AND service.mygrant_value <= $(mygmax)` : ``}
+        ${mygmin ? ` AND service.mygrant_value >= $(mygmin)` : ``}
+        ${datemax ? ` AND service.date_created <= $(datemax)` : ``}
+        ${datemin ? ` AND service.date_created >= $(datemin)` : ``}
+        ) s
         WHERE search_score > 0
         ORDER BY search_score DESC
-        LIMIT $(limit);`;
+        LIMIT $(itemsPerPage) OFFSET $(offset);`;
 
     // place query
     db.any(query, {
             q,
+            itemsPerPage,
+            offset,
             lang,
-            limit,
             cat,
             type,
             mygmax,
@@ -356,10 +366,13 @@ router.put('/', function(req, res) {
         var acceptable_radius = req.body.acceptable_radius;
         var mygrant_value = req.body.mygrant_value;
         var service_type = req.body.service_type;
-        // check either for provider or crowdfunder
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
+        if (creator_id==null && crowdfunding_id==null)
+            throw new Error('Missing either creator_id or crowdfunding_id');
+        if (creator_id!=null && crowdfunding_id!=null)
+            throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -448,7 +461,8 @@ router.put('/:id', function(req, res) {
         return;
     }
     // define query
-    const query = `UPDATE service SET ${
+    const query = 
+        `UPDATE service SET ${
          [
             title ? 'title=$(title)' : null,
             description ? 'description=$(description)' : null,
@@ -858,8 +872,12 @@ router.post('/:id/offers', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO SESSION ID
-        // TODO never must have partner + crowdfunding at same time
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO SESSION ID
+        if (partner_id==null && crowdfunding_id==null)
+            throw new Error('Missing either partner_id or crowdfunding_id');
+        if (partner_id!=null && crowdfunding_id!=null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -870,23 +888,24 @@ router.post('/:id/offers', function(req, res) {
 
     // TODO dont allow offers on deleted services -> make this constraint in db
     let query;
-    if (req.body.hasOwnProperty('crowdfunding_id')) {
+    if (crowdfunding_id != null) {
         query = `
             INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
-            SELECT $(service_id), $(candidate_id)
+            SELECT $(service_id), $(crowdfunding_id)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     } else {
         query = `
             INSERT INTO service_offer (service_id, candidate_id)
-            SELECT $(service_id), $(candidate_id)
+            SELECT $(service_id), $(partner_id)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     }
 
     db.one(query, {
             service_id,
-            candidate_id
+            partner_id,
+            crowdfunding_id,
         })
         .then(data => {
             if (data.service_id) {
@@ -940,8 +959,11 @@ router.post('/:id/offers/accept', function(req, res) {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        // TODO never must have partner + crowdfunding at same time
         var date_scheduled = req.body.date_scheduled;
+        if (partner_id==null && crowdfunding_id==null)
+            throw new Error('Missing either partner_id or crowdfunding_id');
+        if (partner_id!=null && crowdfunding_id!=null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -1005,13 +1027,16 @@ router.post('/:id/offers/accept', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-// TODO changed from delte to post
 router.post('/:id/offers/decline', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var candidate_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        // TODO never must have partner + crowdfunding at same time
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        if (partner_id==null && crowdfunding_id==null)
+            throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
+        if (partner_id!=null && crowdfunding_id!=null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({
             'error': err.toString()
@@ -1021,20 +1046,21 @@ router.post('/:id/offers/decline', function(req, res) {
     }
     // define query
     let query;
-    if (req.body.hasOwnProperty('crowdfunding_id')) {
+    if (crowdfunding_id != null) {
         query = `
             DELETE FROM crowdfunding_offer
-            WHERE crowdfunding_offer.service_id = $(service_id) AND crowdfunding_offer.crowdfunding_id = $(candidate_id)`;
+            WHERE crowdfunding_offer.service_id = $(service_id) AND crowdfunding_offer.crowdfunding_id = $(crowdfunding_id)`;
     } else {
         query = `
             DELETE FROM service_offer
-            WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(candidate_id)`;
+            WHERE service_offer.service_id = $(service_id) AND service_offer.candidate_id = $(partner_id)`;
     }
 
     // place query
     db.none(query, {
             service_id,
-            candidate_id
+            partner_id,
+            crowdfunding_id
         })
         .then(() => {
             res.sendStatus(200);
