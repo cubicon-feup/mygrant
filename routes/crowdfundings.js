@@ -556,8 +556,8 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
 });
 
 /**
- * @api {get} /crowdfundings/:crowdfunding_id/services_requested Get all service requests.
- * @apiName GetAllServiceRequests
+ * @api {get} /crowdfundings/:crowdfunding_id/services_requested Get service requests.
+ * @apiName GetServiceRequests
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
@@ -570,13 +570,14 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
 router.get('/:crowdfunding_id/services_requested', function(req, res) {
+    // TODO: check if user is authenticated.
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `SELECT title, mygrant_value, category
         FROM service
-        WHERE service.crowdfunding_id = 1;`;
+        WHERE service.crowdfunding_id = $(crowdfunding_id);`;
 
-    db.many(query, {
+    db.manyOrNone(query, {
         crowdfunding_id: crowdfundingId
     }).then(data => {
         res.status(200).json(data);
@@ -600,20 +601,24 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
 router.delete('/:crowdfunding_id/services_requested', policy.deleteRequestService, function(req, res) {
+    let creatorId = 1;  // TODO: authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
         `DELETE FROM service
-        WHERE id = $(service_id)
-            AND crowdfunding_id = $(crowdfunding_id);`;
+        USING crowdfunding
+        WHERE service.id = $(service_id)
+            AND service.crowdfunding_id = $(crowdfunding_id)
+            AND crowdfunding.creator_id = $(creator_id);`;
 
     db.none(query, {
         service_id: serviceId,
-        crowdfunding_id: crowdfundingId
+        crowdfunding_id: crowdfundingId,
+        creator_id: creatorId
     }).then(() => {
         res.status(200).send({message: 'Successfully removed the service requested.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get service requests.'});
     })
 });
 
