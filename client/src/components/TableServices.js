@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import '../css/App.css';
-import { Container, Header, Icon, Table, Modal } from 'semantic-ui-react';
+import {
+    Button,
+    Container,
+    Header,
+    Icon,
+    Table,
+    Modal
+} from 'semantic-ui-react';
 import Service from './Service';
 
 const urlForData = 'http://localhost:3001/api/services';
@@ -75,18 +83,25 @@ class TableServices extends Component {
 
         return (
             <Container className="main-container">
-                <div>
-                    <Header size="huge" textAlign="center">
-                        <Icon name="folder" />
-                        My Services
-                    </Header>
+                <Header size="huge" textAlign="center">
+                    <Icon name="folder" />
+                    My Services
+                </Header>
 
-                    <Table selectable basic="very">
-                        <TableHeader />
-                        <Container fluid className="purple-divider" />
-                        <Table.Body>{tableRows}</Table.Body>
-                    </Table>
-                </div>
+                <Table selectable basic="very">
+                    <TableHeader />
+                    <Container fluid className="purple-divider" />
+                    <Table.Body>{tableRows}</Table.Body>
+                </Table>
+
+                <Link to="/createservice">
+                    <Button color="green" className="mygrant-button2">
+                        Create Service
+                    </Button>
+                </Link>
+                <Link to="/requestservice">
+                    <Button className="mygrant-button2">Request Service</Button>
+                </Link>
             </Container>
         );
     }

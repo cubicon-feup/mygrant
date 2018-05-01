@@ -23,6 +23,19 @@ button.ui.button.mygrant-button {
     }
 }
 
+button.ui.button.mygrant-button2 {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: #5a9b73;
+    color: white;
+    width: auto;
+    height: 39px;
+
+    &:hover {
+        background-color: darken(#5a9b73, 20%);
+    }
+}
+
 .fa-circle {
     color: $green;
     margin-right: 20px;
