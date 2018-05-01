@@ -556,7 +556,7 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
 });
 
 /**
- * @api {get} /crowdfundings/:crowdfunding_id/services_requested Get service requests.
+ * @api {get} /crowdfundings/:crowdfunding_id/services_requested Get service requests
  * @apiName GetServiceRequests
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -587,7 +587,7 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfundings/:crowdfunding_id/services_requested Delete a service request.
+ * @api {delete} /crowdfundings/:crowdfunding_id/services_requested Delete service request
  * @apiName DeleteServiceRequest
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -766,7 +766,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
 
     console.log(query);
 
-    db.many(query, {
+    db.manyOrNone(query, {
         keywords: keywords,
         num_crowdfundings: (to - from),
         num_offset: from,
