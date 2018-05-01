@@ -67,7 +67,7 @@ module.exports = {
         else next();
     },
 
-    offerService(req, res, next) {
+    serviceOffer(req, res, next) {
         const schema = {
             service_id: Joi.number().required()
         }

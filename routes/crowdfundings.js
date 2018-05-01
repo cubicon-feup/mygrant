@@ -371,37 +371,59 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
 });*/
 
 // SERVICES OFFERS.
-// 
+// ===============================================================================
 
 /**
- * @api {post} /crowdfundings/:crowdfunding_id/services_offers Offer service to crowdfunding.
- * @apiName OfferService
+ * @api {post} /crowdfundings/:crowdfunding_id/services_offers Create service offer.
+ * @apiName CreateServiceOffer
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
- * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that is offered the service.
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is being offered.
  * @apiParam (RequestBody) {Integer} service_id Service id to offer.
  * 
  * @apiSuccess (Success 201) {Integer} message Successfully offered a service to the crowdfunding.
  * 
  * @apiError (Error 400) BadRequest Invalid service offer data.
+ * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 500) InternalServerError Couldn't offer service.
  */
-router.post('/:crowdfunding_id/services_offers', function(req, res) {
+router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(req, res) {
+    let creatorId = 2;  // TODO: authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
-        `INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
-        VALUES ($(service_id), $(crowdfunding_id));`;
+        `SELECT EXISTS (
+            SELECT 1
+            FROM service
+            WHERE id = $(service_id)
+                AND creator_id = $(creator_id)
+        ) as creator_owns_service;`;
 
-    db.none(query, {
+    // First we check if the authenticated user is the creator of the service he's offering.
+    db.one(query, {
         service_id: serviceId,
-        crowdfunding_id: crowdfundingId
-    }).then(() => {
-        res.status(201).send({message: 'Successfully offered a service to the crowdfunding.'});
+        creator_id: creatorId
+    }).then(data => {
+        // He's the creator, so now we can offer the service.
+        let creatorOwnsService = data.creator_owns_service;
+        if(creatorOwnsService) {
+            query =
+                `INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
+                VALUES ($(service_id), $(crowdfunding_id));`;
+
+            db.none(query, {
+                service_id: serviceId,
+                crowdfunding_id: crowdfundingId
+            }).then(() => {
+                res.status(201).send({message: 'Successfully offered a service to the crowdfunding.'});
+            }).catch(error => {
+                res.status(500).json({error: 'Couldn\'t offer service.'});
+            })
+        } else res.status(403).json({error: 'You do not have permission to offer the specified service.'});
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t offer service.'});
-    })
+    });
 });
 
 /**
@@ -450,7 +472,7 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid service offer data.
  * @apiError (Error 500) InternalServerError Couldn't delete the service offer.
  */
-router.delete('/:crowdfunding_id/services_offers', policy.offerService, function(req, res) {
+router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
