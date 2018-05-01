@@ -15,9 +15,6 @@ deploy.config:
 data.db:
   image: nanobox/postgresql:9.5
 
-worker.jobs:
-  start: npm start
-
 web.main:
   start:
     nginx: nginx -c /app/config/nginx.conf
