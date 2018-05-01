@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Container, Header, Loader, Item, Button, Input, Menu, Dropdown, Form, Accordion} from 'semantic-ui-react';
 
 const urlForCrowdfundings = 'http://localhost:3001/api/crowdfundings';
+const urlForData = id => `http://localhost:3001/api/crowdfundings/${id}`;
 
 const panels = [
     {
@@ -37,6 +38,39 @@ class SearchStandard extends Component {
             });
     }
 
+    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+
+    handleSubmit = (event) => {
+        //this.setState({ amount: "" });
+        alert(JSON.stringify({
+            id:this.state.id,
+            donator_id:this.state.donator_id,
+            amount:this.state.amount
+        }));
+        fetch(urlForData(this.state.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                donator_id:this.state.donator_id,
+                amount:parseInt(this.state.amount)
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw Error('Network request failed');
+            }
+            return response;
+        })
+        .then(result => result.json())
+        .then(result => {
+            this.setState({ crowdfundings: result });
+        }, () => {
+            // "catch" the error
+            this.setState({ requestFailed: true });
+        });
+    }
+
     constructor(props) {
         super(props);
         this.list = [
@@ -61,6 +95,8 @@ class SearchStandard extends Component {
         ];
         this.state = {};
         this.table_body = {};
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     render() {
@@ -112,8 +148,17 @@ class SearchStandard extends Component {
                     <Menu.Item>
                         <Input placeholder='filter dropdwon'/>
                     </Menu.Item>
-                    <p>hueeeeee</p>
                 </Menu>
+                <Form method="POST" onSubmit={this.handleSubmit}>
+                    <Form.Input labelPosition='right' type='text' placeholder='Amount' name="search_text" value={this.state.search} onChange={this.handleChange}/>
+                    <Form.Group inline>
+                        <label>Filtro</label>
+                        <Form.Radio label='Small' value='sm' checked={value === 'sm'} onChange={this.handleChange} />
+                        <Form.Radio label='Medium' value='md' checked={value === 'md'} onChange={this.handleChange} />
+                        <Form.Radio label='Large' value='lg' checked={value === 'lg'} onChange={this.handleChange} />
+                    </Form.Group>
+                    <Form.Button content="search"/>
+                </Form>
                 <div>
                     <Header as="h1">Crowdfundings</Header>
                     <Item.Group divided>
