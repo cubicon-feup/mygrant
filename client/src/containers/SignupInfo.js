@@ -23,7 +23,7 @@ class SignUpInfo extends Component {
 
     componentDidMount() {
         const { cookies } = this.props;
-        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` }
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
 
         // Get countries from the database
         fetch('/api/countries/as_options', { headers })
@@ -117,9 +117,23 @@ class SignUpInfo extends Component {
                 <div>
                     <Header as="h1">{'Tell us more about yourself'.toLowerCase()}</Header>
                     <Form>
-                        <Form.Select onChange={this.getRegions.bind(this)} label={'Your Country'.toUpperCase()} placeholder={'Country'} options={this.state.countries}/>
-                        <Form.Select onChange={this.getCities.bind(this)} label={'Your Region'.toUpperCase()} placeholder={'Region'} options={this.state.regions}/>
-                        <Form.Select label={'Your City'.toUpperCase()} placeholder={'City'} options={this.state.cities}/>
+                        <Form.Select
+                            onChange={this.getRegions.bind(this)}
+                            label={'country'.toUpperCase()}
+                            placeholder={'Country'}
+                            options={this.state.countries}
+                        />
+                        <Form.Select
+                            onChange={this.getCities.bind(this)}
+                            label={'region'.toUpperCase()}
+                            placeholder={'Region'}
+                            options={this.state.regions}
+                        />
+                        <Form.Select
+                            label={'city'.toUpperCase()}
+                            placeholder={'City'}
+                            options={this.state.cities}
+                        />
                     </Form>
                 </div>
             </Container>

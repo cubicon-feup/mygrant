@@ -26,7 +26,6 @@ class Login extends Component {
         this.setEmailField = component => {
             this.emailField = component;
         };
-
     }
 
     // Focus on the email input

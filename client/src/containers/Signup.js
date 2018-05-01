@@ -1,13 +1,24 @@
 import React, { Component } from 'react';
 import '../css/Signup.css';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
+import { Button, Container, Form, Input, Message } from 'semantic-ui-react';
 
 class SignUp extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        history: ReactRouterPropTypes.history.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
             email: '',
+            emailError: false,
+            errorMessage: '',
+            formError: false,
             name: '',
             password: '',
             passwordError: false,
@@ -29,20 +40,29 @@ class SignUp extends Component {
 
     // Update the state with the data that was inserted
     handleInput(event, data) {
-        this.setState({ [data.name]: data.value });
+        this.setState({
+            [data.name]: data.value,
+            emailError: false,
+            formError: false,
+            passwordError: false
+        });
     }
 
     // Check if the passwords match
     // returns true if the passwords match and are valid
     checkPasswords() {
-        return this.state.password.length >= 8 && this.state.password === this.state.repeatPassword;
+        return this.state.password === this.state.repeatPassword;
     }
 
     // Submit the form
     submitForm(event) {
         event.preventDefault();
         if (!this.checkPasswords()) {
-            this.setState({ passwordError: true });
+            this.setState({
+                errorMessage: 'the inserted passwords don\'t match',
+                formError: true,
+                passwordError: true
+            });
 
             return;
         }
@@ -58,18 +78,30 @@ class SignUp extends Component {
             body: JSON.stringify(data),
             headers: { 'content-type': 'application/json' },
             method: 'POST'
-        }).then(res => console.log(res));
-        // TODO: deal with this
+        }).then(res => {
+            if (res.status === 201) {
+                // User created - redirect to more info
+                this.props.history.push('/signupinfo');
+            } else if (res.status === 409) {
+                // Email already in use
+                this.setState({
+                    emailError: true,
+                    errorMessage: 'that email is already being used by another account',
+                    formError: true
+                });
+            }
+        });
     }
 
     render() {
         return (
             <Container className="signup main-container">
                 <div>
-                    <Form onSubmit={this.submitForm.bind(this)} >
+                    <Form error={this.state.formError} onSubmit={this.submitForm.bind(this)} >
                         <Form.Field required >
-                            <label>{'Your Email'.toUpperCase()}</label>
+                            <label>{'email'.toUpperCase()}</label>
                             <Input
+                                error={this.state.emailError}
                                 name="email"
                                 placeholder="you@email.com"
                                 onChange={this.handleInput.bind(this)}
@@ -79,7 +111,7 @@ class SignUp extends Component {
                         </Form.Field>
                         <Form.Input
                             required
-                            label={'Your Name'.toUpperCase()}
+                            label={'name'.toUpperCase()}
                             name="name"
                             type="text"
                             placeholder="Name"
@@ -87,30 +119,41 @@ class SignUp extends Component {
                         />
                         <Form.Input
                             required
-                            label={'Your phone number'.toUpperCase()}
+                            label={'phone number'.toUpperCase()}
                             name="phone"
                             type="text"
                             placeholder="Phone Number"
                             onChange={this.handleInput.bind(this)}
                         />
-                        <Form.Input
-                            required
-                            label={'Your password'.toUpperCase()}
-                            type="password"
-                            name="password"
-                            placeholder="Type your password"
-                            error={this.state.passwordError}
-                            onChange={this.handleInput.bind(this)}
-                        />
-                        <Form.Input
-                            required
-                            name="repeatPassword"
-                            label={'repeat your password'.toUpperCase()}
-                            type="password"
-                            placeholder="Type your password"
-                            error={this.state.passwordError}
-                            onChange={this.handleInput.bind(this)}
-                        />
+                        <Form.Field >
+                            <label>{'password'.toUpperCase()}</label>
+                            <Input
+                                required
+                                type="password"
+                                name="password"
+                                minLength={8}
+                                placeholder="Type your password"
+                                error={this.state.passwordError}
+                                onChange={this.handleInput.bind(this)}
+                            />
+                        </Form.Field>
+                        <Form.Field >
+                            <label>{'repeat your password'.toUpperCase()}</label>
+                            <Input
+                                required
+                                placeholder="Type your password"
+                                name="repeatPassword"
+                                minLength={8}
+                                type="password"
+                                error={this.state.passwordError}
+                                onChange={this.handleInput.bind(this)}
+                            >
+                            </Input>
+                            <Message
+                                error
+                                content={this.state.errorMessage}
+                            />
+                        </Form.Field>
                         <Button circular fluid className={'mygrant-button'} content={'sign up'.toUpperCase()}></Button>
                     </Form>
                 </div>
@@ -119,4 +162,4 @@ class SignUp extends Component {
     }
 }
 
-export default SignUp;
+export default withCookies(SignUp);
