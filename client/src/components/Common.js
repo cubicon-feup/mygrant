@@ -41,7 +41,7 @@ class MygrantFooter extends Component {
             <div>
                 <Container className="site-footer">
                 <Header size="huge" >mygrant</Header>
-                <MygrantDivider color="green" />
+                <MygrantDivider color="light-green" />
                     <Header.Subheader textAlign="center" ><Icon className="far fa-copyright" /> Cubicon {new Date().getFullYear()}</Header.Subheader>
                 </Container>
             </div>
