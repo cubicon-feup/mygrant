@@ -398,6 +398,7 @@ router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(r
             FROM service
             WHERE id = $(service_id)
                 AND creator_id = $(creator_id)
+                AND service_type = 'PROVIDE'
         ) as creator_owns_service;`;
 
     // First we check if the authenticated user is the creator of the service he's offering.
@@ -427,8 +428,8 @@ router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(r
 });
 
 /**
- * @api {get} /crowdfundings/:crowdfunding_id/services_offers Get all crowdfunding service offers.
- * @apiName GetAllServiceOffer
+ * @api {get} /crowdfundings/:crowdfunding_id/services_offers Get crowdfunding service offers.
+ * @apiName GetServiceOffers
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
  *
@@ -442,14 +443,15 @@ router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(r
  * @apiError (Error 500) InternalServerError Couldn't get service offers.
  */
 router.get('/:crowdfunding_id/services_offers', function(req, res) {
+    // TODO: check if user is authenticated.
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
-        `SELECT service.id as service_id, service.title as service_title, service.category as service_category, service.service_type
+        `SELECT service.id, service.title, service.description, service.category, service.service_type
         FROM service
         INNER JOIN crowdfunding_offer ON crowdfunding_offer.service_id = service.id
         WHERE crowdfunding_offer.crowdfunding_id = $(crowdfunding_id);`;
 
-    db.many(query, {
+    db.manyOrNone(query, {
         crowdfunding_id: crowdfundingId
     }).then(data => {
         res.status(200).json(data);
@@ -459,7 +461,7 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
 });
 
 /**
- * @api {delete} /crowdfundings/:crowdfunding_id/services_offers Delete crowdfunding service offer.
+ * @api {delete} /crowdfundings/:crowdfunding_id/services_offers Delete service offer.
  * @apiName DeleteServiceOffer
  * @apiGroup Crowdfunding
  * @apiPermission authenticated user
@@ -473,16 +475,20 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't delete the service offer.
  */
 router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function(req, res) {
+    let crowdfundingCreatorId = 1;  // TODO: get authenticated user.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
         `DELETE FROM crowdfunding_offer
-        WHERE service_id = $(service_id)
-            AND crowdfunding_id = $(crowdfunding_id);`;
+        USING crowdfunding
+        WHERE crowdfunding_offer.service_id = $(service_id)
+           AND crowdfunding_offer.crowdfunding_id = $(crowdfunding_id)
+           AND crowdfunding.creator_id = $(crowdfunding_creator_id);`;
 
     db.none(query, {
         service_id: serviceId,
-        crowdfunding_id: crowdfundingId
+        crowdfunding_id: crowdfundingId,
+        crowdfunding_creator_id: crowdfundingCreatorId
     }).then(() => {
         res.status(200).send({message: 'Successfully deleted the service offer.'});
     }).catch(error => {
