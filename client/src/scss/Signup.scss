@@ -1,35 +1,15 @@
-@import 'common';
+@import './common';
 
 @media (min-width: 768px) {
 
-    .ui.container.main-container.login {
+    .ui.container.main-container.signup {
         width: 35%;
     }
+
     form.ui.form {
         margin-top: 100px;
         button.mygrant-button {
             margin: 100px 0 25px;
-        }
-    }
-}
-
-@media (max-width: 768px) {
-    .ui.container.login-title-container {
-        .header { 
-            color: $purple;
-            font-size: 3em;
-            padding-top: 50px;
-        }
-    }
-
-    form.ui.form {
-        input {
-            height:2em;
-        }
-        margin-top: -30px;
-        button.mygrant-button {
-            margin-top: 50px;
-            margin-bottom: 20px;
         }
     }
 }

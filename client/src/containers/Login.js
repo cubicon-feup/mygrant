@@ -3,11 +3,15 @@ import { Button, Container, Form, Header, Icon, Input, Message, Responsive } fro
 import { MygrantDivider } from '../components/Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import '../css/Login.css';
 
 class Login extends Component {
-    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        history: ReactRouterPropTypes.history.isRequired
+    };
 
     constructor(props) {
         super(props);
@@ -68,6 +72,8 @@ class Login extends Component {
                             // secure: true
                             path: '/'
                         });
+                        // Redirect to new page
+                        this.props.history.push('/');
                     });
             } else {
                 this.setState({ formError: true });

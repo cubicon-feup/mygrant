@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+import '../css/Signup.css';
 
 import { Button, Container, Form, Header, Input } from 'semantic-ui-react';
 
@@ -64,9 +64,8 @@ class SignUp extends Component {
 
     render() {
         return (
-            <Container className="main-container">
+            <Container className="signup main-container">
                 <div>
-                    <Header as="h1">create an account</Header>
                     <Form onSubmit={this.submitForm.bind(this)} >
                         <Form.Field required >
                             <label>{'Your Email'.toUpperCase()}</label>
@@ -112,7 +111,7 @@ class SignUp extends Component {
                             error={this.state.passwordError}
                             onChange={this.handleInput.bind(this)}
                         />
-                        <Button content={'sign up'.toUpperCase()}></Button>
+                        <Button circular fluid className={'mygrant-button'} content={'sign up'.toUpperCase()}></Button>
                     </Form>
                 </div>
             </Container>
