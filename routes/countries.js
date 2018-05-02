@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const expressJwt = require('express-jwt');
 const db = require('../config/database');
+const appSecret = require('../config/config');
 
-const authenticate = expressJwt({ secret: 'carbonbytunicgym' });
+const authenticate = expressJwt({ secret: appSecret });
 
 // Get a list of all countries
 router.get('/', function(req, res) {

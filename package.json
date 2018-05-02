@@ -41,6 +41,7 @@
         "passport": "^0.4.0",
         "passport-google-oauth": "^1.0.0",
         "passport-local": "^1.0.0",
+        "pg-migrator": "^1.0.5",
         "pg-promise": "^8.2.2",
         "react-cookie": "^2.1.4",
         "react-router-prop-types": "^1.0.3",

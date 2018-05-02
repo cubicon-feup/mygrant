@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
-
+const appSecret = require('../config/config').secret;
 const expressJwt = require('express-jwt');
-const authenticate = expressJwt({ secret: 'carbonbytunicgym' });
+
+const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
 router.get('/:id', function(req, res) {

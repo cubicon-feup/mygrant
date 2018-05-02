@@ -9,7 +9,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const fileUpload = require('express-fileupload');
-
+const appSecret = require('./config/config').secret;
 const indexRouter = require('./routes/index');
 const appInfoRouter = require('./routes/appInfo');
 const authRouter = require('./routes/auth');
@@ -34,7 +34,7 @@ app.use(session({
     cookie: { secure: true },
     resave: false,
     saveUninitialized: true,
-    secret: 'carbonbytunicgym'
+    secret: appSecret
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
