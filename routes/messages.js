@@ -51,12 +51,8 @@ router.post('/', authenticate, function(req, res) {
             let receiverEmail = data.email;
             let senderName = data.sender_name;
 
-            let mailOptions = {
-                from: config.messageNotificationOptions.from,
-                to: receiverEmail,
-                subject: config.messageNotificationOptions.subject,
-                html: `
-                    <!DOCTYPE html>
+            const html =
+                `<!DOCTYPE html>
                     <html>
                         <head>
                             <style>
@@ -72,7 +68,7 @@ router.post('/', authenticate, function(req, res) {
                                 .btn:hover {
                                     background-color: green
                                 }
-                    
+
                             </style>
                         </head>
                         <body>
@@ -86,17 +82,25 @@ router.post('/', authenticate, function(req, res) {
                                 <a href="www.google.com"><button class="btn">Check message</button></a>
                             </div>
                         </body>
-                    </html>
-                    `
+                    </html>`;
+
+            const mailOptions = {
+                from: config.messageNotificationOptions.from,
+                html,
+                subject: config.messageNotificationOptions.subject,
+                to: receiverEmail
             };
+
             transporter.sendMail(mailOptions);
-            res.status(201).json({message: 'Successfully sent a message.'});
-        }).catch(error => {
+            res.status(201).json({ message: 'Successfully sent a message.' });
+        })
+            .catch(() => {
             // We don't need to inform the sender that the mail message failed.
-            res.status(201).json({message: 'Successfully sent a message.'});
+            res.status(201).json({ message: 'Successfully sent a message.' });
         });
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t send the message.'});
+    })
+        .catch(() => {
+        res.status(500).json({ error: 'Couldn\'t send the message.' });
     });
 });
 
@@ -144,32 +148,33 @@ router.get('/:other_user', function(req, res) {
  * @apiName GetTopics
  * @apiGroup Messages
  * @apiPermission authenticated user
- * 
+ *
  * @apiSuccess (Success 200) other_user_id User id with a conversation topic.
  * @apiSuccess (Success 200) other_user_full_name User name with a conversation topic.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get message topics.
  */
-router.get('/', function(req, res) {
-    let loggedUser = 1; //TODO: Use the session cookie id.
-    let query =
+router.get('/', authenticate, function(req, res) {
+    const loggedUser = req.user.id;
+
+    // Select all the messages that the user sent or received
+    const query =
         `SELECT DISTINCT 
-            CASE	WHEN sender_id = $(logged_user) THEN receiver_id
+            CASE WHEN sender_id = $(loggedUser) THEN receiver_id
                 ELSE sender_id
             END as other_user_id, users.full_name as other_user_full_name
         FROM message
         INNER JOIN users ON users.id = (
-            CASE 	WHEN sender_id = $(logged_user) THEN receiver_id
+            CASE WHEN sender_id = $(loggedUser) THEN receiver_id
                 ELSE sender_id
             END)
-        WHERE sender_id = $(logged_user) OR receiver_id = $(logged_user);`;
+        WHERE sender_id = $(loggedUser) OR receiver_id = $(loggedUser);`;
 
-    db.many(query, {
-        logged_user: loggedUser
-    }).then(data => {
+    db.many(query, { loggedUser }).then(data => {
         res.status(200).send(data);
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get message topics.'});
+    })
+        .catch(() => {
+        res.status(500).json({ error: 'Couldn\'t get message topics.' });
     });
 });
 
