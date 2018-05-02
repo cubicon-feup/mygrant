@@ -92,6 +92,24 @@ class SearchCrowdfunding extends Component {
         console.log(this.state.search_text);
     }
 
+    handlePageChange = (event, object) => {
+        fetch(urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10))
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+
+                return response;
+            })
+            .then(result => result.json())
+            .then(result => {
+                this.setState({ crowdfundings: result });
+            }, () => {
+                // "catch" the error
+                this.setState({ requestFailed: true });
+            });
+    }
+
     constructor(props) {
         super(props);
         this.list = [
@@ -199,6 +217,7 @@ class SearchCrowdfunding extends Component {
                         lastItem={{ content: <Icon name='angle double right' />, icon: true }}
                         prevItem={{ content: <Icon name='angle left' />, icon: true }}
                         nextItem={{ content: <Icon name='angle right' />, icon: true }}
+                        onPageChange={this.handlePageChange}
                         totalPages={10}
                     />
                 </div>
