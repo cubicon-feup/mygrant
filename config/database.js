@@ -1,9 +1,9 @@
 // https://vitaly-t.github.io/pg-promise/Database.html
 
-const dbConfig = require('./config');
+const config = require('./config').dbConfig;
 const pgp = require('pg-promise')(/* options */);
 
-const db = pgp(dbConfig);
+const db = pgp(config);
 
 module.exports = db;
 

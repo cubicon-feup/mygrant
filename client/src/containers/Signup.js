@@ -24,6 +24,7 @@ class SignUp extends Component {
             password: '',
             passwordError: false,
             phone: '',
+            phoneError: false,
             repeatPassword: ''
         };
 
@@ -45,7 +46,8 @@ class SignUp extends Component {
             [data.name]: data.value,
             emailError: false,
             formError: false,
-            passwordError: false
+            passwordError: false,
+            phoneError: false
         });
     }
 
@@ -84,11 +86,12 @@ class SignUp extends Component {
                 // User created - redirect to more info
                 this.props.history.push('/signupinfo');
             } else if (res.status === 409) {
-                // Email already in use
+                // Email or phone already in use
                 this.setState({
                     emailError: true,
-                    errorMessage: 'that email is already being used by another account',
-                    formError: true
+                    errorMessage: 'email or phone already in use',
+                    formError: true,
+                    phoneError: true
                 });
             }
         });
@@ -118,25 +121,25 @@ class SignUp extends Component {
                                 />
                             </Form.Field>
                             <Form.Input
-                                required
                                 label={'name'.toUpperCase()}
                                 name="name"
                                 type="text"
                                 placeholder="Name"
                                 onChange={this.handleInput.bind(this)}
                             />
-                            <Form.Input
-                                required
-                                label={'phone number'.toUpperCase()}
-                                name="phone"
-                                type="text"
-                                placeholder="Phone Number"
-                                onChange={this.handleInput.bind(this)}
-                            />
-                            <Form.Field >
+                            <Form.Field required >
+                                <label>{'phone number'.toUpperCase()}</label>
+                                <Input
+                                    error={this.state.phoneError}
+                                    name="phone"
+                                    type="text"
+                                    placeholder="Phone Number"
+                                    onChange={this.handleInput.bind(this)}
+                                />
+                            </Form.Field>
+                            <Form.Field required >
                                 <label>{'password'.toUpperCase()}</label>
                                 <Input
-                                    required
                                     type="password"
                                     name="password"
                                     minLength={8}
