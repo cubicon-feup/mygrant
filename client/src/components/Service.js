@@ -3,13 +3,16 @@ import '../css/App.css';
 import ServiceOffer from './ServiceOffers';
 
 import {
+    Button,
     Container,
-    Header,
-    Segment,
+    Divider,
     Form,
+    Grid,
+    Header,
+    Icon,
     Loader,
     Modal,
-    Button
+    Segment
 } from 'semantic-ui-react';
 
 const urlForData = id => 'http://localhost:3001/api/services/' + id;
@@ -87,6 +90,41 @@ class Service extends Component {
         } else if (this.state.service.service_type === 'REQUEST') {
             return 'Provide';
         }
+        return 'ERROR';
+    }
+
+    renderMainGrid() {
+        return (
+            <Grid>
+                <Grid.Row />
+                <Grid.Row columns={2}>
+                    <Grid.Column width={6}>
+                        {
+                            //TODO: change to a grid of images
+                            this.state.service.acceptable_radius
+                        }
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <Grid container width={5}>
+                            <Grid.Row>
+                                <Grid.Column textAlign="justified">
+                                    <pre>{this.state.service.description}</pre>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row columns={2}>
+                                <Grid.Column textAlign="left">
+                                    <b>{this.state.service.location}</b>
+                                </Grid.Column>
+                                <Grid.Column textAlign="right">
+                                    <b>{this.state.service.mygrant_value}</b>
+                                    <i> mygrants</i>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
+        );
     }
 
     render() {
@@ -102,37 +140,42 @@ class Service extends Component {
 
         return (
             <Container className="main-container">
-                <Segment>
-                    <Header as="h1">
-                        {this.state.service.service_type +
-                            ': ' +
-                            this.state.service.title}
-                    </Header>
-                    <p>{this.state.service.category}</p>
-                    <p>{this.state.service.description}</p>
-                    <p>{this.state.service.location}</p>
-                    <p>{this.state.service.acceptable_radius}</p>
-                    <p>{this.state.service.mygrant_value}</p>
-                    <h5>{this.oppositeServiceType()} Date</h5>
-                    <Form method="POST" onSubmit={this.handleSubmit}>
-                        <Form.Input
-                            type="datetime-local"
-                            name="request"
-                            value={this.state.request}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Button content={this.oppositeServiceType()} />
-                    </Form>
-                    <Modal
-                        className="modal-container"
-                        trigger={<Button>Offers</Button>}
-                    >
-                        <ServiceOffer
-                            idService={this.state.id}
-                            typeService={this.state.service.service_type}
-                        />
-                    </Modal>
-                </Segment>
+                <Header size="huge" textAlign="center">
+                    <Icon name="external" />
+                    Service Details
+                </Header>
+
+                <Header as="h2">
+                    {this.state.service.service_type +
+                        ': ' +
+                        this.state.service.title +
+                        ' . '}
+                    <h4>{this.state.service.category}</h4>
+                </Header>
+
+                <Container fluid className="purple-divider" />
+                {this.renderMainGrid()}
+                <Container fluid className="green-divider" />
+
+                <h5>{this.oppositeServiceType()} Date</h5>
+                <Form method="POST" onSubmit={this.handleSubmit}>
+                    <Form.Input
+                        type="datetime-local"
+                        name="request"
+                        value={this.state.request}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Button content={this.oppositeServiceType()} />
+                </Form>
+                <Modal
+                    className="modal-container"
+                    trigger={<Button>Offers</Button>}
+                >
+                    <ServiceOffer
+                        idService={this.state.id}
+                        typeService={this.state.service.service_type}
+                    />
+                </Modal>
             </Container>
         );
     }

@@ -23,6 +23,11 @@ button.ui.button.mygrant-button2 {
     }
 }
 
+h2 > h4 {
+    display: inline;
+    font-weight: normal;
+}
+
 .purple-divider {
     position: absolute;
     width: 80%;
@@ -32,6 +37,16 @@ button.ui.button.mygrant-button2 {
     background: $purple;
     border-top-right-radius: 500em;
     border-bottom-right-radius: 500em;
+}
+
+.green-divider {
+    position: absolute;
+    right: -20%;
+    margin: 1em;
+    padding-bottom: 1em;
+    background: $light-green;
+    border-top-left-radius: 500em;
+    border-bottom-left-radius: 500em;
 }
 
 .ui.form .field .ui.input input,
