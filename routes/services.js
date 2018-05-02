@@ -52,17 +52,15 @@ var db = require('../config/database');
 router.get('/', function(req, res) {
     try {
         // paging
-        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items<50 ? req.query.items : 50;
-        const page = req.query.hasOwnProperty('page') && req.query.page>1 ? req.query.page : 1;
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
         // order by:
-        const order = req.query.hasOwnProperty('order') ? req.query.order : 'title';
+        var order = req.query.hasOwnProperty('order') ? req.query.order : 'title';
         // ascending / descending
-        var asc = req.query.hasOwnProperty('asc') ? req.query.asc=='true' : true;        
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -73,7 +71,7 @@ router.get('/', function(req, res) {
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.deleted = false
-        ORDER BY $(order) ${asc ? `ASC` : `DESC`}
+        ORDER BY $(order) ${asc ? 'ASC' : 'DESC'}
         LIMIT $(itemsPerPage) OFFSET $(offset)`;
     // place query
     db.any(query, {
@@ -119,9 +117,7 @@ router.get('/num-pages', function(req, res) {
             itemsPerPage = req.query.items;
         }
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -149,6 +145,8 @@ router.get('/num-pages', function(req, res) {
  * @apiParam (RequestQueryParams) {String} q Search query (Required)
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
+ * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
  * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
  * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
  * @apiParam (RequestQueryParams) {String} cat Category of the service [BUSINESS, ARTS, ...] (Optional)
@@ -190,23 +188,24 @@ router.get(['/search'], function(req, res) { // check for valid input
     try {
         var q = req.query.q.split(' ').join(' | ');
         // paging
-        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items<50 ? req.query.items : 50;
-        const page = req.query.hasOwnProperty('page') && req.query.page>1 ? req.query.page : 1;
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
-        // lang can either be 'english' or 'portuguese':
-        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english';
+        // order by:
+        var order = req.query.hasOwnProperty('order') ? req.query.order : 'search_score';
+        // ascending / descending
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
+        // optionals:
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
         var search_desc = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
         var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
-        // var loc = req.query.hasOwnProperty('loc') ? req.query.loc : null; // TODO loc distance needs to be calculated
         var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
         var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -215,21 +214,21 @@ router.get(['/search'], function(req, res) { // check for valid input
         SELECT *
         FROM (
         SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        ts_rank_cd(to_tsvector($(lang), service.title ${search_desc ? `|| '. ' || service.description` : ``} || '. ' || users.full_name),
+        ts_rank_cd(to_tsvector($(lang), service.title ${search_desc ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.deleted = false
-        ${cat ? ` AND service.category = $(cat)` : ``}
-        ${type ? ` AND service.service_type = $(type)` : ``}
-        ${mygmax ? ` AND service.mygrant_value <= $(mygmax)` : ``}
-        ${mygmin ? ` AND service.mygrant_value >= $(mygmin)` : ``}
-        ${datemax ? ` AND service.date_created <= $(datemax)` : ``}
-        ${datemin ? ` AND service.date_created >= $(datemin)` : ``}
+        ${cat ? ' AND service.category = $(cat)' : ''}
+        ${type ? ' AND service.service_type = $(type)' : ''}
+        ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
+        ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
+        ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
+        ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
         ) s
         WHERE search_score > 0
-        ORDER BY search_score DESC
+        ORDER BY $(order) ${asc ? 'ASC' : 'DESC'}
         LIMIT $(itemsPerPage) OFFSET $(offset);`;
 
     // place query
@@ -243,7 +242,9 @@ router.get(['/search'], function(req, res) { // check for valid input
             mygmax,
             mygmin,
             datemax,
-            datemin
+            datemin,
+            order,
+            asc
         })
         .then(data => {
             res.status(200).json(data);
@@ -291,9 +292,7 @@ router.get('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -305,9 +304,7 @@ router.get('/:id', function(req, res) {
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.id = $(id)`;
     // place query
-    db.one(query, {
-            id
-        })
+    db.one(query, { id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -369,14 +366,14 @@ router.put('/', function(req, res) {
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
-        if (creator_id==null && crowdfunding_id==null)
-            throw new Error('Missing either creator_id or crowdfunding_id');
-        if (creator_id!=null && crowdfunding_id!=null)
-            throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
+        if (creator_id == null && crowdfunding_id == null) {
+ throw new Error('Missing either creator_id or crowdfunding_id');
+}
+        if (creator_id != null && crowdfunding_id != null) {
+throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
+}
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -454,14 +451,12 @@ router.put('/:id', function(req, res) {
         var service_type = req.body.hasOwnProperty('service_type') ? req.body.service_type : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : null;
     } catch (err) {
-        res.sendStatus(400).json({
-            'error': err.toString()
-        });
+        res.sendStatus(400).json({ 'error': err.toString() });
 
         return;
     }
     // define query
-    const query = 
+    const query =
         `UPDATE service SET ${
          [
             title ? 'title=$(title)' : null,
@@ -519,9 +514,7 @@ router.delete('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -531,9 +524,7 @@ router.delete('/:id', function(req, res) {
         SET deleted=true
         WHERE id=$(id)`;
     // place query
-    db.none(query, {
-            id
-        })
+    db.none(query, { id })
         .then(() => {
             res.sendStatus(200);
         })
@@ -575,9 +566,7 @@ router.get('/:id/images', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -587,9 +576,7 @@ router.get('/:id/images', function(req, res) {
         FROM service_image
         WHERE service_image.service_id = $(id)`;
     // place query
-    db.any(query, {
-            id
-        })
+    db.any(query, { id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -628,9 +615,7 @@ router.put('/:id/images', function(req, res) {
         var filename = 'TODO';
         // TODO: save filename from req.files.image?? and pass filename onwards
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -679,9 +664,7 @@ router.delete('/:id/images/:image', function(req, res) {
         var service_id = req.params.id;
         var image_url = req.params.image;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -734,9 +717,7 @@ router.get('/:id/offers', function(req, res) {
     try {
         var service_id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -755,9 +736,7 @@ router.get('/:id/offers', function(req, res) {
             INNER JOIN service ON crowdfunding_offer.service_id = service.id
             WHERE crowdfunding_offer.service_id = $(service_id)) s`;
     // place query
-    db.any(query, {
-            service_id
-        })
+    db.any(query, { service_id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -800,9 +779,7 @@ router.get('/:id/offers/:type/:candidate', function(req, res) {
         }
         var candidate_id = req.params.candidate;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -874,14 +851,14 @@ router.post('/:id/offers', function(req, res) {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO SESSION ID
-        if (partner_id==null && crowdfunding_id==null)
-            throw new Error('Missing either partner_id or crowdfunding_id');
-        if (partner_id!=null && crowdfunding_id!=null)
-            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+        if (partner_id == null && crowdfunding_id == null) {
+ throw new Error('Missing either partner_id or crowdfunding_id');
+}
+        if (partner_id != null && crowdfunding_id != null) {
+throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+}
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -905,7 +882,7 @@ router.post('/:id/offers', function(req, res) {
     db.one(query, {
             service_id,
             partner_id,
-            crowdfunding_id,
+            crowdfunding_id
         })
         .then(data => {
             if (data.service_id) {
@@ -960,14 +937,14 @@ router.post('/:id/offers/accept', function(req, res) {
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var date_scheduled = req.body.date_scheduled;
-        if (partner_id==null && crowdfunding_id==null)
-            throw new Error('Missing either partner_id or crowdfunding_id');
-        if (partner_id!=null && crowdfunding_id!=null)
-            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+        if (partner_id == null && crowdfunding_id == null) {
+ throw new Error('Missing either partner_id or crowdfunding_id');
+}
+        if (partner_id != null && crowdfunding_id != null) {
+throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+}
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -1033,14 +1010,14 @@ router.post('/:id/offers/decline', function(req, res) {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        if (partner_id==null && crowdfunding_id==null)
-            throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
-        if (partner_id!=null && crowdfunding_id!=null)
-            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+        if (partner_id == null && crowdfunding_id == null) {
+ throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
+}
+        if (partner_id != null && crowdfunding_id != null) {
+ throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+}
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -1117,9 +1094,7 @@ router.put('/instance/:id', function(req, res) {
         var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 404; // TODO SESSION ID
         var rating = req.body.rating;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -1228,10 +1203,9 @@ router.get('/:id/comments', function(req, res) {
     try {
         var service_id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
-        return;
+        res.status(400).json({ 'error': err.toString() });
+
+return;
     }
 
     // define query
@@ -1243,9 +1217,7 @@ router.get('/:id/comments', function(req, res) {
         WHERE comment.service_id=$(service_id)
     `;
 
-    db.any(query, {
-        service_id
-    })
+    db.any(query, { service_id })
     .then(data => {
         res.status(200).json(data);
     })
@@ -1287,10 +1259,9 @@ router.post('/:id/comments', function(req, res) {
         var message = req.body.message;
         var in_reply_to = req.body.hasOwnProperty('in_reply_to') ? req.body.in_reply_to : null;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
-        return;
+        res.status(400).json({ 'error': err.toString() });
+
+return;
     }
 
     // define query
@@ -1343,10 +1314,9 @@ router.put('/comments/:id', function(req, res) {
         var comment_id = req.params.id;
         var message = req.body.message;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
-        return;
+        res.status(400).json({ 'error': err.toString() });
+
+return;
     }
 
     // define query
@@ -1393,10 +1363,9 @@ router.delete('/comments/:id', function(req, res) {
         var sender_id = 8; // CHECK IF SESSION ID IS SENDER OF COMMENT
         var comment_id = req.params.id;
     } catch (err) {
-        res.status(400).json({
-            'error': err.toString()
-        });
-        return;
+        res.status(400).json({ 'error': err.toString() });
+
+return;
     }
 
     // define query
@@ -1405,9 +1374,7 @@ router.delete('/comments/:id', function(req, res) {
         WHERE id=$(comment_id);
     `;
 
-    db.none(query, {
-        comment_id
-    })
+    db.none(query, { comment_id })
         .then(() => {
             res.sendStatus(200);
         })
