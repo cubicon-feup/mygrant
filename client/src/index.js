@@ -13,7 +13,7 @@ import CreateService from "./components/CreateService";
 import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
-import Search from "./components/SearchStandard";
+import Search from "./components/SearchPage";
 import CreateCrowdfunding from "./components/CreateCrowdfunding";
 import Crowdfunding from "./components/Crowdfunding";
 import Crowdfundings from "./components/Crowdfundings";
