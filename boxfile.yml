@@ -13,7 +13,7 @@ deploy.config:
     - cd client && npm install &> /dev/null && ./node_modules/.bin/node-sass ./src/scss/ -o ./src/css --output-style compressed && npm run-script build 
 
 data.db:
-  image: nanobox/postgresql:9.5
+  image: nanobox/postgresql:9.6
 
 web.main:
   start:

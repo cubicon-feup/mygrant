@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('../auth/local');
 const router = express.Router();
 const db = require('../config/database');
+const appSecret = require('../config/config').secret;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -57,7 +58,7 @@ router.post('/login', function(req, res) {
                         if (sessionErr) {
                             res.status(500).send('error');
                         } else {
-                            const token = jwt.sign({ id: req.user.id }, 'carbonbytunicgym');
+                            const token = jwt.sign({ id: req.user.id }, appSecret);
                             res.status(200)
                                 .json({
                                     token,

@@ -1,14 +1,9 @@
 // https://vitaly-t.github.io/pg-promise/Database.html
 
-const config = {
-    host: 'localhost',
-    port: 5432,
-    database: 'mygrant',
-    user: 'postgres',
-    password: 'mygrant'
-};
+const dbConfig = require('./config');
+const pgp = require('pg-promise')(/* options */);
 
-var pgp = require('pg-promise')(/* options */);
-var db = pgp(config);
+const db = pgp(dbConfig);
 
-module.exports = db
+module.exports = db;
+
