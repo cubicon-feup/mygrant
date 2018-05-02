@@ -19,25 +19,43 @@ router.post('/signup', function(req, res) {
             if (data.exists) {
                 res.status(409).send('Email already in use');
             } else {
-                // register new user
-                bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
-                    query = 'INSERT INTO users (email, pass_hash, full_name, phone) VALUES ($(email), $(passHash), $(fullName), $(phone)) RETURNING id';
 
-                    db.one(query, {
-                        email: req.body.email,
-                        fullName: req.body.name,
-                        passHash: hash,
-                        phone: req.body.phone
+                // Check if there is already an account using the inserted phone
+                query = 'SELECT EXISTS ( SELECT * FROM users WHERE phone = $(phone))';
+                db.one(query, { phone: req.body.phone })
+                    .then(phoneData => {
+                        if (phoneData.exists) {
+                            res.status(409).send('Phone number already in use');
+                        } else {
+
+                            // register new user
+                            bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
+
+                                query = `INSERT INTO users (email, pass_hash, full_name, phone) 
+                                VALUES ($(email), $(passHash), $(fullName), $(phone)) RETURNING id`;
+
+                                db.one(query, {
+                                    email: req.body.email,
+                                    fullName: req.body.name,
+                                    passHash: hash,
+                                    phone: req.body.phone
+                                })
+                                    .then(() => {
+                                        res.status(201).send('Sucessfully added user');
+                                    })
+                                    .catch(error => {
+                                        res.status(500).json({ error });
+                                    });
+                            });
+                        }
                     })
-                        .then(() => {
-                            res.status(201).send('Sucessfully added user');
-                        })
-                        .catch(error => {
-                            res.status(500).json({ error });
-                        });
-                });
+                    // error on phone query - should not happen - check DB connection
+                    .catch(phoneError => {
+                        res.status(500).json({ phoneError });
+                    });
             }
         })
+        // error on email query - should not happen - check DB connection
         .catch(err => {
             res.status(500).json({ err });
         });

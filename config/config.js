@@ -6,11 +6,11 @@ const dbUser = process.env.DATA_DB_USER || 'postgres';
 
 module.exports = {
     dbConfig: {
-        dbDatabase,
-        dbHost,
-        dbPass,
-        dbUser,
-        port: 5432
+        database: dbDatabase,
+        host: dbHost,
+        password: dbPass,
+        port: 5432,
+        user: dbUser
     },
     joiOptions: { allowUnknown: true },
     messageNotificationOptions: {
