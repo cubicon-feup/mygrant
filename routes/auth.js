@@ -11,7 +11,7 @@ const saltRounds = 10;
 router.post('/signup', function(req, res) {
 
     // Check if there is already an account using the inserted email
-    let query = 'SELECT EXISTS ( SELECT * FROM users WHERE email = $(email))';
+    let query = 'SELECT EXISTS ( SELECT 1 FROM users WHERE email = $(email))';
 
     db.one(query, { email: req.body.email })
         .then(data => {
@@ -21,7 +21,7 @@ router.post('/signup', function(req, res) {
             } else {
 
                 // Check if there is already an account using the inserted phone
-                query = 'SELECT EXISTS ( SELECT * FROM users WHERE phone = $(phone))';
+                query = 'SELECT EXISTS ( SELECT 1 FROM users WHERE phone = $(phone))';
                 db.one(query, { phone: req.body.phone })
                     .then(phoneData => {
                         if (phoneData.exists) {
