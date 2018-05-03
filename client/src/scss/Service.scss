@@ -42,7 +42,6 @@ h2 > h4 {
 .green-divider {
     position: absolute;
     right: -20%;
-    margin: 1em;
     padding-bottom: 1em;
     background: $light-green;
     border-top-left-radius: 500em;
@@ -57,4 +56,33 @@ h2 > h4 {
 .ui.center.aligned.header,
 .ui.centered.header {
     color: $green;
+}
+
+.ui.grid {
+    margin: 1.5em 1em;
+    padding: 0em;
+
+    .griddesc {
+        margin: 2.25em 1em;
+    }
+}
+
+.ui.grid > .row {
+    padding: 0em;
+}
+
+.ui.grid > .row > .column {
+    margin: 0px;
+    padding: 0em;
+}
+
+p.value {
+    font-size: 1em;
+    b {
+        font-size: 1.5em;
+    }
+}
+
+h4.ui.header {
+    margin-top: 3.5rem;
 }

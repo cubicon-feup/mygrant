@@ -5,14 +5,13 @@ import ServiceOffer from './ServiceOffers';
 import {
     Button,
     Container,
-    Divider,
     Form,
     Grid,
     Header,
     Icon,
+    Image,
     Loader,
-    Modal,
-    Segment
+    Modal
 } from 'semantic-ui-react';
 
 const urlForData = id => 'http://localhost:3001/api/services/' + id;
@@ -93,34 +92,79 @@ class Service extends Component {
         return 'ERROR';
     }
 
+    //TODO: get images from db
+    renderImgGrid() {
+        return (
+            <Grid columns={3}>
+                <Grid.Row className="nopad">
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Image src="https://dummyimage.com/600x400/000/fff" />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
+        );
+    }
+
+    renderDescGrid() {
+        return (
+            <Grid className="griddesc" container width={5}>
+                <Grid.Row>
+                    <Grid.Column textAlign="justified">
+                        {this.state.service.description}
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row columns={2} verticalAlign="bottom">
+                    <Grid.Column textAlign="left">
+                        <p class="value">
+                            <b>{this.state.service.location}</b>
+                        </p>
+                    </Grid.Column>
+                    <Grid.Column textAlign="right">
+                        <p class="value">
+                            <b>{this.state.service.mygrant_value}</b>
+                            <i> mygrants</i>
+                        </p>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
+        );
+    }
+
     renderMainGrid() {
         return (
-            <Grid>
-                <Grid.Row />
+            <Grid container>
                 <Grid.Row columns={2}>
-                    <Grid.Column width={6}>
-                        {
-                            //TODO: change to a grid of images
-                            this.state.service.acceptable_radius
-                        }
-                    </Grid.Column>
-                    <Grid.Column width={10}>
-                        <Grid container width={5}>
-                            <Grid.Row>
-                                <Grid.Column textAlign="justified">
-                                    <pre>{this.state.service.description}</pre>
-                                </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row columns={2}>
-                                <Grid.Column textAlign="left">
-                                    <b>{this.state.service.location}</b>
-                                </Grid.Column>
-                                <Grid.Column textAlign="right">
-                                    <b>{this.state.service.mygrant_value}</b>
-                                    <i> mygrants</i>
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
+                    <Grid.Column width={6}>{this.renderImgGrid()}</Grid.Column>
+                    <Grid.Column stretched width={10}>
+                        {this.renderDescGrid()}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
@@ -157,7 +201,7 @@ class Service extends Component {
                 {this.renderMainGrid()}
                 <Container fluid className="green-divider" />
 
-                <h5>{this.oppositeServiceType()} Date</h5>
+                <Header as="h4">{this.oppositeServiceType()} Date</Header>
                 <Form method="POST" onSubmit={this.handleSubmit}>
                     <Form.Input
                         type="datetime-local"
@@ -167,6 +211,7 @@ class Service extends Component {
                     />
                     <Form.Button content={this.oppositeServiceType()} />
                 </Form>
+
                 <Modal
                     className="modal-container"
                     trigger={<Button>Offers</Button>}
