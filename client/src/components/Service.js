@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import '../css/App.css';
+import '../css/Service.css';
 import ServiceOffer from './ServiceOffers';
+import ImgGrid from './ImgGrid';
 
 import {
     Button,
@@ -9,7 +10,6 @@ import {
     Grid,
     Header,
     Icon,
-    Image,
     Loader,
     Modal
 } from 'semantic-ui-react';
@@ -49,7 +49,7 @@ class Service extends Component {
                     this.setState({ service: result, isFetching: false });
                 },
                 () => {
-                    console.log('ERROR');
+                    console.log('ERROR', 'Failed to fetch service data.');
                 }
             );
     }
@@ -92,47 +92,6 @@ class Service extends Component {
         return 'ERROR';
     }
 
-    //TODO: get images from db
-    renderImgGrid() {
-        return (
-            <Grid columns={3}>
-                <Grid.Row className="nopad">
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Image src="https://dummyimage.com/600x400/000/fff" />
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
-        );
-    }
-
     renderDescGrid() {
         return (
             <Grid className="griddesc" container width={5}>
@@ -162,7 +121,9 @@ class Service extends Component {
         return (
             <Grid container>
                 <Grid.Row columns={2}>
-                    <Grid.Column width={6}>{this.renderImgGrid()}</Grid.Column>
+                    <Grid.Column width={6}>
+                        <ImgGrid idService={this.state.id} />
+                    </Grid.Column>
                     <Grid.Column stretched width={10}>
                         {this.renderDescGrid()}
                     </Grid.Column>
