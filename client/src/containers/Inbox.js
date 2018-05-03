@@ -7,9 +7,18 @@ class Inbox extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = { messages: [] };
+
+        const { cookies } = this.props;
+        this.idToken = cookies.get('id_token');
+
+        const headers = { Authorization: `Bearer ${this.idToken}` };
+
+        // Get messages from the database
+        fetch('/api/messsages/as_options', { headers })
+            .then(res => console.log(res))
     }
 
     render() {
