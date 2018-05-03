@@ -625,53 +625,128 @@ router.delete('/:crowdfunding_id/services_requested', policy.deleteRequestServic
 // SERVICES ACCORDED
 // ===============================================================================
 
-// Select a service from the available offered ones. This service is then instantiated as an agreed service.
-// FIXME: giving an error when trying out in Postman.
-router.post('/:crowdfunding_id/services', function(req, res) {
+/**
+ * @api {post} /crowdfundings/:crowdfunding_id/services Create service accorded
+ * @apiName CreateServiceAccorded
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is going to be applied to.
+ * @apiParam (RequestBody) {Integer} service_id Service id that is going to be applied.
+ * 
+ * @apiSuccess (Success 200) {String} message Successfully agreed with a service.
+ * 
+ * @apiError (Error 400) BadRequest Invalid service accorded data.
+ * @apiError (Error 500) InternalServerError Couldn't save the agreed service.
+ */
+router.post('/:crowdfunding_id/services', policy.serviceAccorded, function(req, res) {
+    // TODO: check if user is authenticated and owns the crowdfunding.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
-    let partnerId = req.body.partner_id;
+    // TODO: set a date.
     //let dateScheduled = req.body.date_scheduled;    // Format: 'yyyy-mm-dd hh:m:ss'.
     let query =
-        `INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_agreed, date_scheduled)
-        VALUES ($(service_id), $(partner_id), $(crowdfunding_id), NOW(), NOW() + interval '1 week');`;
+        `INSERT INTO service_instance (service_id, crowdfunding_id, date_agreed, date_scheduled)
+        VALUES ($(service_id), $(crowdfunding_id), NOW(), NOW() + interval '1 week');`;
 
     db.none(query, {
         service_id: serviceId,
-        partner_id: partnerId,
         crowdfunding_id: crowdfundingId,
         //date_scheduled: dateScheduled
     }).then(() => {
-        res.status(201).send('Successfully agreed with a service for the crowdfunding.');
+        res.status(201).send({message: 'Successfully agreed with a service.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t save the agreed service.'});
     })
 });
 
-// Gets all the services that were already agreed to happen.
-// TODO: test.
-router.get('/:crowdfunding_id/services', function(req, res) {
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/services/offered Get services accorded offered
+ * @apiName GetSearvicesAccordedOffered
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * 
+ * @apiSuccess (Success 200) {Integer} service_id Accorded service id.
+ * @apiSuccess (Success 200) {Date} date_agreed Data the service was agreed users.
+ * @apiSuccess (Success 200) {Date} date_scheduled Schedule data for the service.
+ * @apiSuccess (Success 200) {String} service_title Service title.
+ * @apiSuccess (Success 200) {String} service_description Service description.
+ * @apiSuccess (Success 200) {String} creator_name Service creator name.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get the services accorded offered.
+ */
+router.get('/:crowdfunding_id/services/offered', function(req, res) {
+    // TODO: check if user is authenticated and owns the crowdfunding.
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
-        `SELECT service_instance.service_id, service_instance.date_scheduled, service_instance.partner_id, service.title, service.mygrant_value, service.description, users.full_name as user_full_name
+        `SELECT service_instance.service_id, service_instance.date_agreed, service_instance.date_scheduled, service.title as service_title, service.description as service_description, users.full_name as creator_name
+        FROM service_instance
+        INNER JOIN service ON service.id = service_instance.service_id
+        INNER JOIN users ON users.id = service.creator_id
+        WHERE service_instance.crowdfunding_id = $(crowdfunding_id);`;
+
+    db.manyOrNone(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get the services accorded offered.'});
+    })
+});
+
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/services/requested Get services accorded requested
+ * @apiName GetSearvicesAccordedRequested
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * 
+ * @apiSuccess (Success 200) {Integer} service_id Accorded service id.
+ * @apiSuccess (Success 200) {Date} date_agreed Data the service was agreed users.
+ * @apiSuccess (Success 200) {Date} date_scheduled Schedule data for the service.
+ * @apiSuccess (Success 200) {String} service_title Service title.
+ * @apiSuccess (Success 200) {String} service_description Service description.
+ * @apiSuccess (Success 200) {String} creator_name Service provider name.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get the services accorded requested.
+ */
+router.get('/:crowdfunding_id/services/requested', function(req, res) {
+    // TODO: check if user is authenticated and owns the crowdfunding.
+    let crowdfundingId = req.params.crowdfunding_id;
+    let query =
+        `SELECT service_instance.service_id, service_instance.date_agreed, service_instance.date_scheduled, service.title as service_title, service.description as service_description, users.full_name as creator_name
         FROM service_instance
         INNER JOIN service ON service.id = service_instance.service_id
         INNER JOIN users ON users.id = service_instance.partner_id
         WHERE service_instance.crowdfunding_id = $(crowdfunding_id);`;
 
-    db.many(query, {
+    db.manyOrNone(query, {
         crowdfunding_id: crowdfundingId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get the services accorded offered.'});
     })
 });
 
-// Deletes a service that was agreed to happen.
-// TODO: test.
 // TODO: is this desired behaviour?
-router.delete('/:crowdfunding_id/services', function(req, res) {
+/**
+ * @api {delete} /crowdfundings/:crowdfunding_id/services/requested Delete service accorded
+ * @apiName DeleteServiceAccorded
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ * @apiParam (RequestBody) {Integer} service_id Service id to remove.
+ * 
+ * @apiSuccess (Success 200) {String} message Successfully deleted the service instance.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't delete the accorded service.'
+ */
+router.delete('/:crowdfunding_id/services', policy.serviceAccorded, function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -683,9 +758,9 @@ router.delete('/:crowdfunding_id/services', function(req, res) {
         service_id: serviceId,
         crowdfunding_id: crowdfundingId
     }).then(() => {
-        res.status(200).send('Successfully deleted the service instance');
+        res.status(200).send({message: 'Successfully deleted the service instance.'});
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t delete the accorded service.'});
     })
 });
 

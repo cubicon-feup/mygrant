@@ -7,6 +7,8 @@ module.exports.scheduleJob = (crowdfundingId, date) => {
     });
 
     function closeCrowdfunding(crowdfundingId) {
+        // TODO: if the project didn't get all the mygrants needed, go immediatly for 'FINISHED'.
+
         let query =
             `UPDATE crowdfunding
             SET status = 'RECRUITING'

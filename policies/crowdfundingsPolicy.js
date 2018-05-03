@@ -113,6 +113,18 @@ module.exports = {
         else next();
     },
 
+    serviceAccorded(req, res, next) {
+        const schema = {
+            service_id: Joi.number().min(1).required()
+        }
+
+        const {error} = Joi.validate(req.body, schema, config.joiOptions);
+
+        if(error)
+            res.status(400).send({error: 'Invalid service accorded data.'});
+        else next();
+    },
+
     search(req, res, next) {
         const schema = {
             from: Joi.number().min(1).required().less(parseInt(req.params.to)),
