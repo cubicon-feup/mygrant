@@ -6,8 +6,8 @@ import {
     Container,
     Header,
     Icon,
-    Table,
-    Modal
+    Modal,
+    Table
 } from 'semantic-ui-react';
 import Service from './Service';
 
@@ -38,7 +38,9 @@ class TableRow extends React.Component {
                     className="modal-container"
                     trigger={<Table.Cell>{this.props.obj.title}</Table.Cell>}
                 >
-                    <Service id={this.props.obj.id} />
+                    <Modal.Content scrolling>
+                        <Service id={this.props.obj.id} />
+                    </Modal.Content>
                 </Modal>
                 <Table.Cell>{this.props.obj.category}</Table.Cell>
                 <Table.Cell>{this.props.obj.location}</Table.Cell>
