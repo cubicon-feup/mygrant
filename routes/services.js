@@ -77,8 +77,7 @@ router.get('/', function(req, res) {
     db.any(query, {
             itemsPerPage,
             offset,
-            order,
-            asc
+            order
         })
         .then(data => {
             res.status(200).json(data);
@@ -195,9 +194,11 @@ router.get(['/search'], function(req, res) { // check for valid input
         var order = req.query.hasOwnProperty('order') ? req.query.order : 'search_score';
         // ascending / descending
         var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
-        // optionals:
+        // filters:
+        var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
+        var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
         var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
-        var search_desc = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
+        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
         var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
         var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
         var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
@@ -214,12 +215,15 @@ router.get(['/search'], function(req, res) { // check for valid input
         SELECT *
         FROM (
         SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        ts_rank_cd(to_tsvector($(lang), service.title ${search_desc ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+        ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
+        WHERE service.creator_id, users.full_name AS provider_name, service.crowdfunding_id,
         WHERE service.deleted = false
+        ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
+        ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
         ${cat ? ' AND service.category = $(cat)' : ''}
         ${type ? ' AND service.service_type = $(type)' : ''}
         ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
@@ -243,8 +247,7 @@ router.get(['/search'], function(req, res) { // check for valid input
             mygmin,
             datemax,
             datemin,
-            order,
-            asc
+            order
         })
         .then(data => {
             res.status(200).json(data);
