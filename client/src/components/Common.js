@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Container, Divider, Icon, Header, Menu } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import '../css/common.css';
-
 
 class MygrantHeader extends Component {
     render() {
@@ -25,10 +23,12 @@ class MygrantHeader extends Component {
 }
 
 class MygrantDivider extends Component {
+    static propTypes = { color: String }
+
     render() {
         return (
-            <div class={`mygrant-divider ${this.props.color}`}>
-                <Divider className="first-divider"  />
+            <div className={`mygrant-divider ${this.props.color}`}>
+                <Divider className="first-divider" />
                 <Divider className="second-divider" />
             </div>
         );
@@ -41,7 +41,7 @@ class MygrantFooter extends Component {
             <div>
                 <Container className="site-footer">
                 <Header size="huge" >mygrant</Header>
-                <MygrantDivider color="green" />
+                <MygrantDivider color="light-green" />
                     <Header.Subheader textAlign="center" ><Icon className="far fa-copyright" /> Cubicon {new Date().getFullYear()}</Header.Subheader>
                 </Container>
             </div>
