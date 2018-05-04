@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Service.css';
 
-import { Container, Grid, Image, Loader } from 'semantic-ui-react';
+import { Container, Grid, Image, Loader, Segment } from 'semantic-ui-react';
 
 const urlForImages = id => `http://localhost:3001/api/services/${id}/images`;
 
@@ -53,7 +53,7 @@ class ImgGrid extends Component {
     renderImgGrid() {
         var gridlength = this.setImgGridSize();
 
-        if (gridlength < 4) {
+        if (gridlength > 0 && gridlength < 4) {
             return (
                 <Grid className="img" columns={gridlength}>
                     <Grid.Row>
@@ -131,7 +131,7 @@ class ImgGrid extends Component {
             );
         }
 
-        return 'ERROR';
+        return <Segment>No Image Available</Segment>;
     }
 
     render() {
