@@ -4,7 +4,7 @@ const db = require('../config/database');
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
 const transporter = nodemailer.createTransport(config.transporterOptions);
-const appSecret = require('../config/config');
+const appSecret = require('../config/config').secret;
 const expressJwt = require('express-jwt');
 
 const authenticate = expressJwt({ secret: appSecret });

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Conversation from '../components/Conversation';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
@@ -17,13 +18,15 @@ class Inbox extends Component {
         const headers = { Authorization: `Bearer ${this.idToken}` };
 
         // Get messages from the database
-        fetch('/api/messsages/as_options', { headers })
-            .then(res => console.log(res))
+        //fetch('/api/messages/as_options', { headers })
+        //    .then(res => console.log(res))
     }
 
     render() {
         return (
             <div>
+                <Conversation user={{ name: 'User 1', picture: null }} lastMessage={'Ok, see you tomorrow!'} />
+                <Conversation user={{ name: 'User 1', picture: null }} lastMessage={'Ok, see you tomorrow!'} />
             </div>
         );
     }
