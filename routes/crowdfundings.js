@@ -747,6 +747,7 @@ router.get('/:crowdfunding_id/services/requested', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't delete the accorded service.'
  */
 router.delete('/:crowdfunding_id/services', policy.serviceAccorded, function(req, res) {
+    // TODO: users authenticated and owning the crowdfunding.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -762,6 +763,15 @@ router.delete('/:crowdfunding_id/services', policy.serviceAccorded, function(req
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t delete the accorded service.'});
     })
+});
+
+router.put('/:crodfunding_id/services', function(req, res) {
+    let crowdfundingId = req.params.crowdfunding_id;
+    let serviceId = req.body.service_id;
+    let rating = req.body.rating;
+    let query =
+        `UPDATE service_instance
+        SET `;
 });
 
 // SEARCH
@@ -854,6 +864,36 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
         console.error(error);
         res.status(500).json({error: 'Couldn\'t get crowdfundings.'})
     });
+})
+
+/**
+ * @api {get} /crowdfundings/filter/:from-:to/pages_number Get pages number
+ * @apiName GetPagesNumber
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
+ * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
+ * 
+ * @apiSuccess (Success 200) {Integer} pages_number Number of crowdfunding pages when using :from and :to.
+ * 
+ * @apiError (Error 400) BadRequest Invalid pages number data.
+ * @apiError (Error 500) InternalServerError Couldn't get pages number.
+ */
+router.get('/filter/:from-:to/pages_number', function(req, res) {
+    let from = req.params.from - 1;
+    let to = req.params.to;
+    let query =
+        `SELECT COUNT(*) as crowdfundings_number
+        FROM crowdfunding;`;
+    
+    db.one(query)
+    .then(data => {
+        let crowdfundingsNumber = data.crowdfundings_number;
+        let pagesNumber = Math.ceil(crowdfundingsNumber / (to - from));
+        res.status(200).json({pages_number: pagesNumber});
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get pages number.'});
+    })
 })
 
 module.exports = router;
