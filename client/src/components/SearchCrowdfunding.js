@@ -58,20 +58,34 @@ class SearchCrowdfunding extends Component {
 
     handleSubmit = (event) => {
         //this.setState({ amount: "" });
-        /*alert(JSON.stringify({
-            id:this.state.id,
-            donator_id:this.state.donator_id,
-            amount:this.state.amount
-        }));
-        fetch(urlForData(this.state.id), {
-            method: 'POST',
+        var url = urlForCrowdfundings + '1-10?';
+        if(this.state.order){
+            url += '&sorting_method=' + this.state.order;
+        }
+        if(this.state.category){
+            url += '&category=' + this.state.category;
+        }
+        if(this.state.location){
+            url += '&location=' + this.state.location;
+        }
+        if(this.state.status){
+            //url += '&status=' + this.state.status;
+        }
+        if(this.state.search_text){
+            url += '&keywords=' + this.state.search_text;
+        }
+        fetch(url, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                donator_id:this.state.donator_id,
-                amount:parseInt(this.state.amount)
-            })
+            /*body: JSON.stringify({
+                sorting_method:this.state.order,
+                category: this.state.category,
+                location: this.state.location,
+                status: this.state.status,
+                keywords: this.state.search_text
+            })*/
         }).then(response => {
             if (!response.ok) {
                 throw Error('Network request failed');
@@ -81,11 +95,12 @@ class SearchCrowdfunding extends Component {
         .then(result => result.json())
         .then(result => {
             this.setState({ crowdfundings: result });
+            console.log(this.state.crowdfundings);
         }, () => {
             // "catch" the error
             this.setState({ requestFailed: true });
-        });*/
-        console.log(this.state.categorie);
+        });
+        console.log(this.state.category);
         console.log(this.state.distance);
         console.log(this.state.location);
         console.log(this.state.order);
@@ -93,7 +108,23 @@ class SearchCrowdfunding extends Component {
     }
 
     handlePageChange = (event, object) => {
-        fetch(urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10))
+        var url = urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10) + '?';
+        if(this.state.order){
+            url += '&sorting_method=' + this.state.order;
+        }
+        if(this.state.category){
+            url += '&category=' + this.state.category;
+        }
+        if(this.state.location){
+            url += '&location=' + this.state.location;
+        }
+        if(this.state.status){
+            //url += '&status=' + this.state.status;
+        }
+        if(this.state.search_text){
+            url += '&keywords=' + this.state.search_text;
+        }
+        fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -112,32 +143,13 @@ class SearchCrowdfunding extends Component {
 
     constructor(props) {
         super(props);
-        this.list = [
-            {
-                'id': 0,
-                'title': 'Project1',
-                'description': 'hueee',
-                'location': 'ali',
-                'earned': '',
-                'target': '',
-                'end_date': ''
-            },
-            {
-                'id': 1,
-                'title': 'Project2',
-                'description': '',
-                'location': '',
-                'earned': '',
-                'target': '',
-                'end_date': ''
-            }
-        ];
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
         this.state = {};
         this.table_body = {};
-        this.setState({categorie:""});
+        this.setState({category:""});
         this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.handlePageChange = this.handlePageChange.bind(this);
     }
 
     render() {
@@ -169,7 +181,7 @@ class SearchCrowdfunding extends Component {
             });
             this.categorie_body = this.state.categories.map(categorie => {
                 return (
-                    <Form.Field control={Radio} name="categorie" label={categorie.service_category} value={categorie.service_category} checked={this.state.categorie === categorie.service_category} onChange={this.handleChange} />
+                    <Form.Field control={Radio} name="category" label={categorie.service_category} value={categorie.service_category} checked={this.state.category === categorie.service_category} onChange={this.handleChange} />
                 );
             });
         }
