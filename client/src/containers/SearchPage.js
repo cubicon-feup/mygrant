@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import '../css/common.css';
 import { Link } from 'react-router-dom';
 import { Container, Button, Select} from 'semantic-ui-react';
-import SearchCrowdfunding from "./SearchCrowdfunding";
-import SearchService from "./SearchService";
+import SearchCrowdfunding from "../components/SearchCrowdfunding";
+import SearchService from "../components/SearchService";
 
 class SearchPage extends Component {
 

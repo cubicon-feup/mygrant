@@ -15,7 +15,7 @@ import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
-import Search from "./components/SearchPage";
+import Search from "./containers/SearchPage";
 import CreateCrowdfunding from "./components/CreateCrowdfunding";
 import Crowdfunding from "./components/Crowdfunding";
 import Crowdfundings from "./components/Crowdfundings";
@@ -35,10 +35,10 @@ ReactDom.render(
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/service/:id" component={Service} />
                 <Route exact path="/tableservices" component={TableServices} />
-            <Route exact path="/search" component={Search} />
-            <Route exact path="/crowdfundings" component={Crowdfundings} />
-            <Route exact path="/crowdfunding/:id" component={Crowdfunding} />
-            <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
+                <Route exact path="/search" component={Search} />
+                <Route exact path="/crowdfundings" component={Crowdfundings} />
+                <Route exact path="/crowdfunding/:id" component={Crowdfunding} />
+                <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <Responsive as={MygrantNav} maxWidth={768} />
             </CookiesProvider>
