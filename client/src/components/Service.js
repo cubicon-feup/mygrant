@@ -122,7 +122,7 @@ class Service extends Component {
 
     renderDescGrid() {
         return (
-            <Grid className="griddesc" container width={5}>
+            <Grid className="desc" container width={5}>
                 <Grid.Row>
                     <Grid.Column textAlign="justified">
                         {this.state.service.description}
@@ -162,7 +162,7 @@ class Service extends Component {
 
     renderMainGrid() {
         return (
-            <Grid container>
+            <Grid className="main" container>
                 <Grid.Row columns={2}>
                     <Grid.Column width={6}>
                         <ImgGrid idService={this.state.id} />

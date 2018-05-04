@@ -55,7 +55,7 @@ class ImgGrid extends Component {
 
         if (gridlength < 4) {
             return (
-                <Grid columns={gridlength}>
+                <Grid className="img" columns={gridlength}>
                     <Grid.Row>
                         {this.state.images.map(img =>
                             <Grid.Column>
@@ -67,7 +67,7 @@ class ImgGrid extends Component {
             );
         } else if (gridlength === 4) {
             return (
-                <Grid columns={gridlength}>
+                <Grid className="img" columns={gridlength}>
                     <Grid.Row>
                         {this.state.images.slice(0, 1).map(img =>
                             <Grid.Column>
@@ -86,7 +86,7 @@ class ImgGrid extends Component {
             );
         } else if (gridlength > 4 && gridlength < 7) {
             return (
-                <Grid columns={gridlength}>
+                <Grid className="img" columns={gridlength}>
                     <Grid.Row>
                         {this.state.images.slice(0, 2).map(img =>
                             <Grid.Column>
@@ -105,7 +105,7 @@ class ImgGrid extends Component {
             );
         } else if (gridlength > 6) {
             return (
-                <Grid columns={gridlength}>
+                <Grid className="img" columns={gridlength}>
                     <Grid.Row>
                         {this.state.images.slice(0, 2).map(img =>
                             <Grid.Column>

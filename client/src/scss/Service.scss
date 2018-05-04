@@ -63,22 +63,25 @@ h2.ui.header {
     color: $green;
 }
 
-.ui.grid {
-    margin: 1.5em 1em;
-    padding: 0em;
-
-    .griddesc {
-        margin: 2.25em 1em;
+.ui.container.grid {
+    &.main {
+        margin: 1.5em 1em;
+        padding: 0em;
     }
-}
 
-.ui.grid > .row {
-    padding: 0em;
-}
+    &.desc {
+        margin: 2.25em 1em;
+        padding: 0em;
+    }
 
-.ui.grid > .row > .column {
-    margin: 0px;
-    padding: 0em;
+    &.img {
+        padding: 0em;
+
+        & > .row > .column {
+            margin: 0px;
+            padding: 0em;
+        }
+    }
 }
 
 p.value {
