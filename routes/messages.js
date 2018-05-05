@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../config/database');
-
-// MESSAGES
-// ===============================================================================
+const express = require('express');
+const router = express.Router();
+const db = require('../config/database');
+const nodemailer = require('nodemailer');
+const config = require('../config/config');
+const transporter = nodemailer.createTransport(config.transporterOptions);
 
 /**
  * @api {post} /messages/ Send a new message.
@@ -16,7 +16,8 @@ var db = require('../config/database');
  * @apiParam (RequestBody) {String} content Message to send.
  * 
  * @apiSuccess (Success 201) message Successfully sent a message.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't send the message.
  */
 router.post('/', function(req, res) {
     let senderId = req.body.sender_id;
@@ -31,9 +32,66 @@ router.post('/', function(req, res) {
         receiver_id: receiverId,
         content: content
     }).then(() => {
-        res.status(201).json({message: 'Successfully sent a message.'});
+        query =
+            `SELECT receiver.full_name as receiver_name, receiver.email as receiver_email, sender.full_name as sender_name
+            FROM users as receiver, users as sender
+            WHERE receiver.id = $(receiver_id)
+                AND sender.id = $(sender_id);`;
+
+        db.one(query, {
+            receiver_id: receiverId,
+            sender_id: senderId
+        }).then(data => {
+            let receiverName = data.receiver_name;  // FIXME: Not being used right now.
+            let receiverEmail = data.email;
+            let senderName = data.sender_name;
+
+            let mailOptions = {
+                from: config.messageNotificationOptions.from,
+                to: receiverEmail,
+                subject: config.messageNotificationOptions.subject,
+                html: `
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <style>
+                                .btn {
+                                    background-color: #4CAF50;
+                                    border: none;
+                                    color: white;
+                                    padding: 15px 25px;
+                                    text-align: center;
+                                    font-size: 16px;
+                                    cursor: pointer;
+                                }
+                                .btn:hover {
+                                    background-color: green
+                                }
+                    
+                            </style>
+                        </head>
+                        <body>
+                            <div>
+                                <h2>
+                                    New Message Notification
+                                </h2>
+                                <p>
+                                    You have a new message from <a href="#"><bold>${senderName}</bold></a>.
+                                </p>
+                                <a href="www.google.com"><button class="btn">Check message</button></a>
+                            </div>
+                        </body>
+                    </html>
+                    `
+            };
+            transporter.sendMail(mailOptions);
+            res.status(201).json({message: 'Successfully sent a message.'});
+        }).catch(error => {
+            // We don't need to inform the sender that the mail message failed.
+            res.status(201).json({message: 'Successfully sent a message.'});
+        });
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t send the message.'});
     });
 });
 
@@ -48,7 +106,8 @@ router.post('/', function(req, res) {
  * @apiSuccess (Success 200) sender_id User that sent a message.
  * @apiSuccess (Success 200) content Message content.
  * @apiSuccess (Success 200) date_sent Date the message was sent.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get the messages.
  */
 router.get('/:other_user', function(req, res) {
     let loggedUser = 1; //TODO: Use the session cookie id.
@@ -71,19 +130,20 @@ router.get('/:other_user', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get the messages.'});
     });
 });
 
 /**
- * @api {get} /messages/ Get conversations.
- * @apiName GetConversations
+ * @api {get} /messages/ Get topics for user.
+ * @apiName GetTopics
  * @apiGroup Messages
  * @apiPermission authenticated user
  * 
- * @apiSuccess (Success 200) other_user_id Other user unique id.
- * @apiSuccess (Success 200) other_user_full_name Other user name.
- * @apiError (Error 500) InternalServerError Internal Server Error
+ * @apiSuccess (Success 200) other_user_id User id with a conversation topic.
+ * @apiSuccess (Success 200) other_user_full_name User name with a conversation topic.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get message topics.
  */
 router.get('/', function(req, res) {
     let loggedUser = 1; //TODO: Use the session cookie id.
@@ -104,7 +164,7 @@ router.get('/', function(req, res) {
     }).then(data => {
         res.status(200).send(data);
     }).catch(error => {
-        res.status(500).json({error});
+        res.status(500).json({error: 'Couldn\'t get message topics.'});
     });
 });
 
