@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const expressJwt = require('express-jwt');
 const db = require('../config/database');
-const appSecret = require('../config/config');
+const appSecret = require('../config/config').secret;
 
 const authenticate = expressJwt({ secret: appSecret });
 
