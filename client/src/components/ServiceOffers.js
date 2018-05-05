@@ -2,17 +2,20 @@ import React, { Component } from 'react';
 import '../css/App.css';
 
 import {
+    Button,
+    Card,
     Container,
     Header,
-    Segment,
-    Modal,
-    Button,
+    Image,
     Loader,
-    Card
+    Modal,
+    Segment
 } from 'semantic-ui-react';
 import User from './User';
 
 const urlForData = id => 'http://localhost:3001/api/services/' + id + '/offers';
+const urlForUserImages = id =>
+    'http://localhost:3001/api/users/' + id + '/images';
 const urlForAccept = id =>
     'http://localhost:3001/api/services/' + id + '/offers/accept';
 const urlForDecline = id =>
@@ -100,6 +103,7 @@ class ServiceOffer extends Component {
             .then(
                 result => {
                     this.setState({ offers: result, isFetching: false });
+                    this.getUserImages();
                 },
                 () => {
                     console.log('ERROR');
@@ -107,20 +111,32 @@ class ServiceOffer extends Component {
             );
     }
 
-    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+    getUserImages() {
+        this.state.offers.map(user =>
+            fetch(urlForUserImages(user.requester_id))
+                .then(response => {
+                    if (!response.ok) {
+                        throw Error('Network request failed');
+                    }
 
-    handleSubmit = event => {
-        this.setState({
-            request: ''
-        });
-        alert(
-            JSON.stringify({
-                id: this.state.id,
-                userID: 'logged.in.user.id',
-                request: this.state.request
-            })
+                    return response;
+                })
+                .then(result => result.json())
+                .then(
+                    result => {
+                        this.setState({
+                            offers: [([user]: result)],
+                            isFetching: false
+                        });
+                    },
+                    () => {
+                        console.log('ERROR');
+                    }
+                )
         );
-    };
+    }
+
+    handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     render() {
         if (this.state.isFetching) {
@@ -137,17 +153,28 @@ class ServiceOffer extends Component {
             <Card>
                 <Modal
                     className="modal-container"
-                    trigger={<Card.Content header={offer.requester_name} />}
+                    trigger={
+                        <Card.Content>
+                            <Image
+                                floated="left"
+                                size="mini"
+                                src="/assets/images/avatar/large/steve.jpg"
+                            />
+                            <Card.Header>{offer.requester_name}</Card.Header>
+                        </Card.Content>
+                    }
                 >
-                    <Container>
+                    <Modal.Content>
                         <Segment>
                             <User id={offer.requester_id} />
-                            <AnswerProposal
-                                idUser={offer.requester_id}
-                                idService={this.props.idService}
-                            />
                         </Segment>
-                    </Container>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <AnswerProposal
+                            idUser={offer.requester_id}
+                            idService={this.props.idService}
+                        />
+                    </Modal.Actions>
                 </Modal>
             </Card>
         ));
