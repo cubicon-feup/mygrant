@@ -16,14 +16,14 @@ import {
     Modal
 } from 'semantic-ui-react';
 
-const urlForData = id => 'http://localhost:3001/api/services/' + id;
-//TODO: check urlForCreateOffer
+const urlForData = id => `http://localhost:3001/api/services/${id}`;
+// TODO: check urlForCreateOffer
 const urlForCreateOffer = id =>
-    'http://localhost:3001/api/services/' + id + '/offers';
-//TODO: check urlForComments
+    `http://localhost:3001/api/services/${id}/offers`;
 const urlForComments = id =>
-    'http://localhost:3001/api/services/' + id + '/comments';
-const urlForUsers = id => 'http://localhost:3001/api/users/' + id;
+    `http://localhost:3001/api/services/${id}/comments`;
+const urlForUsers = id => `http://localhost:3001/api/users/${id}`;
+const urlToUser = id => `/user/${id}`;
 
 class Service extends Component {
     constructor(props) {
@@ -31,7 +31,7 @@ class Service extends Component {
         this.state = {
             id: this.getID(),
             service: {},
-            comments: {},
+            comments: [{}],
             request: '',
             isFetching: true,
             showComments: false
@@ -54,7 +54,10 @@ class Service extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState({ service: result, isFetching: false });
+                    this.setState({
+                        service: result,
+                        isFetching: false
+                    });
                 },
                 () => {
                     console.log('ERROR', 'Failed to fetch service data.');
@@ -84,7 +87,7 @@ class Service extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    //TODO: Check body of the message
+    // TODO: Check body of the message
     handleSubmit = e => {
         e.preventDefault();
         fetch(urlForCreateOffer(this.state.id), {
@@ -93,9 +96,7 @@ class Service extends Component {
                 service_id: this.state.id,
                 partner_id: this.props.idUser
             }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         })
             .then(result => {
                 result.json();
@@ -110,11 +111,11 @@ class Service extends Component {
             );
     };
 
-    //TODO: Check if the user is the owner of the service
+    // TODO: Check if the user is the owner of the service
     isOwner() {
-        return this.state.service.creator_id === this.props.userID
-            ? true
-            : false;
+        return true;
+
+        return this.state.service.creator_id === this.props.userID;
     }
 
     oppositeServiceType() {
@@ -123,6 +124,7 @@ class Service extends Component {
         } else if (this.state.service.service_type === 'REQUEST') {
             return 'Provide';
         }
+
         return 'ERROR';
     }
 
@@ -136,12 +138,12 @@ class Service extends Component {
                 </Grid.Row>
                 <Grid.Row columns={2} verticalAlign="bottom">
                     <Grid.Column textAlign="left">
-                        <p class="value">
+                        <p className="value">
                             <b>{this.state.service.location}</b>
                         </p>
                     </Grid.Column>
                     <Grid.Column textAlign="right">
-                        <p class="value">
+                        <p className="value">
                             <b>{this.state.service.mygrant_value}</b>
                             <i> mygrants</i>
                         </p>
@@ -167,8 +169,8 @@ class Service extends Component {
     }
 
     renderOffers() {
-        return this.isOwner() ? (
-            <Modal
+        return this.isOwner()
+            ? <Modal
                 className="modal-container"
                 trigger={
                     <Container id="fartop">
@@ -181,8 +183,7 @@ class Service extends Component {
                     typeService={this.state.service.service_type}
                 />
             </Modal>
-        ) : (
-            <Container id="fartop">
+         : <Container id="fartop">
                 <Header as="h4">{this.oppositeServiceType()} Date</Header>
                 <Form method="POST" onSubmit={this.handleSubmit}>
                     <Form.Input
@@ -193,63 +194,34 @@ class Service extends Component {
                     />
                     <Form.Button content={this.oppositeServiceType()} />
                 </Form>
-            </Container>
-        );
-    }
+            </Container>;
+}
 
-    //TODO: Get comments
-    //TODO: Post comments
+    // TODO: Post comments
     renderComments() {
         return (
             <Comment.Group minimal id="commentssection">
                 <Header as="h4">Comments</Header>
-                <Comment>
-                    <Comment.Avatar
-                        as={Link}
-                        to="/user/3"
-                        src="/assets/images/avatar/small/elliot.jpg"
-                    />
-                    <Comment.Content>
-                        <Comment.Author as={Link} to="/user/3">
-                            Elliot Fu
-                        </Comment.Author>
-                        <Comment.Metadata>
-                            <span>Yesterday at 12:30AM</span>
-                        </Comment.Metadata>
-                        <Comment.Text>
-                            <p>
-                                This has been very useful for my research.
-                                Thanks as well!
-                            </p>
-                        </Comment.Text>
-                        <Comment.Actions>
-                            <a>Reply</a>
-                        </Comment.Actions>
-                    </Comment.Content>
-
-                    <Comment.Group>
-                        <Comment>
-                            <Comment.Avatar
-                                as="a"
-                                src="/assets/images/avatar/small/jenny.jpg"
+                {this.state.comments.map(comment =>
+                    <Comment>
+                        <Comment.Avatar
+                            as={Link}
+                            to={urlToUser(comment.sender_id)}
+                            src={comment.sender_image}
+                        />
+                        <Comment.Content>
+                            <Comment.Author
+                                as={Link}
+                                to={urlToUser(comment.sender_id)}
+                                content={comment.sender_name}
                             />
-                            <Comment.Content>
-                                <Comment.Author as="a">
-                                    Jenny Hess
-                                </Comment.Author>
-                                <Comment.Metadata>
-                                    <span>Just now</span>
-                                </Comment.Metadata>
-                                <Comment.Text>
-                                    Elliot you are always so right :)
-                                </Comment.Text>
-                                <Comment.Actions>
-                                    <a>Reply</a>
-                                </Comment.Actions>
-                            </Comment.Content>
-                        </Comment>
-                    </Comment.Group>
-                </Comment>
+                            <Comment.Metadata>
+                                <span>{comment.date_posted}</span>
+                            </Comment.Metadata>
+                            <Comment.Text>{comment.message}</Comment.Text>
+                        </Comment.Content>
+                    </Comment>
+                )}
 
                 <Form reply>
                     <Form.TextArea />
@@ -281,20 +253,18 @@ class Service extends Component {
                     Service Details
                 </Header>
                 <Header as="h2">
-                    {this.state.service.service_type +
-                        ': ' +
-                        this.state.service.title +
-                        ' . '}
+                    {`${this.state.service.service_type}: ${
+                        this.state.service.title
+                    } . `}
                     <h4>{this.state.service.category}</h4>
                 </Header>
                 <Container fluid className="purple-divider" />
                 {this.renderMainGrid()}
                 <Container fluid className="green-divider" />
                 {this.renderOffers()}
-                {this.state.showComments ? (
-                    this.renderComments()
-                ) : (
-                    <Button
+                {this.state.showComments
+                    ? this.renderComments()
+                 : <Button
                         className="mygrant-button3"
                         content="Show Comments"
                         onClick={() => {
@@ -302,7 +272,7 @@ class Service extends Component {
                             this.setState({ showComments: true });
                         }}
                     />
-                )}
+                }
             </Container>
         );
     }
