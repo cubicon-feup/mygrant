@@ -59,7 +59,7 @@ class ImgGrid extends Component {
                     <Grid.Row>
                         {this.state.images.map(img =>
                             <Grid.Column>
-                                <Image src={img.filename} />
+                                <Image src={img.image_url} />
                             </Grid.Column>
                         )}
                     </Grid.Row>
