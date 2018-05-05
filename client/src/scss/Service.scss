@@ -1,26 +1,42 @@
+@import 'common';
 @import 'App';
 
-$green: #50c889;
-$light-green: lighten($green, 5%);
-$dark-green: #5a9b73;
+$light-purple: #9872a8;
+$dark-green: #2ec88f;
 
 .modal-container {
     display: flex;
     height: 0vh;
 }
 
-#dark-button,
-.ui.button.mygrant-button2,
+.ui.button,
 .ui.labeled.icon.button {
     margin-top: 10px;
     margin-right: 20px;
     background-color: $dark-green;
     color: white;
-    width: auto;
+
     height: 39px;
+    border-radius: 500em;
 
     &:hover {
-        background-color: darken($dark-green, 20%);
+        color: white;
+        background-color: $green;
+    }
+}
+
+#purple-button,
+.ui.button.mygrant-button3 {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: lighten($purple, 30%);
+    color: white;
+    width: 20em;
+    height: 39px;
+    border-radius: 500em;
+
+    &:hover {
+        background-color: lighten($purple, 40%);
     }
 }
 
@@ -48,14 +64,14 @@ h2.ui.header {
     position: absolute;
     right: -20%;
     padding-bottom: 1em;
-    background: $light-green;
+    background: $green;
     border-top-left-radius: 500em;
     border-bottom-left-radius: 500em;
 }
 
 .ui.form .field .ui.input input,
 .ui.form .field > .selection.dropdown {
-    border-color: $light-green;
+    border-color: $green;
 }
 
 .ui.center.aligned.header,
@@ -91,10 +107,15 @@ p.value {
     }
 }
 
-h4.ui.header {
+#fartop {
     margin-top: 3.5rem;
 }
 
 .ui.form {
     margin: 2em 0em;
+}
+
+#commentssection {
+    max-width: 100%;
+    background: $light-purple;
 }

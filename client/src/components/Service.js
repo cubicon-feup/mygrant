@@ -91,8 +91,7 @@ class Service extends Component {
             method: 'POST',
             body: JSON.stringify({
                 service_id: this.state.id,
-                partner_id: this.props.idUser,
-                date_scheduled: this.state.request
+                partner_id: this.props.idUser
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -111,6 +110,13 @@ class Service extends Component {
             );
     };
 
+    //TODO: Check if the user is the owner of the service
+    isOwner() {
+        return this.state.service.creator_id === this.props.userID
+            ? true
+            : false;
+    }
+
     oppositeServiceType() {
         if (this.state.service.service_type === 'PROVIDE') {
             return 'Request';
@@ -128,26 +134,11 @@ class Service extends Component {
                         {this.state.service.description}
                     </Grid.Column>
                 </Grid.Row>
-                <Grid.Row columns={3} verticalAlign="bottom">
+                <Grid.Row columns={2} verticalAlign="bottom">
                     <Grid.Column textAlign="left">
                         <p class="value">
                             <b>{this.state.service.location}</b>
                         </p>
-                    </Grid.Column>
-                    <Grid.Column textAlign="center">
-                        <Modal
-                            className="modal-container"
-                            trigger={
-                                <Button className="mygrant-button2">
-                                    Offers
-                                </Button>
-                            }
-                        >
-                            <ServiceOffer
-                                idService={this.state.id}
-                                typeService={this.state.service.service_type}
-                            />
-                        </Modal>
                     </Grid.Column>
                     <Grid.Column textAlign="right">
                         <p class="value">
@@ -175,11 +166,42 @@ class Service extends Component {
         );
     }
 
+    renderOffers() {
+        return this.isOwner() ? (
+            <Modal
+                className="modal-container"
+                trigger={
+                    <Container id="fartop">
+                        <Button className="mygrant-button">Offers</Button>
+                    </Container>
+                }
+            >
+                <ServiceOffer
+                    idService={this.state.id}
+                    typeService={this.state.service.service_type}
+                />
+            </Modal>
+        ) : (
+            <Container id="fartop">
+                <Header as="h4">{this.oppositeServiceType()} Date</Header>
+                <Form method="POST" onSubmit={this.handleSubmit}>
+                    <Form.Input
+                        type="datetime-local"
+                        name="request"
+                        value={this.state.request}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Button content={this.oppositeServiceType()} />
+                </Form>
+            </Container>
+        );
+    }
+
     //TODO: Get comments
     //TODO: Post comments
     renderComments() {
         return (
-            <Comment.Group minimal>
+            <Comment.Group minimal id="commentssection">
                 <Header as="h4">Comments</Header>
                 <Comment>
                     <Comment.Avatar
@@ -253,12 +275,11 @@ class Service extends Component {
         }
 
         return (
-            <Container className="main-container">
+            <Container>
                 <Header size="huge" textAlign="center">
                     <Icon name="external" />
                     Service Details
                 </Header>
-
                 <Header as="h2">
                     {this.state.service.service_type +
                         ': ' +
@@ -266,31 +287,15 @@ class Service extends Component {
                         ' . '}
                     <h4>{this.state.service.category}</h4>
                 </Header>
-
                 <Container fluid className="purple-divider" />
                 {this.renderMainGrid()}
                 <Container fluid className="green-divider" />
-
-                <Header as="h4">{this.oppositeServiceType()} Date</Header>
-                <Form method="POST" onSubmit={this.handleSubmit}>
-                    <Form.Input
-                        type="datetime-local"
-                        name="request"
-                        value={this.state.request}
-                        onChange={this.handleChange}
-                    />
-                    <Form.Button
-                        id="dark-button"
-                        content={this.oppositeServiceType()}
-                    />
-                </Form>
-
-                <Container fluid className="purple-divider" />
+                {this.renderOffers()}
                 {this.state.showComments ? (
                     this.renderComments()
                 ) : (
                     <Button
-                        className="mygrant-button2"
+                        className="mygrant-button3"
                         content="Show Comments"
                         onClick={() => {
                             this.fetchComments();
