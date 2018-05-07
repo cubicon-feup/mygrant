@@ -12,4 +12,4 @@ var pgp = require('pg-promise')(/* options */);
 var db = pgp(config);
 
 
-module.exports = db;
+module.exports =  db;

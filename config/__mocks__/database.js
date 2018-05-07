@@ -18,4 +18,4 @@ var db = pgp(config);
 
 
 
-module.exports = db;
+module.exports = db ;

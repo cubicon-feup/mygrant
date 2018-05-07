@@ -1,26 +1,32 @@
-import db from '../../config/database';
+import  db from '../../config/database';
+
+
 
 jest.mock('../../config/database');
 
 
-beforeAll((done) => {
+beforeAll(async (done) => {
     let query = "CREATE TABLE public.users (id integer NOT NULL,email text NOT NULL,pass_hash text NOT NULL,date_joined timestamp with time zone DEFAULT now() NOT NULL,full_name text NOT NULL,bio text,phone text,city text,country text,image_id integer,level integer DEFAULT 1 NOT NULL,experience_points integer DEFAULT 0 NOT NULL,mygrant_balance integer DEFAULT 0 NOT NULL,date_last_transaction timestamp with time zone DEFAULT now() NOT NULL,max_weekly_hours integer DEFAULT 0 NOT NULL,high_level boolean DEFAULT false NOT NULL,verified boolean DEFAULT false NOT NULL,weekly_hours_remaining integer DEFAULT 0 NOT NULL);"
-    db.none(query)
-        .then(() => {
-            console.log("table created");
-            done();
-        })
-        .catch(error => console.log(error));
+    try {
+        await db.none(query);
+        done();
+    }catch(e) {
+        console.log(e);
+    }
 });
 
-afterAll((done) => {
+afterAll(async (done) => {
     let query = "DROP TABLE public.users";
-    db.node(query)
-        .then(() => {
-            console.log("table erased");
-            done();
-        })
-        .catch(error => console.log(error));
+    try {
+        await db.none(query);
+        await db.$pool.end();
+        done();
+
+    }catch(e) {
+        console.log(e);
+    }
+
+
 
 
 });
@@ -30,7 +36,6 @@ describe('tests inserting users to database', () => {
     beforeEach((done) => {
         db.none("DELETE FROM public.users")
             .then(() => {
-                console.log("delete beforeEach");
                 done();
             })
             .catch(error => console.log(error));
@@ -40,7 +45,6 @@ describe('tests inserting users to database', () => {
     afterEach((done) => {
         db.none("DELETE FROM public.users")
             .then(() => {
-                console.log("delete beforeEach");
                 done();
             })
             .catch(error => console.log(error));
@@ -56,7 +60,7 @@ describe('tests inserting users to database', () => {
             })
             .catch(error => console.log(error));
     });
-    /*
+
     it('user should match object', (done) => {
         let insert = "INSERT INTO public.users VALUES (9, 'pgrimme8@abc.net.au', '$2a$08$V6gLRKsewz4XSU9TbXrNROzhyePvuJGVRJEzi0duAPx5VhVVzOq4a'," +
             " '2016-12-24 23:20:55+00', 'Paloma Grimme', 'Front-line value-added infrastructure'," +
@@ -88,10 +92,10 @@ describe('tests inserting users to database', () => {
                 done();
             })
             .catch(error => console.log(error));
-    });*/
+    });
 });
 
-/*
+
 describe('tests deleting from table users', () => {
 
     beforeEach((done) => {
@@ -122,10 +126,12 @@ describe('tests deleting from table users', () => {
             .then(() => db.many('SELECT * FROM public.users'))
             .then(users => {
                 expect(users.length).toBe(1);
+                done();
             })
             .catch(error => console.log(error));
     });
 
 });
 
-*/
+
+
