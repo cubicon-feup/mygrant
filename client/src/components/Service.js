@@ -247,32 +247,38 @@ class Service extends Component {
         }
 
         return (
-            <Container>
-                <Header size="huge" textAlign="center">
-                    <Icon name="external" />
-                    Service Details
-                </Header>
-                <Header as="h2">
-                    {`${this.state.service.service_type}: ${
-                        this.state.service.title
-                    } . `}
-                    <h4>{this.state.service.category}</h4>
-                </Header>
-                <Container fluid className="purple-divider" />
-                {this.renderMainGrid()}
-                <Container fluid className="green-divider" />
-                {this.renderOffers()}
-                {this.state.showComments
-                    ? this.renderComments()
-                 : <Button
-                        className="mygrant-button3"
-                        content="Show Comments"
-                        onClick={() => {
-                            this.fetchComments();
-                            this.setState({ showComments: true });
-                        }}
-                    />
-                }
+            <Container fluid>
+                <Container className="main-container">
+                    <Header size="huge" textAlign="center">
+                        <Icon name="external" />
+                        Service Details
+                    </Header>
+                    <Header as="h2">
+                        {`${this.state.service.service_type}: ${
+                            this.state.service.title
+                        } . `}
+                        <h4>{this.state.service.category}</h4>
+                    </Header>
+                    <Container fluid className="purple-divider" />
+                    {this.renderMainGrid()}
+                    <Container fluid className="green-divider" />
+                    {this.renderOffers()}
+                </Container>
+                <Container fluid className="purple">
+                    <Container>
+                        {this.state.showComments
+                            ? this.renderComments()
+                         : <Button
+                                className="mygrant-button3"
+                                content="Show Comments"
+                                onClick={() => {
+                                    this.fetchComments();
+                                    this.setState({ showComments: true });
+                                }}
+                            />
+                        }
+                    </Container>
+                </Container>
             </Container>
         );
     }
