@@ -247,8 +247,8 @@ class Service extends Component {
         }
 
         return (
-            <Container fluid>
-                <Container className="main-container">
+            <Container fluid className="main-container">
+                <Container>
                     <Header size="huge" textAlign="center">
                         <Icon name="external" />
                         Service Details
