@@ -16,7 +16,6 @@ module.exports = {
             ),
             mygrant_target: Joi.number().min(1).required(),
             time_interval: Joi.number().min(1).required(),
-            creator_id: Joi.number().required()
         }
 
         const {error} = Joi.validate(req.body, schema, config.joiOptions);

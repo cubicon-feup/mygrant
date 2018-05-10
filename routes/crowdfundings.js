@@ -6,6 +6,10 @@ var image = require('../images/Image');
 const policy = require('../policies/crowdfundingsPolicy');
 const allowedSortingMethods = ["date_created", "date_finished", "title", "percentage_achieved"];
 
+const expressJwt = require('express-jwt');
+const appSecret = require('../config/config').secret;
+const authenticate = expressJwt({ secret: appSecret });
+
 // CROWDFUNDING.
 // ===============================================================================
 
@@ -27,14 +31,14 @@ const allowedSortingMethods = ["date_created", "date_finished", "title", "percen
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
-router.post('/', policy.valid, function(req, res) {
+router.post('/', authenticate, policy.valid, function(req, res) {
     let title = req.body.title;
     let description = req.body.description;
     let category = req.body.category;
     let location = req.body.location;
     let mygrantTarget = req.body.mygrant_target;
     let timeInterval = req.body.time_interval;
-    let creatorId = 1;   // TODO: authenticated user.
+    let creatorId = req.user.id;
     let query =
         `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
         VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
@@ -119,8 +123,8 @@ router.get('/:crowdfunding_id', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
  */
-router.put('/:crowdfunding_id', policy.edit, function(req, res) {
-    let creatorId = 1;  // TODO: authenticated user.
+router.put('/:crowdfunding_id', authenticate, policy.edit, function(req, res) {
+    let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
@@ -155,8 +159,8 @@ router.put('/:crowdfunding_id', policy.edit, function(req, res) {
  * 
  * @apiError (Error 500) InternalServerError Could't delete the crowdfunding project.
  */
-router.delete('/:crowdfunding_id', function(req, res) {
-    let creatorId = 1; // TODO: Use session id.
+router.delete('/:crowdfunding_id', authenticate, function(req, res) {
+    let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `DELETE FROM crowdfunding
@@ -247,8 +251,8 @@ router.get('/', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid donation data.
  * @apiError (Error 500) InternalServerError Couldn't donate.
  */
-router.post('/:crowdfunding_id/donations', policy.donate, function(req, res) {
-    let donatorId = 2; // TODO: authenticated user.
+router.post('/:crowdfunding_id/donations', authenticate, policy.donate, function(req, res) {
+    let donatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let amount = req.body.amount;
     let query =
@@ -311,8 +315,8 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid rate data.
  * @apiError (Error 500) InternalServerError Couldn't get donations.
  */
-router.put('/:crowdfunding_id/rating', policy.rate, function(req, res) {
-    let donatorId = 2;  // TODO: authenticated user.
+router.put('/:crowdfunding_id/rating', authenticate, policy.rate, function(req, res) {
+    let donatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let rating = req.body.rating;
     let query =
@@ -388,8 +392,8 @@ router.delete('/:crowdfunding_id/image', function(req, res) {
  * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 500) InternalServerError Couldn't offer service.
  */
-router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(req, res) {
-    let creatorId = 2;  // TODO: authenticated user.
+router.post('/:crowdfunding_id/services_offers', authenticate, policy.serviceOffer, function(req, res) {
+    let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -442,17 +446,22 @@ router.post('/:crowdfunding_id/services_offers', policy.serviceOffer, function(r
  * 
  * @apiError (Error 500) InternalServerError Couldn't get service offers.
  */
-router.get('/:crowdfunding_id/services_offers', function(req, res) {
-    // TODO: check if user is authenticated.
+// TODO: test this one.
+router.get('/:crowdfunding_id/services_offers', authenticate, function(req, res) {
+    let crowdfundingCreatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `SELECT service.id, service.title, service.description, service.category, service.service_type
         FROM service
         INNER JOIN crowdfunding_offer ON crowdfunding_offer.service_id = service.id
-        WHERE crowdfunding_offer.crowdfunding_id = $(crowdfunding_id);`;
+        INNER JOIN crowdfunding ON crowdfunding.id = crowdfunding_offer.crowdfunding_id
+        INNER JOIN users ON users.id = crowdfunding.creator_id
+        WHERE crowdfunding_offer.crowdfunding_id = $(crowdfunding_id)
+            AND crowdfunding.creator_id = $(crowdfunding_creator_id);`;
 
     db.manyOrNone(query, {
-        crowdfunding_id: crowdfundingId
+        crowdfunding_id: crowdfundingId,
+        crowdfunding_creator_id: crowdfundingCreatorId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
@@ -474,8 +483,8 @@ router.get('/:crowdfunding_id/services_offers', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid service offer data.
  * @apiError (Error 500) InternalServerError Couldn't delete the service offer.
  */
-router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function(req, res) {
-    let crowdfundingCreatorId = 1;  // TODO: get authenticated user.
+router.delete('/:crowdfunding_id/services_offers', authenticate, policy.serviceOffer, function(req, res) {
+    let crowdfundingCreatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -517,8 +526,8 @@ router.delete('/:crowdfunding_id/services_offers', policy.serviceOffer, function
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
  */
-router.post('/:crowdfunding_id/services_requested', policy.requestService, function(req, res) {
-    let creatorId = 1;  // TODO: authenticated user.
+router.post('/:crowdfunding_id/services_requested', authenticate, policy.requestService, function(req, res) {
+    let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
     let description = req.body.description;
@@ -569,16 +578,21 @@ router.post('/:crowdfunding_id/services_requested', policy.requestService, funct
  * 
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
-router.get('/:crowdfunding_id/services_requested', function(req, res) {
-    // TODO: check if user is authenticated.
+// TODO: test this.
+router.get('/:crowdfunding_id/services_requested', authenticate, function(req, res) {
+    let crowdfundingCreatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
         `SELECT title, mygrant_value, category
         FROM service
-        WHERE service.crowdfunding_id = $(crowdfunding_id);`;
+        INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+        INNER JOIN users ON users.id = crowdfunding.creator_id
+        WHERE service.crowdfunding_id = $(crowdfunding_id)
+            AND users.id = $(crowdfunding_creator_id);`;
 
     db.manyOrNone(query, {
-        crowdfunding_id: crowdfundingId
+        crowdfunding_id: crowdfundingId,
+        crowdfunding_creator_id: crowdfundingCreatorId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
@@ -600,8 +614,8 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
-router.delete('/:crowdfunding_id/services_requested', policy.deleteRequestService, function(req, res) {
-    let creatorId = 1;  // TODO: authenticated user.
+router.delete('/:crowdfunding_id/services_requested', authenticate, policy.deleteRequestService, function(req, res) {
+    let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
     let query =
@@ -639,7 +653,7 @@ router.delete('/:crowdfunding_id/services_requested', policy.deleteRequestServic
  * @apiError (Error 400) BadRequest Invalid service accorded data.
  * @apiError (Error 500) InternalServerError Couldn't save the agreed service.
  */
-router.post('/:crowdfunding_id/services', policy.serviceAccorded, function(req, res) {
+router.post('/:crowdfunding_id/services', authenticate, policy.serviceAccorded, function(req, res) {
     // TODO: check if user is authenticated and owns the crowdfunding.
     let crowdfundingId = req.params.crowdfunding_id;
     let serviceId = req.body.service_id;
