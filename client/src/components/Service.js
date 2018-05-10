@@ -201,9 +201,11 @@ class Service extends Component {
     renderComments() {
         return (
             <Comment.Group minimal id="commentssection">
-                <Header as="h4">Comments</Header>
-                {this.state.comments.map(comment =>
-                    <Comment>
+                <Header as="h4" id="whitetext">
+                    Comments
+                </Header>
+                {this.state.comments.map((comment, index) =>
+                    <Comment key={index}>
                         <Comment.Avatar
                             as={Link}
                             to={urlToUser(comment.sender_id)}

@@ -57,8 +57,8 @@ class ImgGrid extends Component {
             return (
                 <Grid className="img" columns={gridlength}>
                     <Grid.Row>
-                        {this.state.images.map(img =>
-                            <Grid.Column>
+                        {this.state.images.map((img, index) =>
+                            <Grid.Column key={index}>
                                 <Image src={img.image_url} />
                             </Grid.Column>
                         )}
