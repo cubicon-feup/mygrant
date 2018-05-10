@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+const appSecret = require('../config/config').secret;
+const expressJwt = require('express-jwt');
+
+const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
 router.get('/:id', function(req, res) {
@@ -12,8 +16,10 @@ router.get('/:id', function(req, res) {
         return;
     }
     const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country, level, high_level, verified, image.filename as img_filename from users
-		INNER JOIN image ON users.image_id = image.id
+	    SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
+		FROM users
+		JOIN country
+		ON country.id=users.country_id
 		WHERE users.id = $(id);`;
     db
         .one(query, { id })
@@ -21,35 +27,8 @@ router.get('/:id', function(req, res) {
             res.status(200).json(data);
         })
         .catch(error => {
-            res.status(500).json({ error });
+            res.status(500).json(error.message);
         });
-});
-
-// Get user by id
-router.get('/:id', function(req, res) {
-    // check for valid input
-    try {
-        var id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
-        return;
-    }
-    // define query
-    const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country, level, high_level, verified, image.filename as img_filename from users
-		INNER JOIN image ON users.image_id = image.id
-		WHERE users.id = $(id);`;
-    // place query
-    db.one(query, {
-        "id": id
-    })
-    .then((data) => {
-        res.status(200).json({data});
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
 });
 
 // Get friends
@@ -168,6 +147,26 @@ router.delete('/block_user', function(req, res) {
             blocker_id: user_id,
             target_id: req.body.id
         })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Set location (Country, region, city) info
+router.post('/set_location', authenticate, function(req, res) {
+    const query =
+        `UPDATE users SET country_id = $(country), city = $(city), region = $(region) 
+        WHERE id = $(id)`;
+
+    db.none(query, {
+        city: req.body.city,
+        country: req.body.country,
+        id: req.user.id,
+        region: req.body.region
+    })
         .then(() => {
             res.sendStatus(200);
         })
