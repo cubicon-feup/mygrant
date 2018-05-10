@@ -16,8 +16,10 @@ router.get('/:id', function(req, res) {
         return;
     }
     const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country, level, high_level, verified, image.filename as img_filename from users
-		INNER JOIN image ON users.image_id = image.id
+	    SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
+		FROM users
+		JOIN country
+		ON users.country_id = country.id
 		WHERE users.id = $(id);`;
     db
         .one(query, { id })
@@ -25,41 +27,14 @@ router.get('/:id', function(req, res) {
             res.status(200).json(data);
         })
         .catch(error => {
-            res.status(500).json({ error });
+            res.status(500).json(error.message);
         });
-});
-
-// Get user by id
-router.get('/:id', function(req, res) {
-    // check for valid input
-    try {
-        var id = req.params.id;
-    }
-    catch(err) {
-        res.status(400).json({"error": err.toString()});
-        return;
-    }
-    // define query
-    const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country, level, high_level, verified, image.filename as img_filename from users
-		INNER JOIN image ON users.image_id = image.id
-		WHERE users.id = $(id);`;
-    // place query
-    db.one(query, {
-        "id": id
-    })
-    .then((data) => {
-        res.status(200).json({data});
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
 });
 
 // Get friends
 router.get('/:id/friends', function(req, res) {
     const query = `
-		SELECT users.id, users.full_name, image.filename AS image_path, users.verified
+		SELECT users.id, users.full_name, users.image_url, users.verified
 		FROM users
 		JOIN (
 			SELECT user1_id AS user_id
@@ -70,9 +45,7 @@ router.get('/:id/friends', function(req, res) {
 			FROM friend
 			WHERE user1_id=$(user_id)
 		) AS friends
-		ON users.id=friends.user_id
-		LEFT JOIN image
-		ON users.image_id=image.id`;
+		ON users.id=friends.user_id`;
     db
         .any(query, { user_id: req.params.id })
         .then(data => {
@@ -125,12 +98,10 @@ router.delete('/add_friend', function(req, res) {
 // Get blocked users
 router.get('/:id/blocked', function(req, res) {
     const query = `
-		SELECT users.id, users.full_name, image.filename AS image_path, users.verified
+		SELECT users.id, users.full_name, users.image_url, users.verified
 		FROM users
 		JOIN blocked
 		ON users.id=blocked.target_id
-		LEFT JOIN image
-		ON users.image_id=image.id
 		WHERE blocked.blocker_id=$(user_id)`;
     db
         .any(query, { user_id: req.params.id })
@@ -171,6 +142,127 @@ router.delete('/block_user', function(req, res) {
         .none(query, {
             blocker_id: user_id,
             target_id: req.body.id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Make loan request
+router.post('/loan_request', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		INSERT INTO loan_request(sender_id, receiver_id, amount)
+		VALUES ($(sender_id), $(receiver_id), $(amount))`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id,
+			amount: req.body.amount
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Remove loan request
+router.delete('/loan_request', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		DELETE FROM loan_request
+		WHERE sender_id = $(sender_id)
+		AND receiver_id = $(receiver_id)`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Make loan
+router.post('/loan', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		INSERT INTO loan(sender_id, receiver_id, amount, date_max_repay)
+		VALUES ($(sender_id), $(receiver_id), $(amount), $(date_max_repay))`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id,
+			amount: req.body.amount,
+			date_max_repay: req.body.date_max_repay
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Make donation request
+router.post('/donation_request', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		INSERT INTO donation_request(sender_id, receiver_id, amount)
+		VALUES ($(sender_id), $(receiver_id), $(amount))`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id,
+			amount: req.body.amount
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Delete donation request
+router.delete('/donation_request', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		DELETE FROM donation_request
+		WHERE sender_id = $(sender_id)
+		AND receiver_id = $(receiver_id)`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Make donation
+router.post('/donation', function(req, res) {
+	var sender_id = 1;
+    const query = `
+		INSERT INTO donation(sender_id, receiver_id, amount)
+		VALUES ($(sender_id), $(receiver_id), $(amount))`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.user_id,
+			amount: req.body.amount
         })
         .then(() => {
             res.sendStatus(200);
