@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+//import '../css/common.css';
+import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Table, Button, Label, Input, Loader, Modal, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Button, Label, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
+import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 
 const urlForData = id => `http://localhost:3001/api/crowdfundings/${id}`;
 const urlForRating = id => `http://localhost:3001/api/crowdfundings/${id}/rating`;
@@ -116,6 +118,7 @@ class Crowdfunding extends Component {
             })
         })
     }
+
   render() {
 
       if(this.state.requestFailed) {
@@ -139,9 +142,14 @@ class Crowdfunding extends Component {
       }
 
       return (
-        <Container className="main-container">
-          <div>
-            <Header as="h1">Crowdfunding</Header>
+        <Container className="main-container" fluid={true}>
+            <Container textAlign="center">
+              <Header as="h1" id="crowdfunding_mission">Mission</Header>
+            </Container>
+            <Container>
+                <p><strong>{this.state.crowdfunding.title}</strong> <i id="crowdfunding_dot_divider">.</i> <text>{this.state.crowdfunding.category}</text></p>
+            </Container>
+              <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
               {/*<Table selectable>
                   <Table.Header>
                     <Table.Row>
@@ -176,34 +184,140 @@ class Crowdfunding extends Component {
                       </Table.Row>
                   </Table.Body>
               </Table>*/}
-              <Grid stackable divided columns={2}>
-                  <Grid.Column>
-                      <strong>Title:</strong>
-                      <h3>{this.state.crowdfunding.title}</h3>
-                      <h4><strong>Category: </strong>{this.state.crowdfunding.category}</h4>
-                      <p><strong>Description: </strong>{this.state.crowdfunding.description}</p>
-                      <p><strong>Location: </strong>{this.state.crowdfunding.location}</p>
-                      <p>
-                          <strong>Creator:</strong>
-                          <a>{this.state.crowdfunding.creator_name}</a>
-                      </p>
-                  </Grid.Column>
-                  <Grid.Column>
-                      <h5>Rating</h5>
-                      <p>{this.state.rating.average_rating}</p>
-                      <h5>Ends In</h5>
-                      <p>{new Date(this.state.crowdfunding.date_finished).toLocaleDateString()}</p>
-                      <h5>Target</h5>
-                      <p>{this.state.crowdfunding.mygrant_target} MyGrants</p>
-                      <Form method="POST" onSubmit={this.handleSubmit}>
-                          <Form.Input labelPosition='right' type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
-                          <Form.Button content="donate"/>
-                      </Form>
+              <Container>
+                  <Grid stackable columns={2} className="crowdfunding_grid">
+                      <Grid.Column width={6} className="left_col">
+                          <Image src='/assets/images/wireframe/image.png' />
+                          <div id="crowdfunding_progress">
+                              <h5>Progress</h5>
+                              <Progress progress='percentage' value={20} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <p id="crowdfunding_earned">Earned : {20}
+                                <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
+                              </p>
+                          </div>
+                      </Grid.Column>
+                      <Grid.Column width={10} className="right_col">
+                          <h3>Description</h3>
+                          <p id="description">{this.state.crowdfunding.description}</p>
+                          <p><strong>Location: </strong>{this.state.crowdfunding.location}</p>
+                          <Grid columns={2}>
+                              <Grid.Column width={8}>
+                                  <Grid stackable columns={2} className="crowdfunding_owner">
+                                      <Grid.Column width={6}>
+                                          <p>Image</p>
+                                      </Grid.Column>
+                                      <Grid.Column width={10}>
+                                          {this.state.crowdfunding.creator_name}
+                                          <div id="rating">
+                                              <Rating disabled icon='star' defaultRating={this.state.rating.average_rating} maxRating={5} />
+                                          </div>
+                                      </Grid.Column>
+                                  </Grid>
+                              </Grid.Column>
+                              <Grid.Column width={8} align="right">
+                                  <h5>Ends In</h5>
+                                  <p>{new Date(this.state.crowdfunding.date_finished).toLocaleDateString()}</p>
+                              </Grid.Column>
+                          </Grid>
 
-                  </Grid.Column>
-              </Grid>
-          </div>
-        </Container>
+                          <Form id="crowdfunding_donate" method="POST" onSubmit={this.handleSubmit}>
+                              <Form.Group widths={16}>
+                                  <Form.Input width={14} type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
+                                  <Form.Button width={2} content="donate"/>
+                              </Form.Group>
+                          </Form>
+
+                      </Grid.Column>
+                  </Grid>
+              </Container>
+            <Responsive as={MygrantDividerRight} minWidth={768} className="intro-divider" color="green" />
+            <Container id="services_donators">
+                <Grid stackable divided columns={2}>
+                    <Grid.Column width={10}>
+                        <h4 align="center">Services</h4>
+
+                    </Grid.Column>
+                    <Grid.Column width={6}>
+                        <h4 align="center">Donators</h4>
+                    </Grid.Column>
+                </Grid>
+            </Container>
+            <Container>
+                <h3>Comments</h3>
+            </Container>
+            <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
+            <Container id="crowdfunding_comments">
+                <Comment.Group>
+                    <Comment>
+                        <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />
+                        <Comment.Content>
+                            <Comment.Author as='a'>Matt</Comment.Author>
+                            <Comment.Metadata>
+                                <div>Today at 5:42PM</div>
+                            </Comment.Metadata>
+                            <Comment.Text>How artistic!</Comment.Text>
+                            <Comment.Actions>
+                                <Comment.Action>Reply</Comment.Action>
+                            </Comment.Actions>
+                        </Comment.Content>
+                    </Comment>
+
+                    <Comment>
+                        <Comment.Avatar src='/assets/images/avatar/small/elliot.jpg' />
+                        <Comment.Content>
+                            <Comment.Author as='a'>Elliot Fu</Comment.Author>
+                            <Comment.Metadata>
+                                <div>Yesterday at 12:30AM</div>
+                            </Comment.Metadata>
+                            <Comment.Text>
+                                <p>This has been very useful for my research. Thanks as well!</p>
+                            </Comment.Text>
+                            <Comment.Actions>
+                                <Comment.Action>Reply</Comment.Action>
+                            </Comment.Actions>
+                        </Comment.Content>
+                        <Comment.Group>
+                            <Comment>
+                                <Comment.Avatar src='/assets/images/avatar/small/jenny.jpg' />
+                                <Comment.Content>
+                                    <Comment.Author as='a'>Jenny Hess</Comment.Author>
+                                    <Comment.Metadata>
+                                        <div>Just now</div>
+                                    </Comment.Metadata>
+                                    <Comment.Text>
+                                        Elliot you are always so right :)
+                                    </Comment.Text>
+                                    <Comment.Actions>
+                                        <Comment.Action>Reply</Comment.Action>
+                                    </Comment.Actions>
+                                </Comment.Content>
+                            </Comment>
+                        </Comment.Group>
+                    </Comment>
+
+                    <Comment>
+                        <Comment.Avatar src='/assets/images/avatar/small/joe.jpg' />
+                        <Comment.Content>
+                            <Comment.Author as='a'>Joe Henderson</Comment.Author>
+                            <Comment.Metadata>
+                                <div>5 days ago</div>
+                            </Comment.Metadata>
+                            <Comment.Text>
+                                Dude, this is awesome. Thanks so much
+                            </Comment.Text>
+                            <Comment.Actions>
+                                <Comment.Action>Reply</Comment.Action>
+                            </Comment.Actions>
+                        </Comment.Content>
+                    </Comment>
+
+                    <Form reply>
+                        <Form.TextArea />
+                        <Button content='Comment' labelPosition='left' icon='edit' primary />
+                    </Form>
+                </Comment.Group>
+            </Container>
+          </Container>
       );
   }
 }
