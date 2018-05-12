@@ -45,6 +45,11 @@
       padding:0;
       margin-top:60px;
     }
+
+    .ui.button{
+      background: $purple;
+      color: white;
+    }
   }
 }
 
@@ -70,6 +75,20 @@ div.mygrant-divider {
     margin-bottom: 36px;
     width: 90%;
   }
+}
+
+/*Progress Bar*/
+.ui.green.progress .bar{
+  background-color: $green;
+}
+
+.ui.progress .bar{
+  background: $grey;
+}
+
+.ui.primary.button{
+  background-color: $green;
+  
 }
 
 
