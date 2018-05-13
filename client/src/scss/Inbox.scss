@@ -1,0 +1,33 @@
+@import 'common';
+
+@media (min-width: 768px) {
+    .ui.container.main-container.inbox {
+        width: 35%;
+    }
+}
+
+div.conversation {
+    padding: 10px 10px 10px;
+
+
+    &:hover {
+        background-color: rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+
+    h4.header {
+        margin-bottom: 0px;
+        font-weight: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; 
+    }
+
+    .sub.header {
+        color: rgba(0,0,0,0.5);
+        font-size: 0.95em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; 
+    }
+}
