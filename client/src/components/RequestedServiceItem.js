@@ -4,16 +4,17 @@ import { Container} from 'semantic-ui-react';
 import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
 
-const urlGetCandidates = `http://localhost:3001/api/services/1002/offers`;
-const urlRejectCandidate = `http://localhost:3001/api/services/1002/offers/decline`;
-const urlAcceptCandidate = `http://localhost:3001/api/services/1002/offers/accept`;
-const urlGetAcceptedRequester = `http://localhost:3001/api/services/1002/instance/partner`;
+const urlGetCandidates = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers`;
+const urlRejectCandidate = serviceId => `http://localhost:3001/api/services/`+ serviceId + `/offers/decline`;
+const urlAcceptCandidate = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers/accept`;
+const urlGetAcceptedRequester = serviceId => `http://localhost:3001/api/services/` + serviceId + `/instance/partner`;
 
 class RequestedServiceItem extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            serviceId: this.props.requestedService.id,
             candidates: [],
             selectedRequester: {}
         }
@@ -24,7 +25,7 @@ class RequestedServiceItem extends Component {
     }
 
     getCandidates() {
-        fetch(urlGetCandidates, {
+        fetch(urlGetCandidates(this.state.serviceId), {
             method: 'GET'
         }).then(res => {
             if(res.status === 200) {
@@ -39,7 +40,7 @@ class RequestedServiceItem extends Component {
     }
 
     getSelectedRequester() {
-        fetch(urlGetAcceptedRequester, {
+        fetch(urlGetAcceptedRequester(this.state.serviceId), {
             method: 'GET',
         }).then(res => {
             if(res.status === 200) {
@@ -54,7 +55,7 @@ class RequestedServiceItem extends Component {
     acceptCandidate(candidate) {
         this.setState({candidates: []});
         this.setState({selectedRequester: candidate});
-        fetch(urlAcceptCandidate, {
+        fetch(urlAcceptCandidate(this.state.serviceId), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,7 +74,7 @@ class RequestedServiceItem extends Component {
         if(indexToRemove >= 0) {
             updatedCandidates.splice(indexToRemove, 1);
             this.setState({candidates: updatedCandidates});
-            fetch(urlRejectCandidate, {
+            fetch(urlRejectCandidate(this.state.serviceId), {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

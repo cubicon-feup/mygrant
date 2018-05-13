@@ -6,7 +6,7 @@ import { Container, Button, Select} from 'semantic-ui-react';
 import RequestedServiceItem from '../components/RequestedServiceItem';
 
 // const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/${crowdfundingId}}/services_requested`;
-const urlForRequestedServices = `http://localhost:3001/api/crowdfundings/1001/services_requested`;
+const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services_requested`;
 
 class CrowdfundingOffers extends Component {
 
@@ -19,7 +19,7 @@ class CrowdfundingOffers extends Component {
     }
 
     getRequestedServices() {
-        fetch(urlForRequestedServices, {
+        fetch(urlForRequestedServices(this.state.crowdfundingId), {
             // header: { 'token': 'veeebebeb' },
             method: 'GET'
         }).then(res => {
