@@ -3,9 +3,8 @@ import '../css/common.css';
 import { Link } from 'react-router-dom';
 import { Container, Button, Select} from 'semantic-ui-react';
 
-import RequestedServiceItem from '../components/RequestedServiceItem';
+import RequestedServiceItem from '../components/service_offers/RequestedServiceItem';
 
-// const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/${crowdfundingId}}/services_requested`;
 const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services_requested`;
 
 class CrowdfundingOffers extends Component {
@@ -20,7 +19,6 @@ class CrowdfundingOffers extends Component {
 
     getRequestedServices() {
         fetch(urlForRequestedServices(this.state.crowdfundingId), {
-            // header: { 'token': 'veeebebeb' },
             method: 'GET'
         }).then(res => {
             if(res.status === 200) {

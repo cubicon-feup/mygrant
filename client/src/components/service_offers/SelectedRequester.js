@@ -13,6 +13,7 @@ class SelectedRequester extends Component {
             <Container>
                 <label>Selected requester: </label>
                 <a href="#">{this.props.selectedRequester.requester_name}</a>
+                
             </Container>
         );
     }
