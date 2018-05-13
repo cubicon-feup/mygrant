@@ -976,7 +976,7 @@ throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both
 
 
 /**
- * @api {post} /services/:id/offers/decline 15 - Decline service offer
+ * @api {delete} /services/:id/offers/decline 15 - Decline service offer
  * @apiName DeclineServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
@@ -986,7 +986,6 @@ throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
- * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers/decline
@@ -1007,21 +1006,18 @@ throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.post('/:id/offers/decline', function(req, res) {
+router.delete('/:id/offers/decline', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        if (partner_id == null && crowdfunding_id == null) {
- throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
-}
-        if (partner_id != null && crowdfunding_id != null) {
- throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
-}
+        if (partner_id == null && crowdfunding_id == null)
+            throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
+        if (partner_id != null && crowdfunding_id != null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
@@ -1169,6 +1165,54 @@ router.put('/instance/:id', function(req, res) {
 
 });
 
+/**
+ * @api {get} /services/instance/:id Get the service instance requester
+ * @apiName GetServiceInstanceRequester
+ * @apiGroup Service
+ * @apiPermission service creator
+ *
+ * @apiDescription Adds rating given by participant to a service instance
+ *
+ * @apiParam (RequestParam) {Integer} id ID of the service instance to review
+ * @apiParam (RequestBody) {Integer} rating Rating to be given to the service instance
+ * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding reviewing a service (Only applicable to services provided to a crowdfunding)
+ *
+ * @apiExample Syntax
+ * POST: /api/services/instance/<ID>
+ * @apiExample Example 1
+ * [When the participant doing the rating is a user]
+ * POST: /api/services/instance/<ID>
+ * body: {
+ *      rating: 2
+ * }
+ * @apiExample Example 2
+ * [When the participant doing the rating is a crowdfunding]
+ * POST: /api/services/instance/<ID>
+ * body: {
+ *      crowdfunding_id: 10,
+ *      rating: 2
+ * }
+ *
+ * @apiSuccess (Success 200) OK
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.get('/:service_id/instance/partner', function(req, res) {
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT users.id as requester_id, users.full_name as requester_name
+        FROM users
+        INNER JOIN service_instance ON service_instance.partner_id = users.id
+        WHERE service_instance.service_id = $(service_id);`;
+
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    });
+});
 
 //
 //

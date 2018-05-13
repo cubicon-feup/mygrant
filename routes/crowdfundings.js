@@ -579,23 +579,24 @@ router.post('/:crowdfunding_id/services_requested', authenticate, policy.request
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
 // TODO: test this.
-router.get('/:crowdfunding_id/services_requested', authenticate, function(req, res) {
-    let crowdfundingCreatorId = req.user.id;
+router.get('/:crowdfunding_id/services_requested', function(req, res) {
+    //let crowdfundingCreatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
-        `SELECT title, mygrant_value, category
+        `SELECT service.id, service.title, service.mygrant_value, service.category
         FROM service
         INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
         INNER JOIN users ON users.id = crowdfunding.creator_id
-        WHERE service.crowdfunding_id = $(crowdfunding_id)
-            AND users.id = $(crowdfunding_creator_id);`;
+        WHERE service.crowdfunding_id = $(crowdfunding_id);`;
+            //AND users.id = $(crowdfunding_creator_id);`;
 
     db.manyOrNone(query, {
-        crowdfunding_id: crowdfundingId,
-        crowdfunding_creator_id: crowdfundingCreatorId
+        crowdfunding_id: crowdfundingId//,
+        //crowdfunding_creator_id: crowdfundingCreatorId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t get service requests.'});
     })
 });
@@ -633,6 +634,36 @@ router.delete('/:crowdfunding_id/services_requested', authenticate, policy.delet
         res.status(200).send({message: 'Successfully removed the service requested.'});
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t get service requests.'});
+    })
+});
+
+/**
+ * @api {post} /crowdfundings/:crowdfunding_id/:service_requested_id Assigns a candidate to a requested service.
+ * @apiName AssignServiceRequestCandidate
+ * @apiGroup Crowdfunding
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
+ * @apiParam (RequestParam) {Integer} service_requested_id Service request id.
+ * 
+ * @apiSuccess (Success 200) Created
+ * 
+ * @apiError (Error 500) InternalServerError
+ */
+router.post('/:crowdfunding_id/:service_requested_id', authenticate, function(req, res) {
+    let serviceId = req.params.service_requested_id;
+    let candidateId = req.user.id;
+    let query =
+        `INSERT INTO service_offer (service_id, candidate_id)
+        VALUES ($(service_id), $(candidate_id));`;
+
+    db.none(query, {
+        service_id: serviceId,
+        candidate_id: candidateId
+    }).then(() => {
+        res.status(201).send(201);
+    }).catch(error => {
+        res.status(500).json({error});
     })
 });
 
