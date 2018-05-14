@@ -34,7 +34,7 @@ class Inbox extends Component {
                         user={{
                             id: 69,
                             name: 'Kanye',
-                            picture: '/home/epassos/Downloads/kwest.jpg'
+                            picture: '/images/users/kwest.jpg'
                         }}
                         lastMessage={{
                             content: 'Poopity Scoop',

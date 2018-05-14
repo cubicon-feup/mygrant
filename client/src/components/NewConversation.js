@@ -9,7 +9,7 @@ class NewConversation extends Component {
 
     render() {
         return (
-            <div className="conversation new-conversation" >
+            <div className="conversation-card new-conversation" >
                 <Grid >
                     <Grid.Column width={3} className="conversation-image">
                         <Icon.Group>
