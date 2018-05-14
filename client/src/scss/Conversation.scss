@@ -8,24 +8,64 @@
 
 .ui.container.main-container.conversation {
    .message-bubble {
+       margin: 0;
        padding: 6px 13px;
        box-shadow: none;
        min-width: 40px;
+       max-width: 50%;
+       text-align: left;
+       border-radius: 30px;
 
        &.incoming {
            background-color: $lighter-grey;
            border: 1px solid $lighter-grey;
+           margin-right: 10px;
        }
 
        &.outgoing {
+           margin-left: 10px;
            background-color: $dark-green;
            color: white;
            border: 1px solid $dark-green;
        }
+
+       .content {
+       }
    } 
+
+   h5.header {
+       font-weight: normal;
+       color: $grey;
+       margin: 0;
+   }
 
    div.row {
        padding-top: 1px;
        padding-bottom: 1px;
    }
+
+   div.row.incoming + div.row.outgoing {
+       .message-bubble {
+           border-bottom-right-radius: 5px;
+       }
+   }
+
+   div.row.outgoing + div.row.outgoing {
+       .message-bubble {
+           border-top-right-radius: 5px;
+           border-bottom-right-radius: 5px;
+       }
+   }
+
+   div.row + div.row.outgoing.stop {
+       .message-bubble {
+           border-bottom-right-radius: 30px;
+       }
+   }
+
+   div.row.outgoing + div.row.incoming,
+   div.row.incoming + div.row.outgoing {
+       margin-top: 20px;
+   }
+
 }
