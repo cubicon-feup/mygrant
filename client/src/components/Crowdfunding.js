@@ -5,11 +5,15 @@ import '../css/Crowdfunding.css';
 import { Container, Header, Grid, Button, Label, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 
-const urlForData = id => `http://localhost:3001/api/crowdfundings/${id}`;
-const urlForRating = id => `http://localhost:3001/api/crowdfundings/${id}/rating`;
-const urlForDonations = id => `http://localhost:3001/api/crowdfundings/${id}/donations`;
-const urlForServices = id => `http://localhost:3001/api/crowdfundings/${id}/services`;
-const urlForDonate = id => `http://localhost:3001/api/crowdfundings/${id}/donations`;
+import CommentComp from './Comment';
+
+const apiPath = require('../config').apiPath;
+const urlForData = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId;
+const urlForRating = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/rating`;
+const urlForDonations = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId  + `/donations`;
+const urlForServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services`;
+const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/donations`;
+const urlGetComments = crowdfundingId => apiPath + `/crowdfundings/` + crowdfundingId + `/comments`;
 // TODO create,update and delete
 // TODO donate
 
@@ -17,16 +21,31 @@ class Crowdfunding extends Component {
   constructor(props) {
       super(props);
       this.state = { requestFailed: false,
-          id: this.props.match.params.id,
-          donator_id: 2
+          crowdfundingId: this.props.match.params.crowdfunding_id,
+          donator_id: 2,
+          comments: []
       };
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  getComments() {
+      fetch(urlGetComments(this.state.crowdfundingId), {
+          method: 'GET'
+      }).then(res => {
+          if(res.status === 200) {
+              res.json()
+                .then(data => {
+                    this.setState({comments: data});
+                })
+          }
+      })
+  }
+
     componentDidMount() {
+        console.log(this.props)
         //DATA REQUEST
-        fetch(urlForData(this.props.match.params.id))
+        fetch(urlForData(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -43,7 +62,7 @@ class Crowdfunding extends Component {
                 this.setState({ requestFailed: true });
             });
         //RATING REQUEST
-        fetch(urlForRating(this.props.match.params.id))
+        fetch(urlForRating(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -63,7 +82,7 @@ class Crowdfunding extends Component {
                 this.setState({ requestFailed: true });
             });
         //DONATIONS REQUEST - TODO Doesnt seem to work
-        /*fetch(urlForDonations(this.props.match.params.id))
+        /*fetch(urlForDonations(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -80,7 +99,7 @@ class Crowdfunding extends Component {
                 this.setState({ requestFailed: true });
             });*/
         //SERVICES REQUEST - TODO doesnt seem to work
-        /*fetch(urlForServices(this.props.match.params.id))
+        /*fetch(urlForServices(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -96,6 +115,7 @@ class Crowdfunding extends Component {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });*/
+        this.getComments();
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
@@ -103,11 +123,11 @@ class Crowdfunding extends Component {
     handleSubmit = (event) => {
         //this.setState({ amount: "" });
         alert(JSON.stringify({
-            id:this.state.id,
+            id:this.state.crowdfundingId,
             donator_id:this.state.donator_id,
             amount:this.state.amount
         }));
-        fetch(urlForDonate(this.state.id), {
+        fetch(urlForDonate(this.state.crowdfundingId), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,23 +142,38 @@ class Crowdfunding extends Component {
   render() {
 
       if(this.state.requestFailed) {
-          return (
-              <Container className="main-container">
-                  <div>
-                      <h1>Request Failed</h1>
-                  </div>
-              </Container>
-          );
+        return (
+            <Container className="main-container">
+                <div>
+                    <h1>Request Failed</h1>
+                </div>
+            </Container>
+        );
       }
 
       if(!this.state.crowdfunding || !this.state.rating || !this.state.rating.average_rating) {
-          return (
-              <Container className="main-container">
-              <div>
-              <Loader active inline='centered' />
-              </div>
-              </Container>
-      );
+        return (
+            <Container className="main-container">
+            <div>
+            <Loader active inline='centered' />
+            </div>
+            </Container>
+        );
+      }
+
+      // Comments.
+      let comments;
+      if(this.state.comments) {
+        comments = this.state.comments.map(comment => {
+            return (
+                <CommentComp comment={comment}/>
+            )
+        })
+      } else {
+          comments = 
+            <Container>
+                <p>No comments yet</p>
+            </Container>
       }
 
       return (
@@ -246,7 +281,8 @@ class Crowdfunding extends Component {
                 <h3>Comments</h3>
             </Container>
             <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
-            <Container id="crowdfunding_comments">
+            {comments}
+            {/*<Container id="crowdfunding_comments">
                 <Comment.Group>
                     <Comment>
                         <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />
@@ -316,7 +352,7 @@ class Crowdfunding extends Component {
                         <Button content='Comment' labelPosition='left' icon='edit' primary />
                     </Form>
                 </Comment.Group>
-            </Container>
+            </Container>*/}
           </Container>
       );
   }

@@ -5,7 +5,6 @@ import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
 
 const apiPath = require('../../config').apiPath;
-
 const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/offers`;
 const urlRejectCandidate = serviceId => apiPath + `/services/`+ serviceId + `/offers/decline`;
 const urlAcceptCandidate = serviceId => apiPath + `/services/` + serviceId + `/offers/accept`;

@@ -953,7 +953,7 @@ router.get('/filter/:from-:to/pages_number', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the comment belongs.
  * @apiParam (RequestBody) {String} message Message to serve as comment.
- * @apiParam (RequestBody) [Integer] in_reply_to Comment id that this new comment is replying to.
+ * @apiParam (RequestBody) {Integer} [in_reply_to] Comment id that this new comment is replying to.
  * 
  * @apiSuccess (Success 201) Created
  * 
