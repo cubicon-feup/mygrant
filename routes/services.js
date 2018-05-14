@@ -261,6 +261,8 @@ router.get('/:id', function(req, res) {
  * @apiParam (RequestBody) {String} description Description of the service (Optional)
  * @apiParam (RequestBody) {String} category Category of the service [BUSINESS, ARTS, ...]
  * @apiParam (RequestBody) {String} location Geographic coordinated of the service (Optional)
+ * @apiParam (RequestBody) {Double} latitude Latitude coordinates of the service (Optional)
+ * @apiParam (RequestBody) {Double} longitude Longitude- coordinates of the service (Optional)
  * @apiParam (RequestBody) {Integer} acceptable_radius Maximum distance from location where the service can be done (Optional)
  * @apiParam (RequestBody) {Integer} mygrant_value Number of hours the service will take
  * @apiParam (RequestBody) {String} service_type Type of the service [PROVIDE, REQUEST]
@@ -300,6 +302,8 @@ router.put('/', function(req, res) {
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
+        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : false;
+        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : false;
         if (creator_id == null && crowdfunding_id == null) {
             throw new Error('Missing either creator_id or crowdfunding_id');
         }
@@ -313,8 +317,8 @@ router.put('/', function(req, res) {
     }
     // define query
     const query = `
-        INSERT INTO service (title, description, category, location, acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
-        VALUES ($(title), $(description), $(category), $(location), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))`;
+        INSERT INTO service (title, description, category, location, latitude, longitude acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))`;
     // place query
     db.none(query, {
             title,
@@ -326,7 +330,9 @@ router.put('/', function(req, res) {
             service_type,
             creator_id,
             crowdfunding_id,
-            repeatable
+            repeatable,
+            latitude,
+            longitude
         })
         .then(() => {
             res.sendStatus(200);
@@ -384,6 +390,8 @@ router.put('/:id', function(req, res) {
         var mygrant_value = req.body.hasOwnProperty('mygrant_value') ? req.body.mygrant_value : null;
         var service_type = req.body.hasOwnProperty('service_type') ? req.body.service_type : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : null;
+        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : null;
+        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : null;
     } catch (err) {
         res.sendStatus(400).json({ 'error': err.toString() });
 
@@ -400,7 +408,8 @@ router.put('/:id', function(req, res) {
             acceptable_radius ? 'acceptable_radius=$(acceptable_radius)' : null,
             mygrant_value ? 'mygrant_value=$(mygrant_value)' : null,
             service_type ? 'service_type=$(service_type)' : null,
-            repeatable ? 'repeatable=$(repeatable)' : null
+            latitude ? 'latitude=$(latitude)' : null,
+            longitude ? 'longitude=$(longitude)' : null
         ].filter(Boolean).join(', ')
         } WHERE id=$(id)`;
     // place query
@@ -413,7 +422,9 @@ router.put('/:id', function(req, res) {
             acceptable_radius,
             mygrant_value,
             service_type,
-            repeatable
+            repeatable,
+            latitude,
+            longitude
         })
         .then(() => {
             res.sendStatus(200);
@@ -549,7 +560,7 @@ router.put('/:id/images', function(req, res) {
             return;
         }
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
+        res.status(400).json(err);
         return;
     }
     // define query
@@ -584,30 +595,28 @@ router.put('/:id/images', function(req, res) {
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
 router.delete('/:id/images/:image', function(req, res) {
-    // check for valid input
+    // get id
     try {
         var service_id = req.params.id;
-        var removed = image.removeImage(req, res);
+        // get filename
         var image_url = req.params.image;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
-    // define query
+    // define query //TODO must be restricted to user
     const query = `
-        DELETE FROM service_image
+        DELETE FROM service_image 
         WHERE service_id=$(service_id) AND image_url=$(image_url);`;
-    // place query
     db.none(query, {
             service_id,
             image_url
         })
-        .then(() => {
-            res.sendStatus(200);
+        .then(data => {
+            image.removeImage(req, res, 'services/'+image_url);
         })
         .catch(error => {
-            res.status(500).json(error);
+            res.status(500).send(error);
         });
 });
 

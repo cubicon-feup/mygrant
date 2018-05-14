@@ -39,8 +39,23 @@ module.exports = {
         }
     },
 
-    removeImage(req, res) {
-        fs.unlink(__dirname + '\\' + req.body.filename, (error) => {
+    removeImage(req, res, image_url) {
+        try {
+            fs.unlinkSync(__dirname + '/' + image_url);
+            res.status(200).send('Successfully removed an image.');
+        } catch (err){
+            if (err.errno == -2){
+                res.status(200).send('Image already removed.');
+            }
+            else {
+                res.status(500).send(err);
+            }
+        }
+        return;
+    }
+
+    /*,removeImage(req, res) {
+        fs.unlinkSync(__dirname + '\\' + req.body.filename, (error) => {
             if(error) {
                 //res.status(500).send('Error: failed to remove image.');
                 return false; //TODO to fix: this never runs in time
@@ -48,5 +63,5 @@ module.exports = {
         });
         res.status(200).send('Successfully removed an image.');
         return true;
-    }
+    }*/
 }
