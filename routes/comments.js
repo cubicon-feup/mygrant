@@ -9,12 +9,12 @@ const authenticate = expressJwt({ secret: appSecret });
 /**
  * @api {put} /crowdfundings/:crowdfunding_id/comments Create comment
  * @apiName CreateComment
- * @apiGroup Crowdfunding
+ * @apiGroup Comment
  * @apiPermission Comment creator
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the comment belongs.
  * @apiParam (RequestBody) {String} message Message to serve as comment.
- * @apiParam (RequestBody) {Integer} [in_reply_to] Comment id that this new comment is replying to.
+ * @apiParam (RequestBody) {Integer} in_reply_to Comment id that this new comment is replying to.
  * 
  * @apiSuccess (Success 201) Created
  * 
@@ -22,12 +22,13 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 // FIXME: not working with POST method, had to use PUT.
 // TODO: policy.
-router.put('/', authenticate, function(req, res) {
-    let senderId = req.user.id;
+router.put('/', function(req, res) {
+    console.log(req.body)
+    let senderId = 1001;// req.user.id;
     let message = req.body.message;
 
-    let crowdfundingId = req.query.hasOwnProperty('crowdfunding_id') ? req.query.crowdfunding_id : null;
-    let serviceId = req.query.hasOwnProperty('service_id') ? req.query.service_id : null;
+    let crowdfundingId = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+    let serviceId = req.body.hasOwnProperty('service_id') ? req.body.service_id : null;
     let serviceOrCrowdfundingId;
     let serviceOrCrowdfunding;
     if((crowdfundingId != null && serviceId != null) || (crowdfundingId == null && serviceId == null)) {
@@ -44,15 +45,16 @@ router.put('/', authenticate, function(req, res) {
     let inReplyTo = req.body.hasOwnProperty('in_reply_to') ? req.body.in_reply_to : null;
     let query =
         `INSERT INTO comment (sender_id, message, ${serviceOrCrowdfunding}, date_posted, in_reply_to)
-        VALUES ($(sender_id), $(message), $(service_or_crowdfunding_id), NOW(), $(in_reply_to));`;
+        VALUES ($(sender_id), $(message), $(service_or_crowdfunding_id), NOW(), $(in_reply_to))
+        RETURNING id, date_posted;`;
 
-    db.none(query, {
+    db.one(query, {
         sender_id: senderId,
         message: message,
         service_or_crowdfunding_id: serviceOrCrowdfundingId,
         in_reply_to: inReplyTo
-    }).then(() => {
-        res.sendStatus(201);
+    }).then(data => {
+        res.status(201).json(data);
     }).catch(error => {
         res.status(500).json(error);
     })
@@ -61,7 +63,7 @@ router.put('/', authenticate, function(req, res) {
 /**
  * @api {get} /crowdfundings/:crowdfunding_id/comments Get crowdfunding comments
  * @apiName GetCrowdfundingComments
- * @apiGroup Crowdfunding
+ * @apiGroup Comment
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the comments belong.
  * 
@@ -124,19 +126,19 @@ router.get('/:comment_id/nested_comments', function(req, res) {
 /**
  * @api {put} /crowdfundings/:comment_id Update comment
  * @apiName UpdateComment
- * @apiGroup Crowdfunding
+ * @apiGroup Comment
  * @apiPermission Comment creator
  *
  * @apiParam (RequestParam) {Integer} comment_id Comment id to update.
  * @apiParam (RequestBody) {String} message Updated message to serve as comment.
  * 
- * @apiSuccess (Success 204) NoContent
+ * @apiSuccess (Success 200) OK
  * 
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
-router.put('/:comment_id', authenticate, function(req, res) {
-    let senderId = req.user.id;
+router.put('/:comment_id', function(req, res) {
+    let senderId = 1001;//req.user.id;
     let commentId = req.params.comment_id;
     let message = req.body.message;
     let query =
@@ -150,7 +152,7 @@ router.put('/:comment_id', authenticate, function(req, res) {
         comment_id: commentId,
         sender_id: senderId
     }).then(() => {
-        res.sendStatus(204);
+        res.sendStatus(200);
     }).catch(error => {
         res.status(500).json({error});
     })
@@ -159,7 +161,7 @@ router.put('/:comment_id', authenticate, function(req, res) {
 /**
  * @api {put} /crowdfundings/:comment_id Delete comment
  * @apiName DeleteComment
- * @apiGroup Crowdfunding
+ * @apiGroup Comment
  * @apiPermission Comment creator
  *
  * @apiParam (RequestParam) {Integer} comment_id Comment id to update.
@@ -169,8 +171,8 @@ router.put('/:comment_id', authenticate, function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
-router.delete('/:comment_id', authenticate, function(req, res) {
-    let senderId = req.user.id;
+router.delete('/:comment_id', function(req, res) {
+    let senderId = 1001;//req.user.id;
     let commentId = req.params.comment_id;
     let query =
         `DELETE FROM comment

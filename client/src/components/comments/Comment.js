@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import { Container, Button } from 'semantic-ui-react';
 
-import Comment from './Comment';
+// import Comment from './Comment';
 
 const apiPath = require('../../config').apiPath;
-const urlGetNestedComments = commentId => apiPath + `/comments/` + commentId + `/nested_comments`; 
+const urlGetNestedComments = commentId => apiPath + `/comments/` + commentId + `/nested_comments`;
+const urlEditComment = commentId => apiPath + `/comments/` + commentId;
 
-class Comments extends Component {
+class Comment extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            nestedComments: []
+            nestedComments: [],
+            commentMessage: this.props.comment.message,
+            editComment: this.props.comment.message
         }
     }
 
@@ -32,8 +35,27 @@ class Comments extends Component {
         })
     }
 
-    onReply(repliedCommentId) {
+    handleChange(event) {
+        this.setState({editComment: event.target.value});
+    }
 
+    handleEdit() {
+        fetch(urlEditComment(this.props.comment.comment_id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: this.state.editComment
+            })
+        }).then(res => {
+            if(res.status === 200)
+                this.setState({commentMessage: this.state.editComment});
+        })
+    }
+
+    onRemove(commentId) {
+        this.props.onRemove(commentId);
     }
 
     render() {
@@ -47,12 +69,17 @@ class Comments extends Component {
         } else nestedComments = null;
         return (
             <Container>
-                {this.props.comment.message}
+                <a href="#">{this.props.comment.user_name}</a>
+                {this.state.commentMessage}
+                {this.props.comment.date_posted}
+                <textarea value={this.state.editComment} onChange={this.handleChange.bind(this)} />
                 <Button>Reply</Button>
+                <Button onClick={this.handleEdit.bind(this)}>Edit</Button>
+                <Button onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Button>
                 {nestedComments}
             </Container>
         )
     }
 }
 
-export default Comments;
+export default Comment;
