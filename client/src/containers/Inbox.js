@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Container } from 'semantic-ui-react';
 import Conversation from '../components/Conversation';
+import NewConversation from '../components/NewConversation';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
@@ -29,6 +30,7 @@ class Inbox extends Component {
         return (
             <div>
                 <Container className="main-container inbox">
+                    <NewConversation />
                     <Conversation
                         user={{
                             name: 'Kanye',

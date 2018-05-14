@@ -14,7 +14,7 @@ class Conversation extends Component {
         return (
             <div className="conversation" >
                 <Grid >
-                    <Grid.Column width={3}>
+                    <Grid.Column width={3} className="conversation-image">
                         <Image avatar src={this.props.user.picture} />
                     </Grid.Column>
                     <Grid.Column width={11}>
