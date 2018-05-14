@@ -970,6 +970,7 @@ throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both
             res.sendStatus(200);
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -1170,33 +1171,9 @@ router.put('/instance/:id', function(req, res) {
  * @apiName GetServiceInstanceRequester
  * @apiGroup Service
  * @apiPermission service creator
- *
- * @apiDescription Adds rating given by participant to a service instance
- *
- * @apiParam (RequestParam) {Integer} id ID of the service instance to review
- * @apiParam (RequestBody) {Integer} rating Rating to be given to the service instance
- * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding reviewing a service (Only applicable to services provided to a crowdfunding)
- *
- * @apiExample Syntax
- * POST: /api/services/instance/<ID>
- * @apiExample Example 1
- * [When the participant doing the rating is a user]
- * POST: /api/services/instance/<ID>
- * body: {
- *      rating: 2
- * }
- * @apiExample Example 2
- * [When the participant doing the rating is a crowdfunding]
- * POST: /api/services/instance/<ID>
- * body: {
- *      crowdfunding_id: 10,
- *      rating: 2
- * }
- *
- * @apiSuccess (Success 200) OK
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
+ * */
+// TODO: finish api doc.
+// FIXME: not being used.
 router.get('/:service_id/instance/partner', function(req, res) {
     let serviceId = req.params.service_id;
     let query =
@@ -1213,6 +1190,24 @@ router.get('/:service_id/instance/partner', function(req, res) {
         res.status(500).json({error});
     });
 });
+
+// TODO: finish api doc.
+router.get('/:service_id/instance', function(req, res) {
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT partner_id as requester_id, users.full_name as requester_name, date_scheduled, creator_rating, partner_rating as requester_rating
+        FROM service_instance
+        INNER JOIN users ON users.id = partner_id
+        WHERE service_instance.service_id = $(service_id);`;
+
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+})
 
 //
 //

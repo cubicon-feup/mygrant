@@ -7,7 +7,7 @@ import SelectedRequester from './SelectedRequester';
 const urlGetCandidates = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers`;
 const urlRejectCandidate = serviceId => `http://localhost:3001/api/services/`+ serviceId + `/offers/decline`;
 const urlAcceptCandidate = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers/accept`;
-const urlGetAcceptedRequester = serviceId => `http://localhost:3001/api/services/` + serviceId + `/instance/partner`;
+const urlGetServiceInstanceInfo = serviceId => 'http://localhost:3001/api/services/' + serviceId + `/instance`;
 
 class RequestedServiceItem extends Component {
 
@@ -16,7 +16,7 @@ class RequestedServiceItem extends Component {
         this.state = {
             serviceId: this.props.requestedService.id,
             candidates: [],
-            selectedRequester: {}
+            serviceInstanceInfo: {}
         }
     }
 
@@ -33,20 +33,20 @@ class RequestedServiceItem extends Component {
                     .then(data => {
                         this.setState({candidates: data});
                         if(this.state.candidates.length <= 0)
-                        this.getSelectedRequester();
+                            this.getServiceInstanceInfo();
                     })
             }
         })
     }
 
-    getSelectedRequester() {
-        fetch(urlGetAcceptedRequester(this.state.serviceId), {
+    getServiceInstanceInfo() {
+        fetch(urlGetServiceInstanceInfo(this.state.serviceId), {
             method: 'GET',
         }).then(res => {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
-                        this.setState({selectedRequester: data});
+                        this.setState({serviceInstanceInfo: data});
                     })
             }
         })
@@ -54,16 +54,27 @@ class RequestedServiceItem extends Component {
 
     acceptCandidate(candidate) {
         this.setState({candidates: []});
-        this.setState({selectedRequester: candidate});
+
+        // TODO: test if state applies.
+        let serviceInstanceInfo = {
+            date_scheduled: new Date('2018-05-15 20:00:00'),
+            // TODO: find a calendar framework;
+            // TODO: can only schedule after today.
+            requester_id: candidate.requester_id,
+            requester_name: candidate.requester_name,
+            creator_rating: null,
+            requester_rating: null
+        }
+        this.setState({serviceInstanceInfo: serviceInstanceInfo});
+
         fetch(urlAcceptCandidate(this.state.serviceId), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                partner_id: candidate.requester_id,
-                date_scheduled: new Date('2018-05-13 20:00:00')
-                // TODO: find a calendar framework;
+                partner_id: serviceInstanceInfo.requester_id,
+                date_scheduled: serviceInstanceInfo.date_scheduled
             })
         })
     }
@@ -94,8 +105,8 @@ class RequestedServiceItem extends Component {
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
                 )
             });
-        } else if(this.state.selectedRequester)
-            candidates = <SelectedRequester selectedRequester={this.state.selectedRequester} />
+        } else if(this.state.serviceInstanceInfo)
+            candidates = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} />
         return (
             <Container>
                 <p>
