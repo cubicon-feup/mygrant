@@ -12,7 +12,7 @@ var image = require('../images/Image');
 
 
 /**
- * @api {get} /services/search 02 - Get services list
+ * @api {get} /services 02 - Get service's list
  * @apiName SearchService
  * @apiGroup Service
  * @apiPermission visitor
@@ -63,7 +63,7 @@ var image = require('../images/Image');
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/search', function(req, res) { // check for valid input
+router.get('/', function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
