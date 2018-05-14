@@ -15,7 +15,6 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiGroup Messages
  * @apiPermission authenticated user
  *
- * @apiParam (RequestBody) {Integer} sender_id Sender's unique id.
  * @apiParam (RequestBody) {Integer} receiver_id Receiver's unique id.
  * @apiParam (RequestBody) {String} content Message to send.
  *
@@ -24,13 +23,13 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 500) InternalServerError Couldn't send the message.
  */
 router.post('/', authenticate, function(req, res) {
-    const senderId = req.body.sender_id;
+    const senderId = req.user.id;
     const receiverId = req.body.receiver_id;
     const { content } = req.body;
 
     let query =
-        `INSERT INTO message (sender_id, receiver_id, date_sent, content)
-        VALUES ($(senderId), $(receiverId), now(), $(content));`;
+        `INSERT INTO message (sender_id, receiver_id, content)
+        VALUES ($(senderId), $(receiverId), $(content));`;
 
     db.none(query, {
         content,

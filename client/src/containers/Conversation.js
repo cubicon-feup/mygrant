@@ -41,8 +41,50 @@ class Conversation extends Component {
                     // Get the messages sent between this user and the other one
                     fetch(`/api/messages/${this.otherUser.user_id}`, { headers })
                         .then(msgRes => msgRes.json()
-                            .then(messages => {
-                                this.setState({ messageList: messages });
+                            .then(fetchedMessages => {
+                                console.log(fetchedMessages);
+                                const messageList = [];
+
+                                // Insert the messages
+                                for (let index = 0; index < fetchedMessages.length; index += 1) {
+                                    const msg = fetchedMessages[index];
+                                    const msgIsFirst =
+                                        index === 0 ||
+                                            (msg.sender_id !== this.otherUser.user_id && fetchedMessages[index - 1].sender_id === this.otherUser.user_id) ||
+                                            (msg.sender_id === this.otherUser.user_id && fetchedMessages[index - 1].sender_id !== this.otherUser.user_id);
+
+                                    const msgIsLast =
+                                        index === fetchedMessages.length - 1 ||
+                                            (msg.sender_id !== this.otherUser.user_id && fetchedMessages[index + 1].sender_id === this.otherUser.user_id) ||
+                                            (msg.sender_id === this.otherUser.user_id && fetchedMessages[index + 1].sender_id !== this.otherUser.user_id);
+
+                                    messageList.push(
+                                        <Grid.Row streched
+                                            className={
+                                                `${msg.sender_id === this.otherUser.id ? 'incoming' : 'outgoing'}
+                                                 ${msgIsLast ? 'stop' : ''}
+                                                 ${msgIsFirst ? 'start' : ''}
+                                                 ${!msgIsLast && !msgIsFirst ? 'middle' : ''}
+                                                `
+                                            }
+                                        >
+                                            <Grid.Column streched >
+                                                <MessageBubble
+                                                    incoming={msg.sender_id === this.otherUser.user_id}
+                                                    message={{
+                                                        content: msg.content,
+                                                        date: msg.date_sent,
+                                                        user: {
+                                                            name: 'Kanye West',
+                                                            picture: null
+                                                        }
+                                                    }}
+                                                />
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                    );
+                                }
+                                this.setState({ messageList });
                             })
                         );
                 })
@@ -67,12 +109,17 @@ class Conversation extends Component {
 
         const data = {
             content: this.state.message,
-            'receiver_id': this.otherUser,
-            'sender_id': cookies.get('id_token')
+            'receiver_id': this.otherUser.user_id
         }
 
         // Send message
-        console.log(this.state);
+        fetch(
+            '/api/messages/', {
+                body: JSON.stringify(data),
+                headers,
+                method: 'POST'
+            })
+            .then(res => console.log(res));
     }
 
     render() {
@@ -80,76 +127,7 @@ class Conversation extends Component {
             <div>
                 <Container className="main-container conversation" >
                     <Grid >
-                        <Grid.Row streched className="incoming" >
-                            <Grid.Column streched >
-                                <MessageBubble incoming
-                                    message={{
-                                        content: 'Hi',
-                                        date: '15:00',
-                                        user: {
-                                            name: 'Kanye West',
-                                            picture: null
-                                        }
-                                    }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row className="outgoing" >
-                            <Grid.Column streched >
-                                <MessageBubble outgoing
-                                    message={{
-                                        content: 'Hi',
-                                        date: '15:10',
-                                        user: {
-                                            name: 'Edgar Passos',
-                                            picture: null
-                                        }
-                                    }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row className="outgoing stop" >
-                            <Grid.Column streched >
-                                <MessageBubble outgoing
-                                    message={{
-                                        content: 'Sup',
-                                        date: '15:10',
-                                        user: {
-                                            name: 'Edgar Passos',
-                                            picture: null
-                                        }
-                                    }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row className="incoming" >
-                            <Grid.Column streched >
-                                <MessageBubble incoming
-                                    message={{
-                                        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                                        date: '15:10',
-                                        user: {
-                                            name: 'Edgar Passos',
-                                            picture: null
-                                        }
-                                    }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row className="outgoing stop" >
-                            <Grid.Column streched >
-                                <MessageBubble outgoing
-                                    message={{
-                                        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                                        date: '15:10',
-                                        user: {
-                                            name: 'Edgar Passos',
-                                            picture: null
-                                        }
-                                    }}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
+                        {this.state.messageList}
                     </Grid>
                     <Form onSubmit={this.sendMessage.bind(this)} >
                         <label>{'send a new message'.toUpperCase()}</label>

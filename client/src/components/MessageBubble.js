@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { instanceOf } from 'prop-types';
+import { instanceOf, PropTypes } from 'prop-types';
 import { Header, Segment } from 'semantic-ui-react';
-
-//import '../css/messages.css';
 
 class MessageBubble extends Component {
     static propTypes = {
-        incoming: instanceOf(Boolean),
+        incoming: PropTypes.boolean,
         message: instanceOf(Object).isRequired
     };
 

@@ -45,22 +45,47 @@
        padding-bottom: 1px;
    }
 
-   div.row.incoming + div.row.outgoing {
-       .message-bubble {
-           border-bottom-right-radius: 5px;
-       }
-   }
-
-   div.row.outgoing + div.row.outgoing {
+   div.row.outgoing.middle {
        .message-bubble {
            border-top-right-radius: 5px;
            border-bottom-right-radius: 5px;
        }
    }
 
-   div.row + div.row.outgoing.stop {
+   div.row.incoming.middle {
        .message-bubble {
-           border-bottom-right-radius: 30px;
+           border-top-left-radius: 5px;
+           border-bottom-left-radius: 5px;
+       }
+   }
+
+   div.row.incoming.start {
+       .message-bubble {
+           border-bottom-left-radius: 5px;
+       }
+   }
+
+   div.row.outgoing.start {
+       .message-bubble {
+           border-bottom-right-radius: 5px;
+       }
+   }
+
+   div.row.incoming.stop {
+       .message-bubble {
+           border-top-right-radius: 5px;
+       }
+   }
+
+   div.row.outgoing.stop {
+       .message-bubble {
+           border-top-right-radius: 5px;
+       }
+   }
+
+   div.row.start.stop {
+       .message-bubble {
+           border-radius: 30px;
        }
    }
 
