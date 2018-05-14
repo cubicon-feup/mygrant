@@ -1,12 +1,24 @@
 import React, { Component } from 'react';
 import { instanceOf, PropTypes } from 'prop-types';
 import { Header, Segment } from 'semantic-ui-react';
+import moment from 'moment';
 
 class MessageBubble extends Component {
     static propTypes = {
-        incoming: PropTypes.boolean,
+        incoming: PropTypes.bool,
         message: instanceOf(Object).isRequired
     };
+
+    constructor(props) {
+        super(props);
+
+        this.messageDate = this.props.message.date;
+        if (moment(this.messageDate).isBefore(moment().subtract(1, 'days'))) {
+            this.messageDate = moment(this.messageDate).format('ddd, hh:mm');
+        } else {
+            this.messageDate = moment(this.messageDate).fromNow();
+        }
+    }
 
     render() {
         return (
@@ -20,7 +32,7 @@ class MessageBubble extends Component {
                         {this.props.message.content}
                     </p>
                 </Segment>
-                <Header as={'h5'} textAlign={this.props.incoming ? 'left' : 'right'} >{this.props.message.date}</Header>
+                <Header as={'h5'} textAlign={this.props.incoming ? 'left' : 'right'} >{this.messageDate}</Header>
             </div>
         );
     }

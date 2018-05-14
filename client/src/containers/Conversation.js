@@ -42,7 +42,6 @@ class Conversation extends Component {
                     fetch(`/api/messages/${this.otherUser.user_id}`, { headers })
                         .then(msgRes => msgRes.json()
                             .then(fetchedMessages => {
-                                console.log(fetchedMessages);
                                 const messageList = [];
 
                                 // Insert the messages
@@ -59,7 +58,8 @@ class Conversation extends Component {
                                             (msg.sender_id === this.otherUser.user_id && fetchedMessages[index + 1].sender_id !== this.otherUser.user_id);
 
                                     messageList.push(
-                                        <Grid.Row streched
+                                        <Grid.Row 
+                                            streched
                                             className={
                                                 `${msg.sender_id === this.otherUser.id ? 'incoming' : 'outgoing'}
                                                  ${msgIsLast ? 'stop' : ''}
@@ -68,7 +68,7 @@ class Conversation extends Component {
                                                 `
                                             }
                                         >
-                                            <Grid.Column streched >
+                                            <Grid.Column>
                                                 <MessageBubble
                                                     incoming={msg.sender_id === this.otherUser.user_id}
                                                     message={{
