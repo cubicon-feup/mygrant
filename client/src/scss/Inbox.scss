@@ -6,12 +6,12 @@
     }
 }
 
-div.conversation {
+div.conversation-card {
     padding: 10px 10px 10px;
 
 
     &:hover {
-        background-color: rgba(0,0,0,0.05);
+        background-color: $lighter-grey;
         cursor: pointer;
     }
 

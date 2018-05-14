@@ -16,6 +16,7 @@ import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
 import Inbox from './containers/Inbox';
+import Conversation from './containers/Conversation';
 import { Responsive } from 'semantic-ui-react';
 import { MygrantFooter, MygrantHeader, MygrantNav } from './components/Common';
 
@@ -32,6 +33,7 @@ ReactDom.render(
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/service/:id" component={Service} />
                 <Route exact path="/inbox/" component={Inbox} />
+                <Route exact path="/conversation/:id" component={Conversation} />
                 <Route exact path="/tableservices" component={TableServices} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <Responsive as={MygrantNav} maxWidth={768} />

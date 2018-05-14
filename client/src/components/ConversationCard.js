@@ -3,7 +3,7 @@ import { Grid, Header, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { instanceOf } from 'prop-types';
 
-class Conversation extends Component {
+class ConversationCard extends Component {
     static propTypes = {
         lastMessage: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
@@ -11,7 +11,7 @@ class Conversation extends Component {
 
     render() {
         return (
-            <div className="conversation" >
+            <div className="conversation-card" >
                 <Link to={`/conversation/${this.props.user.id}`} >
                     <Grid >
                         <Grid.Column width={3} className="conversation-image">
@@ -31,4 +31,4 @@ class Conversation extends Component {
     }
 }
 
-export default Conversation;
+export default ConversationCard;

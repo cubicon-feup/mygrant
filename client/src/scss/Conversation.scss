@@ -1,0 +1,31 @@
+@import 'common';
+
+@media (min-width: 768px) {
+    .ui.container.main-container.conversation {
+        width: 50%;
+    }
+}
+
+.ui.container.main-container.conversation {
+   .message-bubble {
+       padding: 6px 13px;
+       box-shadow: none;
+       min-width: 40px;
+
+       &.incoming {
+           background-color: $lighter-grey;
+           border: 1px solid $lighter-grey;
+       }
+
+       &.outgoing {
+           background-color: $dark-green;
+           color: white;
+           border: 1px solid $dark-green;
+       }
+   } 
+
+   div.row {
+       padding-top: 1px;
+       padding-bottom: 1px;
+   }
+}
