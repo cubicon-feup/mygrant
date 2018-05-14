@@ -20,6 +20,7 @@ const usersRouter = require('./routes/users');
 const crowdfundingsRouter = require('./routes/crowdfundings');
 const messagesRouter = require('./routes/messages');
 const categoriesRouter = require('./routes/categories');
+const commentsRouter = require('./routes/comments');
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/crowdfundings', crowdfundingsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/service_categories', categoriesRouter);
+app.use('/api/comments', commentsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

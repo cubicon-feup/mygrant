@@ -4,13 +4,13 @@ import { Container, Button, Form } from 'semantic-ui-react';
 import Comment from './Comment';
 
 const apiPath = require('../../config').apiPath;
-const urlGetTopComments = (id, subUrl) => apiPath + `/` + subUrl + `/` + id + `/top_comments`;
-const urlCreateComment = id => apiPath + `/` + id + `/comments`;
+const urlGetTopComments = (originField, originId) => apiPath + `/comments/top_comments?` + originField + `=` + originId;
+const urlCreateComment = id => apiPath + `/comments`;
 
 class Comments extends Component {
 
-    // subURL: crowdfundings or services.
-    // id: crowdfunding or service ID.
+    // originField: crowdfundings or services.
+    // originId: crowdfunding or service ID.
 
     constructor(props) {
         super(props);
@@ -24,7 +24,7 @@ class Comments extends Component {
     }
 
     getComments() {
-        fetch(urlGetTopComments(this.props.id, this.props.subUrl), {
+        fetch(urlGetTopComments(this.props.originField, this.props.originId), {
             method: 'GET'
         }).then(res => {
             if(res.status === 200) {

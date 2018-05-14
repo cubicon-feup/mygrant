@@ -296,7 +296,7 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                 </Grid>
             </Container>
-            <Comments subUrl={'crowdfundings'} id={this.state.crowdfundingId} />
+            <Comments originField={'crowdfunding_id'} originId={this.state.crowdfundingId} />
             {/*<Container>
                 <h3>Comments</h3>
             </Container>

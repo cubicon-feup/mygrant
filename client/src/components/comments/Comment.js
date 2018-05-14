@@ -4,7 +4,7 @@ import { Container, Button } from 'semantic-ui-react';
 import Comment from './Comment';
 
 const apiPath = require('../../config').apiPath;
-const urlGetNestedComments = commentId => apiPath + `/crowdfundings/comments/` + commentId + `/nested_comments`; 
+const urlGetNestedComments = commentId => apiPath + `/comments/` + commentId + `/nested_comments`; 
 
 class Comments extends Component {
 
@@ -13,7 +13,6 @@ class Comments extends Component {
         this.state = {
             nestedComments: []
         }
-        console.log(this.props);
     }
 
     componentDidMount() {
