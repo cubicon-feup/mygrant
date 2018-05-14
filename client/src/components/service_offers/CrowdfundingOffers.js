@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+// import '../css/common.css';
 import { Link } from 'react-router-dom';
 import { Container, Button, Select} from 'semantic-ui-react';
 
-import RequestedServiceItem from '../components/service_offers/RequestedServiceItem';
+import RequestedServiceItem from './RequestedServiceItem';
 
 const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services_requested`;
 
@@ -12,13 +12,12 @@ class CrowdfundingOffers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            crowdfundingId: this.props.match.params.crowdfunding_id,
             requestedServices: []
         }
     }
 
     getRequestedServices() {
-        fetch(urlForRequestedServices(this.state.crowdfundingId), {
+        fetch(urlForRequestedServices(this.props.crowdfundingId), {
             method: 'GET'
         }).then(res => {
             if(res.status === 200) {
@@ -45,7 +44,7 @@ class CrowdfundingOffers extends Component {
         }
         return (
             <Container>
-                <h3>Requested Services</h3>
+                <h4 align="center">Services</h4>
                 {requestedServices}
             </Container>
         );

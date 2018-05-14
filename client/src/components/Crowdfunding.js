@@ -5,6 +5,7 @@ import '../css/Crowdfunding.css';
 import { Container, Header, Grid, Button, Label, Icon, Item, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 
+import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
 import Comments from './comments/Comments';
 
 const apiPath = require('../config').apiPath;
@@ -199,7 +200,8 @@ class Crowdfunding extends Component {
             <Container id="services_donators">
                 <Grid stackable columns={3}>
                     <Grid.Column width={9}>
-                        <h4 align="center">Services</h4>
+                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} />
+                        {/*<h4 align="center">Services</h4>
                         <Item.Group divided>
                             <Item>
                                 <Item.Image size='small' src='/assets/images/wireframe/image.png' />
@@ -249,7 +251,7 @@ class Crowdfunding extends Component {
                                     </Item.Extra>
                                 </Item.Content>
                             </Item>
-                        </Item.Group>
+                        </Item.Group>*/}
                     </Grid.Column>
                     <Grid.Column width={1}>
                     </Grid.Column>

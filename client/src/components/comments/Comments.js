@@ -89,6 +89,7 @@ class Comments extends Component {
                             updatedComments.push(newComment);
                             this.setState({comments: updatedComments});
                             this.setState(this.setState({postingComment: ''}));
+                            this.forceUpdate();
                         })
                 }
             })
@@ -113,6 +114,7 @@ class Comments extends Component {
                             updatedComments.push(newComment);
                             this.setState({comments: updatedComments});
                             this.setState(this.setState({postingComment: ''}));
+                            this.forceUpdate();
                         })
                 }
             })

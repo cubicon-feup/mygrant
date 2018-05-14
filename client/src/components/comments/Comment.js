@@ -81,9 +81,9 @@ class Comment extends Component {
                 <a href="#">{this.props.comment.user_name}</a>
                 {this.state.commentMessage}
                 {this.props.comment.date_posted}
-                <textarea value={this.state.replyMessage} onChange={this.handleReplyChange.bind(this)} />
+                <textarea value={this.state.replyMessage} onChange={this.handleReplyChange.bind(this)} /> {/* Should be hidden, only when the user presses the reply button this shows.*/}
                 <Button onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Button>
-                <textarea value={this.state.editMessage} onChange={this.handleEditChange.bind(this)} />
+                <textarea value={this.state.editMessage} onChange={this.handleEditChange.bind(this)} /> {/* Should be hidden, only when the user presses the edit button this shows.*/}
                 <Button onClick={this.handleEdit.bind(this)}>Edit</Button>
                 <Button onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Button>
                 {nestedComments}
