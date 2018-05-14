@@ -56,7 +56,7 @@ router.get('/', function(req, res) {
         const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
         // order by:
-        var order = req.query.hasOwnProperty('order') ? req.query.order : 'title';
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : 'id';
         // ascending / descending
         var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
     } catch (err) {
@@ -71,7 +71,7 @@ router.get('/', function(req, res) {
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.deleted = false
-        ORDER BY $(order) ${asc ? 'ASC' : 'DESC'}
+        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
         LIMIT $(itemsPerPage) OFFSET $(offset)`;
     // place query
     db.any(query, {
@@ -141,7 +141,7 @@ router.get('/num-pages', function(req, res) {
  *
  * @apiDescription Search among active services' titles and descriptions using the given query text
  *
- * @apiParam (RequestQueryParams) {String} q Search query (Required)
+ * @apiParam (RequestQueryParams) {String} q Search query (Optional)
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
@@ -165,6 +165,8 @@ router.get('/num-pages', function(req, res) {
  * GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
  * @apiExample Example 4
  * GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
+ * @apiExample Example 5
+ * GET: /api/services/search?q=service&order=distance&asc=false
  *
  * @apiSuccess (Success 200) {Integer} service_id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -183,15 +185,15 @@ router.get('/num-pages', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get(['/search'], function(req, res) { // check for valid input
+router.get('/search', function(req, res) { // check for valid input
     try {
-        var q = req.query.q.split(' ').join(' | ');
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
         var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
         const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
         // order by:
-        var order = req.query.hasOwnProperty('order') ? req.query.order : 'search_score';
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
         // ascending / descending
         var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
         // filters:
@@ -205,9 +207,10 @@ router.get(['/search'], function(req, res) { // check for valid input
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var latitude_ref = 0; // TODO get from current user
+        var longitude_ref = 0; // TODO get from current user
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
@@ -215,12 +218,12 @@ router.get(['/search'], function(req, res) { // check for valid input
         SELECT *
         FROM (
         SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
-        to_tsquery($(lang), $(q))) AS search_score
+        2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
-        WHERE service.creator_id, users.full_name AS provider_name, service.crowdfunding_id,
         WHERE service.deleted = false
         ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
         ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
@@ -230,10 +233,12 @@ router.get(['/search'], function(req, res) { // check for valid input
         ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
         ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
         ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-        ) s
-        WHERE search_score > 0
-        ORDER BY $(order) ${asc ? 'ASC' : 'DESC'}
+        ) s 
+        ${q ? 'WHERE search_score > 0' : ''}
+        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
         LIMIT $(itemsPerPage) OFFSET $(offset);`;
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
 
     // place query
     db.any(query, {
@@ -247,7 +252,9 @@ router.get(['/search'], function(req, res) { // check for valid input
             mygmin,
             datemax,
             datemin,
-            order
+            order,
+            latitude_ref,
+            longitude_ref
         })
         .then(data => {
             res.status(200).json(data);
@@ -855,14 +862,13 @@ router.post('/:id/offers', function(req, res) {
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO SESSION ID
         if (partner_id == null && crowdfunding_id == null) {
- throw new Error('Missing either partner_id or crowdfunding_id');
-}
+            throw new Error('Missing either partner_id or crowdfunding_id');
+        }
         if (partner_id != null && crowdfunding_id != null) {
-throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
-}
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+        }
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
 
@@ -941,14 +947,13 @@ router.post('/:id/offers/accept', function(req, res) {
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var date_scheduled = req.body.date_scheduled;
         if (partner_id == null && crowdfunding_id == null) {
- throw new Error('Missing either partner_id or crowdfunding_id');
-}
+            throw new Error('Missing either partner_id or crowdfunding_id');
+        }
         if (partner_id != null && crowdfunding_id != null) {
-throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
-}
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
+        }
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
