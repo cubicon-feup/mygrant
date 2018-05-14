@@ -15,7 +15,7 @@ class ConversationCard extends Component {
                 <Link to={`/conversation/${this.props.user.id}`} >
                     <Grid >
                         <Grid.Column width={3} className="conversation-image">
-                            <Image avatar src={this.props.user.picture} />
+                            <Image circular size={'mini'} spaced src={this.props.user.picture} />
                         </Grid.Column>
                         <Grid.Column width={11}>
                             <Header as={'h4'} >{this.props.user.name}</Header>

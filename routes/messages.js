@@ -47,9 +47,9 @@ router.post('/', authenticate, function(req, res) {
             receiverId,
             senderId
         }).then(data => {
-            let receiverName = data.receiver_name;  // FIXME: Not being used right now.
-            let receiverEmail = data.email;
-            let senderName = data.sender_name;
+            const receiverName = data.receiver_name;
+            const receiverEmail = data.email;
+            const senderName = data.sender_name;
 
             const html =
                 `<!DOCTYPE html>
@@ -77,6 +77,7 @@ router.post('/', authenticate, function(req, res) {
                                     New Message Notification
                                 </h2>
                                 <p>
+                                    Hi, ${receiverName}!
                                     You have a new message from <a href="#"><bold>${senderName}</bold></a>.
                                 </p>
                                 <a href="www.google.com"><button class="btn">Check message</button></a>
@@ -109,38 +110,41 @@ router.post('/', authenticate, function(req, res) {
  * @apiName GetMessages
  * @apiGroup Messages
  * @apiPermission authenticated user
- * 
+ *
  * @apiParam (RequestParams) {Integer} other_user Other user unique id.
- * 
+ *
  * @apiSuccess (Success 200) sender_id User that sent a message.
  * @apiSuccess (Success 200) content Message content.
  * @apiSuccess (Success 200) date_sent Date the message was sent.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get the messages.
  */
-router.get('/:other_user', function(req, res) {
-    let loggedUser = 1; //TODO: Use the session cookie id.
-    let otherUser = req.params.other_user;
-    let query =
+router.get('/:other_user', authenticate, function(req, res) {
+    const loggedUser = req.user.id;
+    const otherUser = req.params.other_user;
+
+    const query =
         `SELECT message.sender_id, message.content, message.date_sent
         FROM message
         WHERE (
-            sender_id = $(logged_user) AND
-            receiver_id = $(other_user)
+            sender_id = $(loggedUser) AND
+            receiver_id = $(otherUser)
         ) OR (
-            sender_id = $(other_user) AND
-            receiver_id = $(logged_user)
+            sender_id = $(otherUser) AND
+            receiver_id = $(loggedUser)
         )
         ORDER BY date_sent`;
 
-    db.many(query, {
-        logged_user: loggedUser,
-        other_user: otherUser
-    }).then(data => {
-        res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get the messages.'});
-    });
+    db.manyOrNone(query, {
+        loggedUser,
+        otherUser
+    })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(() => {
+            res.status(500).json({ error: 'Couldn\'t get the messages.' });
+        });
 });
 
 /**
