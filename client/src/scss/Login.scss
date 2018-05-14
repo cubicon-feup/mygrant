@@ -36,27 +36,29 @@
     }
 }
 
-form.ui.form {
-    font-family: Helvetica, sans-serif !important;
+.ui.container.login {
+    form.ui.form {
+        font-family: Helvetica, sans-serif !important;
 
-    div.field {
-        div.input.error {
-            input{
-                color: #9f3a38;
+        div.field {
+            div.input.error {
+                input{
+                    color: #9f3a38;
+                }
             }
-        }
-        label {
-            padding-left: 10px;
-            color: $grey;
-            font-weight: lighter;
-        }
-        input, input:focus {
-            color: $text-green;
-            font-size: 1.2em;
-            font-weight: normal;
-            border: none;
-            border-radius: 0;
-            border-bottom: 1px solid $light-grey;
+            label {
+                padding-left: 10px;
+                color: $grey;
+                font-weight: lighter;
+            }
+            input, input:focus {
+                color: $text-green;
+                font-size: 1.2em;
+                font-weight: normal;
+                border: none;
+                border-radius: 0;
+                border-bottom: 1px solid $light-grey;
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import MessageBubble from '../components/MessageBubble';
-import { Container, Grid } from 'semantic-ui-react';
+import { Button, Container, Form, Grid, Input } from 'semantic-ui-react';
 
 import '../css/Conversation.css';
 
@@ -89,6 +89,17 @@ class Conversation extends Component {
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
+                    <Form>
+                        <Form.Field>
+                            <label>{'send a new message'.toUpperCase()}</label>
+                            <Input
+                                className={'messageInput'}
+                                name="new-message"
+                                type="text"
+                            />
+                        <Button circular size={'small'} content={'send'.toUpperCase()}></Button>
+                        </Form.Field>
+                    </Form>
                 </Container>
             </div>
         )
