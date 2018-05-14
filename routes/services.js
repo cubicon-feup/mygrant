@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+var image = require('../images/Image');
 
 
 //
@@ -11,137 +12,14 @@ var db = require('../config/database');
 
 
 /**
- * @api {get} /services/ 01 - Get service list
- * @apiName GetServices
- * @apiGroup Service
- * @apiPermission visitor
- *
- * @apiDescription Get a list of active services, by page, containing up to N items. The maximum of items/page is 50.
- *
- * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
- * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
- * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to title) (Optional)
- * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
- *
- * @apiExample Syntax
- * GET: /api/services?page=<PAGE>&items=<ITEMS>
- * @apiExample Example 1
- * GET: /api/services?page=3
- * @apiExample Example 2
- * GET: /api/services?page=1&items=25
- * @apiExample Example 3
- * GET: /api/services?page=1&items=25&order=description&asc=false
- *
- * @apiSuccess (Success 200) {Integer} id ID of the service
- * @apiSuccess (Success 200) {String} title Title of the service
- * @apiSuccess (Success 200) {String} description Description of the service
- * @apiSuccess (Success 200) {String} category Category of the service [BUSINESS, ARTS, ...]
- * @apiSuccess (Success 200) {String} location Geographic coordinated of the service
- * @apiSuccess (Success 200) {Integer} acceptable_radius Maximum distance from location where the service can be done
- * @apiSuccess (Success 200) {Integer} mygrant_value Number of hours the service will take
- * @apiSuccess (Success 200) {Date} date_created Date the service was created
- * @apiSuccess (Success 200) {String} service_type Type of the service [PROVIDE, REQUEST]
- * @apiSuccess (Success 200) {Integer} creator_id ID of the creator if created by a user
- * @apiSuccess (Success 200) {String} provider_name Name of the creator if created by a user
- * @apiSuccess (Success 200) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding
- * @apiSuccess (Success 200) {String} crowdfunding_title Title of the crowdfunding if created by a crowdfunding
- *
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.get('/', function(req, res) {
-    try {
-        // paging
-        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
-        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
-        var offset = (page - 1) * itemsPerPage;
-        // order by:
-        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : 'id';
-        // ascending / descending
-        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-        return;
-    }
-    // define query
-    const query = `
-        SELECT service.id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title
-        FROM service
-        LEFT JOIN users on users.id = service.creator_id
-        LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
-        WHERE service.deleted = false
-        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
-        LIMIT $(itemsPerPage) OFFSET $(offset)`;
-    // place query
-    db.any(query, {
-            itemsPerPage,
-            offset,
-            order
-        })
-        .then(data => {
-            res.status(200).json(data);
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
-});
-
-
-/**
- * @api {get} /services/num-pages 02 - Get number of pages of service list
- * @apiName GetServicesNumPages
- * @apiGroup Service
- * @apiPermission visitor
- *
- * @apiDescription Returns the number of pages of active services (with each page having up to N items)
- *
- * @apiParam (RequestQueryParams) {Integer} Items number of items per page default/max: 50 (Optional)
- *
- * @apiExample Syntax
- * GET: /api/services/num-pages?items=<ITEMS>
- * @apiExample Example
- * GET: /api/services/num-pages?items=30
- *
- * @apiSuccess (Success 200) {Integer} n Returns only the integer of the number of pages (No JSON key: value)
- *
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.get('/num-pages', function(req, res) {
-    let itemsPerPage = 50;
-    try {
-        // itemPerPage
-        if (req.query.hasOwnProperty('items') && req.query.items < 50) {
-            itemsPerPage = req.query.items;
-        }
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-        return;
-    }
-    // define query
-    const query = 'SELECT COUNT(id) as npages from service WHERE service.deleted = false;';
-    // place query
-    db.one(query, {})
-        .then(data => {
-            res.status(200).json(Math.ceil(data.npages / itemsPerPage));
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
-});
-
-
-/**
- * @api {get} /services/search 03 - Search for services
+ * @api {get} /services/search 02 - Get services list
  * @apiName SearchService
  * @apiGroup Service
  * @apiPermission visitor
  *
- * @apiDescription Search among active services' titles and descriptions using the given query text
+ * @apiDescription Search for and filters listing of active services according to parameters given
  *
- * @apiParam (RequestQueryParams) {String} q Search query (Optional)
+ * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
@@ -266,6 +144,52 @@ router.get('/search', function(req, res) { // check for valid input
 
 
 /**
+ * @api {get} /services/num-pages 03 - Get number of pages of service list
+ * @apiName GetServicesNumPages
+ * @apiGroup Service
+ * @apiPermission visitor
+ *
+ * @apiDescription Returns the number of pages of active services (with each page having up to N items)
+ *
+ * @apiParam (RequestQueryParams) {Integer} Items number of items per page default/max: 50 (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/services/num-pages?items=<ITEMS>
+ * @apiExample Example
+ * GET: /api/services/num-pages?items=30
+ *
+ * @apiSuccess (Success 200) {Integer} n Returns only the integer of the number of pages (No JSON key: value)
+ *
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+ // TODO fix
+router.get('/num-pages', function(req, res) {
+    let itemsPerPage = 50;
+    try {
+        // itemPerPage
+        if (req.query.hasOwnProperty('items') && req.query.items < 50) {
+            itemsPerPage = req.query.items;
+        }
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+
+        return;
+    }
+    // define query
+    const query = 'SELECT COUNT(id) as npages from service WHERE service.deleted = false;';
+    // place query
+    db.one(query, {})
+        .then(data => {
+            res.status(200).json(Math.ceil(data.npages / itemsPerPage));
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+
+
+/**
  * @api {get} /services/:id 04 - Get service by ID
  * @apiName GetServiceByID
  * @apiGroup Service
@@ -377,11 +301,11 @@ router.put('/', function(req, res) {
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
         if (creator_id == null && crowdfunding_id == null) {
- throw new Error('Missing either creator_id or crowdfunding_id');
-}
+            throw new Error('Missing either creator_id or crowdfunding_id');
+        }
         if (creator_id != null && crowdfunding_id != null) {
-throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
-}
+            throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
+        }
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
 
@@ -552,7 +476,7 @@ router.delete('/:id', function(req, res) {
 
 
 /**
- * @api {get} /services/:id/images 08 - Get service images
+ * @api {get} /services/:id/images 08 - Get service images' urls
  * @apiName GetServiceImages
  * @apiGroup Service
  * @apiPermission visitor
@@ -570,14 +494,12 @@ router.delete('/:id', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-// TODO Get images from amazon s3
 router.get('/:id/images', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
@@ -617,16 +539,17 @@ router.get('/:id/images', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-// TODO save file to amazon s3
 router.put('/:id/images', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var filename = 'TODO';
-        // TODO: save filename from req.files.image?? and pass filename onwards
+        var filename = image.uploadImage(req, res, 'services/');
+        console.log("filename;"+filename);
+        if (filename == false){
+            throw new Error("Filename equals false.")
+        }
     } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
+        //res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -639,7 +562,7 @@ router.put('/:id/images', function(req, res) {
             service_id
         })
         .then(data => {
-            res.status(200).json(data);
+            res.status(200).json(filename);
         })
         .catch(error => {
             res.status(500).json(error.message);
@@ -667,11 +590,11 @@ router.put('/:id/images', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-// TODO delete file from amazon s3
 router.delete('/:id/images/:image', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
+        var removed = image.removeImage(req, res);
         var image_url = req.params.image;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
@@ -975,13 +898,14 @@ router.post('/:id/offers/accept', function(req, res) {
             res.sendStatus(200);
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
 
 
 /**
- * @api {post} /services/:id/offers/decline 15 - Decline service offer
+ * @api {delete} /services/:id/offers/decline 15 - Decline service offer
  * @apiName DeclineServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
@@ -991,7 +915,6 @@ router.post('/:id/offers/accept', function(req, res) {
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
- * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers/decline
@@ -1012,21 +935,18 @@ router.post('/:id/offers/accept', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.post('/:id/offers/decline', function(req, res) {
+router.delete('/:id/offers/decline', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        if (partner_id == null && crowdfunding_id == null) {
- throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
-}
-        if (partner_id != null && crowdfunding_id != null) {
- throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
-}
+        if (partner_id == null && crowdfunding_id == null)
+            throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
+        if (partner_id != null && crowdfunding_id != null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
@@ -1174,6 +1094,48 @@ router.put('/instance/:id', function(req, res) {
 
 });
 
+/**
+ * @api {get} /services/instance/:id Get the service instance requester
+ * @apiName GetServiceInstanceRequester
+ * @apiGroup Service
+ * @apiPermission service creator
+ * */
+// TODO: finish api doc.
+// FIXME: not being used.
+router.get('/:service_id/instance/partner', function(req, res) {
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT users.id as requester_id, users.full_name as requester_name
+        FROM users
+        INNER JOIN service_instance ON service_instance.partner_id = users.id
+        WHERE service_instance.service_id = $(service_id);`;
+
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    });
+});
+
+// TODO: finish api doc.
+router.get('/:service_id/instance', function(req, res) {
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT partner_id as requester_id, users.full_name as requester_name, date_scheduled, creator_rating, partner_rating as requester_rating
+        FROM service_instance
+        INNER JOIN users ON users.id = partner_id
+        WHERE service_instance.service_id = $(service_id);`;
+
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+})
 
 //
 //
