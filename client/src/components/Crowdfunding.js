@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 //import '../css/common.css';
 import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Button, Label, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Button, Label, Icon, Item, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 
 import Comments from './comments/Comments';
@@ -141,48 +141,14 @@ class Crowdfunding extends Component {
       }
 
       return (
-        <Container className="main-container" fluid={true}>
+        <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container textAlign="center">
               <Header as="h1" id="crowdfunding_mission">Mission</Header>
             </Container>
             <Container>
-                <p><strong>{this.state.crowdfunding.title}</strong> <i id="crowdfunding_dot_divider">.</i> <text>{this.state.crowdfunding.category}</text></p>
+                <p><strong>{this.state.crowdfunding.title}</strong> <Icon name="circle" size="tiny" flipped="horizontally"/><text>{this.state.crowdfunding.category}</text></p>
             </Container>
               <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
-              {/*<Table selectable>
-                  <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell>Title</Table.HeaderCell>
-                        <Table.HeaderCell>Description</Table.HeaderCell>
-                        <Table.HeaderCell>Location</Table.HeaderCell>
-                        <Table.HeaderCell>Earned</Table.HeaderCell>
-                        <Table.HeaderCell>Target</Table.HeaderCell>
-                        <Table.HeaderCell>Ends in</Table.HeaderCell>
-                        <Table.HeaderCell>Options</Table.HeaderCell>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                      <Table.Row>
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{this.state.crowdfunding.title}</Table.Cell>}
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{this.state.crowdfunding.description}</Table.Cell>}
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{this.state.crowdfunding.location}</Table.Cell>}
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{this.state.crowdfunding.category}</Table.Cell>}
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{this.state.crowdfunding.mygrant_target}</Table.Cell>}
-                          {this.state.crowdfunding &&
-                          <Table.Cell>{new Date(this.state.crowdfunding.date_finished).toLocaleDateString()}</Table.Cell>}
-                          <Table.Cell>
-                              <Button>
-                                  <Button.Content>Donate</Button.Content>
-                              </Button>
-                          </Table.Cell>
-                      </Table.Row>
-                  </Table.Body>
-              </Table>*/}
               <Container>
                   <Grid stackable columns={2} className="crowdfunding_grid">
                       <Grid.Column width={6} className="left_col">
@@ -231,13 +197,102 @@ class Crowdfunding extends Component {
               </Container>
             <Responsive as={MygrantDividerRight} minWidth={768} className="intro-divider" color="green" />
             <Container id="services_donators">
-                <Grid stackable divided columns={2}>
-                    <Grid.Column width={10}>
+                <Grid stackable columns={3}>
+                    <Grid.Column width={9}>
                         <h4 align="center">Services</h4>
+                        <Item.Group divided>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
 
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>title</Item.Header>
+                                    <Item.Meta><a>category</a> <a>owner</a></Item.Meta>
+                                    <Item.Description>status</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See Details</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>title</Item.Header>
+                                    <Item.Meta><a>category</a> <a>owner</a></Item.Meta>
+                                    <Item.Description>status</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See Details</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>title</Item.Header>
+                                    <Item.Meta><a>category</a> <a>owner</a></Item.Meta>
+                                    <Item.Description>status</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See Details</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>title</Item.Header>
+                                    <Item.Meta><a>category</a> <a>owner</a></Item.Meta>
+                                    <Item.Description>status</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See Details</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                        </Item.Group>
+                    </Grid.Column>
+                    <Grid.Column width={1}>
                     </Grid.Column>
                     <Grid.Column width={6}>
                         <h4 align="center">Donators</h4>
+                        <Item.Group divided>
+                            <Item>
+                                <Item.Image size='tiny' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>Name</Item.Header>
+                                    <Item.Meta><a>rating</a> <a>value</a></Item.Meta>
+                                    <Item.Description>Amount</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See profile</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>Name</Item.Header>
+                                    <Item.Meta><a>rating</a> <a>value</a></Item.Meta>
+                                    <Item.Description>Amount</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See profile</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                            <Item>
+                                <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+
+                                <Item.Content verticalAlign='middle'>
+                                    <Item.Header>Name</Item.Header>
+                                    <Item.Meta><a>rating</a> <a>value</a></Item.Meta>
+                                    <Item.Description>Amount</Item.Description>
+                                    <Item.Extra>
+                                        <Button  floated="right">See profile</Button>
+                                    </Item.Extra>
+                                </Item.Content>
+                            </Item>
+                        </Item.Group>
                     </Grid.Column>
                 </Grid>
             </Container>
