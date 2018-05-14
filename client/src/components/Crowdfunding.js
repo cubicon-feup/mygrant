@@ -5,7 +5,7 @@ import '../css/Crowdfunding.css';
 import { Container, Header, Grid, Button, Label, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 
-import CommentComp from './Comment';
+import Comments from './comments/Comments';
 
 const apiPath = require('../config').apiPath;
 const urlForData = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId;
@@ -13,7 +13,6 @@ const urlForRating = crowdfundingId => `http://localhost:3001/api/crowdfundings/
 const urlForDonations = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId  + `/donations`;
 const urlForServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services`;
 const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/donations`;
-const urlGetComments = crowdfundingId => apiPath + `/crowdfundings/` + crowdfundingId + `/comments`;
 // TODO create,update and delete
 // TODO donate
 
@@ -23,27 +22,12 @@ class Crowdfunding extends Component {
       this.state = { requestFailed: false,
           crowdfundingId: this.props.match.params.crowdfunding_id,
           donator_id: 2,
-          comments: []
       };
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  getComments() {
-      fetch(urlGetComments(this.state.crowdfundingId), {
-          method: 'GET'
-      }).then(res => {
-          if(res.status === 200) {
-              res.json()
-                .then(data => {
-                    this.setState({comments: data});
-                })
-          }
-      })
-  }
-
     componentDidMount() {
-        console.log(this.props)
         //DATA REQUEST
         fetch(urlForData(this.state.crowdfundingId))
             .then(response => {
@@ -55,7 +39,6 @@ class Crowdfunding extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                console.log(result);
                 this.setState({ crowdfunding: result });
             }, () => {
                 // "catch" the error
@@ -72,7 +55,6 @@ class Crowdfunding extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                console.log(result);
                 this.setState({ rating: result });
                 if(!this.state.rating.average_rating){
                     this.setState({ rating: { average_rating : "No rating"}});
@@ -92,7 +74,6 @@ class Crowdfunding extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                console.log(result);
                 this.setState({ donations: result });
             }, () => {
                 // "catch" the error
@@ -109,13 +90,11 @@ class Crowdfunding extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                console.log(result);
                 this.setState({ services: result });
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });*/
-        this.getComments();
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
@@ -159,21 +138,6 @@ class Crowdfunding extends Component {
             </div>
             </Container>
         );
-      }
-
-      // Comments.
-      let comments;
-      if(this.state.comments) {
-        comments = this.state.comments.map(comment => {
-            return (
-                <CommentComp comment={comment}/>
-            )
-        })
-      } else {
-          comments = 
-            <Container>
-                <p>No comments yet</p>
-            </Container>
       }
 
       return (
@@ -222,7 +186,7 @@ class Crowdfunding extends Component {
               <Container>
                   <Grid stackable columns={2} className="crowdfunding_grid">
                       <Grid.Column width={6} className="left_col">
-                          <Image src='/assets/images/wireframe/image.png' />
+                          {/*<Image src='/assets/images/wireframe/image.png' />*/}
                           <div id="crowdfunding_progress">
                               <h5>Progress</h5>
                               <Progress progress='percentage' value={20} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
@@ -277,12 +241,12 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                 </Grid>
             </Container>
-            <Container>
+            <Comments subUrl={'crowdfundings'} id={this.state.crowdfundingId} />
+            {/*<Container>
                 <h3>Comments</h3>
             </Container>
             <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
-            {comments}
-            {/*<Container id="crowdfunding_comments">
+            <Container id="crowdfunding_comments">
                 <Comment.Group>
                     <Comment>
                         <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />

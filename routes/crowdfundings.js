@@ -994,15 +994,36 @@ router.put('/:crowdfunding_id/comments', authenticate, function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
-router.get('/:crowdfunding_id/comments', function(req, res) {
+router.get('/:crowdfunding_id/top_comments', function(req, res) {
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
-        `SELECT *
+        `SELECT comment.sender_id as user_id, users.full_name as user_name, comment.id as comment_id, comment.message, date_posted, in_reply_to
         FROM comment
-        WHERE crowdfunding_id = $(crowdfunding_id);`;
+        INNER JOIN users ON users.id = comment.sender_id
+        WHERE comment.crowdfunding_id = $(crowdfunding_id)
+            AND comment.in_reply_to IS NULL
+        ORDER BY date_posted;`;
 
     db.manyOrNone(query, {
         crowdfunding_id: crowdfundingId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+})
+
+router.get('/comments/:comment_id/nested_comments', function(req, res) {
+    let commentId = req.params.comment_id;
+    let query =
+        `SELECT comment.sender_id as user_id, users.full_name as user_name, comment.id as comment_id, comment.message, date_posted, in_reply_to
+        FROM comment
+        INNER JOIN users ON users.id = comment.sender_id
+        WHERE comment.in_reply_to = $(comment_id)
+        ORDER BY date_posted;`;
+
+    db.manyOrNone(query, {
+        comment_id: commentId
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
