@@ -540,33 +540,26 @@ router.get('/:id/images', function(req, res) {
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
 router.put('/:id/images', function(req, res) {
-    // check for valid input
+    // get id
     try {
         var service_id = req.params.id;
-        var filename = image.uploadImage(req, res, 'services/');
-        console.log("filename;"+filename);
-        if (filename == false){
-            throw new Error("Filename equals false.")
+        // get filename
+        const filename = image.uploadImage(req, res, 'services/');
+        if(filename === false){
+            return;
         }
     } catch (err) {
-        //res.status(400).json({ 'error': err.toString() });
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
     const query = `
         INSERT INTO service_image (service_id, image_url)
         VALUES ($(service_id), $(filename))`;
-    // place query
-    db.any(query, {
-            filename,
-            service_id
-        })
-        .then(data => {
-            res.status(200).json(filename);
-        })
-        .catch(error => {
-            res.status(500).json(error.message);
-        });
+    db.none(query, {
+        service_id,
+        filename
+    });
 });
 
 

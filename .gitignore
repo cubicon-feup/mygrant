@@ -61,3 +61,6 @@ typings/
 
 # API output
 apidoc/
+
+# images
+images/*/*

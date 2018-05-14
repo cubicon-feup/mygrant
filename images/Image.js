@@ -2,17 +2,18 @@ const uuidv1 = require('uuid/v1');
 const fs = require('fs');
 const allowedExtensions = ['image/jpeg', 'image/png'];
 
-async function storeLocally(imageFile, subfolder) {
+function storeLocally(imageFile, subfolder) {
     const filename = `${uuidv1()}.${imageFile.mimetype.replace(/.*\//, '')}`;
     imageFile.mv('images/' + subfolder + filename, function(error) {
-        if(error)
-            return 'Error: failed storing image file.';
+        if(error){
+            return 'Error: failed storing image file.'; //TODO to fix: this never runs in time
+        }
     });
     return filename;
 }
 
 module.exports = {
-    async uploadImage (req, res, subfolder) {
+    uploadImage (req, res, subfolder) {
         if(!req.files) {
             res.status(400).send('Error: no files were uploaded.');
             return false;
@@ -38,11 +39,11 @@ module.exports = {
         }
     },
 
-    async removeImage(req, res) {
+    removeImage(req, res) {
         fs.unlink(__dirname + '\\' + req.body.filename, (error) => {
             if(error) {
                 //res.status(500).send('Error: failed to remove image.');
-                return false;
+                return false; //TODO to fix: this never runs in time
             }
         });
         res.status(200).send('Successfully removed an image.');
