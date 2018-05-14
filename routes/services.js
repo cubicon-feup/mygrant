@@ -544,7 +544,7 @@ router.put('/:id/images', function(req, res) {
     try {
         var service_id = req.params.id;
         // get filename
-        const filename = image.uploadImage(req, res, 'services/');
+        var filename = image.uploadImage(req, res, 'services/');
         if(filename === false){
             return;
         }
