@@ -18,7 +18,6 @@ class Comments extends Component {
         this.state = {
             comments: [],
             postingComment: '',
-            inReplyTo: null
         }
     }
 
@@ -44,58 +43,7 @@ class Comments extends Component {
     }
 
     handleSubmit(event) {
-        if(this.props.originField == 'crowdfunding_id') {
-            fetch(urlCreateComment, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: this.state.postingComment,
-                    crowdfunding_id: this.props.originId,
-                    in_reply_to: this.state.inReplyTo
-                })
-            }).then(res => {
-                if(res.status === 201) {
-                    res.json()
-                        .then(data => {
-                            let newComment = {
-                                message: this.state.postingComment,
-                                date_posted: data.date_posted,
-                                comment_id: data.id
-                            }
-                            let updatedComments = this.state.comments;
-                            updatedComments.push(newComment);
-                            this.setState({comments: updatedComments});
-                            this.setState(this.setState({postingComment: ''}));
-                        })
-                }
-            })
-        } else {
-            fetch(urlCreateComment, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    message: this.state.postingComment,
-                    service_id: this.props.originId,
-                    in_reply_to: this.state.inReplyTo
-                })
-            }).then(res => {
-                if(res === 201) {
-                    res.json()
-                        .then(data => {
-                            let newComment = {
-                                message: this.state.postingComment,
-                                date_posted: data.date_posted,
-                                comment_id: data.id
-                            }
-                            let updatedComments = this.state.comments;
-                            updatedComments.push(newComment);
-                            this.setState({comments: updatedComments});
-                            this.setState(this.setState({postingComment: ''}));
-                        })
-                }
-            })
-        }
+        this.handleCreateComment(null, this.state.postingComment)
         event.preventDefault();
     }
 
@@ -116,12 +64,67 @@ class Comments extends Component {
         })
     }
 
+    handleCreateComment(inReplyTo, message) {
+        if(this.props.originField == 'crowdfunding_id') {
+            fetch(urlCreateComment, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    crowdfunding_id: this.props.originId,
+                    in_reply_to: inReplyTo
+                })
+            }).then(res => {
+                if(res.status === 201) {
+                    res.json()
+                        .then(data => {
+                            let newComment = {
+                                message: message,
+                                date_posted: data.date_posted,
+                                comment_id: data.id
+                            }
+                            let updatedComments = this.state.comments;
+                            updatedComments.push(newComment);
+                            this.setState({comments: updatedComments});
+                            this.setState(this.setState({postingComment: ''}));
+                        })
+                }
+            })
+        } else {
+            fetch(urlCreateComment, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    message: message,
+                    service_id: this.props.originId,
+                    in_reply_to: inReplyTo
+                })
+            }).then(res => {
+                if(res === 201) {
+                    res.json()
+                        .then(data => {
+                            let newComment = {
+                                message: message,
+                                date_posted: data.date_posted,
+                                comment_id: data.id
+                            }
+                            let updatedComments = this.state.comments;
+                            updatedComments.push(newComment);
+                            this.setState({comments: updatedComments});
+                            this.setState(this.setState({postingComment: ''}));
+                        })
+                }
+            })
+        }
+    }
+
     render() {
         let comments;
         if(this.state.comments) {
             comments = this.state.comments.map(comment => {
                 return (
-                    <Comment key={comment.comment_id} comment={comment} onRemove={this.handleRemove.bind(this)}/>
+                    <Comment key={comment.comment_id} comment={comment} onRemove={this.handleRemove.bind(this)} onReply={this.handleCreateComment.bind(this)}/>
                 )
             })
         } else {

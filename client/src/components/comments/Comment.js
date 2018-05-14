@@ -5,7 +5,7 @@ import { Container, Button } from 'semantic-ui-react';
 
 const apiPath = require('../../config').apiPath;
 const urlGetNestedComments = commentId => apiPath + `/comments/` + commentId + `/nested_comments`;
-const urlEditComment = commentId => apiPath + `/comments/` + commentId;
+const urleditMessage = commentId => apiPath + `/comments/` + commentId;
 
 class Comment extends Component {
 
@@ -14,7 +14,8 @@ class Comment extends Component {
         this.state = {
             nestedComments: [],
             commentMessage: this.props.comment.message,
-            editComment: this.props.comment.message
+            editMessage: this.props.comment.message,
+            replyMessage: ''
         }
     }
 
@@ -35,27 +36,35 @@ class Comment extends Component {
         })
     }
 
-    handleChange(event) {
-        this.setState({editComment: event.target.value});
+    handleEditChange(event) {
+        this.setState({editMessage: event.target.value});
+    }
+
+    handleReplyChange(event) {
+        this.setState({replyMessage: event.target.value});
     }
 
     handleEdit() {
-        fetch(urlEditComment(this.props.comment.comment_id), {
+        fetch(urleditMessage(this.props.comment.comment_id), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: this.state.editComment
+                message: this.state.editMessage
             })
         }).then(res => {
             if(res.status === 200)
-                this.setState({commentMessage: this.state.editComment});
+                this.setState({commentMessage: this.state.editMessage});
         })
     }
 
     onRemove(commentId) {
         this.props.onRemove(commentId);
+    }
+
+    onReply(inReplyTo, message) {
+        this.props.onReply(inReplyTo, this.state.replyMessage);
     }
 
     render() {
@@ -72,8 +81,9 @@ class Comment extends Component {
                 <a href="#">{this.props.comment.user_name}</a>
                 {this.state.commentMessage}
                 {this.props.comment.date_posted}
-                <textarea value={this.state.editComment} onChange={this.handleChange.bind(this)} />
-                <Button>Reply</Button>
+                <textarea value={this.state.replyMessage} onChange={this.handleReplyChange.bind(this)} />
+                <Button onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Button>
+                <textarea value={this.state.editMessage} onChange={this.handleEditChange.bind(this)} />
                 <Button onClick={this.handleEdit.bind(this)}>Edit</Button>
                 <Button onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Button>
                 {nestedComments}
