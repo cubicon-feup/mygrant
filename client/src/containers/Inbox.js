@@ -33,19 +33,183 @@ class Inbox extends Component {
                     <NewConversation />
                     <Conversation
                         user={{
+                            id: 69,
                             name: 'Kanye',
                             picture: '/home/epassos/Downloads/kwest.jpg'
                         }}
-                        lastMessage={'Poopity Scoop'}
-                        date={'15:00'}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
                     />
                     <Conversation
                         user={{
+                            id: 69,
                             name: 'Kanye',
-                            picture: '/assets/kwest'
+                            picture: '/home/epassos/Downloads/kwest.jpg'
                         }}
-                        lastMessage={'Poopity Scoop'}
-                        date={'15:00'}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
+                    />
+                    <Conversation
+                        user={{
+                            id: 69,
+                            name: 'Kanye',
+                            picture: '/home/epassos/Downloads/kwest.jpg'
+                        }}
+                        lastMessage={{
+                            content: 'Poopity Scoop',
+                            date: '15:00',
+                            id: 1234
+                        }}
                     />
                 </Container>
             </div>
