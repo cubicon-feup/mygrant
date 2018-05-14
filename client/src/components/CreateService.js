@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import '../css/App.css';
-import { Container, Header, Form, Select } from 'semantic-ui-react';
+import '../css/Service.css';
+import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
 
 const urlForData = 'http://localhost:3001/api/services';
 
@@ -63,7 +63,6 @@ const service_categories = [
         value: 'REQUEST'
     }
 ];
-const service_types = ['PROVIDE', 'REQUEST'];
 
 class TextInput extends Component {
     constructor(props) {
@@ -131,10 +130,15 @@ class CreateService extends Component {
             location: '',
             acceptable_radius: '',
             mygrant_value: '',
-            service_type: '',
             creator_id: 1
         };
         this.required = ['title', 'category', 'mygrant_value', 'service_type'];
+    }
+
+    componentDidMount() {
+        this.setState({
+            service_type: this.props.match.params.type
+        });
     }
 
     handleChange = (e, { name, value }) => {
@@ -178,73 +182,73 @@ class CreateService extends Component {
                     category: '',
                     location: '',
                     acceptable_radius: 0,
-                    mygrant_value: 0,
-                    service_type: ''
+                    mygrant_value: 0
                 })
             );
     };
 
-    render() {
-        var radioServiceTypes = service_types.map(type => {
-            return (
-                <Form.Radio
-                    label={type.charAt(0) + type.slice(1).toLowerCase()}
-                    name="service_type"
-                    value={type}
-                    checked={this.state.service_type === type}
-                    onChange={this.handleChange}
-                />
-            );
-        });
+    createHeader() {
+        if (this.state.service_type === 'PROVIDE') {
+            return 'Provide Service';
+        } else if (this.state.service_type === 'REQUEST') {
+            return 'Request Service';
+        }
+        return 'ERROR';
+    }
 
+    render() {
         return (
             <Container className="main-container">
-                <div>
-                    <Header as="h1">Create a Service</Header>
-                    <Form method="POST" onSubmit={this.handleSubmit}>
-                        <TextInput
-                            placeholder="Title"
-                            value={this.state.title}
-                            onChange={this.handleChange}
-                        />
-                        <TextInput
-                            placeholder="Description"
-                            value={this.state.description}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Dropdown
-                            placeholder="Category"
-                            name="category"
-                            fluid
-                            search
-                            selection
-                            options={service_categories}
-                            onChange={this.handleChange}
-                        />
-                        <TextInput
-                            placeholder="Location"
-                            value={this.state.location}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Field
-                            placeholder="Acceptable Radius"
-                            name="acceptable_radius"
-                            control={Select}
-                            options={radiusoptions}
-                            onChange={this.handleNumberChange}
-                        />
-                        <Form.Input
-                            placeholder="MyGrant Value"
-                            name="mygrant_value"
-                            value={this.state.mygrant_value}
-                            type="number"
-                            onChange={this.handleNumberChange}
-                            required
-                        />
-                        <Form.Group inline>{radioServiceTypes}</Form.Group>
-                        <Form.Button content="Submit" />
-                    </Form>
-                </div>
+                <Header size="huge" textAlign="center">
+                    <Icon name="external" />
+                    {this.createHeader()}
+                </Header>
+                <Form
+                    className="mygrant-createform"
+                    method="POST"
+                    onSubmit={this.handleSubmit}
+                >
+                    <TextInput
+                        placeholder="Title"
+                        value={this.state.title}
+                        onChange={this.handleChange}
+                    />
+                    <TextInput
+                        placeholder="Description"
+                        value={this.state.description}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Dropdown
+                        placeholder="Category"
+                        name="category"
+                        fluid
+                        search
+                        selection
+                        options={service_categories}
+                        onChange={this.handleChange}
+                    />
+                    <TextInput
+                        placeholder="Location"
+                        value={this.state.location}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Field
+                        placeholder="Acceptable Radius"
+                        name="acceptable_radius"
+                        control={Select}
+                        options={radiusoptions}
+                        onChange={this.handleNumberChange}
+                    />
+                    <Form.Input
+                        placeholder="MyGrant Value"
+                        name="mygrant_value"
+                        value={this.state.mygrant_value}
+                        type="number"
+                        onChange={this.handleNumberChange}
+                        required
+                    />
+                    <Form.Button id="dark-button" content="Submit" />
+                </Form>
             </Container>
         );
     }

@@ -3,6 +3,7 @@ const passport = require('../auth/local');
 const router = express.Router();
 const db = require('../config/database');
 const appSecret = require('../config/config').secret;
+const initialMygrantBalance = require('../config/config').initialMygrantBalance;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -31,14 +32,15 @@ router.post('/signup', function(req, res) {
                             // register new user
                             bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
 
-                                query = `INSERT INTO users (email, pass_hash, full_name, phone) 
-                                VALUES ($(email), $(passHash), $(fullName), $(phone)) RETURNING id`;
+                                query = `INSERT INTO users (email, pass_hash, full_name, phone, mygrant_balance) 
+                                VALUES ($(email), $(passHash), $(fullName), $(phone), $(initial_mygrant_balance)) RETURNING id`;
 
                                 db.one(query, {
                                     email: req.body.email,
                                     fullName: req.body.name,
                                     passHash: hash,
-                                    phone: req.body.phone
+                                    phone: req.body.phone,
+                                    initial_mygrant_balance: initialMygrantBalance
                                 })
                                     .then(() => {
                                         res.status(201).send('Sucessfully added user');
