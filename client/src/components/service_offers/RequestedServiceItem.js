@@ -4,10 +4,13 @@ import { Container} from 'semantic-ui-react';
 import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
 
-const urlGetCandidates = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers`;
-const urlRejectCandidate = serviceId => `http://localhost:3001/api/services/`+ serviceId + `/offers/decline`;
-const urlAcceptCandidate = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers/accept`;
-const urlGetServiceInstanceInfo = serviceId => 'http://localhost:3001/api/services/' + serviceId + `/instance`;
+const apiPath = require('../../config').apiPath;
+
+const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/offers`;
+const urlRejectCandidate = serviceId => apiPath + `/services/`+ serviceId + `/offers/decline`;
+const urlAcceptCandidate = serviceId => apiPath + `/services/` + serviceId + `/offers/accept`;
+const urlGetServiceInstanceInfo = serviceId => apiPath + '/services/' + serviceId + `/instance`;
+const urlIsCreator = serviceId => apiPath + '/';
 
 class RequestedServiceItem extends Component {
 
@@ -106,7 +109,7 @@ class RequestedServiceItem extends Component {
                 )
             });
         } else if(this.state.serviceInstanceInfo)
-            candidates = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} />
+            candidates = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} />
         return (
             <Container>
                 <p>
