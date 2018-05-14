@@ -3,12 +3,11 @@ const fs = require('fs');
 const allowedExtensions = ['image/jpeg', 'image/png'];
 
 function storeLocally(imageFile, subfolder) {
+    if (!fs.existsSync('images/' + subfolder)){
+        fs.mkdirSync('images/' + subfolder);
+    }
     const filename = `${uuidv1()}.${imageFile.mimetype.replace(/.*\//, '')}`;
-    imageFile.mv('images/' + subfolder + filename, function(error) {
-        if(error){
-            return 'Error: failed storing image file.'; //TODO to fix: this never runs in time
-        }
-    });
+    imageFile.mv('images/' + subfolder + filename);
     return filename;
 }
 
@@ -52,16 +51,14 @@ module.exports = {
             }
         }
         return;
-    }
+    },
 
-    /*,removeImage(req, res) {
-        fs.unlinkSync(__dirname + '\\' + req.body.filename, (error) => {
-            if(error) {
-                //res.status(500).send('Error: failed to remove image.');
-                return false; //TODO to fix: this never runs in time
-            }
-        });
-        res.status(200).send('Successfully removed an image.');
-        return true;
-    }*/
-}
+    sendImage(req, res, image_url) {
+        try {
+            res.sendFile(__dirname + '/' + image_url);
+        } catch (err){
+            res.status(500).send(err);
+        }
+        return;
+    },
+};

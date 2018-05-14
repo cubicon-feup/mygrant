@@ -3,7 +3,10 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 
-
+const policy = require('../policies/servicesPolicy');
+const expressJwt = require('express-jwt');
+const appSecret = require('../config/config').secret;
+const authenticate = expressJwt({ secret: appSecret });
 //
 //
 // SERVICES
@@ -12,7 +15,7 @@ var image = require('../images/Image');
 
 
 /**
- * @api {get} /services 02 - Get service's list
+ * @api {get} /services - Get service's list
  * @apiName SearchService
  * @apiGroup Service
  * @apiPermission visitor
@@ -85,8 +88,8 @@ router.get('/', function(req, res) { // check for valid input
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
-        var latitude_ref = 0; // TODO get from current user
-        var longitude_ref = 0; // TODO get from current user
+        var latitude_ref = 0; // TODO: get from current user
+        var longitude_ref = 0; // TODO: get from current user
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
         return;
@@ -144,7 +147,7 @@ router.get('/', function(req, res) { // check for valid input
 
 
 /**
- * @api {get} /services/num-pages 03 - Get number of pages of service list
+ * @api {get} /services/num-pages - Get number of pages of service list
  * @apiName GetServicesNumPages
  * @apiGroup Service
  * @apiPermission visitor
@@ -163,7 +166,7 @@ router.get('/', function(req, res) { // check for valid input
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
- // TODO fix
+ // TODO: update to list num-pages according to /api/services results
 router.get('/num-pages', function(req, res) {
     let itemsPerPage = 50;
     try {
@@ -190,7 +193,7 @@ router.get('/num-pages', function(req, res) {
 
 
 /**
- * @api {get} /services/:id 04 - Get service by ID
+ * @api {get} /services/:id - Get service by ID
  * @apiName GetServiceByID
  * @apiGroup Service
  * @apiPermission visitor
@@ -250,7 +253,7 @@ router.get('/:id', function(req, res) {
 
 
 /**
- * @api {put} /services/ 05 - Create service
+ * @api {put} /services/ - Create service
  * @apiName CreateService
  * @apiGroup Service
  * @apiPermission authenticated user
@@ -344,7 +347,7 @@ router.put('/', function(req, res) {
 
 
 /**
- * @api {put} /services/:id 06 - Edit service
+ * @api {put} /services/:id - Edit service
  * @apiName EditService
  * @apiGroup Service
  * @apiPermission service creator
@@ -436,7 +439,7 @@ router.put('/:id', function(req, res) {
 
 
 /**
- * @api {delete} /services/:id 07 - Delete service
+ * @api {delete} /services/:id - Delete service
  * @apiName DeleteService
  * @apiGroup Service
  * @apiPermission service creator
@@ -487,7 +490,7 @@ router.delete('/:id', function(req, res) {
 
 
 /**
- * @api {get} /services/:id/images 08 - Get service images' urls
+ * @api {get} /services/:id/images - Get service images' urls
  * @apiName GetServiceImages
  * @apiGroup Service
  * @apiPermission visitor
@@ -530,7 +533,7 @@ router.get('/:id/images', function(req, res) {
 
 
 /**
- * @api {put} /services/:id/images 09 - Create service image
+ * @api {put} /services/:id/images - Create service image
  * @apiName CreateServiceImage
  * @apiGroup Service
  * @apiPermission service creator
@@ -575,7 +578,7 @@ router.put('/:id/images', function(req, res) {
 
 
 /**
- * @api {delete} /services/:id/images/:image 10 - Delete service image
+ * @api {delete} /services/:id/images/:image - Delete service image
  * @apiName DeleteServiceImage
  * @apiGroup Service
  * @apiPermission service creator
@@ -604,7 +607,7 @@ router.delete('/:id/images/:image', function(req, res) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define query //TODO must be restricted to user
+    // define query //TODO: must be restricted to user
     const query = `
         DELETE FROM service_image 
         WHERE service_id=$(service_id) AND image_url=$(image_url);`;
@@ -629,7 +632,7 @@ router.delete('/:id/images/:image', function(req, res) {
 
 
 /**
- * @api {get} /services/:id/offers 11 - Get service offers
+ * @api {get} /services/:id/offers - Get service offers
  * @apiName GetServiceOffers
  * @apiGroup Service
  * @apiPermission service creator
@@ -682,7 +685,7 @@ router.get('/:id/offers', function(req, res) {
 
 
 /**
- * @api {get} /services/:id/offers/:type/:candidate 12 - Get specific offer
+ * @api {get} /services/:id/offers/:type/:candidate - Get specific offer
  * @apiName GetServiceSpecificOffer
  * @apiGroup Service
  * @apiPermission service creator
@@ -754,7 +757,7 @@ router.get('/:id/offers/:type/:candidate', function(req, res) {
 
 
 /**
- * @api {post} /services/:id/offers 13 - Make service offer
+ * @api {post} /services/:id/offers - Make service offer
  * @apiName MakeServiceOffer
  * @apiGroup Service
  * @apiPermission authenticated user
@@ -785,7 +788,7 @@ router.post('/:id/offers', function(req, res) {
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO SESSION ID
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO: SESSION ID
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
@@ -797,7 +800,7 @@ router.post('/:id/offers', function(req, res) {
         return;
     }
 
-    // TODO dont allow offers on deleted services -> make this constraint in db
+    // TODO: dont allow offers on deleted services -> make this constraint in db
     let query;
     if (crowdfunding_id != null) {
         query = `
@@ -832,7 +835,7 @@ router.post('/:id/offers', function(req, res) {
 
 
 /**
- * @api {post} /services/:id/offers/accept 14 - Accept service offer
+ * @api {post} /services/:id/offers/accept - Accept service offer
  * @apiName AcceptServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
@@ -866,7 +869,7 @@ router.post('/:id/offers', function(req, res) {
 router.post('/:id/offers/accept', function(req, res) {
     // check for valid input
     try {
-        // TODO check if SESSION USER is service creator
+        // TODO: check if SESSION USER is service creator
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
@@ -882,8 +885,8 @@ router.post('/:id/offers/accept', function(req, res) {
         return;
     }
     // define query
-    // TODO don't allow offers on deleted services -> make this constraint in db
-    // TODO only allow instances to be created when an offer exists -> make this constraint in db
+    // TODO: don't allow offers on deleted services -> make this constraint in db
+    // TODO: only allow instances to be created when an offer exists -> make this constraint in db
     const query = ` 
         INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
         SELECT $(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled)
@@ -907,7 +910,7 @@ router.post('/:id/offers/accept', function(req, res) {
 
 
 /**
- * @api {delete} /services/:id/offers/decline 15 - Decline service offer
+ * @api {delete} /services/:id/offers/decline - Decline service offer
  * @apiName DeclineServiceOffer
  * @apiGroup Service
  * @apiPermission service creator
@@ -986,7 +989,7 @@ router.delete('/:id/offers/decline', function(req, res) {
 
 
 /**
- * @api {put} /services/instance/:id 16 - Rate a service
+ * @api {put} /services/instance/:id - Rate a service
  * @apiName ReviewServiceInstance
  * @apiGroup Service
  * @apiPermission service creator/partner
@@ -1017,11 +1020,13 @@ router.delete('/:id/offers/decline', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.put('/instance/:id', function(req, res) {
+ // TODO: fix this:
+router.put('/instance/:id', authenticate, policy.edit, function(req, res) {
+    const creatorId = req.user.id;
     // check for valid input
     try {
         var service_instance_id = req.params.id;
-        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 404; // TODO SESSION ID
+        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 404; // TODO: SESSION ID
         var rating = req.body.rating;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
@@ -1146,7 +1151,7 @@ router.get('/:service_id/instance', function(req, res) {
 //
 
 /**
- * @api {get} /services/:id/comments 17 - Get service comments
+ * @api {get} /services/:id/comments - Get service comments
  * @apiName GetServiceComments
  * @apiGroup Service
  * @apiPermission visitor
@@ -1199,7 +1204,7 @@ return;
 });
 
 /**
- * @api {post} /services/:id/comments 18 - Comment on a service
+ * @api {post} /services/:id/comments - Comment on a service
  * @apiName CommentService
  * @apiGroup Service
  * @apiPermission authenticated user
@@ -1226,7 +1231,7 @@ return;
 router.post('/:id/comments', function(req, res) {
     // check for valid input
     try {
-        var sender_id = 8; // TODO SESSION ID
+        var sender_id = 8; // TODO: SESSION ID
         var service_id = req.params.id;
         var message = req.body.message;
         var in_reply_to = req.body.hasOwnProperty('in_reply_to') ? req.body.in_reply_to : null;
@@ -1257,7 +1262,7 @@ return;
 });
 
 /**
- * @api {put} /services/comments/:id 19 - Edit a comment
+ * @api {put} /services/comments/:id - Edit a comment
  * @apiName EditComment
  * @apiGroup Service
  * @apiPermission comment sender
@@ -1311,7 +1316,7 @@ return;
 });
 
 /**
- * @api {delete} /services/comments/:id 20 - Delete a comment
+ * @api {delete} /services/comments/:id - Delete a comment
  * @apiName DeleteComment
  * @apiGroup Service
  * @apiPermission comment sender
