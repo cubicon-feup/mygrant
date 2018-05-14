@@ -18,6 +18,7 @@ class Crowdfundings extends Component {
             })
             .then(result => result.json())
             .then(result => {
+                console.log(result);
                 this.setState({ crowdfundings: result });
             }, () => {
                 // "catch" the error
@@ -76,15 +77,6 @@ class Crowdfundings extends Component {
                         </Item.Content>
                     </Item>
                 );
-                /*<Table.Row>
-                        <Table.Cell>{table_row.title}</Table.Cell>
-                        <Table.Cell>{table_row.category}</Table.Cell>
-                        <Table.Cell>{table_row.location}</Table.Cell>
-                        <Table.Cell>{table_row.status}</Table.Cell>
-                        <Table.Cell>{table_row.mygrant_target}</Table.Cell>
-                        <Table.Cell>{table_row.creator_name}</Table.Cell>
-                        <Table.Cell><Link to={"/crowdfunding/" + 2} >Link</Link></Table.Cell>
-                    </Table.Row>*/
             });
         }
         return (
@@ -97,22 +89,6 @@ class Crowdfundings extends Component {
                 </div>
             </Container>
         );
-        /*<Table selectable>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell>Title</Table.HeaderCell>
-                                <Table.HeaderCell>Category</Table.HeaderCell>
-                                <Table.HeaderCell>Location</Table.HeaderCell>
-                                <Table.HeaderCell>Status</Table.HeaderCell>
-                                <Table.HeaderCell>Target</Table.HeaderCell>
-                                <Table.HeaderCell>Owner</Table.HeaderCell>
-                                <Table.HeaderCell>Link</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.table_body}
-                        </Table.Body>
-                    </Table>*/
     }
 }
 
