@@ -59,8 +59,7 @@ typings/
 
 .idea/
 
-# API output
-apidoc/
+.apidoc/
 
 # images
 images/*/*
