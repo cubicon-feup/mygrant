@@ -10,6 +10,8 @@ import '../css/Conversation.css';
 class Conversation extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired,
+        history: ReactRouterPropTypes.history.isRequired,
+        location: ReactRouterPropTypes.location.isRequired,
         match: ReactRouterPropTypes.match.isRequired
     };
 
@@ -58,7 +60,7 @@ class Conversation extends Component {
                                             (msg.sender_id === this.otherUser.user_id && fetchedMessages[index + 1].sender_id !== this.otherUser.user_id);
 
                                     messageList.push(
-                                        <Grid.Row 
+                                        <Grid.Row
                                             streched
                                             className={
                                                 `${msg.sender_id === this.otherUser.id ? 'incoming' : 'outgoing'}
@@ -119,7 +121,12 @@ class Conversation extends Component {
                 headers,
                 method: 'POST'
             })
-            .then(res => console.log(res));
+            .then(res => {
+                if (res.status === 201) {
+                    // Refresh page
+                    this.props.history.push(this.props.location.pathname);
+                }
+            });
     }
 
     render() {

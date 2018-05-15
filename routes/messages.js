@@ -161,7 +161,6 @@ router.get('/', authenticate, function(req, res) {
     const loggedUser = req.user.id;
 
     // Select all the users that the user has sent to or received messages from
-    // 
     const query =
         `SELECT DISTINCT 
             CASE WHEN sender_id = $(loggedUser) THEN receiver_id
