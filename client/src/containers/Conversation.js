@@ -3,7 +3,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import MessageBubble from '../components/MessageBubble';
 import ReactRouterPropTypes from 'react-router-prop-types';
-import { Button, Container, Form, Grid, TextArea } from 'semantic-ui-react';
+import { Button, Container, Form, Grid, Header, Icon, Image, TextArea } from 'semantic-ui-react';
 
 import '../css/Conversation.css';
 
@@ -20,11 +20,11 @@ class Conversation extends Component {
             loadMessages: 'Load more messages',
             message: '',
             messageList: [],
+            otherUser: {},
             page: 0
         };
 
         this.textArea = null;
-        this.otherUser = null;
         this.lastMessage = null;
 
         this.setTextArea = component => {
@@ -46,10 +46,10 @@ class Conversation extends Component {
         fetch(`/api/users/${this.props.match.params.id}`, { headers })
             .then(res => res.json()
                 .then(data => {
-                    this.otherUser = data;
+                    this.setState({ otherUser: data });
 
                     // Get the messages sent between this user and the other one
-                    fetch(`/api/messages/${this.otherUser.user_id}?page=${this.state.page}`, { headers })
+                    fetch(`/api/messages/${this.state.otherUser.user_id}?page=${this.state.page}`, { headers })
                         .then(msgRes => msgRes.json()
                             .then(fetchedMessages => {
                                 if (fetchedMessages.length < 20) {
@@ -66,19 +66,23 @@ class Conversation extends Component {
                                     const msg = fetchedMessages[index];
                                     const msgIsFirst =
                                         index === 0 ||
-                                            (msg.sender_id !== this.otherUser.user_id && fetchedMessages[index - 1].sender_id === this.otherUser.user_id) ||
-                                            (msg.sender_id === this.otherUser.user_id && fetchedMessages[index - 1].sender_id !== this.otherUser.user_id);
+                                        (msg.sender_id !== this.state.otherUser.user_id &&
+                                            fetchedMessages[index - 1].sender_id === this.state.otherUser.user_id) ||
+                                        (msg.sender_id === this.state.otherUser.user_id &&
+                                            fetchedMessages[index - 1].sender_id !== this.state.otherUser.user_id);
 
                                     const msgIsLast =
                                         index === fetchedMessages.length - 1 ||
-                                            (msg.sender_id !== this.otherUser.user_id && fetchedMessages[index + 1].sender_id === this.otherUser.user_id) ||
-                                            (msg.sender_id === this.otherUser.user_id && fetchedMessages[index + 1].sender_id !== this.otherUser.user_id);
+                                        (msg.sender_id !== this.state.otherUser.user_id &&
+                                            fetchedMessages[index + 1].sender_id === this.state.otherUser.user_id) ||
+                                        (msg.sender_id === this.state.otherUser.user_id &&
+                                            fetchedMessages[index + 1].sender_id !== this.state.otherUser.user_id);
 
                                     messageList.push(
                                         <Grid.Row
                                             streched
                                             className={
-                                                `${msg.sender_id === this.otherUser.user_id ? 'incoming' : 'outgoing'}
+                                                `${msg.sender_id === this.state.otherUser.user_id ? 'incoming' : 'outgoing'}
                                                  ${msgIsLast ? 'stop' : ''}
                                                  ${msgIsFirst ? 'start' : ''}
                                                  ${!msgIsLast && !msgIsFirst ? 'middle' : ''}
@@ -87,7 +91,7 @@ class Conversation extends Component {
                                         >
                                             <Grid.Column>
                                                 <MessageBubble
-                                                    incoming={msg.sender_id === this.otherUser.user_id}
+                                                    incoming={msg.sender_id === this.state.otherUser.user_id}
                                                     message={{
                                                         content: msg.content,
                                                         date: msg.date_sent
@@ -127,7 +131,7 @@ class Conversation extends Component {
 
         const data = {
             content: this.state.message,
-            'receiver_id': this.otherUser.user_id
+            'receiver_id': this.state.otherUser.user_id
         };
 
         // Send message
@@ -149,6 +153,20 @@ class Conversation extends Component {
         return (
             <div>
                 <Container className="main-container conversation" >
+                    <Grid className="other-user-info" >
+                        <Grid.Row>
+                            <Grid.Column width={1}>
+                                {this.state.otherUser.image_url ? 
+                                    <Image circular size={'tiny'} src={`/api/images/users/${this.state.otherUser.image_url}`} /> :
+                                    <Icon name="user circle outline" size={'big'} />
+                                }
+                            
+                            </Grid.Column>
+                            <Grid.Column width={14} >
+                                <Header as={'h3'}>{this.state.otherUser.full_name}</Header>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                     <Grid className="message-list">
                         <Grid.Row className="load-more">
                             <Grid.Column
