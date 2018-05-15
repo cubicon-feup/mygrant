@@ -47,7 +47,6 @@ class Inbox extends Component {
         return (
             <div>
                 <Container className="main-container inbox">
-                    <NewConversation />
                     {this.state.conversations}
                 </Container>
             </div>
