@@ -40,8 +40,8 @@ ReactDom.render(
                 />
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/service/:id" component={Service} />
-                <Route exact path="/inbox/" component={Inbox} />
-                <Route exact path="/conversation/:id" component={Conversation} />
+                <ProtectedRoute exact path="/inbox/" component={Inbox} />
+                <ProtectedRoute exact path="/conversation/:id" component={Conversation} />
                 <Route exact path="/tableservices" component={TableServices} />
                 <Route exact path="/search" component={Search} />
                 <Route exact path="/crowdfundings" component={Crowdfundings} />
