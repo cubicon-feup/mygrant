@@ -38,5 +38,6 @@ module.exports = {
             user: process.env.MYGRANT_EMAIL
         },
         service: 'Gmail'
-    }
+    },
+    initialMygrantBalance: 20
 };

@@ -35,6 +35,30 @@ class MygrantDivider extends Component {
     }
 }
 
+class MygrantDividerRight extends Component {
+    static propTypes = { color: String }
+
+    render() {
+        return (
+            <div className={`mygrant-divider ${this.props.color}`}>
+                <Divider className="first-divider" />
+            </div>
+        );
+    }
+}
+
+class MygrantDividerLeft extends Component {
+    static propTypes = { color: String }
+
+    render() {
+        return (
+            <div className={`mygrant-divider ${this.props.color}`}>
+                <Divider className="second-divider" />
+            </div>
+        );
+    }
+}
+
 class MygrantFooter extends Component {
     render() {
         return (
@@ -61,6 +85,8 @@ class MygrantNav extends Component {
 
 export {
     MygrantDivider,
+    MygrantDividerRight,
+    MygrantDividerLeft,
     MygrantFooter,
     MygrantHeader,
     MygrantNav

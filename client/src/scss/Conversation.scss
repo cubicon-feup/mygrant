@@ -1,0 +1,127 @@
+@import 'common';
+
+@media (min-width: 768px) {
+    .ui.container.main-container.conversation {
+        margin-top: 25px;
+        height: 800px;
+        width: 55%;
+
+        .ui.grid.message-list {
+            margin-top: 30px;
+            padding-top: 20px;
+            max-height: 70%;
+            overflow-y: auto;
+        }
+
+    }
+}
+
+@media (max-width: 768px) {
+}
+
+
+.ui.container.main-container.conversation {
+    .ui.header {
+        margin-top: 0;
+        margin-left: 10px;
+    }
+    form.ui.form {
+        margin-top: 50px;
+    }
+    .load-more {
+        margin-bottom: 10px;
+        color: $dark-green;
+
+        &:hover {
+            cursor: pointer;
+            color: $green;
+        }
+
+    }
+   .message-bubble {
+       margin: 0;
+       padding: 6px 13px;
+       box-shadow: none;
+       min-width: 40px;
+       max-width: 50%;
+       text-align: left;
+       border-radius: 30px;
+
+       &.incoming {
+           background-color: $lighter-grey;
+           border: 1px solid $lighter-grey;
+           margin-right: 10px;
+       }
+
+       &.outgoing {
+           margin-left: 10px;
+           background-color: $dark-green;
+           color: white;
+           border: 1px solid $dark-green;
+       }
+
+       .content {
+       }
+   } 
+
+   h5.header {
+       font-weight: normal;
+       color: $grey;
+       margin: 0;
+   }
+
+   div.row {
+       padding-top: 1px;
+       padding-bottom: 1px;
+   }
+
+   div.row.outgoing.middle {
+       .message-bubble {
+           border-top-right-radius: 5px;
+           border-bottom-right-radius: 5px;
+       }
+   }
+
+   div.row.incoming.middle {
+       .message-bubble {
+           border-top-left-radius: 5px;
+           border-bottom-left-radius: 5px;
+       }
+   }
+
+   div.row.incoming.start {
+       .message-bubble {
+           border-bottom-left-radius: 5px;
+       }
+   }
+
+   div.row.outgoing.start {
+       .message-bubble {
+           border-bottom-right-radius: 5px;
+       }
+   }
+
+   div.row.incoming.stop {
+       .message-bubble {
+           border-top-left-radius: 5px;
+       }
+   }
+
+   div.row.outgoing.stop {
+       .message-bubble {
+           border-top-right-radius: 5px;
+       }
+   }
+
+   div.row.start.stop {
+       .message-bubble {
+           border-radius: 30px;
+       }
+   }
+
+   div.row.outgoing + div.row.incoming,
+   div.row.incoming + div.row.outgoing {
+       margin-top: 20px;
+   }
+
+}
