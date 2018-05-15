@@ -111,6 +111,7 @@ router.post('/', authenticate, function(req, res) {
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParams) {Integer} other_user Other user unique id.
+ * @apiParam (RequestParams) {Integer} page current page.
  *
  * @apiSuccess (Success 200) sender_id User that sent a message.
  * @apiSuccess (Success 200) content Message content.
@@ -118,8 +119,9 @@ router.post('/', authenticate, function(req, res) {
  *
  * @apiError (Error 500) InternalServerError Couldn't get the messages.
  */
-router.get('/:other_user', authenticate, function(req, res) {
+router.get('/:other_user/', authenticate, function(req, res) {
     const loggedUser = req.user.id;
+    const offset = req.query.page * 20;
     const otherUser = req.params.other_user;
 
     const query =
@@ -132,10 +134,13 @@ router.get('/:other_user', authenticate, function(req, res) {
             sender_id = $(otherUser) AND
             receiver_id = $(loggedUser)
         )
-        ORDER BY date_sent`;
+        ORDER BY date_sent DESC
+        LIMIT 20 OFFSET $(offset)
+    `;
 
     db.manyOrNone(query, {
         loggedUser,
+        offset,
         otherUser
     })
         .then(data => {

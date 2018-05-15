@@ -25,7 +25,6 @@ class Inbox extends Component {
                 .then(conversationList => {
                     const conversations = [];
                     conversationList.forEach(conv => {
-                        console.log(conv);
                         conversations.push(
                             <ConversationCard
                                 user={{
@@ -33,7 +32,10 @@ class Inbox extends Component {
                                     name: conv.other_user_full_name,
                                     picture: conv.image_url
                                 }}
-                                lastMessage={{ content: conv.content }}
+                                lastMessage={{
+                                    content: conv.content,
+                                    date: conv.date_sent
+                                }}
                             />
                         )
                     });

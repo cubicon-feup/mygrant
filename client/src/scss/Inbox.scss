@@ -8,6 +8,11 @@
 
 div.conversation-card {
     padding: 10px 10px 10px;
+    div.conversation-image {
+        i {
+            color: black;
+        }
+    }
 
 
     &:hover {

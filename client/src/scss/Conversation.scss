@@ -2,12 +2,33 @@
 
 @media (min-width: 768px) {
     .ui.container.main-container.conversation {
-        width: 50%;
         margin-top: 25px;
+        height: 800px;
+        width: 55%;
+
+        .ui.grid.message-list {
+            padding-top: 20px;
+            max-height: 70%;
+            overflow-y: auto;
+        }
+
+        form.ui.form {
+            margin-top: 50px;
+        }
     }
 }
 
 .ui.container.main-container.conversation {
+    .load-more {
+        margin-bottom: 10px;
+        color: $dark-green;
+
+        &:hover {
+            cursor: pointer;
+            color: $green;
+        }
+
+    }
    .message-bubble {
        margin: 0;
        padding: 6px 13px;
@@ -73,7 +94,7 @@
 
    div.row.incoming.stop {
        .message-bubble {
-           border-top-right-radius: 5px;
+           border-top-left-radius: 5px;
        }
    }
 

@@ -19,31 +19,48 @@ class Conversation extends Component {
         super(props);
 
         this.state = {
+            loadMessages: 'Load more messages',
             message: '',
-            messageList: []
+            messageList: [],
+            page: 0
         };
-        this.otherUserId = this.props.match.params.id;
 
         this.textArea = null;
         this.otherUser = null;
+        this.lastMessage = null;
 
         this.setTextArea = component => {
             this.textArea = component;
         };
 
+        this.loadMessages();
+    }
+
+    loadMessages() {
         const { cookies } = this.props;
         const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
 
+        if (this.state.page < 0) {
+            return;
+        }
+
         // Get the other user's info
-        fetch(`/api/users/${this.otherUserId}`, { headers })
+        fetch(`/api/users/${this.props.match.params.id}`, { headers })
             .then(res => res.json()
                 .then(data => {
                     this.otherUser = data;
 
                     // Get the messages sent between this user and the other one
-                    fetch(`/api/messages/${this.otherUser.user_id}`, { headers })
+                    fetch(`/api/messages/${this.otherUser.user_id}?page=${this.state.page}`, { headers })
                         .then(msgRes => msgRes.json()
                             .then(fetchedMessages => {
+                                if (fetchedMessages.length < 20) {
+                                    this.setState({
+                                        loadMessages: '',
+                                        page: -2
+                                    });
+                                }
+
                                 const messageList = [];
 
                                 // Insert the messages
@@ -63,7 +80,7 @@ class Conversation extends Component {
                                         <Grid.Row
                                             streched
                                             className={
-                                                `${msg.sender_id === this.otherUser.id ? 'incoming' : 'outgoing'}
+                                                `${msg.sender_id === this.otherUser.user_id ? 'incoming' : 'outgoing'}
                                                  ${msgIsLast ? 'stop' : ''}
                                                  ${msgIsFirst ? 'start' : ''}
                                                  ${!msgIsLast && !msgIsFirst ? 'middle' : ''}
@@ -75,23 +92,25 @@ class Conversation extends Component {
                                                     incoming={msg.sender_id === this.otherUser.user_id}
                                                     message={{
                                                         content: msg.content,
-                                                        date: msg.date_sent,
-                                                        user: {
-                                                            name: 'Kanye West',
-                                                            picture: null
-                                                        }
+                                                        date: msg.date_sent
                                                     }}
                                                 />
                                             </Grid.Column>
                                         </Grid.Row>
                                     );
                                 }
-                                this.setState({ messageList });
+
+                                messageList.push(this.state.messageList);
+                                this.setState({
+                                    messageList,
+                                    page: this.state.page + 1
+                                });
                             })
                         );
                 })
             );
     }
+
 
     updateMessage(event, data) {
         this.setState({ message: data.value });
@@ -133,7 +152,15 @@ class Conversation extends Component {
         return (
             <div>
                 <Container className="main-container conversation" >
-                    <Grid >
+                    <Grid className="message-list">
+                        <Grid.Row className="load-more">
+                            <Grid.Column
+                                textAlign={'center'}
+                                onClick={this.loadMessages.bind(this)}
+                            >
+                                {this.state.loadMessages}
+                            </Grid.Column>
+                        </Grid.Row>
                         {this.state.messageList}
                     </Grid>
                     <Form onSubmit={this.sendMessage.bind(this)} >

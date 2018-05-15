@@ -11,7 +11,7 @@ class NewConversation extends Component {
         return (
             <div className="conversation-card new-conversation" >
                 <Grid >
-                    <Grid.Column width={3} className="conversation-image">
+                    <Grid.Column width={2} className="conversation-image">
                         <Icon.Group>
                             <Icon name="conversation" size="large" />
                             <Icon corner name="plus" size="large" />
