@@ -15,6 +15,8 @@ import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
+import Blog from './containers/Blog';
+import Feed from './containers/Feed';
 import { Responsive } from 'semantic-ui-react';
 import { MygrantFooter, MygrantHeader, MygrantNav } from './components/Common';
 
@@ -29,6 +31,8 @@ ReactDom.render(
                 <ProtectedRoute exact path="/signupinfo" component={SignUpInfo} />
                 <Route exact path="/createservice" component={CreateService} />
                 <Route exact path="/user/:id" component={User} />
+                <Route exact path="/user/:id/blog" component={Blog} />
+                <Route exact path="/user/:id/feed" component={Feed} />
                 <Route exact path="/service/:id" component={Service} />
                 <Route exact path="/tableservices" component={TableServices} />
                 <Responsive as={MygrantFooter} minWidth={768} />
