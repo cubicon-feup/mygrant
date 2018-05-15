@@ -10,8 +10,6 @@ import '../css/Conversation.css';
 class Conversation extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired,
-        history: ReactRouterPropTypes.history.isRequired,
-        location: ReactRouterPropTypes.location.isRequired,
         match: ReactRouterPropTypes.match.isRequired
     };
 
@@ -111,7 +109,6 @@ class Conversation extends Component {
             );
     }
 
-
     updateMessage(event, data) {
         this.setState({ message: data.value });
     }
@@ -131,7 +128,7 @@ class Conversation extends Component {
         const data = {
             content: this.state.message,
             'receiver_id': this.otherUser.user_id
-        }
+        };
 
         // Send message
         fetch(
@@ -142,8 +139,8 @@ class Conversation extends Component {
             })
             .then(res => {
                 if (res.status === 201) {
-                    // Refresh page
-                    this.props.history.push(this.props.location.pathname);
+                    // refresh page
+                    window.location.reload();
                 }
             });
     }
@@ -170,7 +167,7 @@ class Conversation extends Component {
                     </Form>
                 </Container>
             </div>
-        )
+        );
     }
 
 }
