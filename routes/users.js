@@ -8,21 +8,15 @@ const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
 router.get('/:id', function(req, res) {
-    try {
-        var id = req.params.id;
-    } catch (err) {
-        res.status(400).json({ error: err.toString() });
 
-        return;
-    }
     const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
-		FROM users
-		JOIN country
-		ON country.id=users.country_id
-		WHERE users.id = $(id);`;
-    db
-        .one(query, { id })
+        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
+        FROM users
+        JOIN country
+        ON country.id=users.country_id
+        WHERE users.id = $(id);`;
+
+    db.one(query, { id: req.params.id })
         .then(data => {
             res.status(200).json(data);
         })

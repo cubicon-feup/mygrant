@@ -15,6 +15,8 @@ import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
+import Inbox from './containers/Inbox';
+import Conversation from './containers/Conversation';
 import Search from "./containers/SearchPage";
 import CreateCrowdfunding from "./components/CreateCrowdfunding";
 import Crowdfunding from "./components/Crowdfunding";
@@ -31,9 +33,14 @@ ReactDom.render(
                 <Route exact path="/login" component={Login} />
                 <Route exact path="/signup" component={SignUp} />
                 <ProtectedRoute exact path="/signupinfo" component={SignUpInfo} />
-                <Route exact path="/createservice" component={CreateService} />
+                <Route
+                    exact path="/createservice/:type(PROVIDE|REQUEST)"
+                    component={CreateService}
+                />
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/service/:id" component={Service} />
+                <ProtectedRoute exact path="/inbox/" component={Inbox} />
+                <ProtectedRoute exact path="/conversation/:id" component={Conversation} />
                 <Route exact path="/tableservices" component={TableServices} />
                 <Route exact path="/search" component={Search} />
                 <Route exact path="/crowdfundings" component={Crowdfundings} />

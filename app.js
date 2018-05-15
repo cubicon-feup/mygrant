@@ -21,6 +21,7 @@ const crowdfundingsRouter = require('./routes/crowdfundings');
 const messagesRouter = require('./routes/messages');
 const categoriesRouter = require('./routes/categories');
 const commentsRouter = require('./routes/comments');
+const imagesRouter = require('./routes/images');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/crowdfundings', crowdfundingsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/service_categories', categoriesRouter);
 app.use('/api/comments', commentsRouter);
+app.use('/api/images', imagesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

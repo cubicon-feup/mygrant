@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
-import '../css/App.css';
-import { Container, Header, Table, Modal } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import '../css/Service.css';
+import {
+    Button,
+    Container,
+    Header,
+    Icon,
+    Modal,
+    Table
+} from 'semantic-ui-react';
 import Service from './Service';
 
 const urlForData = 'http://localhost:3001/api/services';
@@ -30,7 +38,9 @@ class TableRow extends React.Component {
                     className="modal-container"
                     trigger={<Table.Cell>{this.props.obj.title}</Table.Cell>}
                 >
-                    <Service id={this.props.obj.id} />
+                    <Modal.Content scrolling>
+                        <Service id={this.props.obj.id} />
+                    </Modal.Content>
                 </Modal>
                 <Table.Cell>{this.props.obj.category}</Table.Cell>
                 <Table.Cell>{this.props.obj.location}</Table.Cell>
@@ -75,13 +85,23 @@ class TableServices extends Component {
 
         return (
             <Container className="main-container">
-                <div>
-                    <Header as="h1">Services</Header>
-                    <Table celled selectable>
-                        <TableHeader />
-                        <Table.Body>{tableRows}</Table.Body>
-                    </Table>
-                </div>
+                <Header size="huge" textAlign="center">
+                    <Icon name="folder" />
+                    My Services
+                </Header>
+
+                <Table selectable basic="very">
+                    <TableHeader />
+                    <Container fluid className="purple-divider" />
+                    <Table.Body>{tableRows}</Table.Body>
+                </Table>
+
+                <Link to="/createservice/PROVIDE">
+                    <Button className="mygrant-button2">Provide Service</Button>
+                </Link>
+                <Link to="/createservice/REQUEST">
+                    <Button className="mygrant-button2">Request Service</Button>
+                </Link>
             </Container>
         );
     }
