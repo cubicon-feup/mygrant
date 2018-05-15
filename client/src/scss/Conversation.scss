@@ -13,13 +13,21 @@
             overflow-y: auto;
         }
 
-        form.ui.form {
-            margin-top: 50px;
-        }
     }
 }
 
+@media (max-width: 768px) {
+}
+
+
 .ui.container.main-container.conversation {
+    .ui.header {
+        margin-top: 0;
+        margin-left: 10px;
+    }
+    form.ui.form {
+        margin-top: 50px;
+    }
     .load-more {
         margin-bottom: 10px;
         color: $dark-green;
