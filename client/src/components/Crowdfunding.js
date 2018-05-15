@@ -16,6 +16,7 @@ const urlForRating = crowdfundingId => `http://localhost:3001/api/crowdfundings/
 const urlForDonations = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId  + `/donations`;
 const urlForServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services`;
 const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/donations`;
+const urlGetDonators = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
 // TODO create,update and delete
 // TODO donate
 
@@ -28,18 +29,12 @@ class Crowdfunding extends Component {
             donators: []
         };
 
-        const { cookies } = this.props;
-        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
-
-        console.log(cookies);
-        console.log(headers);
-
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     getDonators() {
-        fetch(`/api/crowdfundings/${this.state.crowdfundingId}/donations`, {
+        fetch(urlGetDonators(this.state.crowdfundingId), {
             method: 'GET'
         }).then(res => {
             if(res.status === 200) {
@@ -51,7 +46,7 @@ class Crowdfunding extends Component {
         })
     }
 
-    componentDidMount() {
+    componentDidMount() {      
         //DATA REQUEST
         fetch(urlForData(this.state.crowdfundingId))
             .then(response => {
@@ -126,21 +121,28 @@ class Crowdfunding extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = (event) => {
-        //this.setState({ amount: "" });
-        alert(JSON.stringify({
-            id:this.state.crowdfundingId,
-            donator_id:this.state.donator_id,
-            amount:this.state.amount
-        }));
+        const { cookies } = this.props;
         fetch(urlForDonate(this.state.crowdfundingId), {
             method: 'POST',
             headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                donator_id:this.state.donator_id,
-                amount:parseInt(this.state.amount)
+                amount: parseInt(this.state.amount)
             })
+        }).then(res => {
+            if(res.status === 201) {
+                let newDonator = {
+                    donator_id: 0,
+                    donator_name: 'q',
+                    amount: this.state.amount
+                }
+                let donators = this.state.donators;
+                donators.push(newDonator);
+                this.setState({donators: donators});
+
+            }
         })
     }
 
