@@ -1021,16 +1021,14 @@ router.delete('/:id/offers/decline', function(req, res) {
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
  // TODO: fix this:
-router.put('/instance/:id', authenticate, policy.edit, function(req, res) {
-    const creatorId = req.user.id;
+router.put('/instance/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_instance_id = req.params.id;
-        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 404; // TODO: SESSION ID
+        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : req.user.id;
         var rating = req.body.rating;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
@@ -1093,7 +1091,7 @@ router.put('/instance/:id', authenticate, policy.edit, function(req, res) {
             rating
         })
         .then(data => {
-            res.status(200);
+            res.status(200).send(data);
         })
         .catch(error => {
             res.status(500).json(error);
