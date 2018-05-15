@@ -13,16 +13,32 @@ class Inbox extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { messages: [] };
+        this.state = { conversations: [] };
 
         const { cookies } = this.props;
-        this.idToken = cookies.get('id_token');
 
-        const headers = { Authorization: `Bearer ${this.idToken}` };
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
 
         // Get messages from the database
-        //fetch('/api/messages/as_options', { headers })
-        //    .then(res => console.log(res))
+        fetch('/api/messages/', { headers })
+            .then(res => res.json()
+                .then(conversationList => {
+                    const conversations = [];
+                    conversationList.forEach(conv => {
+                        console.log(conv);
+                        conversations.push(
+                            <ConversationCard
+                                user={{
+                                    id: conv.other_user_id,
+                                    name: conv.other_user_full_name,
+                                    picture: conv.image_url
+                                }}
+                                lastMessage={{ content: conv.content }}
+                            />
+                        )
+                    });
+                    this.setState({ conversations });
+                }));
     }
 
     render() {
@@ -30,18 +46,7 @@ class Inbox extends Component {
             <div>
                 <Container className="main-container inbox">
                     <NewConversation />
-                    <ConversationCard
-                        user={{
-                            id: 69,
-                            name: 'Kanye',
-                            picture: '/api/images/users/kwest.jpg'
-                        }}
-                        lastMessage={{
-                            content: 'Poopity Scoop',
-                            date: '15:00',
-                            id: 1234
-                        }}
-                    />
+                    {this.state.conversations}
                 </Container>
             </div>
         );

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Grid, Header, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { instanceOf } from 'prop-types';
+import moment from 'moment';
 
 class ConversationCard extends Component {
     static propTypes = {
@@ -22,7 +23,7 @@ class ConversationCard extends Component {
                             <Header.Subheader>{this.props.lastMessage.content}</Header.Subheader>
                         </Grid.Column>
                         <Grid.Column width={2}>
-                            <Header.Subheader>{this.props.lastMessage.date}</Header.Subheader>
+                            <Header.Subheader>{moment(this.props.lastMessage.date).fromNow()}</Header.Subheader>
                         </Grid.Column>
                     </Grid>
                 </Link>

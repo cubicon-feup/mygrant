@@ -147,7 +147,8 @@ router.get('/:other_user', authenticate, function(req, res) {
 });
 
 /**
- * @api {get} /messages/ Get topics for user.
+ * @api {get} /messages/ Get topics for user. Returns an array of users that the logged user has conversations with, the last message sent between them, as well as the
+ * other user's id, name and picture
  * @apiName GetTopics
  * @apiGroup Messages
  * @apiPermission authenticated user
@@ -162,16 +163,19 @@ router.get('/', authenticate, function(req, res) {
 
     // Select all the users that the user has sent to or received messages from
     const query =
-        `SELECT DISTINCT 
-            CASE WHEN sender_id = $(loggedUser) THEN receiver_id
-                ELSE sender_id
-            END as other_user_id, users.full_name as other_user_full_name
-        FROM message
-        INNER JOIN users ON users.id = (
-            CASE WHEN sender_id = $(loggedUser) THEN receiver_id
-                ELSE sender_id
-            END)
-        WHERE sender_id = $(loggedUser) OR receiver_id = $(loggedUser);`;
+        `SELECT CASE WHEN mt.sender_id = $(loggedUser) then receiver_id else sender_id end as other_user_id, full_name as other_user_full_name, 
+        content, date_sent, image_url
+            FROM (
+                message m INNER JOIN (
+                    SELECT CASE WHEN sender_id = $(loggedUser) then receiver_id else sender_id end as other_user_id_max , max(date_sent) as maxDate
+                    FROM message
+                    WHERE sender_id = $(loggedUser) OR receiver_id = $(loggedUser)
+                    GROUP by other_user_id_max
+                ) t on t.other_user_id_max = ( CASE WHEN m.sender_id = $(loggedUser) then m.receiver_id else m.sender_id end) and m.date_sent = t.maxDate
+            ) mt INNER JOIN (
+                SELECT * FROM users
+            ) u on u.id = ( CASE WHEN mt.sender_id = $(loggedUser) then mt.receiver_id else mt.sender_id end)`;
+
 
     db.many(query, { loggedUser }).then(data => {
         res.status(200).send(data);
