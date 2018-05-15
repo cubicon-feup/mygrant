@@ -1,22 +1,55 @@
 import React, { Component } from 'react';
+import { instanceOf, PropTypes } from 'prop-types';
 import { Container, Divider, Icon, Header, Menu } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { withCookies, Cookies } from 'react-cookie';
 
 class MygrantHeader extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        userId: PropTypes.int,
+        userName: PropTypes.string
+    }
+
+    constructor(props) {
+        super(props);
+
+    }
+
     render() {
+        const { cookies } = this.props;
+
+        if (cookies.get('id_token')) {
+            const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+            fetch('/api/user/get_from_token', { headers })
+                .then(res => res.json()
+                    .then(user => {
+                        this.setState({ user });
+                        console.log(this.state);
+                    })
+                );
+        }
+
+        console.log(this.props.userId);
         return (
             <Menu className="site-header" fixed="top">
                 <Menu.Item header as="h2" name="mygrant" ><Link to="/">mygrant</Link></Menu.Item>
+                { this.props.userId ?
                 <Menu.Item position="right">
                     <Link to="/login">
                         <strong>Login</strong>
                     </Link>
                 </Menu.Item>
+                        : <strong>{'elo'}</strong>
+                }
+                { this.props.userId ?
                 <Menu.Item>
                     <Link to="/signup">
                         <strong>Sign Up</strong>
                     </Link>
                 </Menu.Item>
+                        : <strong>{'elo'}</strong>
+                }
             </Menu>
         );
     }
@@ -88,6 +121,5 @@ export {
     MygrantDividerRight,
     MygrantDividerLeft,
     MygrantFooter,
-    MygrantHeader,
     MygrantNav
 };

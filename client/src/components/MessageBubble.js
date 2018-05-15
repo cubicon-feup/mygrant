@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { instanceOf, PropTypes } from 'prop-types';
 import { Header, Segment } from 'semantic-ui-react';
+import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
 
 class MessageBubble extends Component {
