@@ -156,11 +156,11 @@ class Conversation extends Component {
                     <Grid className="other-user-info" >
                         <Grid.Row>
                             <Grid.Column width={1}>
-                                {this.state.otherUser.image_url ? 
-                                    <Image circular size={'tiny'} src={`/api/images/users/${this.state.otherUser.image_url}`} /> :
-                                    <Icon name="user circle outline" size={'big'} />
+                                {this.state.otherUser.image_url
+                                    ? <Image circular size={'tiny'} src={`/api/images/users/${this.state.otherUser.image_url}`} />
+                                    : <Icon name="user circle outline" size={'big'} />
                                 }
-                            
+
                             </Grid.Column>
                             <Grid.Column width={14} >
                                 <Header as={'h3'}>{this.state.otherUser.full_name}</Header>
