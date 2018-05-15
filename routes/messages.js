@@ -125,17 +125,18 @@ router.get('/:other_user/', authenticate, function(req, res) {
     const otherUser = req.params.other_user;
 
     const query =
-        `SELECT message.sender_id, message.content, message.date_sent
-        FROM message
-        WHERE (
-            sender_id = $(loggedUser) AND
-            receiver_id = $(otherUser)
-        ) OR (
-            sender_id = $(otherUser) AND
-            receiver_id = $(loggedUser)
-        )
-        ORDER BY date_sent DESC
-        LIMIT 20 OFFSET $(offset)
+        `SELECT m.sender_id, m.content, m.date_sent
+        FROM ( SELECT * FROM message
+            WHERE (
+                sender_id = $(loggedUser) AND
+                receiver_id = $(otherUser)
+            ) OR (
+                sender_id = $(otherUser) AND
+                receiver_id = $(loggedUser)
+            )
+            ORDER BY date_sent DESC
+            LIMIT 20 OFFSET $(offset)
+        ) m ORDER BY m.date_sent ASC
     `;
 
     db.manyOrNone(query, {
