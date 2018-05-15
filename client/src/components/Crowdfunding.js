@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-//import '../css/common.css';
 import '../css/Crowdfunding.css';
 
 import { Container, Header, Grid, Button, Label, Icon, Item, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
+import Donator from './Donator';
 import Comments from './comments/Comments';
 
 const apiPath = require('../config').apiPath;
@@ -18,15 +20,36 @@ const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/
 // TODO donate
 
 class Crowdfunding extends Component {
-  constructor(props) {
-      super(props);
-      this.state = { requestFailed: false,
-          crowdfundingId: this.props.match.params.crowdfunding_id,
-          donator_id: 2,
-      };
-      this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
-  }
+    constructor(props) {
+        super(props);
+        this.state = { requestFailed: false,
+            crowdfundingId: this.props.match.params.crowdfunding_id,
+            donator_id: 2,
+            donators: []
+        };
+
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        console.log(cookies);
+        console.log(headers);
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    getDonators() {
+        fetch(`/api/crowdfundings/${this.state.crowdfundingId}/donations`, {
+            method: 'GET'
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        this.setState({donators: data});
+                    })
+            }
+        })
+    }
 
     componentDidMount() {
         //DATA REQUEST
@@ -96,6 +119,8 @@ class Crowdfunding extends Component {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });*/
+
+        this.getDonators();
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
@@ -140,6 +165,17 @@ class Crowdfunding extends Component {
             </Container>
         );
       }
+
+      let donators;
+      if(this.state.donators) {
+        donators = this.state.donators.map(donator => {
+              return (
+                  <Donator donator={donator} />
+              )
+          })
+      } else
+          donators =
+            <p>No donators for now</p>
 
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
@@ -257,6 +293,8 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                     <Grid.Column width={6}>
                         <h4 align="center">Donators</h4>
+                        {donators}
+                        {/*<h4 align="center">Donators</h4>
                         <Item.Group divided>
                             <Item>
                                 <Item.Image size='tiny' src='/assets/images/wireframe/image.png' />
@@ -294,7 +332,7 @@ class Crowdfunding extends Component {
                                     </Item.Extra>
                                 </Item.Content>
                             </Item>
-                        </Item.Group>
+                        </Item.Group>*/}
                     </Grid.Column>
                 </Grid>
             </Container>
@@ -379,4 +417,4 @@ class Crowdfunding extends Component {
   }
 }
 
-export default Crowdfunding;
+export default withCookies(Crowdfunding);

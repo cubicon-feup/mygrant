@@ -44,7 +44,7 @@ ReactDom.render(
                 <Route exact path="/tableservices" component={TableServices} />
                 <Route exact path="/search" component={Search} />
                 <Route exact path="/crowdfundings" component={Crowdfundings} />
-                <Route exact path="/crowdfunding/:crowdfunding_id" component={Crowdfunding} />
+                <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id" component={Crowdfunding} />
                 <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <Responsive as={MygrantNav} maxWidth={768} />
