@@ -11,7 +11,7 @@ const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/off
 const urlRejectCandidate = serviceId => apiPath + `/services/`+ serviceId + `/offers/decline`;
 const urlAcceptCandidate = serviceId => apiPath + `/services/` + serviceId + `/offers/accept`;
 const urlGetServiceInstanceInfo = serviceId => apiPath + '/services/' + serviceId + `/instance`;
-const urlIsOwnerOrPartner = serviceId => '/api/services/' + serviceId + `/is_owner_or_partner`;
+const Role = require('../../Role').role;
 
 class RequestedServiceItem extends Component {
 
@@ -19,32 +19,15 @@ class RequestedServiceItem extends Component {
         super(props);
         this.state = {
             serviceId: this.props.requestedService.id,
+            crowdfundingCreatorId: this.props.crowdfundingCreatorId,
             candidates: [],
             serviceInstanceInfo: {},
-            ownerType: 'none'
+            role: Role.NONE
         }
     }
 
     componentDidMount() {
         this.getCandidates();
-        this.getOwnerType();
-    }
-
-    getOwnerType() {
-        const { cookies } = this.props;
-        fetch(urlIsOwnerOrPartner(this.state.serviceId), {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${cookies.get('id_token')}`,   
-            }
-        }).then(res => {
-            if(res.status === 200) {
-                res.json()
-                    .then(data => {
-                        this.setState({ownerType: data.type});
-                    })
-            }
-        })
     }
 
     getCandidates() {
@@ -70,7 +53,7 @@ class RequestedServiceItem extends Component {
                 res.json()
                     .then(data => {
                         this.setState({serviceInstanceInfo: data});
-                        console.log(this.state.serviceInstanceInfo)
+                        this.assignRole();
                     })
             }
         })
@@ -121,9 +104,19 @@ class RequestedServiceItem extends Component {
         }
     }
 
+    assignRole() {
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+        if(userId == this.state.crowdfundingCreatorId)
+            this.setState({role: Role.CROWDFUNDING_CREATOR});
+        else if (userId == this.state.serviceInstanceInfo.partner_id)
+            this.setState({role: Role.SERVICE_PARTNER});
+        console.log(userId, this.props.crowdfundingCreatorId, this.state.serviceInstanceInfo.partner_id, this.state.role)
+    }
+
     render() {
         let candidates;
-        if(this.state.candidates.length > 0 && this.props.isOwner) {
+        if(this.state.candidates.length > 0 && this.state.role === Role.CROWDFUNDING_CREATOR) {
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
@@ -133,7 +126,7 @@ class RequestedServiceItem extends Component {
         
         let selectedRequester;
         if(this.state.serviceInstanceInfo)
-            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} ownerType={this.state.ownerType}/>
+            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} role={this.state.role}/>
         else selectedRequester = null;
         return (
             <Container>

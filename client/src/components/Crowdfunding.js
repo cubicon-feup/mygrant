@@ -17,7 +17,6 @@ const urlForDonations = crowdfundingId => `http://localhost:3001/api/crowdfundin
 const urlForServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services`;
 const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/donations`;
 const urlGetDonators = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
-const urlIsOwner = crowdfundingId => '/api/crowdfundings/' + crowdfundingId + `/is_owner`;
 // TODO create,update and delete
 // TODO donate
 
@@ -26,7 +25,6 @@ class Crowdfunding extends Component {
         super(props);
         this.state = {
             crowdfunding: {},
-            isOwner: false,
             requestFailed: false,
             crowdfundingId: this.props.match.params.crowdfunding_id,
             donator_id: 2,
@@ -35,56 +33,9 @@ class Crowdfunding extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-    }
 
-    getIsOwner() {
         const { cookies } = this.props;
-        fetch(urlIsOwner(this.state.crowdfundingId), {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${cookies.get('id_token')}`,
-            }
-        }).then(res => {
-            if(res.status === 200) {
-                res.json()
-                    .then(data => {
-                        this.setState({isOwner: data})
-                    })
-            }
-        })
-    }
-
-    getCrowdfundingData() {
-        const { cookies } = this.props;
-        fetch(urlForData(this.state.crowdfundingId), {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${cookies.get('id_token')}`,
-            }
-        }).then(res => {
-            if(res.status === 200) {
-                res.json()
-                    .then(data => {
-                        this.setState({crowdfunding: data});
-                    })
-            }
-        })
-
-        /*fetch(urlForData(this.state.crowdfundingId))
-        .then(response => {
-            if (!response.ok) {
-                throw Error('Network request failed');
-            }
-
-            return response;
-        })
-        .then(result => result.json())
-        .then(result => {
-            this.setState({ crowdfunding: result });
-        }, () => {
-            // "catch" the error
-            this.setState({ requestFailed: true });
-        });*/
+        console.log(cookies);
     }
 
     getDonators() {
@@ -94,7 +45,6 @@ class Crowdfunding extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
-                        console.log(data);
                         this.setState({donators: data});
                     })
             }
@@ -141,28 +91,8 @@ class Crowdfunding extends Component {
     }
 
     componentDidMount() {
-        // DATA REQUEST
         this.getData();
-        // RATING REQUEST
         this.getRating();
-        // SERVICES REQUEST - TODO doesnt seem to work
-        /*fetch(urlForServices(this.state.crowdfundingId))
-            .then(response => {
-                if (!response.ok) {
-                    throw Error('Network request failed');
-                }
-
-                return response;
-            })
-            .then(result => result.json())
-            .then(result => {
-                this.setState({ services: result });
-            }, () => {
-                // "catch" the error
-                this.setState({ requestFailed: true });
-            });*/
-
-        this.getIsOwner();
         this.getDonators();
     }
 
@@ -295,7 +225,7 @@ class Crowdfunding extends Component {
             <Container id="services_donators">
                 <Grid stackable columns={3}>
                     <Grid.Column width={9}>
-                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} isOwner={this.state.isOwner} />
+                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} crowdfundingCreatorId={this.state.crowdfunding.creator_id} />
                         {/*<h4 align="center">Services</h4>
                         <Item.Group divided>
                             <Item>

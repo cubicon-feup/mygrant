@@ -4,13 +4,14 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
 const urlRate = serviceId => '/api/services/instance/' + serviceId;
+const Role = require('../../Role').role;
 
 class SelectedRequester extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            toRate: 0
+            toRate: 0,
         }
     }
 
@@ -39,7 +40,7 @@ class SelectedRequester extends Component {
         let scheduledDate = null;
         let creatorRating = null;
         let partnerRating = null;
-        if(this.props.ownerType === 'creator' || this.props.ownerType === 'partner') {
+        if(this.props.role !== Role.NONE) {
             if(new Date() < new Date(this.props.serviceInstanceInfo.date_scheduled)) {
                 // Service is not yet done.
                 scheduledDate = 
@@ -47,7 +48,7 @@ class SelectedRequester extends Component {
                         <label>Scheduled date: {this.props.serviceInstanceInfo.date_scheduled}</label>
                     </Container>
             } else {
-                if(this.props.ownerType === 'creator' && !this.props.serviceInstanceInfo.partner_rating) {
+                if(this.props.role === Role.CROWDFUNDING_CREATOR && !this.props.serviceInstanceInfo.partner_rating) {
                     // Service may be done, so ratings can be set.
                     partnerRating = 
                         <Container>
@@ -56,7 +57,7 @@ class SelectedRequester extends Component {
                                 <input type="submit" value="Rate Service Partner" />
                             </form>
                         </Container>
-                } else if (this.props.ownerType === 'partner' && !this.props.serviceInstanceInfo.creator_rating){
+                } else if (this.props.role === Role.SERVICE_PARTNER && !this.props.serviceInstanceInfo.creator_rating){
                     creatorRating = 
                         <Container>
                             <form onSubmit={this.handleSubmit.bind(this)}>
