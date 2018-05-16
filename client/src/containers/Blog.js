@@ -15,6 +15,8 @@ class Blog extends Component {
             <div>
                 <Container className="main-container blog" >
                     <BlogHeader user={{
+                        city: 'Chicago',
+                        country: 'USA',
                         fullName: 'Kanye West',
                         id: 69,
                         pictureUrl: '/users/kwest.jpg'
