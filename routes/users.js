@@ -21,8 +21,22 @@ router.get('/:id', function(req, res) {
             res.status(200).json(data);
         })
         .catch(error => {
+            console.log(error.message);
             res.status(500).json(error.message);
         });
+});
+
+/**
+ * @api {get} /users/get_from_token get the authenticated user that is identified by a JWT
+ * @apiName getFromToken
+ * @apiGroup User
+ * @apiPermission authenticated user
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.get('/', authenticate, function(req, res) {
+    res.status(200).json(req.user);
 });
 
 // Get friends
