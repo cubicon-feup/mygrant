@@ -27,4 +27,4 @@ class NewPost extends Component {
     }
 }
 
-export default NewPost;
+export default withCookies(NewPost);

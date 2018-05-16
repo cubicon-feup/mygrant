@@ -1,7 +1,8 @@
 @import 'common';
 
 @media(min-width: 768px) {
-    div.main-container.blog {
+    div.main-container.blog,
+    div.main-container.post {
         width: 35%;
 
         div.blog-header {
@@ -34,10 +35,6 @@
         }
 
         div.blog-post {
-            &:hover {
-                cursor: pointer;
-                background-color: $lightest-grey;
-            }
             .sub.header {
                 color: $grey;
             }
@@ -46,16 +43,26 @@
                 padding-top: 0;
             }
         }
+
+        div.blog-post.linked {
+            &:hover {
+                cursor: pointer;
+                background-color: $lightest-grey;
+            }
+        } 
+
         div.segments {
             border: none;
         }
     }
 } 
 
-div.main-container.blog {
+div.main-container.blog,
+div.main-container.post {
     button.ui.button {
         height: 40px;
     }
+
     div.blog-header {
         margin-bottom: 1rem;
 
@@ -73,9 +80,13 @@ div.main-container.blog {
         color: rgba(0,0,0,0.87);
         margin:0;
         border-bottom: none;
-        border-radius:0;
-        border-bottom-right-radius: 0;
         margin-bottom: -1;
+    }
+
+    div.segment.blog-post.header-post {
+        .content h3 {
+            font-weight: normal;
+        }
     }
 
     div.segment.new-post {

@@ -18,6 +18,7 @@ import Service from './components/Service';
 import TableServices from './components/TableServices';
 import Blog from './containers/Blog';
 import Feed from './containers/Feed';
+import Post from './containers/Post';
 import Inbox from './containers/Inbox';
 import Conversation from './containers/Conversation';
 import Search from './containers/SearchPage';
@@ -43,6 +44,7 @@ ReactDom.render(
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/user/:id/blog" component={Blog} />
                 <Route exact path="/user/:id/feed" component={Feed} />
+                <Route exact path="/post/:id" component={Post} />
                 <Route exact path="/service/:id" component={Service} />
                 <ProtectedRoute exact path="/inbox/" component={Inbox} />
                 <ProtectedRoute exact path="/conversation/:id" component={Conversation} />
