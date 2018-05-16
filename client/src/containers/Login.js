@@ -73,6 +73,7 @@ class Login extends Component {
                         });
                         // Redirect to new page
                         this.props.history.push('/');
+                        window.location.reload();
                     });
             } else {
                 this.setState({ formError: true });
