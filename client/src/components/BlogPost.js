@@ -27,12 +27,12 @@ class Post extends Component {
                 <Grid padded >
                     <Grid.Row>
                         {
-                            this.props.header ? null
+                            this.props.header || this.props.comment ? null
                                 : <Grid.Column width={2}>
                                     <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                 </Grid.Column>
                         }
-                        <Grid.Column width={14}>
+                        <Grid.Column width={this.props.header || this.props.comment ? 16 : 14}>
                             <Grid>
                                 <Grid.Row>
                                     {
@@ -43,17 +43,31 @@ class Post extends Component {
                                             : null
                                     }
                                     <Grid.Column width={this.props.header ? 14 : 10}>
-                                        <Header as={this.props.header ? 'h3' : 'h4'}>{this.props.user.fullName}</Header>
+                                        <Header as={this.props.header ? 'h3' : 'h4'}>
+                                            {
+                                                this.props.comment
+                                                ? <Image size={'tiny'} centered avatar src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                                : null
+                                            }
+                                            {this.props.user.fullName}
+                                        </Header>
                                         {
                                             this.props.header
-                                                ? <Header.Subheader>{this.props.postInfo.datePosted}</Header.Subheader>
+                                                ? <Header.Subheader verticalAlign={'top'}>
+                                                    {this.props.postInfo.datePosted}
+                                                </Header.Subheader>
                                                 : null
                                         }
                                     </Grid.Column>
                                     {
                                         this.props.header ? null
-                                            : <Grid.Column width={6} textAlign={'right'} verticalAlign={'top'} >
-                                                <Header.Subheader>{this.props.postInfo.datePosted}</Header.Subheader>
+                                            : <Grid.Column width={6} textAlign={'right'} >
+                                                <span className={`${this.props.comment ? 'comment-date' : ''}`}>{this.props.postInfo.datePosted}</span>
+                                                {
+                                                    this.props.comment
+                                                        ? <span>{this.props.postInfo.likes} <Icon name={'like outline'}/></span>
+                                                        : null
+                                                }
                                             </Grid.Column>
                                     }
                                 </Grid.Row>
@@ -62,17 +76,18 @@ class Post extends Component {
                                         {this.props.header ? <h3>{this.props.postInfo.content}</h3> : this.props.postInfo.content}
                                     </Grid.Column>
                                 </Grid.Row>
-                                <Grid.Row textAlign={'left'}>
-                                    {
-                                        this.props.comment ? null
-                                        : <Grid.Column width={2}>
-                                            <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
-                                        </Grid.Column>
-                                    }
-                                    <Grid.Column width={2}>
-                                        <Icon name={'like outline'}/>{this.props.postInfo.likes}
-                                    </Grid.Column>
-                                </Grid.Row>
+                                {
+                                    this.props.comment
+                                        ? null
+                                        : <Grid.Row textAlign={'left'}>
+                                            <Grid.Column width={2}>
+                                                <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
+                                            </Grid.Column>
+                                            <Grid.Column width={2}>
+                                                <Icon name={'like outline'}/>{this.props.postInfo.likes}
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                }
                             </Grid>
                         </Grid.Column>
                     </Grid.Row>

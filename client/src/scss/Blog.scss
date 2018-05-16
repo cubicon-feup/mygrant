@@ -89,6 +89,13 @@ div.main-container.post {
         }
     }
 
+    div.segment.blog-post.post-comment {
+        .comment-date {
+            margin-right: 10px;
+            color: $grey;
+        }
+    }
+
     div.segment.new-post {
         form {
             margin: 0;
