@@ -39,6 +39,9 @@ class Post extends Component {
 
                     <NewPost/>
                 <Segment.Group>
+                    <Segment textAlign={'center'} className={'load-more-comments'} >
+                        {'Load more comments'}
+                    </Segment>
                     <BlogPost
                         comment
                         postInfo={{
@@ -67,9 +70,6 @@ class Post extends Component {
                             pictureUrl: '/users/kwest.jpg'
                         }}
                     />
-                    <Segment textAlign={'center'} className={'load-more-comments'} >
-                        {'Load more comments'}
-                    </Segment>
                 </Segment.Group>
             </Container>
         );

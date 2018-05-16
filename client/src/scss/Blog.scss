@@ -110,6 +110,10 @@ div.main-container.post {
         margin:0;
         border-bottom: none;
         margin-bottom: -1;
+
+        .post-options {
+            margin-left: 5px;
+        }
     }
 
     div.segment.blog-post.header-post {

@@ -55,6 +55,9 @@ class Blog extends Component {
                             pictureUrl: '/users/kwest.jpg'
                         }}
                     />
+                    <Segment textAlign={'center'} className={'load-more-comments'} >
+                        {'Load more posts'}
+                    </Segment>
                 </Segment.Group>
             </Container>
         </div>

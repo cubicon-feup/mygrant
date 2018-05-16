@@ -63,7 +63,10 @@ class Post extends Component {
                                             }
                                             {
                                                 this.props.comment
-                                                    ? <span className={`${this.props.comment ? 'comment-date' : ''}`}>{this.props.postInfo.datePosted}</span>
+                                                    ? <span className={`${this.props.comment ? 'comment-date' : ''}`}>
+                                                        {this.props.postInfo.datePosted}
+                                                        <Icon className={'post-options'} name={'ellipsis horizontal'}/>
+                                                        </span>
                                                     : null
                                             }
                                         </Grid.Column>
@@ -71,12 +74,11 @@ class Post extends Component {
                                             this.props.header
                                                 ? null
                                                 : <Grid.Column width={6} textAlign={'right'} >
-
                                                     {
                                                         this.props.comment
                                                             ? <span className={'post-likes'}>{this.props.postInfo.likes}
-                                                                <Icon className={'post-likes-icon'} name={'like outline'}/>
-                                                            </span>
+                                                                    <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                                </span>
                                                             : null
                                                     }
                                                 </Grid.Column>
@@ -103,7 +105,7 @@ class Post extends Component {
                                                     </span>
                                                 </Grid.Column>
                                                 <Grid.Column width={2}>
-                                                    <Icon className={'post-likes-icon'} name={'ellipsis horizontal'}/>
+                                                    <Icon className={'post-options'} name={'ellipsis horizontal'}/>
                                                 </Grid.Column>
                                             </Grid.Row>
                                     }
