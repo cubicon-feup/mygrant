@@ -31,11 +31,23 @@
                 padding: 12px;
             }
         }
+
+        div.blog-post {
+            .sub.header {
+                color: $grey;
+            }
+
+            div.content {
+                padding-top: 0;
+            }
+        }
     }
 
 } 
 
 div.blog-header {
+    margin-bottom: 1rem;
+
     img.ui.image {
         background: white;
         border: 1px solid $light-grey;
@@ -44,4 +56,12 @@ div.blog-header {
     .ui.segment {
         padding-top: 50px;
     }
+}
+
+div.segment.blog-post {
+    margin:0;
+    border-bottom: none;
+    border-radius:0;
+    border-bottom-right-radius: 0;
+    margin-bottom: -1;
 }

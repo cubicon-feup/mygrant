@@ -30,7 +30,7 @@ class BlogHeader extends Component {
                         </Grid>
                 </Segment>
             </div>
-        )
+        );
     }
 }
 
