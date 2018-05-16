@@ -46,8 +46,8 @@ class Crowdfunding extends Component {
         })
     }
 
-    componentDidMount() {      
-        //DATA REQUEST
+    getData(){
+
         fetch(urlForData(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
@@ -63,7 +63,9 @@ class Crowdfunding extends Component {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });
-        //RATING REQUEST
+    }
+
+    getRating(){
         fetch(urlForRating(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
@@ -82,6 +84,13 @@ class Crowdfunding extends Component {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });
+    }
+
+    componentDidMount() {
+        //DATA REQUEST
+        this.getData();
+        //RATING REQUEST
+        this.getRating();
         //DONATIONS REQUEST - TODO Doesnt seem to work
         /*fetch(urlForDonations(this.state.crowdfundingId))
             .then(response => {
