@@ -2,22 +2,41 @@
 
 @media(min-width: 768px) {
     div.main-container.blog {
-        width: 50%;
+        width: 35%;
 
         div.blog-header {
             margin-top: -50px;
             font-family: Helvetica, sans-serif !important;
+
+            div.row {
+                padding-bottom: 0;
+                padding-top: 0;
+
+                .sub.header {
+                    color: $grey;
+                }
+
+                button.ui.button {
+                    height: 30px;
+                    margin-top: -10px;
+                    margin-right: -5px;
+                }
+            }
+
+            img.ui.image {
+                width: 120px;
+                position: relative;
+                top: 75px;
+                z-index: 5;
+                padding: 12px;
+            }
         }
     }
 
 } 
 
 div.blog-header {
-    img {
-        position: relative;
-        top: 50px;
-        z-index: 5;
-        padding: 12px;
+    img.ui.image {
         background: white;
         border: 1px solid $light-grey;
     }
