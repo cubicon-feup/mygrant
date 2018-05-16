@@ -26,7 +26,8 @@ import CreateCrowdfunding from './components/CreateCrowdfunding';
 import Crowdfunding from './components/Crowdfunding';
 import Crowdfundings from './components/Crowdfundings';
 import { Responsive } from 'semantic-ui-react';
-import { MygrantFooter, MygrantHeader, MygrantNav } from './components/Common';
+import MygrantHeader from './components/MygrantHeader';
+import { MygrantFooter, MygrantNav } from './components/Common';
 
 ReactDom.render(
     <Router>
