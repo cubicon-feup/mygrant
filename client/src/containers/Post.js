@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import BlogPost from '../components/BlogPost';
+import BlogComment from '../components/BlogComment';
+import BlogHeaderPost from '../components/BlogHeaderPost';
 import NewPost from '../components/NewPost';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { Button, Container, Form, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
@@ -21,8 +23,7 @@ class Post extends Component {
     render() {
         return (
             <Container className={'main-container post'} >
-                <BlogPost
-                    header
+                <BlogHeaderPost
                     postInfo={{
                         commentCount: 2,
                         content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
@@ -42,8 +43,7 @@ class Post extends Component {
                     <Segment textAlign={'center'} className={'load-more-comments'} >
                         {'Load more comments'}
                     </Segment>
-                    <BlogPost
-                        comment
+                    <BlogComment
                         postInfo={{
                             content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
                         datePosted: '15:00',
@@ -56,8 +56,7 @@ class Post extends Component {
                             pictureUrl: '/users/kwest.jpg'
                         }}
                     />
-                    <BlogPost
-                        comment
+                    <BlogComment
                         postInfo={{
                             content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
                         datePosted: '15:00',
