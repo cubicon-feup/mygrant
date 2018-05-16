@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Container, Button, Form } from 'semantic-ui-react';
+import { Container, Button, Form, Responsive } from 'semantic-ui-react';
 
 import Comment from './Comment';
+import { MygrantDividerLeft } from '../Common';
 
 const apiPath = require('../../config').apiPath;
 const urlGetTopComments = (originField, originId) => apiPath + `/comments/top_comments?` + originField + `=` + originId;
@@ -130,20 +131,25 @@ class Comments extends Component {
                 )
             })
         } else {
-            comments = 
+            comments =
                 <Container>
                     <p>No comments yet</p>
                 </Container>
         }
         return (
+            <div>
             <Container>
                 <h3>Comments</h3>
+            </Container>
+            <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
+            <Container id="crowdfunding_comments">
                 {comments}
                 <Form onSubmit={this.handleSubmit.bind(this)}>
                     <Form.TextArea value={this.state.postingComment} onChange={this.handleChange.bind(this)} />
                     <Form.Button content='Comment' labelPosition='left' icon='edit' primary />
                 </Form>
             </Container>
+            </div>
         )
     }
 }

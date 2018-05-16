@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Button, Label, Icon, Item, Input,Comment, Rating, Loader, Image,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Divider, Label, Icon, Item, Input,Comment, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -40,6 +40,7 @@ class Crowdfunding extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
+                        console.log(data);
                         this.setState({donators: data});
                     })
             }
@@ -87,27 +88,11 @@ class Crowdfunding extends Component {
     }
 
     componentDidMount() {
-        //DATA REQUEST
+        // DATA REQUEST
         this.getData();
-        //RATING REQUEST
+        // RATING REQUEST
         this.getRating();
-        //DONATIONS REQUEST - TODO Doesnt seem to work
-        /*fetch(urlForDonations(this.state.crowdfundingId))
-            .then(response => {
-                if (!response.ok) {
-                    throw Error('Network request failed');
-                }
-
-                return response;
-            })
-            .then(result => result.json())
-            .then(result => {
-                this.setState({ donations: result });
-            }, () => {
-                // "catch" the error
-                this.setState({ requestFailed: true });
-            });*/
-        //SERVICES REQUEST - TODO doesnt seem to work
+        // SERVICES REQUEST - TODO doesnt seem to work
         /*fetch(urlForServices(this.state.crowdfundingId))
             .then(response => {
                 if (!response.ok) {
@@ -179,11 +164,19 @@ class Crowdfunding extends Component {
 
       let donators;
       if(this.state.donators) {
-        donators = this.state.donators.map(donator => {
-              return (
-                  <Donator donator={donator} />
-              )
-          })
+        donators = this.state.donators.map(function(donator,index,array) {
+            if( index == 0 ) {
+                return (
+                    <Donator donator={donator}/>
+                );
+            }
+            return (
+                <div>
+                    <Divider />
+                    <Donator donator={donator}/>
+                </div>
+            );
+          });
       } else
           donators =
             <p>No donators for now</p>
@@ -304,7 +297,9 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                     <Grid.Column width={6}>
                         <h4 align="center">Donators</h4>
-                        {donators}
+                        <Item.Group divided>
+                            {donators}
+                        </Item.Group>
                         {/*<h4 align="center">Donators</h4>
                         <Item.Group divided>
                             <Item>
