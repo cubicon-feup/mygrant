@@ -17,7 +17,7 @@ class Post extends Component {
         super(props);
     }
 
-    render() {
+    render () {
         return (
             <div>
                 <Segment className={
@@ -68,8 +68,10 @@ class Post extends Component {
                                             }
                                         </Grid.Column>
                                         {
-                                            this.props.header ? null
+                                            this.props.header
+                                                ? null
                                                 : <Grid.Column width={6} textAlign={'right'} >
+
                                                     {
                                                         this.props.comment
                                                             ? <span className={'post-likes'}>{this.props.postInfo.likes}
@@ -96,11 +98,12 @@ class Post extends Component {
                                                 </Grid.Column>
                                                 <Grid.Column width={2}>
                                                     <span className={'post-likes'}>
-                                                        <Icon.Group>
-                                                            <Icon className={'post-likes-icon'} name={'like outline'}/>
-                                                        </Icon.Group>
+                                                        <Icon className={'post-likes-icon'} name={'like outline'}/>
                                                         {this.props.postInfo.likes}
                                                     </span>
+                                                </Grid.Column>
+                                                <Grid.Column width={2}>
+                                                    <Icon className={'post-likes-icon'} name={'ellipsis horizontal'}/>
                                                 </Grid.Column>
                                             </Grid.Row>
                                     }
