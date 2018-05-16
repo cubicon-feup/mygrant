@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
-import { instanceOf } from 'prop-types';
+import { instanceOf, PropTypes } from 'prop-types';
 import moment from 'moment';
 
 class Post extends Component {
     static propTypes = {
+        comment: PropTypes.bool,
         postInfo: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
     };
@@ -39,9 +40,12 @@ class Post extends Component {
                                         <Grid.Column width={2}>
                                             <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
                                         </Grid.Column>
-                                        <Grid.Column width={2}>
-                                            <Icon name={'like outline'}/>{this.props.postInfo.likes}
-                                        </Grid.Column>
+                                        {
+                                            this.props.comment ? null
+                                                : <Grid.Column width={2}>
+                                                    <Icon name={'like outline'}/>{this.props.postInfo.likes}
+                                                </Grid.Column>
+                                        }
                                     </Grid.Row>
                                 </Grid>
                             </Grid.Column>
