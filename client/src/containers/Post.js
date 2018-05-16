@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import BlogPost from '../components/BlogPost';
+import NewPost from '../components/NewPost';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { Button, Container, Form, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
 
@@ -36,6 +37,7 @@ class Post extends Component {
                     }}
                 />
 
+                    <NewPost/>
                 <Segment.Group>
                     <BlogPost
                         comment
