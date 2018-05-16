@@ -1,0 +1,29 @@
+@import 'common';
+
+.purple-background {
+    background: $light-purple;
+}
+
+#purple-button,
+.ui.button.mygrant-button3 {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: lighten($purple, 30%);
+    color: white;
+    width: 20em;
+    height: 39px;
+    border-radius: 500em;
+
+    &:hover {
+        background-color: lighten($purple, 40%);
+    }
+}
+
+#commentssection {
+    max-width: 100%;
+    background: $light-purple;
+}
+
+#whitetext {
+    color: white;
+}
