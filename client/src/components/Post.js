@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
-import { instanceOf, PropTypes } from 'prop-types';
+import { instanceOf } from 'prop-types';
 import moment from 'moment';
 
 class Post extends Component {
     static propTypes = {
-        commentCount: PropTypes.number.isRequired,
-        content: PropTypes.string.isRequired,
-        datePosted: PropTypes.string.isRequired,
-        likes: PropTypes.number.isRequired,
+        postInfo: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
     };
 
     render() {
         return (
+            <Link to={`/post/${this.props.postInfo.id}`}>
             <Segment className={'blog-post'} >
                 <Container >
                     <Grid padded >
@@ -28,20 +27,20 @@ class Post extends Component {
                                             <Header as={'h4'}>{this.props.user.fullName}</Header>
                                         </Grid.Column>
                                         <Grid.Column width={6} textAlign={'right'} verticalAlign={'top'} >
-                                            <Header.Subheader>{this.props.datePosted}</Header.Subheader>
+                                            <Header.Subheader>{this.props.postInfo.datePosted}</Header.Subheader>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row className={'content'} verticalAlign={'top'} >
                                         <Grid.Column width={16} >
-                                            {this.props.content}
+                                            {this.props.postInfo.content}
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row textAlign={'left'}>
                                         <Grid.Column width={2}>
-                                            <Icon name={'comment outline'}/>{this.props.commentCount}
+                                            <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
                                         </Grid.Column>
                                         <Grid.Column width={2}>
-                                            <Icon name={'like outline'}/>{this.props.likes}
+                                            <Icon name={'like outline'}/>{this.props.postInfo.likes}
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>
@@ -50,6 +49,7 @@ class Post extends Component {
                     </Grid>
                 </Container>
             </Segment>
+    </Link>
         );
     }
 }

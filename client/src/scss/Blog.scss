@@ -34,6 +34,10 @@
         }
 
         div.blog-post {
+            &:hover {
+                cursor: pointer;
+                background-color: $lightest-grey;
+            }
             .sub.header {
                 color: $grey;
             }
@@ -42,8 +46,10 @@
                 padding-top: 0;
             }
         }
+        div.segments {
+            border: none;
+        }
     }
-
 } 
 
 div.main-container.blog {
@@ -64,6 +70,7 @@ div.main-container.blog {
     }
 
     div.segment.blog-post {
+        color: rgba(0,0,0,0.87);
         margin:0;
         border-bottom: none;
         border-radius:0;
