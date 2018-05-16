@@ -13,8 +13,7 @@
                 height: 30px;
                 margin-top: -10px;
                 margin-right: -5px;
-            }
-
+            } 
             div.row {
                 padding-bottom: 0;
                 padding-top: 0;
@@ -52,13 +51,36 @@
         } 
 
         div.segments {
-            border: none;
+            div.segment.blog-post {
+                border-left: none;
+                border-right: none;
+            }
+
+            div.segment.load-more-comments {
+                &:hover {
+                    cursor: pointer;
+                    color: $grey;
+                }
+            }
         }
     }
 } 
 
 div.main-container.blog,
 div.main-container.post {
+    div.blog-post.linked {
+        a {
+            color: rgba(0,0,0,0.87);
+        }
+    }
+
+    span.post-likes {
+        margin-left: 3px;
+        &:hover {
+            cursor: pointer;
+            color: red;
+        }
+    }
     button.ui.button {
         height: 40px;
     }
@@ -76,6 +98,13 @@ div.main-container.post {
         }
     }
 
+    div.segments {
+        div.segment.blog-post {
+            border-left: none;
+            border-right: none;
+        }
+    }
+
     div.segment.blog-post {
         color: rgba(0,0,0,0.87);
         margin:0;
@@ -90,6 +119,10 @@ div.main-container.post {
     }
 
     div.segment.blog-post.post-comment {
+        .header.ui{
+            display: inline;
+            margin-right: 10px;
+        }
         .comment-date {
             margin-right: 10px;
             color: $grey;
