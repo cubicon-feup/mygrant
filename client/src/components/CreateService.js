@@ -21,48 +21,6 @@ const radiusoptions = [
         value: 50
     }
 ];
-const service_categories = [
-    {
-        key: '0',
-        text: 'ARTS',
-        value: 'ARTS'
-    },
-    {
-        key: '1',
-        text: 'BUSINESS',
-        value: 'BUSINESS'
-    },
-    {
-        key: '2',
-        text: 'FITNESS',
-        value: 'FITNESS'
-    },
-    {
-        key: '3',
-        text: 'FUN',
-        value: 'FUN'
-    },
-    {
-        key: '4',
-        text: 'HOME',
-        value: 'HOME'
-    },
-    {
-        key: '5',
-        text: 'LEARNING',
-        value: 'LEARNING'
-    },
-    {
-        key: '6',
-        text: 'PETS',
-        value: 'PETS'
-    },
-    {
-        key: '7',
-        text: 'REQUEST',
-        value: 'REQUEST'
-    }
-];
 
 class TextInput extends Component {
     constructor(props) {
@@ -78,6 +36,7 @@ class TextInput extends Component {
      */
     invalidInput(value) {
         const test = /[^\wÀ-û\s]/;
+
         return test.test(value) || value.length < 5;
     }
 
@@ -86,17 +45,16 @@ class TextInput extends Component {
     }
 
     handleBlur = () => {
-        this.setState({
-            touched: true
-        });
+        this.setState({ touched: true });
     };
 
     handleChange = (e, { name, value }) => {
         this.setState(
-            {
-                error: this.invalidInput(this.props.value)
-            },
-            this.props.onChange(e, { name, value })
+            { error: this.invalidInput(this.props.value) },
+            this.props.onChange(e, {
+                name,
+                value
+            })
         );
     };
 
@@ -124,6 +82,7 @@ class CreateService extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            service_categories: [],
             title: '',
             description: '',
             category: '',
@@ -132,26 +91,48 @@ class CreateService extends Component {
             mygrant_value: '',
             creator_id: 1
         };
-        this.required = ['title', 'category', 'mygrant_value', 'service_type'];
+        this.service_categories = [];
     }
 
     componentDidMount() {
-        this.setState({
-            service_type: this.props.match.params.type
-        });
+        this.setState({ service_type: this.props.match.params.type });
+
+        fetch('/api/service_categories')
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+
+                return response;
+            })
+            .then(result => result.json())
+            .then(
+                result => {
+                    result.forEach(category => {
+                        this.setState({
+                            service_categories: [
+                                ...this.state.service_categories,
+                                {
+                                    text: category.service_category,
+                                    value: category.service_category
+                                }
+                            ]
+                        });
+                    });
+                },
+                () => {
+                    console.log('ERROR', 'Failed to fetch service categories.');
+                }
+            );
     }
 
     handleChange = (e, { name, value }) => {
-        this.setState({
-            [name]: value
-        });
+        this.setState({ [name]: value });
     };
 
     handleNumberChange = (e, { name, value }) => {
         var newValue = parseInt(value, 10);
-        this.setState({
-            [name]: newValue
-        });
+        this.setState({ [name]: newValue });
     };
 
     handleSubmit = e => {
@@ -167,9 +148,7 @@ class CreateService extends Component {
         fetch(urlForData, {
             method: 'PUT',
             body: JSON.stringify(this.state),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         })
             .then(result => {
                 result.json();
@@ -193,6 +172,7 @@ class CreateService extends Component {
         } else if (this.state.service_type === 'REQUEST') {
             return 'Request Service';
         }
+
         return 'ERROR';
     }
 
@@ -224,7 +204,7 @@ class CreateService extends Component {
                         fluid
                         search
                         selection
-                        options={service_categories}
+                        options={this.state.service_categories}
                         onChange={this.handleChange}
                     />
                     <TextInput
