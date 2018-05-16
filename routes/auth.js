@@ -33,14 +33,14 @@ router.post('/signup', function(req, res) {
                             bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
 
                                 query = `INSERT INTO users (email, pass_hash, full_name, phone, mygrant_balance) 
-                                VALUES ($(email), $(passHash), $(fullName), $(phone), $(initial_mygrant_balance)) RETURNING id`;
+                                VALUES ($(email), $(passHash), $(fullName), $(phone), $(initialMygrantBalance)) RETURNING id`;
 
                                 db.one(query, {
                                     email: req.body.email,
                                     fullName: req.body.name,
+                                    initialMygrantBalance,
                                     passHash: hash,
-                                    phone: req.body.phone,
-                                    initial_mygrant_balance: initialMygrantBalance
+                                    phone: req.body.phone
                                 })
                                     .then(() => {
                                         res.status(201).send('Sucessfully added user');
