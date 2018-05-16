@@ -53,7 +53,6 @@ ReactDom.render(
                 <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
                 <Route exact path="/crowdfunding/:crowdfunding_id/offers" component={CrowdfundingOffers} />
                 <Responsive as={MygrantFooter} minWidth={768} />
-                <Responsive as={MygrantNav} maxWidth={768} />
             </CookiesProvider>
         </div>
     </Router>,

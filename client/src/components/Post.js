@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Container, Grid, Header, Image, Segment } from 'semantic-ui-react';
+import { Container, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
 import moment from 'moment';
 
 class Post extends Component {
     static propTypes = {
+        commentCount: PropTypes.number.isRequired,
         content: PropTypes.string.isRequired,
         datePosted: PropTypes.string.isRequired,
         likes: PropTypes.number.isRequired,
@@ -33,6 +34,14 @@ class Post extends Component {
                                     <Grid.Row className={'content'} verticalAlign={'top'} >
                                         <Grid.Column width={16} >
                                             {this.props.content}
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                    <Grid.Row textAlign={'left'}>
+                                        <Grid.Column width={2}>
+                                            <Icon name={'comment outline'}/>{this.props.commentCount}
+                                        </Grid.Column>
+                                        <Grid.Column width={2}>
+                                            <Icon name={'like outline'}/>{this.props.likes}
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>
