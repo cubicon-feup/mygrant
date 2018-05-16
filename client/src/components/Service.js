@@ -266,7 +266,7 @@ class Service extends Component {
                     <Container fluid className="green-divider" />
                     {this.renderOffers()}
                 </Container>
-                <Container fluid className="purple">
+                <Container fluid className="purple-background">
                     <Container>
                         {this.state.showComments
                             ? this.renderComments()
