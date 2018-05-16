@@ -1128,7 +1128,7 @@ router.get('/:service_id/instance/partner', function(req, res) {
 router.get('/:service_id/instance', function(req, res) {
     let serviceId = req.params.service_id;
     let query =
-        `SELECT partner_id as requester_id, users.full_name as requester_name, date_scheduled, creator_rating, partner_rating as requester_rating
+        `SELECT partner_id as requester_id, users.full_name as requester_name, date_scheduled, creator_rating, partner_rating
         FROM service_instance
         INNER JOIN users ON users.id = partner_id
         WHERE service_instance.service_id = $(service_id);`;
@@ -1136,227 +1136,34 @@ router.get('/:service_id/instance', function(req, res) {
     db.one(query, {
         service_id: serviceId
     }).then(data => {
+        console.log(data);
         res.status(200).json(data);
     }).catch(error => {
         res.status(500).json({error});
     })
 })
 
-//
-//
-// COMMENTS
-//
-//
+router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT service_instance.partner_id, crowdfunding.creator_id
+        FROM service_instance
+        INNER JOIN service ON service.id = service_instance.service_id
+        INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+        WHERE service_instance.service_id = $(service_id);`;
 
-/**
- * @api {get} /services/:id/comments - Get service comments
- * @apiName GetServiceComments
- * @apiGroup Service
- * @apiPermission visitor
- *
- * @apiDescription Gets comments made on service
- *
- * @apiParam (RequestParam) {Integer} id ID of the service the comments are about
- *
- * @apiExample Syntax
- * GET: /api/services/<ID>/comments
- * @apiExample Example
- * GET: /api/services/5/comments
- *
- * @apiSuccess (Success 200) {Integer} comment_id ID of the comment
- * @apiSuccess (Success 200) {Integer} sender_id ID of the user that made the comment
- * @apiSuccess (Success 200) {String} sender_name Name of the user that made the comment
- * @apiSuccess (Success 200) {String} message Content of the comment
- * @apiSuccess (Success 200) {Date} date_posted Date the comment was made
- * @apiSuccess (Success 200) {Integer} in_reply_to ID of the comment this is replying to
- * @apiSuccess (Success 200) {Boolean} edited If the comment has been edited
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.get('/:id/comments', function(req, res) {
-    // check for valid input
-    try {
-        var service_id = req.params.id;
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-return;
-    }
-
-    // define query
-    const query = `
-        SELECT comment.id AS comment_id, sender_id, users.full_name AS sender_name, message, date_posted, in_reply_to, array_length(edit_history, 1) > 0 AS edited
-        FROM comment
-        JOIN users
-        ON comment.sender_id=users.id
-        WHERE comment.service_id=$(service_id)
-    `;
-
-    db.any(query, { service_id })
-    .then(data => {
-        res.status(200).json(data);
+    db.oneOrNone(query, {
+        service_id: serviceId
+    }).then(data => {
+        if(userId === data.creator_id)
+            res.status(200).json({type: 'creator'});
+        else if(userId === data.partner_id)
+            res.status(200).json({type: 'partner'});
+        else res.status(200).json({type: 'none'});
+    }).catch(error => {
+        res.status(500).json({error});
     })
-    .catch(error => {
-        res.status(500).json(error);
-    });
-});
-
-/**
- * @api {post} /services/:id/comments - Comment on a service
- * @apiName CommentService
- * @apiGroup Service
- * @apiPermission authenticated user
- *
- * @apiDescription Create a new comment on a service. in_reply_to overrides :id in order make sure both reply and replied have the same service
- *
- * @apiParam (RequestParam) {Integer} id ID of the service to comment on
- * @apiParam (RequestBody) {String} message Content of the comment
- * @apiParam (RequestBody) {Integer} in_reply_to ID of the message this one is replying to (Optional)
- *
- * @apiExample Syntax
- * POST: /api/services/<ID>/comments
- * @apiExample Example
- * POST: /api/services/5/comments
- * body: {
- *      message: 'This is a comment',
- *      in_reply_to: 10
- * }
- *
- * @apiSuccess (Success 200) OK
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.post('/:id/comments', function(req, res) {
-    // check for valid input
-    try {
-        var sender_id = 8; // TODO: SESSION ID
-        var service_id = req.params.id;
-        var message = req.body.message;
-        var in_reply_to = req.body.hasOwnProperty('in_reply_to') ? req.body.in_reply_to : null;
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-return;
-    }
-
-    // define query
-    const query = `
-        INSERT INTO comment (sender_id, message, service_id, in_reply_to)
-        VALUES ($(sender_id), $(message), $(service_id), $(in_reply_to));
-    `;
-
-    db.none(query, {
-        sender_id,
-        message,
-        service_id,
-        in_reply_to
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
-});
-
-/**
- * @api {put} /services/comments/:id - Edit a comment
- * @apiName EditComment
- * @apiGroup Service
- * @apiPermission comment sender
- *
- * @apiDescription Edits the content of a comment
- *
- * @apiParam (RequestParam) {Integer} id ID of the comment to edit
- * @apiParam (RequestBody) {String} message New content of the comment
- *
- * @apiExample Syntax
- * PUT: /api/services/comments/<ID>
- * @apiExample Example
- * PUT: /api/services/comments/5
- * body: {
- *      message: 'This is an edited comment'
- * }
- *
- * @apiSuccess (Success 200) OK
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.put('/comments/:id', function(req, res) {
-    // check for valid input
-    try {
-        var sender_id = 8; // CHECK IF SESSION ID IS SENDER OF COMMENT
-        var comment_id = req.params.id;
-        var message = req.body.message;
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-return;
-    }
-
-    // define query
-    const query = `
-        UPDATE comment
-        SET message=$(message)
-        WHERE id=$(comment_id);
-    `;
-
-    db.none(query, {
-        message,
-        comment_id
-    })
-    .then(() => {
-        res.sendStatus(200);
-    })
-    .catch(error => {
-        res.status(500).json(error);
-    });
-});
-
-/**
- * @api {delete} /services/comments/:id - Delete a comment
- * @apiName DeleteComment
- * @apiGroup Service
- * @apiPermission comment sender
- *
- * @apiDescription Deletes the comment with the given id
- *
- * @apiParam (RequestParam) {Integer} id ID of the comment to delete
- *
- * @apiExample Syntax
- * DELETE: /api/services/comments/<ID>
- * @apiExample Example
- * DELETE: /api/services/comments/5
- *
- * @apiSuccess (Success 200) OK
- * @apiError (Error 400) BadRequestError Invalid URL Parameters
- * @apiError (Error 500) InternalServerError Database Query Failed
- */
-router.delete('/comments/:id', function(req, res) {
-    // check for valid input
-    try {
-        var sender_id = 8; // CHECK IF SESSION ID IS SENDER OF COMMENT
-        var comment_id = req.params.id;
-    } catch (err) {
-        res.status(400).json({ 'error': err.toString() });
-
-return;
-    }
-
-    // define query
-    const query = `
-        DELETE FROM comment
-        WHERE id=$(comment_id);
-    `;
-
-    db.none(query, { comment_id })
-        .then(() => {
-            res.sendStatus(200);
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
-});
-
+})
 
 module.exports = router;

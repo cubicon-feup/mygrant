@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import '../css/common.css';
 import { Link } from 'react-router-dom';
 import { Container, Button, Select} from 'semantic-ui-react';
 
@@ -38,7 +37,7 @@ class CrowdfundingOffers extends Component {
         if(this.state.requestedServices) {
             requestedServices = this.state.requestedServices.map(requestedService => {
                 return (
-                    <RequestedServiceItem key={requestedService.title} requestedService={requestedService} />
+                    <RequestedServiceItem key={requestedService.title} requestedService={requestedService} isOwner={this.props.isOwner}/>
                 );
             });
         }

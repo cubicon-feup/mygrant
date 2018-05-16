@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Container} from 'semantic-ui-react';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
@@ -9,7 +11,7 @@ const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/off
 const urlRejectCandidate = serviceId => apiPath + `/services/`+ serviceId + `/offers/decline`;
 const urlAcceptCandidate = serviceId => apiPath + `/services/` + serviceId + `/offers/accept`;
 const urlGetServiceInstanceInfo = serviceId => apiPath + '/services/' + serviceId + `/instance`;
-const urlIsCreator = serviceId => apiPath + '/';
+const urlIsOwnerOrPartner = serviceId => '/api/services/' + serviceId + `/is_owner_or_partner`;
 
 class RequestedServiceItem extends Component {
 
@@ -18,12 +20,31 @@ class RequestedServiceItem extends Component {
         this.state = {
             serviceId: this.props.requestedService.id,
             candidates: [],
-            serviceInstanceInfo: {}
+            serviceInstanceInfo: {},
+            ownerType: 'none'
         }
     }
 
     componentDidMount() {
         this.getCandidates();
+        this.getOwnerType();
+    }
+
+    getOwnerType() {
+        const { cookies } = this.props;
+        fetch(urlIsOwnerOrPartner(this.state.serviceId), {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,   
+            }
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        this.setState({ownerType: data.type});
+                    })
+            }
+        })
     }
 
     getCandidates() {
@@ -49,6 +70,7 @@ class RequestedServiceItem extends Component {
                 res.json()
                     .then(data => {
                         this.setState({serviceInstanceInfo: data});
+                        console.log(this.state.serviceInstanceInfo)
                     })
             }
         })
@@ -101,14 +123,18 @@ class RequestedServiceItem extends Component {
 
     render() {
         let candidates;
-        if(this.state.candidates.length > 0) {
+        if(this.state.candidates.length > 0 && this.props.isOwner) {
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
                 )
             });
-        } else if(this.state.serviceInstanceInfo)
-            candidates = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} />
+        }  else candidates = null;
+        
+        let selectedRequester;
+        if(this.state.serviceInstanceInfo)
+            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} ownerType={this.state.ownerType}/>
+        else selectedRequester = null;
         return (
             <Container>
                 <p>
@@ -124,9 +150,10 @@ class RequestedServiceItem extends Component {
                     {this.props.requestedService.category}
                 </p>
                 {candidates}
+                {selectedRequester}
             </Container>
         );
     }
 }
 
-export default RequestedServiceItem;
+export default withCookies(RequestedServiceItem);

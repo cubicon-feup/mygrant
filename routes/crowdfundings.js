@@ -942,4 +942,34 @@ router.get('/filter/:from-:to/pages_number', function(req, res) {
     })
 });
 
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/is_owner Checks if the user is the crowdfunding creator
+ * @apiName CheckIsOwner
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding number from returned.
+ * 
+ * @apiSuccess (Success 200) {Bool} owns True if user is the creator, false otherwise.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get owner.
+ */
+router.get('/:crowdfunding_id/is_owner', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let crowdfundingId = req.params.crowdfunding_id;
+    let query =
+        `SELECT creator_id
+        FROM crowdfunding
+        WHERE id = $(crowdfunding_id);`;
+
+    db.oneOrNone(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        if(data.creator_id === userId)
+            res.status(200).json({owns: true});
+        else res.status(200).json({owns: false});
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get owner.'});
+    })
+})
+
 module.exports = router;
