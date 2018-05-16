@@ -1,37 +1,38 @@
 import React, { Component } from 'react';
+import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { Icon, Image, Menu } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { withCookies, Cookies } from 'react-cookie';
 
 class MygrantHeader extends Component {
-    static propTypes = { cookies: instanceOf(Cookies).isRequired }
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        location: ReactRouterPropTypes.location.isRequired
+    }
 
     constructor(props) {
         super(props);
 
-        this.state = { user: {} };
+        const { cookies } = this.props;
+        this.fullName = cookies.get('user_full_name');
+
+        this.state = {
+            hasInfo: Boolean(this.fullName),
+            user: {}
+        };
 
     }
 
     componentDidMount() {
         const { cookies } = this.props;
 
-        if (cookies.get('id_token')) {
-            const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
-            fetch('/api/users/', { headers })
-                .then(res => res.json()
-                    .then(thisUser => {
-                        const { id } = thisUser
-                        fetch(`/api/users/${id}`)
-                            .then(data => data.json()
-                                .then(user => {
-                                    this.setState({ user });
-                                })
-                            )
-                    })
-                );
+        const user = {
+            fullName: cookies.get('user_full_name'),
+            userId: cookies.get('user_id')
         }
+
+        this.setState({ user });
     }
 
     render() {
@@ -39,21 +40,21 @@ class MygrantHeader extends Component {
             <Menu className="site-header" fixed="top">
                 <Menu.Item header as="h2" name="mygrant" ><Link to="/">mygrant</Link></Menu.Item>
                 {
-                    this.state.user.user_id
+                    this.state.user.userId
                         ? <Menu.Item >
-                                <Link to={`/user/${this.state.user.user_id}`} >
+                                <Link to={`/user/${this.state.user.userId}`} >
                                     {
                                         this.state.user.image_url
                                             ? <Image avatar src={'/api/images/users/kwest.jpg'} size={'mini'} />
                                             : <Icon name="user circle outline" color={'black'} size={'big'} />
                                     }
-                                    <strong>{this.state.user.full_name}</strong>
+                                    <strong>{this.state.user.fullName}</strong>
                                 </Link>
                             </Menu.Item>
                         : null
                 }
                 {
-                    this.state.user.user_id
+                    this.state.user.userId
                         ? <Menu.Item >
                             <Link to={'/createcrowdfunding'} >
                                     {'Create a Crowdfunding Project'}
@@ -62,7 +63,7 @@ class MygrantHeader extends Component {
                         : null
                 }
                 {
-                    this.state.user.user_id
+                    this.state.user.userId
                         ? <Menu.Item >
                             <Link to={'/createservice/PROVIDE'} >
                                     {'Provide a Service'}
@@ -71,7 +72,7 @@ class MygrantHeader extends Component {
                         : null
                 }
                 {
-                    this.state.user.user_id
+                    this.state.user.userId
                         ? null
                         : <Menu.Item position="right">
                                 <Link to="/login">
@@ -80,7 +81,7 @@ class MygrantHeader extends Component {
                             </Menu.Item>
                 }
                 {
-                    this.state.user.user_id
+                    this.state.user.userId
                         ? null
                         : <Menu.Item>
                             <Link to="/signup">
