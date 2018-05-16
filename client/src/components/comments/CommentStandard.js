@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { Container, Button } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Container, Button, Comment } from 'semantic-ui-react';
 
-// import Comment from './Comment';
+// import CommentStandard from './CommentStandard';
 
 const apiPath = require('../../config').apiPath;
 const urlGetNestedComments = commentId => apiPath + `/comments/` + commentId + `/nested_comments`;
 const urleditMessage = commentId => apiPath + `/comments/` + commentId;
 
-class Comment extends Component {
+class CommentStandard extends Component {
 
     constructor(props) {
         super(props);
@@ -72,24 +73,37 @@ class Comment extends Component {
         if(this.state.nestedComments) {
             nestedComments = this.state.nestedComments.map(nestedComment => {
                 return (
-                    <Comment key={nestedComment.comment_id} comment={nestedComment}/>
+                    <CommentStandard key={nestedComment.comment_id} comment={nestedComment}/>
                 )
             })
         } else nestedComments = null;
-        return (
-            <Container>
+        /*<Container>
                 <a href="#">{this.props.comment.user_name}</a>
                 {this.state.commentMessage}
                 {this.props.comment.date_posted}
-                <textarea value={this.state.replyMessage} onChange={this.handleReplyChange.bind(this)} /> {/* Should be hidden, only when the user presses the reply button this shows.*/}
-                <Button onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Button>
-                <textarea value={this.state.editMessage} onChange={this.handleEditChange.bind(this)} /> {/* Should be hidden, only when the user presses the edit button this shows.*/}
-                <Button onClick={this.handleEdit.bind(this)}>Edit</Button>
-                <Button onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Button>
-                {nestedComments}
-            </Container>
+                <textarea value={this.state.replyMessage} onChange={this.handleReplyChange.bind(this)} />
+            <Button onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Button>
+            <textarea value={this.state.editMessage} onChange={this.handleEditChange.bind(this)} />
+            <Button onClick={this.handleEdit.bind(this)}>Edit</Button>
+            <Button onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Button>
+            {nestedComments}
+        </Container>*/
+        return (
+            <Comment>
+                <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />
+                <Comment.Content>
+                    <Comment.Author><Link to={"/crowdfunding/2"}>{this.props.comment.user_name}</Link></Comment.Author>
+                    <Comment.Metadata>{new Date(this.props.comment.date_posted).toLocaleString()}</Comment.Metadata>
+                    <Comment.Text>{this.state.commentMessage}</Comment.Text>
+                    <Comment.Actions>
+                        <Comment.Action onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Comment.Action>
+                        <Comment.Action onClick={this.handleEdit.bind(this)}>Edit</Comment.Action>
+                        <Comment.Action onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Comment.Action>
+                    </Comment.Actions>
+                </Comment.Content>
+            </Comment>
         )
     }
 }
 
-export default Comment;
+export default CommentStandard;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Container, Button, Form, Responsive } from 'semantic-ui-react';
+import { Container, Button, Form, Responsive, Comment } from 'semantic-ui-react';
 
-import Comment from './Comment';
+import CommentStandard from './CommentStandard';
 import { MygrantDividerLeft } from '../Common';
 
 const apiPath = require('../../config').apiPath;
@@ -127,7 +127,7 @@ class Comments extends Component {
         if(this.state.comments) {
             comments = this.state.comments.map(comment => {
                 return (
-                    <Comment key={comment.comment_id} comment={comment} onRemove={this.handleRemove.bind(this)} onReply={this.handleCreateComment.bind(this)}/>
+                    <CommentStandard key={comment.comment_id} comment={comment} onRemove={this.handleRemove.bind(this)} onReply={this.handleCreateComment.bind(this)}/>
                 )
             })
         } else {
@@ -143,7 +143,9 @@ class Comments extends Component {
             </Container>
             <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
             <Container id="crowdfunding_comments">
-                {comments}
+                <Comment.Group>
+                    {comments}
+                </Comment.Group>
                 <Form onSubmit={this.handleSubmit.bind(this)}>
                     <Form.TextArea value={this.state.postingComment} onChange={this.handleChange.bind(this)} />
                     <Form.Button content='Comment' labelPosition='left' icon='edit' primary />

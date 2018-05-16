@@ -9,15 +9,15 @@ const authenticate = expressJwt({ secret: appSecret });
 /**
  * @api {put} /crowdfundings/:crowdfunding_id/comments Create comment
  * @apiName CreateComment
- * @apiGroup Comment
- * @apiPermission Comment creator
+ * @apiGroup CommentStandard
+ * @apiPermission CommentStandard creator
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the comment belongs.
  * @apiParam (RequestBody) {String} message Message to serve as comment.
- * @apiParam (RequestBody) {Integer} in_reply_to Comment id that this new comment is replying to.
- * 
+ * @apiParam (RequestBody) {Integer} in_reply_to CommentStandard id that this new comment is replying to.
+ *
  * @apiSuccess (Success 201) Created
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // FIXME: not working with POST method, had to use PUT.
@@ -39,7 +39,7 @@ router.put('/', function(req, res) {
         serviceOrCrowdfundingId = crowdfundingId
     } else {
         serviceOrCrowdfunding = 'service_id';
-        serviceOrCrowdfundingId = serviceId;   
+        serviceOrCrowdfundingId = serviceId;
     }
 
     let inReplyTo = req.body.hasOwnProperty('in_reply_to') ? req.body.in_reply_to : null;
@@ -63,12 +63,12 @@ router.put('/', function(req, res) {
 /**
  * @api {get} /crowdfundings/:crowdfunding_id/comments Get crowdfunding comments
  * @apiName GetCrowdfundingComments
- * @apiGroup Comment
+ * @apiGroup CommentStandard
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the comments belong.
- * 
+ *
  * @apiSuccess (Success 200) OK
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
@@ -85,7 +85,7 @@ router.get('/top_comments', function(req, res) {
         serviceOrCrowdfundingId = crowdfundingId
     } else {
         serviceOrCrowdfunding = 'service_id';
-        serviceOrCrowdfundingId = serviceId;   
+        serviceOrCrowdfundingId = serviceId;
     }
 
     let query =
@@ -126,14 +126,14 @@ router.get('/:comment_id/nested_comments', function(req, res) {
 /**
  * @api {put} /crowdfundings/:comment_id Update comment
  * @apiName UpdateComment
- * @apiGroup Comment
- * @apiPermission Comment creator
+ * @apiGroup CommentStandard
+ * @apiPermission CommentStandard creator
  *
- * @apiParam (RequestParam) {Integer} comment_id Comment id to update.
+ * @apiParam (RequestParam) {Integer} comment_id CommentStandard id to update.
  * @apiParam (RequestBody) {String} message Updated message to serve as comment.
- * 
+ *
  * @apiSuccess (Success 200) OK
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
@@ -161,13 +161,13 @@ router.put('/:comment_id', function(req, res) {
 /**
  * @api {put} /crowdfundings/:comment_id Delete comment
  * @apiName DeleteComment
- * @apiGroup Comment
- * @apiPermission Comment creator
+ * @apiGroup CommentStandard
+ * @apiPermission CommentStandard creator
  *
- * @apiParam (RequestParam) {Integer} comment_id Comment id to update.
- * 
+ * @apiParam (RequestParam) {Integer} comment_id CommentStandard id to update.
+ *
  * @apiSuccess (Success 200) OK
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get pages number.
  */
 // TODO: policy.
@@ -178,7 +178,7 @@ router.delete('/:comment_id', function(req, res) {
         `DELETE FROM comment
         WHERE id = $(comment_id)
             AND sender_id = $(sender_id);`;
-        
+
     db.none(query, {
         comment_id: commentId,
         sender_id: senderId

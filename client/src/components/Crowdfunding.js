@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Divider, Label, Icon, Item, Input,Comment, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Divider, Label, Icon, Item, Input, Comment, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -181,7 +181,7 @@ class Crowdfunding extends Component {
                           {/*<Image src='/assets/images/wireframe/image.png' />*/}
                           <div id="crowdfunding_progress">
                               <h5>Progress</h5>
-                              <Progress progress='percentage' value={20} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <Progress progress='percentage' value={20} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
                               <p id="crowdfunding_earned">Earned : {20}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
@@ -212,10 +212,14 @@ class Crowdfunding extends Component {
                           </Grid>
 
                           <Form id="crowdfunding_donate" method="POST" onSubmit={this.handleSubmit}>
-                              <Form.Group widths={16}>
-                                  <Form.Input width={14} type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
-                                  <Form.Button width={2} content="donate"/>
-                              </Form.Group>
+                              <Grid stackable centered>
+                                  <Grid.Column width={14}>
+                                    <Form.Input type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
+                                  </Grid.Column>
+                                  <Grid.Column width={2} className="centered aligned">
+                                      <Form.Button content="donate"/>
+                                  </Grid.Column>
+                              </Grid>
                           </Form>
 
                       </Grid.Column>
@@ -281,7 +285,7 @@ class Crowdfunding extends Component {
                     <Grid.Column width={1}>
                     </Grid.Column>
                     <Grid.Column width={6}>
-                        <h4 align="center">Donators</h4>
+                        <h3 align="center">Donators</h3>
                         <Item.Group divided>
                             {donators}
                         </Item.Group>

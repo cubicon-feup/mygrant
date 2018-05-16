@@ -7,7 +7,7 @@ define({ "api": [
     "group": "Comment",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
@@ -34,7 +34,7 @@ define({ "api": [
             "type": "Integer",
             "optional": false,
             "field": "in_reply_to",
-            "description": "<p>Comment id that this new comment is replying to.</p>"
+            "description": "<p>CommentStandard id that this new comment is replying to.</p>"
           }
         ]
       }
@@ -75,7 +75,7 @@ define({ "api": [
     "group": "Comment",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
@@ -86,7 +86,7 @@ define({ "api": [
             "type": "Integer",
             "optional": false,
             "field": "comment_id",
-            "description": "<p>Comment id to update.</p>"
+            "description": "<p>CommentStandard id to update.</p>"
           }
         ]
       }
@@ -174,7 +174,7 @@ define({ "api": [
     "group": "Comment",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
@@ -185,7 +185,7 @@ define({ "api": [
             "type": "Integer",
             "optional": false,
             "field": "comment_id",
-            "description": "<p>Comment id to update.</p>"
+            "description": "<p>CommentStandard id to update.</p>"
           }
         ],
         "RequestBody": [
@@ -3073,7 +3073,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/services/:id/comments",
-    "title": "- Comment on a service",
+    "title": "- CommentStandard on a service",
     "name": "CommentService",
     "group": "Service",
     "permission": [
