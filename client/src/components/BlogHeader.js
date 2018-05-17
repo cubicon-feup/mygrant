@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
+import { Button, Grid, Header, Icon, Image, Segment, Responsive } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 
 class BlogHeader extends Component {
