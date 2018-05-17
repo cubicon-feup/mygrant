@@ -6,7 +6,7 @@ import BlogComment from '../components/BlogComment';
 import BlogHeaderPost from '../components/BlogHeaderPost';
 import NewPost from '../components/NewPost';
 import ReactRouterPropTypes from 'react-router-prop-types';
-import { Button, Container, Form, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
+import { Button, Container, Responsive, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
 
 import '../css/Blog.css';
 
@@ -39,12 +39,16 @@ class Post extends Component {
                         }}
                     />
                 </Segment>
-
-                    <NewPost/>
-                <Segment.Group>
-                    <Segment textAlign={'center'} className={'load-more-comments'} >
+                <Responsive as={NewPost} minWidth={768} />
+                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                    <Button textAlign={'center'} className={'load-more-comments'} >
                         {'Load more comments'}
-                    </Segment>
+                    </Button>
+                </Responsive>
+                <Segment.Group>
+                    <Responsive as={Segment} minWidth={768} textAlign={'center'} className={'load-more-comments'} >
+                        {'Load more comments'}
+                    </Responsive>
                     <BlogComment
                         postInfo={{
                             content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
@@ -72,6 +76,11 @@ class Post extends Component {
                         }}
                     />
                 </Segment.Group>
+                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                    <Button textAlign={'center'} className={'write-new-comment'} >
+                        {'Write a comment'}
+                    </Button>
+                </Responsive>
             </Container>
         );
     }

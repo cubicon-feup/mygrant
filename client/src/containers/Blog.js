@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
-import { Container, Segment } from 'semantic-ui-react';
+import { Button, Container, Segment, Responsive } from 'semantic-ui-react';
 import BlogPost from '../components/BlogPost';
 import NewPost from '../components/NewPost';
 import BlogHeader from '../components/BlogHeader';
@@ -23,7 +23,12 @@ class Blog extends Component {
                         pictureUrl: '/users/kwest.jpg',
                         postCount: 1231
                     }} />
-                <NewPost />
+                <Responsive as={NewPost} minWidth={768} />
+                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                    <Button textAlign={'center'} className={'write-new-comment'} >
+                        {'New Post'}
+                    </Button>
+                </Responsive>
                 <Segment.Group>
                     <BlogPost
                         linked
