@@ -157,7 +157,7 @@ class Crowdfunding extends Component {
       }
 
       let donate;
-      if(this.state.role != Role.CROWDFUNDING_CREATOR && this.state.role != Role.NONE)
+      if(this.state.role != Role.CROWDFUNDING_CREATOR && this.state.role != Role.NONE && this.state.crowdfunding.status === 'COLLECTING')
         donate =
             <Form id="crowdfunding_donate" method="POST" onSubmit={this.handleSubmit}>
                 <Grid stackable centered>
@@ -165,7 +165,7 @@ class Crowdfunding extends Component {
                     <Form.Input type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
                     </Grid.Column>
                     <Grid.Column width={2} className="centered aligned">
-                        <Form.Button content="donate"/>
+                        <Form.Button content="Donate"/>
                     </Grid.Column>
                 </Grid>
             </Form>
