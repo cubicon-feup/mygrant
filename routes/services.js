@@ -88,57 +88,66 @@ router.get('/', authenticate, function(req, res) { // check for valid input
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
-        var latitude_ref = 0; // TODO: get from current user
-        var longitude_ref = 0; // TODO: get from current user
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define query
-    const query = `
-        SELECT *
-        FROM (
-        SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
-        ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
-        to_tsquery($(lang), $(q))) AS search_score` : ``}
-        FROM service
-        LEFT JOIN users on users.id = service.creator_id
-        LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
-        WHERE service.deleted = false
-        ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
-        ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
-        ${cat ? ' AND service.category = $(cat)' : ''}
-        ${type ? ' AND service.service_type = $(type)' : ''}
-        ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
-        ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
-        ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
-        ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-        ) s 
-        ${q ? 'WHERE search_score > 0' : ''}
-        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
-        LIMIT $(itemsPerPage) OFFSET $(offset);`;
-    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
-    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
-
-    // place query
-    db.any(query, {
-            q,
-            itemsPerPage,
-            offset,
-            lang,
-            cat,
-            type,
-            mygmax,
-            mygmin,
-            datemax,
-            datemin,
-            order,
-            latitude_ref,
-            longitude_ref
-        })
+    // define first query
+    const query_latlon = `SELECT latitude, longitude FROM users WHERE id=$(user_id)`;
+    db.one(query_latlon, {user_id: req.user.id})
         .then(data => {
-            res.status(200).json(data);
+            const latitude_ref = data.latitude; 
+            const longitude_ref = data.longitude;
+            
+            // define query
+            const query = `
+                SELECT *
+                FROM (
+                SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
+                2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
+                ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+                to_tsquery($(lang), $(q))) AS search_score` : ``}
+                FROM service
+                LEFT JOIN users on users.id = service.creator_id
+                LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
+                WHERE service.deleted = false
+                ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
+                ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
+                ${cat ? ' AND service.category = $(cat)' : ''}
+                ${type ? ' AND service.service_type = $(type)' : ''}
+                ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
+                ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
+                ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
+                ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
+                ) s 
+                ${q ? 'WHERE search_score > 0' : ''}
+                ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
+                LIMIT $(itemsPerPage) OFFSET $(offset);`;
+            // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+            // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+
+            // place query
+            db.any(query, {
+                    q,
+                    itemsPerPage,
+                    offset,
+                    lang,
+                    cat,
+                    type,
+                    mygmax,
+                    mygmin,
+                    datemax,
+                    datemin,
+                    order,
+                    latitude_ref,
+                    longitude_ref
+                })
+                .then(data => {
+                    res.status(200).json(data);
+                })
+                .catch(error => {
+                    res.status(500).json(error);
+                });
         })
         .catch(error => {
             res.status(500).json(error);
@@ -220,8 +229,6 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
-        var latitude_ref = 0; // TODO: get from current user
-        var longitude_ref = 0; // TODO: get from current user
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
         return;
@@ -230,8 +237,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
     const query = `
         SELECT COUNT(*) as COUNT
         FROM (
-        SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-        2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
+        SELECT service.id,
         ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score` : ``}
         FROM service
@@ -390,8 +396,8 @@ router.put('/', authenticate, function(req, res) {
         var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
-        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : false;
-        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : false;
+        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : null;
+        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : null;
         if (creator_id == null && crowdfunding_id == null) {
             throw new Error('Missing either creator_id or crowdfunding_id');
         }
@@ -405,7 +411,7 @@ router.put('/', authenticate, function(req, res) {
     }
     // define query
     const query = `
-        INSERT INTO service (title, description, category, location, latitude, longitude acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
+        INSERT INTO service (title, description, category, location, latitude, longitude, acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
         VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))`;
     // place query
     db.none(query, {
