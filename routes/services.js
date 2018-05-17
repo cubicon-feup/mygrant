@@ -66,7 +66,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', function(req, res) { // check for valid input
+router.get('/', authenticate, function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -167,7 +167,7 @@ router.get('/', function(req, res) { // check for valid input
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
  // TODO: update to list num-pages according to /api/services results
-router.get('/num-pages', function(req, res) {
+router.get('/num-pages', authenticate, function(req, res) {
     let itemsPerPage = 50;
     try {
         // itemPerPage
@@ -224,7 +224,7 @@ router.get('/num-pages', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id', function(req, res) {
+router.get('/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -292,7 +292,7 @@ router.get('/:id', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.put('/', function(req, res) {
+router.put('/', authenticate, function(req, res) {
     // check for valid input
     try {
         var title = req.body.title;
@@ -379,7 +379,7 @@ router.put('/', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.put('/:id', function(req, res) {
+router.put('/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -457,7 +457,7 @@ router.put('/:id', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.delete('/:id', function(req, res) {
+router.delete('/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -508,7 +508,7 @@ router.delete('/:id', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/images', function(req, res) {
+router.get('/:id/images', authenticate, function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -553,7 +553,7 @@ router.get('/:id/images', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.put('/:id/images', function(req, res) {
+router.put('/:id/images', authenticate, function(req, res) {
     // get id
     try {
         var service_id = req.params.id;
@@ -597,7 +597,7 @@ router.put('/:id/images', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.delete('/:id/images/:image', function(req, res) {
+router.delete('/:id/images/:image', authenticate, function(req, res) {
     // get id
     try {
         var service_id = req.params.id;
@@ -650,7 +650,7 @@ router.delete('/:id/images/:image', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/offers', function(req, res) {
+router.get('/:id/offers', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -707,7 +707,7 @@ router.get('/:id/offers', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/offers/:type/:candidate', function(req, res) {
+router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -783,7 +783,7 @@ router.get('/:id/offers/:type/:candidate', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.post('/:id/offers', function(req, res) {
+router.post('/:id/offers', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -866,7 +866,7 @@ router.post('/:id/offers', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.post('/:id/offers/accept', function(req, res) {
+router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
         // TODO: check if SESSION USER is service creator
@@ -940,7 +940,7 @@ router.post('/:id/offers/accept', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.delete('/:id/offers/decline', function(req, res) {
+router.delete('/:id/offers/decline', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -1107,7 +1107,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
  * */
 // TODO: finish api doc.
 // FIXME: not being used.
-router.get('/:service_id/instance/partner', function(req, res) {
+router.get('/:service_id/instance/partner', authenticate, function(req, res) {
     let serviceId = req.params.service_id;
     let query =
         `SELECT users.id as requester_id, users.full_name as requester_name
@@ -1125,7 +1125,7 @@ router.get('/:service_id/instance/partner', function(req, res) {
 });
 
 // TODO: finish api doc.
-router.get('/:service_id/instance', function(req, res) {
+router.get('/:service_id/instance', authenticate, function(req, res) {
     let serviceId = req.params.service_id;
     let query =
         `SELECT partner_id as requester_id, users.full_name as requester_name, date_scheduled, creator_rating, partner_rating as requester_rating
@@ -1173,7 +1173,7 @@ router.get('/:service_id/instance', function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/comments', function(req, res) {
+router.get('/:id/comments', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -1226,7 +1226,7 @@ return;
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.post('/:id/comments', function(req, res) {
+router.post('/:id/comments', authenticate, function(req, res) {
     // check for valid input
     try {
         var sender_id = 8; // TODO: SESSION ID
@@ -1282,7 +1282,7 @@ return;
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.put('/comments/:id', function(req, res) {
+router.put('/comments/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var sender_id = 8; // CHECK IF SESSION ID IS SENDER OF COMMENT
@@ -1332,7 +1332,7 @@ return;
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.delete('/comments/:id', function(req, res) {
+router.delete('/comments/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var sender_id = 8; // CHECK IF SESSION ID IS SENDER OF COMMENT
