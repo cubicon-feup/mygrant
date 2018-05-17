@@ -1,0 +1,100 @@
+@import 'common';
+
+@media (max-width: 768px) {
+	div.profile-container {
+		div.profile-photo {
+			width: 100% !important;
+		}
+		
+		div.profile-info {
+			width: 100% !important;
+		}
+	}
+
+}
+
+div.mygrant-title {
+	margin-top: 50px;
+	margin-bottom: 40px;
+
+	.header {
+		color: $purple;
+		padding-left: 80px;
+	}
+	
+	div.mygrant-divider {
+		.title-divider.divider {
+			border: 0;
+			box-shadow: 0;
+			margin: 0;
+			width: 95%;
+			border-top-right-radius: 500em;
+			border-bottom-right-radius: 500em;
+		}
+	}
+}	
+
+div.profile-container {
+	div.profile-photo {
+		display: inline-block;
+		margin-left: auto;
+		margin-right: auto;
+		
+		.image-container {
+			width: 100%;
+			max-width: 300px;
+			margin-left: auto;
+			margin-right: auto;
+			position: relative;
+			
+			img {
+				border: 5px solid $purple;
+				width: 100%;
+			}
+			
+			.edit-button {
+				position: absolute;
+				right: calc(15.65% - 22.5px);
+				top: calc(15.65% - 22.5px);
+				border: 4px solid $purple;
+				height: 45px;
+				width: 45px;
+				border-radius: 500em;
+				background-color: $green;
+				color: white;
+				padding: 4px;
+				text-align: center;
+				
+				.icon {
+					margin: 0 !important;
+				}
+			}
+			
+			.edit-button:hover {
+				background-color: $dark-green;
+			}
+		}
+	}
+	
+	div#profile-info {
+		display: inline_block;
+		padding: 3rem !important;
+		
+		.profile-name {
+			margin: 0;
+		}
+		
+		.profile-location {
+			margin: 0 0 20px 0;
+			font-weight: normal;
+		}
+		
+		.rating {
+			margin: 0 0 20px 0;
+			
+			.active.icon {
+				color: $purple;
+			}
+		}
+	}
+}

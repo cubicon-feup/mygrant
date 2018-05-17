@@ -16,7 +16,7 @@ router.get('/:id', function(req, res) {
         return;
     }
     const query = `
-	    SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
+	    SELECT users.id as user_id, date_joined, full_name, bio, city, country.name AS country, level, high_level, verified, image_url
 		FROM users
 		JOIN country
 		ON users.country_id = country.id
