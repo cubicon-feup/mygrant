@@ -18,12 +18,11 @@ class BlogPost extends Component {
     render () {
         return (
             <div>
-                <Segment
-                    className={`blog-post ${this.props.linked ? 'linked' : ''}`} >
-                    <Container >
+                <Segment >
+                    <Container className={`blog-post ${this.props.linked ? 'linked' : ''}`} >
                         <Grid padded >
                             <Grid.Row>
-                                <Grid.Column width={2}>
+                                <Grid.Column className={'userImage'} width={2}>
                                     <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                 </Grid.Column>
                                 <Grid.Column width={14}>

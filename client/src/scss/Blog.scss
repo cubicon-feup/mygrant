@@ -1,5 +1,30 @@
 @import 'common';
 
+@media(max-width: 768px) {
+    div.main-container.blog,
+    div.main-container.post {
+        margin-right: 0px !important;
+        margin-left: 0px !important;
+
+        div.segments {
+            div.segment {
+                padding: 0;
+
+                div.row .column{
+                    padding-right: 5px !important;
+                }
+
+                .userImage {
+                    padding: 0 !important;
+                }
+            }
+        }
+        div.blog-post {
+            padding: 0;
+        }
+    }
+}
+
 @media(min-width: 768px) {
     div.main-container.blog,
     div.main-container.post {
@@ -51,12 +76,12 @@
         } 
 
         div.segments {
-            div.segment.blog-post {
+            div.blog-post {
                 border-left: none;
                 border-right: none;
             }
 
-            div.segment.load-more-comments {
+            div.load-more-comments {
                 &:hover {
                     cursor: pointer;
                     color: $grey;
@@ -99,13 +124,13 @@ div.main-container.post {
     }
 
     div.segments {
-        div.segment.blog-post {
+        div.blog-post {
             border-left: none;
             border-right: none;
         }
     }
 
-    div.segment.blog-post {
+    div.blog-post {
         color: rgba(0,0,0,0.87);
         margin:0;
         border-bottom: none;
@@ -116,13 +141,13 @@ div.main-container.post {
         }
     }
 
-    div.segment.blog-post.header-post {
+    div.blog-post.header-post {
         .content h3 {
             font-weight: normal;
         }
     }
 
-    div.segment.blog-post.post-comment {
+    div.blog-post.post-comment {
         .header.ui{
             display: inline;
             margin-right: 10px;
@@ -133,7 +158,7 @@ div.main-container.post {
         }
     }
 
-    div.segment.new-post {
+    div.new-post {
         form {
             margin: 0;
         }

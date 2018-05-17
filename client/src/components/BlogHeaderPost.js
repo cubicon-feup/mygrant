@@ -18,7 +18,6 @@ class BlogHeaderPost extends Component {
     render () {
         return (
             <div>
-                <Segment className={'blog-post header-post'} >
                     <Container >
                         <Grid padded >
                             <Grid.Row>
@@ -61,7 +60,6 @@ class BlogHeaderPost extends Component {
                             </Grid.Row>
                         </Grid>
                     </Container>
-                </Segment>
             </div>
         );
     }
