@@ -87,7 +87,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id,
+        `SELECT title, description, category, location, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
             ( SELECT avg (total_ratings.rating) as average_rating
                 FROM (
                     SELECT rating

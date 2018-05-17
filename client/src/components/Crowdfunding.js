@@ -205,8 +205,8 @@ class Crowdfunding extends Component {
                           {/*<Image src='/assets/images/wireframe/image.png' />*/}
                           <div id="crowdfunding_progress">
                               <h5>Progress</h5>
-                              <Progress progress='percentage' value={20} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
-                              <p id="crowdfunding_earned">Earned : {20}
+                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance / this.state.crowdfunding.mygrant_target} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
                           </div>
