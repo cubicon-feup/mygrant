@@ -1,7 +1,9 @@
 module.exports = {
     role: {
         NONE: 0,
-        CROWDFUNDING_CREATOR: 1,
-        SERVICE_PARTNER: 2
+        AUTHENTICATED: 1,
+        CROWDFUNDING_CREATOR: 2,
+        SERVICE_PARTNER: 3,
+        COMMENT_CREATOR: 4
     }
 }

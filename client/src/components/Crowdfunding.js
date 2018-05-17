@@ -11,12 +11,13 @@ import Donator from './Donator';
 import Comments from './comments/Comments';
 
 const apiPath = require('../config').apiPath;
-const urlForData = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId;
-const urlForRating = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/rating`;
-const urlForDonations = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId  + `/donations`;
-const urlForServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services`;
-const urlForDonate = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/donations`;
+const urlForData = crowdfundingId => `/api/crowdfundings/` + crowdfundingId;
+const urlForRating = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/rating`;
+const urlForDonations = crowdfundingId => `/api/crowdfundings/` + crowdfundingId  + `/donations`;
+const urlForServices = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/services`;
+const urlForDonate = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
 const urlGetDonators = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
+const Role = require('../Role').role;
 // TODO create,update and delete
 // TODO donate
 
@@ -27,8 +28,8 @@ class Crowdfunding extends Component {
             crowdfunding: {},
             requestFailed: false,
             crowdfundingId: this.props.match.params.crowdfunding_id,
-            donator_id: 2,
-            donators: []
+            donators: [],
+            role: Role.NONE
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -36,6 +37,21 @@ class Crowdfunding extends Component {
 
         const { cookies } = this.props;
         console.log(cookies);
+    }
+
+    componentDidMount() {
+        this.getData();
+        this.getRating();
+        this.getDonators();
+    }
+
+    assignRole() {
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+        if(userId == this.state.crowdfunding.creator_id)
+            this.setState({role: Role.CROWDFUNDING_CREATOR})
+        else if(userId)
+            this.setState({role: Role.AUTHENTICATED})
     }
 
     getDonators() {
@@ -63,6 +79,7 @@ class Crowdfunding extends Component {
             .then(result => result.json())
             .then(result => {
                 this.setState({ crowdfunding: result });
+                this.assignRole();
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
@@ -90,12 +107,6 @@ class Crowdfunding extends Component {
             });
     }
 
-    componentDidMount() {
-        this.getData();
-        this.getRating();
-        this.getDonators();
-    }
-
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = (event) => {
@@ -103,8 +114,8 @@ class Crowdfunding extends Component {
         fetch(urlForDonate(this.state.crowdfundingId), {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${cookies.get('id_token')}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
             },
             body: JSON.stringify({
                 amount: parseInt(this.state.amount)
@@ -112,15 +123,13 @@ class Crowdfunding extends Component {
         }).then(res => {
             if(res.status === 201) {
                 let newDonator = {
-                    // TODO: correct values from cookies.
-                    donator_id: 0,
-                    donator_name: 'q',
+                    donator_id: cookies.get('user_id'),
+                    donator_name: cookies.get('user_full_name'),
                     amount: this.state.amount
                 }
                 let donators = this.state.donators;
                 donators.push(newDonator);
                 this.setState({donators: donators});
-
             }
         })
     }
@@ -146,6 +155,21 @@ class Crowdfunding extends Component {
             </Container>
         );
       }
+
+      let donate;
+      if(this.state.role != Role.CROWDFUNDING_CREATOR && this.state.role != Role.NONE)
+        donate =
+            <Form id="crowdfunding_donate" method="POST" onSubmit={this.handleSubmit}>
+                <Grid stackable centered>
+                    <Grid.Column width={14}>
+                    <Form.Input type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
+                    </Grid.Column>
+                    <Grid.Column width={2} className="centered aligned">
+                        <Form.Button content="donate"/>
+                    </Grid.Column>
+                </Grid>
+            </Form>
+        else donate = null;
 
       let donators;
       if(this.state.donators) {
@@ -211,16 +235,7 @@ class Crowdfunding extends Component {
                               </Grid.Column>
                           </Grid>
 
-                          <Form id="crowdfunding_donate" method="POST" onSubmit={this.handleSubmit}>
-                              <Grid stackable centered>
-                                  <Grid.Column width={14}>
-                                    <Form.Input type='number' placeholder='Amount' name="amount" value={this.state.amount} onChange={this.handleChange}/>
-                                  </Grid.Column>
-                                  <Grid.Column width={2} className="centered aligned">
-                                      <Form.Button content="donate"/>
-                                  </Grid.Column>
-                              </Grid>
-                          </Form>
+                          {donate}
 
                       </Grid.Column>
                   </Grid>
