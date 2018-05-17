@@ -17,17 +17,25 @@ class SelectedRequester extends Component {
 
     // TODO: send rate post (not using the real url now).
     handleSubmit(event) {
+        let body;
+        if(this.props.role === Role.CROWDFUNDING_CREATOR)
+            body: JSON.stringify({
+                rating: this.state.toRate,
+                crowdfunding_id: this.props.crowdfundingId
+            });
+        else if(this.props.role === Role.SERVICE_PARTNER)
+            body: JSON.stringify({
+                rating: this.state.toRate,
+            });
+
         const { cookies } = this.props;
-        this.setState({creatorRating: this.state.toRate});
         fetch(urlRate(this.props.serviceId), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${cookies.get('id_token')}`,
             },
-            body: JSON.stringify({
-                rating: this.state.creatorRating
-            })
+            body: body
         });
         event.preventDefault();
     }
@@ -48,17 +56,17 @@ class SelectedRequester extends Component {
                         <label>Scheduled date: {this.props.serviceInstanceInfo.date_scheduled}</label>
                     </Container>
             } else {
-                if(this.props.role === Role.CROWDFUNDING_CREATOR && !this.props.serviceInstanceInfo.partner_rating) {
+                if(this.props.role === Role.CROWDFUNDING_CREATOR && !this.props.serviceInstanceInfo.creator_rating) {
                     // Service may be done, so ratings can be set.
-                    partnerRating = 
+                    creatorRating = 
                         <Container>
                             <form onSubmit={this.handleSubmit.bind(this)}>
                                 <input type="number" value={this.state.toRate} onChange={this.handleChange.bind(this)} min="1" max="3" />
                                 <input type="submit" value="Rate Service Partner" />
                             </form>
                         </Container>
-                } else if (this.props.role === Role.SERVICE_PARTNER && !this.props.serviceInstanceInfo.creator_rating){
-                    creatorRating = 
+                } else if (this.props.role === Role.SERVICE_PARTNER && !this.props.serviceInstanceInfo.partner_rating){
+                    partnerRating = 
                         <Container>
                             <form onSubmit={this.handleSubmit.bind(this)}>
                                 <input type="number" value={this.state.toRate} onChange={this.handleChange.bind(this)} min="1" max="3" />

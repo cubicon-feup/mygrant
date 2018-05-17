@@ -64,7 +64,7 @@ class RequestedServiceItem extends Component {
 
         // TODO: test if state applies.
         let serviceInstanceInfo = {
-            date_scheduled: new Date('2018-05-15 20:00:00'),
+            date_scheduled: new Date('2018-06-15 20:00:00'),
             // TODO: find a calendar framework;
             // TODO: can only schedule after today.
             requester_id: candidate.requester_id,
@@ -111,12 +111,13 @@ class RequestedServiceItem extends Component {
             this.setState({role: Role.CROWDFUNDING_CREATOR});
         else if (userId == this.state.serviceInstanceInfo.partner_id)
             this.setState({role: Role.SERVICE_PARTNER});
-        console.log(userId, this.props.crowdfundingCreatorId, this.state.serviceInstanceInfo.partner_id, this.state.role)
+        else if (userId)
+            this.setState({role: Role.AUTHENTICATED});
     }
 
     render() {
         let candidates;
-        if(this.state.candidates.length > 0 && this.state.role === Role.CROWDFUNDING_CREATOR) {
+        if(this.state.role === Role.CROWDFUNDING_CREATOR && this.state.candidates.length > 0) {
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
@@ -125,8 +126,9 @@ class RequestedServiceItem extends Component {
         }  else candidates = null;
         
         let selectedRequester;
+        let candicateToPosition;
         if(this.state.serviceInstanceInfo)
-            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} role={this.state.role}/>
+            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} crowdfundingId={this.props.crowdfundingId} role={this.state.role}/>
         else selectedRequester = null;
         return (
             <Container>

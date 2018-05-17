@@ -37,7 +37,7 @@ class CrowdfundingOffers extends Component {
         if(this.state.requestedServices) {
             requestedServices = this.state.requestedServices.map(requestedService => {
                 return (
-                    <RequestedServiceItem key={requestedService.title} requestedService={requestedService} crowdfundingCreatorId={this.props.crowdfundingCreatorId}/>
+                    <RequestedServiceItem key={requestedService.title} requestedService={requestedService} crowdfundingId={this.props.crowdfundingId} crowdfundingCreatorId={this.props.crowdfundingCreatorId}/>
                 );
             });
         }
