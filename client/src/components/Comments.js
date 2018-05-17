@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Comments.css';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 import { Button, Comment, Container, Form, Header } from 'semantic-ui-react';
 
-const urlForComments = (type, id) =>
-    `http://localhost:3001/api/${type}/${id}/comments`;
+const urlForComments = (type, id) => `/api/${type}/${id}/comments`;
 const urlToUser = id => `/user/${id}`;
 
 class CommentsSection extends Component {
+    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -43,29 +46,33 @@ class CommentsSection extends Component {
 
     // TODO: in_reply_to
     handleSubmit = e => {
+        const { cookies } = this.props;
         e.preventDefault();
+
         fetch(urlForComments(this.state.type, this.state.id), {
             method: 'POST',
             body: JSON.stringify({
                 message: this.state.message,
                 in_reply_to: null
             }),
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(result => {
-                result.json();
-            })
-            .then(
-                result => {
-                    this.setState({ request: '' });
-                },
-                () => {
-                    console.log('ERROR');
-                }
-            );
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(
+            () => {
+                this.setState({
+                    message: '',
+                    in_reply_to: ''
+                });
+                this.fetchComments();
+            },
+            () => {
+                console.log('ERROR', 'Failed to submit comment');
+            }
+        );
     };
 
-    // TODO: Post comments
     renderComments() {
         return (
             <Comment.Group minimal id="commentssection">
@@ -97,6 +104,7 @@ class CommentsSection extends Component {
                     <Form.TextArea
                         required
                         name="message"
+                        value={this.state.message}
                         onChange={this.handleChange}
                     />
                     <Form.Button
@@ -130,4 +138,4 @@ class CommentsSection extends Component {
     }
 }
 
-export default CommentsSection;
+export default withCookies(CommentsSection);
