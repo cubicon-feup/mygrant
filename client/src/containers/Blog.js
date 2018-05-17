@@ -60,10 +60,15 @@ class Blog extends Component {
                             pictureUrl: '/users/kwest.jpg'
                         }}
                     />
-                    <Segment textAlign={'center'} className={'load-more-comments'} >
+                    <Responsive as={Segment} minWidth={768} textAlign={'center'} className={'load-more-comments'} >
                         {'Load more posts'}
-                    </Segment>
+                    </Responsive>
                 </Segment.Group>
+                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                    <Button textAlign={'center'} className={'load-more-comments'} >
+                        {'Load more posts'}
+                    </Button>
+                </Responsive>
             </Container>
         </div>
         );
