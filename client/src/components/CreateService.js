@@ -154,16 +154,16 @@ class CreateService extends Component {
     };
 
     handleSubmit = e => {
+        const { cookies } = this.props;
         e.preventDefault();
-        this.setState({
-            acceptable_radius: parseInt(this.state.acceptable_radius, 10),
-            mygrant_value: parseInt(this.state.mygrant_value, 10)
-        });
 
         fetch(urlForData, {
             method: 'PUT',
             body: JSON.stringify(this.state),
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
         })
             .then(result => {
                 result.json();
