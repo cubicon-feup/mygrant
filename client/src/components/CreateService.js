@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import '../css/Service.css';
 import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
+import ReactRouterPropTypes from 'react-router-prop-types';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
-const urlForData = 'http://localhost:3001/api/services';
+const urlForData = '/api/services';
+const urlForCategories = '/api/service_categories';
 
 const radiusoptions = [
     {
@@ -69,7 +73,7 @@ class TextInput extends Component {
                 value={this.props.value}
                 onChange={this.handleChange}
                 onBlur={this.handleBlur}
-                required
+                required={varName === 'title'}
             />
         );
     }
@@ -79,25 +83,36 @@ class TextInput extends Component {
  * Creates the form that allows the creation of a new Service.
  */
 class CreateService extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        location: ReactRouterPropTypes.location.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
-            service_categories: [],
             title: '',
             description: '',
             category: '',
             location: '',
-            acceptable_radius: '',
-            mygrant_value: '',
-            creator_id: 1
+            acceptable_radius: 0,
+            mygrant_value: 0,
+            service_type: '',
+            creator_id: 0,
+            repeatable: false
         };
         this.service_categories = [];
     }
 
     componentDidMount() {
-        this.setState({ service_type: this.props.match.params.type });
+        const { cookies } = this.props;
 
-        fetch('/api/service_categories')
+        this.setState({
+            creator_id: parseInt(cookies.get('user_id'), 10),
+            service_type: this.props.match.params.type
+        });
+
+        fetch(urlForCategories)
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -109,16 +124,15 @@ class CreateService extends Component {
             .then(
                 result => {
                     result.forEach(category => {
-                        this.setState({
-                            service_categories: [
-                                ...this.state.service_categories,
-                                {
-                                    text: category.service_category,
-                                    value: category.service_category
-                                }
-                            ]
-                        });
+                        this.service_categories = [
+                            ...this.service_categories,
+                            {
+                                text: category.service_category,
+                                value: category.service_category
+                            }
+                        ];
                     });
+                    this.forceUpdate();
                 },
                 () => {
                     console.log('ERROR', 'Failed to fetch service categories.');
@@ -130,6 +144,10 @@ class CreateService extends Component {
         this.setState({ [name]: value });
     };
 
+    handleBooleanChange = (e, { name, value }) => {
+        this.setState({ [name]: !this.state[name] });
+    };
+
     handleNumberChange = (e, { name, value }) => {
         var newValue = parseInt(value, 10);
         this.setState({ [name]: newValue });
@@ -139,11 +157,8 @@ class CreateService extends Component {
         e.preventDefault();
         this.setState({
             acceptable_radius: parseInt(this.state.acceptable_radius, 10),
-            mygrant_value: parseInt(this.state.mygrant_value, 10),
-            creator_id: parseInt(this.state.creator_id, 10)
+            mygrant_value: parseInt(this.state.mygrant_value, 10)
         });
-
-        console.log(JSON.stringify(this.state));
 
         fetch(urlForData, {
             method: 'PUT',
@@ -152,7 +167,6 @@ class CreateService extends Component {
         })
             .then(result => {
                 result.json();
-                console.log(result);
             })
             .then(result =>
                 this.setState({
@@ -161,7 +175,8 @@ class CreateService extends Component {
                     category: '',
                     location: '',
                     acceptable_radius: 0,
-                    mygrant_value: 0
+                    mygrant_value: 0,
+                    repeatable: false
                 })
             );
     };
@@ -204,7 +219,7 @@ class CreateService extends Component {
                         fluid
                         search
                         selection
-                        options={this.state.service_categories}
+                        options={this.service_categories}
                         onChange={this.handleChange}
                     />
                     <TextInput
@@ -227,6 +242,11 @@ class CreateService extends Component {
                         onChange={this.handleNumberChange}
                         required
                     />
+                    <Form.Checkbox
+                        label="Repeatable"
+                        name="repeatable"
+                        onChange={this.handleBooleanChange}
+                    />
                     <Form.Button id="dark-button" content="Submit" />
                 </Form>
             </Container>
@@ -234,4 +254,4 @@ class CreateService extends Component {
     }
 }
 
-export default CreateService;
+export default withCookies(CreateService);
