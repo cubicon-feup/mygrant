@@ -164,11 +164,8 @@ class CreateService extends Component {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             }
-        })
-            .then(result => {
-                result.json();
-            })
-            .then(result =>
+        }).then(
+            () =>
                 this.setState({
                     title: '',
                     description: '',
@@ -177,8 +174,9 @@ class CreateService extends Component {
                     acceptable_radius: 0,
                     mygrant_value: 0,
                     repeatable: false
-                })
-            );
+                }),
+            () => console.log('ERROR', 'Failed to create the service')
+        );
     };
 
     createHeader() {
