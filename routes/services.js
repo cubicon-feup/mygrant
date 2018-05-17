@@ -37,17 +37,17 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
  *
  * @apiExample Syntax
- * GET: /api/services/search?q=<QUERY>
+ * GET: /api/services/?q=<QUERY>
  * @apiExample Example 1
- * GET: /api/services/search?q=support+tangible+extranet
+ * GET: /api/services/?q=support+tangible+extranet
  * @apiExample Example 2
- * GET: /api/services/search?q=tangible services&desc=no
+ * GET: /api/services/?q=tangible services&desc=no
  * @apiExample Example 3
- * GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request
+ * GET: /api/services/?q=support paradigms&lang=english&limit=10&cat=fun&type=request
  * @apiExample Example 4
- * GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
+ * GET: /api/services/?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
  * @apiExample Example 5
- * GET: /api/services/search?q=service&order=distance&asc=false
+ * GET: /api/services/?q=service&order=distance&asc=false
  *
  * @apiSuccess (Success 200) {Integer} service_id ID of the service
  * @apiSuccess (Success 200) {String} title Title of the service
@@ -147,44 +147,129 @@ router.get('/', authenticate, function(req, res) { // check for valid input
 
 
 /**
- * @api {get} /services/num-pages - Get number of pages of service list
+ * @api {get} /services/search-count - Get number of results and pages of a services search
  * @apiName GetServicesNumPages
  * @apiGroup Service
  * @apiPermission visitor
  *
- * @apiDescription Returns the number of pages of active services (with each page having up to N items)
+ * @apiDescription Returns the number of pages of a services search
  *
- * @apiParam (RequestQueryParams) {Integer} Items number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
+ * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
+ * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
+ * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
+ * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
+ * @apiParam (RequestQueryParams) {String} cat Category of the service [BUSINESS, ARTS, ...] (Optional)
+ * @apiParam (RequestQueryParams) {String} type Type of the service [PROVIDE, REQUEST] (Optional)
+ * @apiParam (RequestQueryParams) {Integer} mygmax Max bound for mygrant_value (Optional)
+ * @apiParam (RequestQueryParams) {Integer} mygmin Min bound for mygrant_value (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
  *
  * @apiExample Syntax
- * GET: /api/services/num-pages?items=<ITEMS>
- * @apiExample Example
- * GET: /api/services/num-pages?items=30
+ * GET: /api/services/search-count?q=<QUERY>
+ * @apiExample Example 1
+ * GET: /api/services/search-count?q=support+tangible+extranet
+ * @apiExample Example 2
+ * GET: /api/services/search-count?q=tangible services&desc=no
+ * @apiExample Example 3
+ * GET: /api/services/search-count?q=support paradigms&lang=english&limit=10&cat=fun&type=request
+ * @apiExample Example 4
+ * GET: /api/services/search-count?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01
+ * @apiExample Example 5
+ * GET: /api/services/search-count?q=service&order=distance&asc=false
  *
- * @apiSuccess (Success 200) {Integer} n Returns only the integer of the number of pages (No JSON key: value)
+ * @apiSuccess (Success 200) {Integer} service_id ID of the service
+ * @apiSuccess (Success 200) {String} title Title of the service
+ * @apiSuccess (Success 200) {String} description Description of the service
+ * @apiSuccess (Success 200) {String} category Category of the service [BUSINESS, ARTS, ...]
+ * @apiSuccess (Success 200) {String} location Geographic coordinated of the service
+ * @apiSuccess (Success 200) {Integer} acceptable_radius Maximum distance from location where the service can be done
+ * @apiSuccess (Success 200) {Integer} mygrant_value Number of hours the service will take
+ * @apiSuccess (Success 200) {Date} date_created Date the service was created
+ * @apiSuccess (Success 200) {String} service_type Type of the service [PROVIDE, REQUEST]
+ * @apiSuccess (Success 200) {Integer} creator_id ID of the creator if created by a user
+ * @apiSuccess (Success 200) {String} provider_name Name of the creator if created by a user
+ * @apiSuccess (Success 200) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding
+ * @apiSuccess (Success 200) {String} crowdfunding_title Title of the crowdfunding if created by a crowdfunding
  *
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
- // TODO: update to list num-pages according to /api/services results
-router.get('/num-pages', authenticate, function(req, res) {
-    let itemsPerPage = 50;
+router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, function(req, res) {
     try {
-        // itemPerPage
-        if (req.query.hasOwnProperty('items') && req.query.items < 50) {
-            itemsPerPage = req.query.items;
-        }
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
+        var offset = (page - 1) * itemsPerPage;
+        // order by:
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
+        // ascending / descending
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
+        // filters:
+        var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
+        var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
+        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
+        var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
+        var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var latitude_ref = 0; // TODO: get from current user
+        var longitude_ref = 0; // TODO: get from current user
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
-
         return;
     }
     // define query
-    const query = 'SELECT COUNT(id) as npages from service WHERE service.deleted = false;';
+    const query = `
+        SELECT COUNT(*) as COUNT
+        FROM (
+        SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
+        2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
+        FROM service
+        LEFT JOIN users on users.id = service.creator_id
+        LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
+        WHERE service.deleted = false
+        ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
+        ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
+        ${cat ? ' AND service.category = $(cat)' : ''}
+        ${type ? ' AND service.service_type = $(type)' : ''}
+        ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
+        ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
+        ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
+        ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
+        ) s 
+        ${q ? 'WHERE search_score > 0' : ''}`;
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+
     // place query
-    db.one(query, {})
+    db.one(query, {
+            q,
+            lang,
+            cat,
+            type,
+            mygmax,
+            mygmin,
+            datemax,
+            datemin,
+            order,
+            latitude_ref,
+            longitude_ref
+        })
         .then(data => {
-            res.status(200).json(Math.ceil(data.npages / itemsPerPage));
+            res.status(200).json({
+                'results': data.count,
+                'pages': Math.ceil(data.count / itemsPerPage)
+            });
         })
         .catch(error => {
             res.status(500).json(error);
