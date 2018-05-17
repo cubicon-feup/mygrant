@@ -26,7 +26,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiParam (RequestBody) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
  * @apiParam (RequestBody) {Integer} time_interval Number of week to collect donators.
  *
- * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
+ * @apiSuccess (Success 201) {Integer} id Newly created crowdfunding id.
  *
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
@@ -56,7 +56,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         let crowdfundingId = data.id;
         let dateFinished = new Date(data.date_finished);
         cronJob.scheduleJob(crowdfundingId, dateFinished);
-        res.status(201).send({message: 'Sucessfully created a crowdfunding project.'});
+        res.status(201).send({id: crowdfundingId});
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
