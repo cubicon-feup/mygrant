@@ -92,8 +92,8 @@ class CommentStandard extends Component {
             <Comment>
                 <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />
                 <Comment.Content>
-                    <Comment.Author><Link to={"/crowdfunding/2"}>{this.props.comment.user_name}</Link></Comment.Author>
-                    <Comment.Metadata>{new Date(this.props.comment.date_posted).toLocaleString()}</Comment.Metadata>
+                    <Comment.Author as={Link} to={"/crowdfunding/2"}>{this.props.comment.user_name}</Comment.Author>
+                    <Comment.Metadata><span>{new Date(this.props.comment.date_posted).toLocaleString()}</span></Comment.Metadata>
                     <Comment.Text>{this.state.commentMessage}</Comment.Text>
                     <Comment.Actions>
                         <Comment.Action onClick={this.onReply.bind(this, this.props.comment.comment_id, this.state.replyMessage)}>Reply</Comment.Action>
@@ -101,6 +101,9 @@ class CommentStandard extends Component {
                         <Comment.Action onClick={this.onRemove.bind(this, this.props.comment.comment_id)}>Remove</Comment.Action>
                     </Comment.Actions>
                 </Comment.Content>
+                <Comment.Group>
+                    {nestedComments}
+                </Comment.Group>
             </Comment>
         )
     }

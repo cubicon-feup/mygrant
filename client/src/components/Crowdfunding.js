@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Divider, Label, Icon, Item, Input, Comment, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -202,11 +202,11 @@ class Crowdfunding extends Component {
               <Container>
                   <Grid stackable columns={2} className="crowdfunding_grid">
                       <Grid.Column width={6} className="left_col">
-                          {/*<Image src='/assets/images/wireframe/image.png' />*/}
+                          <Image src='/img/mission.png' />
                           <div id="crowdfunding_progress">
-                              <h5>Progress</h5>
-                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance / this.state.crowdfunding.mygrant_target} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
-                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
+                              <h5>{this.state.crowdfunding.status}</h5>
+                              <Progress progress='percentage' value={20} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <p id="crowdfunding_earned">Earned : {20}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
                           </div>
