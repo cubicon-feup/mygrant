@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import "../css/common.css";
 import { Container, Header, Form } from "semantic-ui-react";
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 const urlForCreate = 'http://localhost:3001/api/crowdfundings';
 
@@ -13,27 +15,19 @@ class CreateCrowdfunding extends Component {
             category: "",
             location: "",
             date_finished: "",
-            mygrant_target: "",
-            creator_id: 2
+            mygrant_target: ""
         };
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = () => {
-        this.setState({
-            title: "",
-            description: "",
-            category: "",
-            location: "",
-            date_finished: "",
-            mygrant_target: ""
-        });
-
+        const { cookies } = this.props;
         fetch(urlForCreate, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
             },
             body: JSON.stringify({
                 title: this.state.title,
@@ -111,4 +105,4 @@ class CreateCrowdfunding extends Component {
     }
 }
 
-export default CreateCrowdfunding;
+export default withCookies(CreateCrowdfunding);

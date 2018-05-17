@@ -87,7 +87,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id,
+        `SELECT title, description, category, location, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
             ( SELECT avg (total_ratings.rating) as average_rating
                 FROM (
                     SELECT rating
@@ -337,42 +337,142 @@ router.put('/:crowdfunding_id/rating', authenticate, policy.rate, function(req, 
 });
 
 // IMAGES
-// DEPRECATED. Wait for new version.
-// TODO: new image API version.
 // ===============================================================================
 
 
-/*router.post('/:crowdfunding_id/image', function(req, res) {
-    let filename = image.uploadImage(req, res, 'crowdfunding/');
-    if(filename !== false) {
-        let crowdfundingId = req.params.crowdfunding_id;
-        let query =
-            `INSERT INTO crowdfunding_image (crowdfunding_id, filename)
-            VALUES ($(crowdfunding_id), $(filename));`;
-
-        db.none(query, {
-            crowdfunding_id: crowdfundingId,
-            filename: filename
-        });
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/images - Get crowdfunding images' urls
+ * @apiName GetcrowdfundingImages
+ * @apiGroup crowdfunding
+ * @apiPermission visitor
+ *
+ * @apiDescription Get images of a crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id ID of the crowdfunding to get images of
+ *
+ * @apiExample Syntax
+ * GET: /api/crowdfundings/<ID>/images
+ * @apiExample Example
+ * GET: /api/crowdfundings/5/images
+ *
+ * @apiSuccess (Success 200) images List of images of the crowdfunding {crowdfunding_id, image_url}
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.get('/:crowdfunding_id/images', authenticate, function(req, res) {
+    // check for valid input
+    try {
+        var crowdfunding_id = req.params.crowdfunding_id;
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+        return;
     }
+    // define query
+    const query = `
+        SELECT crowdfunding_image.crowdfunding_id, crowdfunding_image.image_url
+        FROM crowdfunding_image
+        WHERE crowdfunding_image.crowdfunding_id = $(crowdfunding_id)`;
+    // place query
+    db.any(query, { crowdfunding_id })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json(error.message);
+        });
 });
 
-router.delete('/:crowdfunding_id/image', function(req, res) {
-    let removed = image.removeImage(req, res);
-    if(removed) {
-        let crowdfundingId = req.params.crowdfunding_id;
-        let filename = req.body.filename;
-        let query =
-            `DELETE FROM crowdfunding_image
-            WHERE crowdfunding_id = $(crowdfunding_id)
-                AND filename = $(filename)`;
 
-        db.none(query, {
-            crowdfunding_id: crowdfundingId,
-            filename: filename
-        });
+/**
+ * @api {put} /crowdfundings/:crowdfunding_id/images - Create crowdfunding image
+ * @apiName CreatecrowdfundingImage
+ * @apiGroup crowdfunding
+ * @apiPermission crowdfunding creator
+ *
+ * @apiDescription Upload image and add it to the crowdfunding's images
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id ID of the crowdfunding to get images of
+ * @apiParam (RequestFiles) {File} file Image file of the image
+ *
+ * @apiExample Syntax
+ * PUT: /api/crowdfundings/<ID>/images
+ * @apiExample Example
+ * PUT: /api/crowdfundings/5/images
+ * files.image?
+ *
+ * @apiSuccess (Success 200) OK
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.put('/:crowdfunding_id/images', authenticate, function(req, res) {
+    // get crowdfunding_id
+    try {
+        var crowdfunding_id = req.params.crowdfunding_id;
+        // get filename
+        var filename = image.uploadImage(req, res, 'crowdfundings/');
+        if(filename === false){
+            return;
+        }
+    } catch (err) {
+        res.status(400).json(err);
+        return;
     }
-});*/
+    // define query
+    const query = `
+        INSERT INTO crowdfunding_image (crowdfunding_id, image_url)
+        VALUES ($(crowdfunding_id), $(filename))`;
+    db.none(query, {
+        crowdfunding_id,
+        filename
+    });
+});
+
+
+/**
+ * @api {delete} /crowdfundings/:crowdfunding_id/images/:image - Delete crowdfunding image
+ * @apiName DeletecrowdfundingImage
+ * @apiGroup crowdfunding
+ * @apiPermission crowdfunding creator
+ *
+ * @apiDescription Delete image of a crowdfunding by its URL
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id ID of the crowdfunding to get images of
+ * @apiParam (RequestParam) {String} image URL of the image to delete
+ *
+ * @apiExample Syntax
+ * DELETE: /api/crowdfundings/<ID>/images/<IMAGE_URL>
+ * @apiExample Example
+ * DELETE: /api/crowdfundings/5/images/http://dummyimage.com/965x531.png/dddddd/000000
+ *
+ * @apiSuccess (Success 200) OK
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.delete('/:crowdfunding_id/images/:image', authenticate, function(req, res) {
+    // get crowdfunding_id
+    try {
+        var crowdfunding_id = req.params.crowdfunding_id;
+        // get filename
+        var image_url = req.params.image;
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+        return;
+    }
+    // define query //TODO: must be restricted to user
+    const query = `
+        DELETE FROM crowdfunding_image 
+        WHERE crowdfunding_id=$(crowdfunding_id) AND image_url=$(image_url);`;
+    db.none(query, {
+            crowdfunding_id,
+            image_url
+        })
+        .then(data => {
+            image.removeImage(req, res, 'crowdfundings/'+image_url);
+        })
+        .catch(error => {
+            res.status(500).send(error);
+        });
+});
 
 // SERVICES OFFERS.
 // ===============================================================================
@@ -918,6 +1018,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
  * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
+ * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
  * 
  * @apiSuccess (Success 200) {Integer} pages_number Number of crowdfunding pages when using :from and :to.
  * 
@@ -938,6 +1039,36 @@ router.get('/filter/:from-:to/pages_number', function(req, res) {
         res.status(200).json({pages_number: pagesNumber});
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t get pages number.'});
+    })
+});
+
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/is_owner Checks if the user is the crowdfunding creator
+ * @apiName CheckIsOwner
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding number from returned.
+ * 
+ * @apiSuccess (Success 200) {Bool} owns True if user is the creator, false otherwise.
+ * 
+ * @apiError (Error 500) InternalServerError Couldn't get owner.
+ */
+router.get('/:crowdfunding_id/is_owner', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let crowdfundingId = req.params.crowdfunding_id;
+    let query =
+        `SELECT creator_id
+        FROM crowdfunding
+        WHERE id = $(crowdfunding_id);`;
+
+    db.oneOrNone(query, {
+        crowdfunding_id: crowdfundingId
+    }).then(data => {
+        if(data.creator_id === userId)
+            res.status(200).json({owns: true});
+        else res.status(200).json({owns: false});
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get owner.'});
     })
 })
 

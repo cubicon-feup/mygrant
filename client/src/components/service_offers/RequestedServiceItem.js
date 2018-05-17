@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import { Container} from 'semantic-ui-react';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
 
-const urlGetCandidates = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers`;
-const urlRejectCandidate = serviceId => `http://localhost:3001/api/services/`+ serviceId + `/offers/decline`;
-const urlAcceptCandidate = serviceId => `http://localhost:3001/api/services/` + serviceId + `/offers/accept`;
-const urlGetServiceInstanceInfo = serviceId => 'http://localhost:3001/api/services/' + serviceId + `/instance`;
+const apiPath = require('../../config').apiPath;
+const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/offers`;
+const urlRejectCandidate = serviceId => apiPath + `/services/`+ serviceId + `/offers/decline`;
+const urlAcceptCandidate = serviceId => apiPath + `/services/` + serviceId + `/offers/accept`;
+const urlGetServiceInstanceInfo = serviceId => apiPath + '/services/' + serviceId + `/instance`;
+const Role = require('../../Role').role;
 
 class RequestedServiceItem extends Component {
 
@@ -15,8 +19,10 @@ class RequestedServiceItem extends Component {
         super(props);
         this.state = {
             serviceId: this.props.requestedService.id,
+            crowdfundingCreatorId: this.props.crowdfundingCreatorId,
             candidates: [],
-            serviceInstanceInfo: {}
+            serviceInstanceInfo: {},
+            role: Role.NONE
         }
     }
 
@@ -47,6 +53,7 @@ class RequestedServiceItem extends Component {
                 res.json()
                     .then(data => {
                         this.setState({serviceInstanceInfo: data});
+                        this.assignRole();
                     })
             }
         })
@@ -57,7 +64,7 @@ class RequestedServiceItem extends Component {
 
         // TODO: test if state applies.
         let serviceInstanceInfo = {
-            date_scheduled: new Date('2018-05-15 20:00:00'),
+            date_scheduled: new Date('2018-06-15 20:00:00'),
             // TODO: find a calendar framework;
             // TODO: can only schedule after today.
             requester_id: candidate.requester_id,
@@ -97,16 +104,32 @@ class RequestedServiceItem extends Component {
         }
     }
 
+    assignRole() {
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+        if(userId == this.state.crowdfundingCreatorId)
+            this.setState({role: Role.CROWDFUNDING_CREATOR});
+        else if (userId == this.state.serviceInstanceInfo.partner_id)
+            this.setState({role: Role.SERVICE_PARTNER});
+        else if (userId)
+            this.setState({role: Role.AUTHENTICATED});
+    }
+
     render() {
         let candidates;
-        if(this.state.candidates.length > 0) {
+        if(this.state.role === Role.CROWDFUNDING_CREATOR && this.state.candidates.length > 0) {
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
                 )
             });
-        } else if(this.state.serviceInstanceInfo)
-            candidates = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} />
+        }  else candidates = null;
+        
+        let selectedRequester;
+        let candicateToPosition;
+        if(this.state.serviceInstanceInfo)
+            selectedRequester = <SelectedRequester serviceInstanceInfo={this.state.serviceInstanceInfo} serviceId={this.state.serviceId} crowdfundingId={this.props.crowdfundingId} role={this.state.role}/>
+        else selectedRequester = null;
         return (
             <Container>
                 <p>
@@ -122,9 +145,10 @@ class RequestedServiceItem extends Component {
                     {this.props.requestedService.category}
                 </p>
                 {candidates}
+                {selectedRequester}
             </Container>
         );
     }
 }
 
-export default RequestedServiceItem;
+export default withCookies(RequestedServiceItem);
