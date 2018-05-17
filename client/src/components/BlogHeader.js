@@ -8,7 +8,7 @@ class BlogHeader extends Component {
     render() {
         return (
             <div className="blog-header">
-                <Image centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                <Responsive as={Image} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                 <Segment textAlign={'left'}>
                         <Grid padded >
                             <Grid.Row>
