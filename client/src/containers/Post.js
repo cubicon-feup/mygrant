@@ -23,20 +23,22 @@ class Post extends Component {
     render() {
         return (
             <Container className={'main-container post'} >
-                <BlogHeaderPost
-                    postInfo={{
-                        commentCount: 2,
-                        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                    datePosted: '15:00',
-                    id: 123,
-                    likes: 19
-                    }}
-                    user={{
-                        fullName: 'Kanye West',
-                        id: 69,
-                        pictureUrl: '/users/kwest.jpg'
-                    }}
-                />
+                <Segment>
+                    <BlogHeaderPost
+                        postInfo={{
+                            commentCount: 2,
+                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
+                        datePosted: '15:00',
+                        id: 123,
+                        likes: 19
+                        }}
+                        user={{
+                            fullName: 'Kanye West',
+                            id: 69,
+                            pictureUrl: '/users/kwest.jpg'
+                        }}
+                    />
+                </Segment>
 
                     <NewPost/>
                 <Segment.Group>
