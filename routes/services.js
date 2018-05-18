@@ -981,7 +981,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check if req.user.id is service creator 
     const creator_id = req.user.id;
     const query_check_creator = `
-        SELECT 1 WHERE EXISTS (
+        SELECT 1 AS exists WHERE EXISTS (
             SELECT service.creator_id
             FROM service
             WHERE service.id=$(service_id) AND service.creator_id=$(creator_id)
@@ -1037,6 +1037,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                 });
         })
         .catch(error => {
+            //error.reason="Current user is not the service creator";
             console.log(error);
             res.status(500).json(error);
         });
