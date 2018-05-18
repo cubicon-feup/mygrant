@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var image = require('../images/Image');
 
+const expressJwt = require('express-jwt');
+const appSecret = require('../config/config').secret;
+const authenticate = expressJwt({ secret: appSecret });
 // IMAGES.
 // ===============================================================================
 /**
@@ -18,8 +21,7 @@ var image = require('../images/Image');
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
- //TODO: require authentication to retrieve photos
-router.get('/:type/:image', function(req, res) { // check for valid input
+router.get('/:type/:image', authenticate, function(req, res) { // check for valid input
     // check for valid input
 	try {
 		var type = req.params.type;
