@@ -2,24 +2,25 @@
 
 @media (max-width: 768px) {
 	div.profile-container {
-		div.profile-photo {
-			width: 100% !important;
-		}
-		
-		div.profile-info {
-			width: 100% !important;
+		div#profile-info {
+			display: flex !important;
+			justify-content: center;
+			align-items: center;
 		}
 	}
-
+	
+	div.extra-container {
+		text-align: center;
+	}
 }
 
 div.mygrant-title {
 	margin-top: 50px;
-	margin-bottom: 40px;
+	margin-bottom: 20px;
 
 	.header {
 		color: $purple;
-		padding-left: 80px;
+		padding-left: 30px;
 	}
 	
 	div.mygrant-divider {
@@ -35,14 +36,17 @@ div.mygrant-title {
 }	
 
 div.profile-container {
+	margin: 0 !important;
+	padding: 0px !important;
+
 	div.profile-photo {
 		display: inline-block;
 		margin-left: auto;
 		margin-right: auto;
 		
 		.image-container {
-			width: 100%;
-			max-width: 300px;
+			width: 250px;
+			height: 250px;
 			margin-left: auto;
 			margin-right: auto;
 			position: relative;
@@ -50,12 +54,14 @@ div.profile-container {
 			img {
 				border: 5px solid $purple;
 				width: 100%;
+				height: 100%;
+				object-fit:cover;
 			}
 			
 			.edit-button {
 				position: absolute;
-				right: calc(15.65% - 22.5px);
-				top: calc(15.65% - 22.5px);
+				right: calc(15.65% - 22.5px); /* 100% - 50% * cos(pi/4) - width/2 */
+				top: calc(15.65% - 22.5px); /* 100% - 50% * sin(pi/4) - height/2 */
 				border: 4px solid $purple;
 				height: 45px;
 				width: 45px;
@@ -77,8 +83,16 @@ div.profile-container {
 	}
 	
 	div#profile-info {
-		display: inline_block;
+		display: inline-block;
 		padding: 3rem !important;
+		
+		.profile-info-wrapper {
+			display: inline-block;
+		}
+		
+		.profile-info-wrapper > * {
+			display: inline-block;
+		}
 		
 		.profile-name {
 			margin: 0;
@@ -95,6 +109,31 @@ div.profile-container {
 			.active.icon {
 				color: $purple;
 			}
+		}
+	}
+}
+
+div.extra-container {
+	margin: 0 !important;
+	padding: 0px !important;
+	
+	.center {
+		vertical-align: top;
+		width : 175px;
+		display: inline-block;
+		margin-bottom: 20px;
+		
+		img {
+			border: 3px solid $purple;
+			width: 100px;
+			height: 100px;
+			margin: 10px auto;
+			object-fit: cover;
+		}
+		
+		div {
+			color: rgba(0,0,0,.87);
+			text-align: center;
 		}
 	}
 }

@@ -34,7 +34,7 @@ router.get('/:id', function(req, res) {
 // Get friends
 router.get('/:id/friends', function(req, res) {
     const query = `
-		SELECT users.id, users.full_name, users.image_url, users.verified
+		SELECT users.id, users.full_name AS name, users.image_url, users.verified
 		FROM users
 		JOIN (
 			SELECT user1_id AS user_id
@@ -286,6 +286,65 @@ router.post('/set_location', authenticate, function(req, res) {
     })
         .then(() => {
             res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Get services provided by user
+router.get('/:id/provides', function(req, res) {
+	const query =
+		`SELECT service.id, service.title AS name, service_image.image_url
+		FROM service
+		LEFT JOIN service_image
+		ON service.id=service_image.service_id
+		WHERE service.creator_id=$(user_id)
+		AND service.service_type='PROVIDE'
+		AND service.deleted=false`;
+		
+	db.any(query, { user_id: req.params.id })
+		.then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Get services required by user
+router.get('/:id/requests', function(req, res) {
+	const query =
+		`SELECT service.id, service.title AS name, service_image.image_url
+		FROM service
+		LEFT JOIN service_image
+		ON service.id=service_image.service_id
+		WHERE service.creator_id=$(user_id)
+		AND service.service_type='REQUEST'
+		AND service.deleted=false`;
+		
+	db.any(query, { user_id: req.params.id })
+		.then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Get crowdfundings created by user
+router.get('/:id/crowdfundings', function(req, res) {
+	const query =
+		`SELECT crowdfunding.id, crowdfunding.title AS name, crowdfunding_image.image_url
+		FROM crowdfunding
+		LEFT JOIN crowdfunding_image
+		ON crowdfunding.id=crowdfunding_image.crowdfunding_id
+		WHERE crowdfunding.creator_id=$(user_id)
+		AND crowdfunding.deleted=false`;
+		
+	db.any(query, { user_id: req.params.id })
+		.then(data => {
+            res.status(200).json(data);
         })
         .catch(error => {
             res.status(500).json({ error });
