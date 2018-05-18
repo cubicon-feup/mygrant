@@ -6,8 +6,10 @@ import { withCookies, Cookies } from 'react-cookie';
 
 import { Button, Comment, Container, Form, Header } from 'semantic-ui-react';
 
+const urlGetTopComments = (type, id) =>
+    `/api/comments/top_comments?${type}=${id}`;
 const urlForComments = (type, id) => `/api/${type}/${id}/comments`;
-const urlToUser = id => `/user/${id}`;
+const urlGetNestedComments = id => `/api/comments/${id}/nested_comments`;
 
 class CommentsSection extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -26,7 +28,7 @@ class CommentsSection extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     fetchComments() {
-        fetch(urlForComments(this.state.type, this.state.id))
+        fetch(urlGetTopComments(this.state.type, this.state.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -88,7 +90,7 @@ class CommentsSection extends Component {
                         <Comment.Avatar
                             as={Link}
                             to={urlToUser(comment.sender_id)}
-                            src={comment.sender_image}
+                            src={comment.image_url}
                         />
                         <Comment.Content>
                             <Comment.Author
