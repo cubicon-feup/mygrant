@@ -5,6 +5,7 @@ import { withCookies, Cookies } from 'react-cookie';
 
 import Candidate from './Candidate';
 import SelectedRequester from './SelectedRequester';
+import ListService from '../ListService';
 
 const apiPath = require('../../config').apiPath;
 const urlGetCandidates = serviceId => apiPath + `/services/` + serviceId + `/offers`;
@@ -124,7 +125,7 @@ class RequestedServiceItem extends Component {
                 )
             });
         }  else candidates = null;
-        
+
         let selectedRequester;
         let candicateToPosition;
         if(this.state.serviceInstanceInfo)
@@ -132,20 +133,9 @@ class RequestedServiceItem extends Component {
         else selectedRequester = null;
         return (
             <Container>
-                <p>
-                    <label>Title: </label>
-                    {this.props.requestedService.title}
-                </p>
-                <p>
-                    <label>Description: </label>
-                    {this.props.requestedService.mygrant_value}
-                </p>
-                <p>
-                    <label>Category: </label>
-                    {this.props.requestedService.category}
-                </p>
-                {candidates}
-                {selectedRequester}
+                <ListService crowdfunding={this.props.requestedService}/>
+                {/*candidates}
+                {selectedRequester*/}
             </Container>
         );
     }
