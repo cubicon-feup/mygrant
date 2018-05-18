@@ -15,6 +15,8 @@ const urlForFriend = `http://localhost:3001/api/users/add_friend`;
 const urlForFriendRequest = `http://localhost:3001/api/users/friend_request`;
 const urlForDonation = `http://localhost:3001/api/users/donation`;
 const urlForLoan = `http://localhost:3001/api/users/loan`;
+const urlForDonationRequest = `http://localhost:3001/api/users/donation_request`;
+const urlForLoanRequest = `http://localhost:3001/api/users/loan_request`;
 
 class HeaderDivider extends Component {	
 	render() {
@@ -169,8 +171,10 @@ class TransactionButton extends Component {
 		this.toggleTransactionButtons = this.toggleTransactionButtons.bind(this);
 		this.makeDonation = this.makeDonation.bind(this);
 		this.requestDonation = this.requestDonation.bind(this);
+		this.cancelDonationRequest = this.cancelDonationRequest.bind(this);
 		this.makeLoan = this.makeLoan.bind(this);
 		this.requestLoan = this.requestLoan.bind(this);
+		this.cancelLoanRequest = this.cancelLoanRequest.bind(this);
 	}
 	
 	toggleTransactionButtons() {
@@ -198,7 +202,42 @@ class TransactionButton extends Component {
 	}
 	
 	requestDonation(amount) {
-		console.log(amount);
+		fetch(urlForDonationRequest, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_donation_status(true);
+		});
+	}
+	
+	cancelDonationRequest() {
+		fetch(urlForDonationRequest, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_donation_status(false);
+		});
 	}
 	
 	makeLoan(amount, date) {
@@ -222,7 +261,42 @@ class TransactionButton extends Component {
 	}
 	
 	requestLoan(amount) {
-		console.log(amount);
+		fetch(urlForLoanRequest, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_loan_status(true);
+		});
+	}
+	
+	cancelLoanRequest() {
+		fetch(urlForLoanRequest, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_loan_status(false);
+		});
 	}
 	
 	render() {
@@ -240,20 +314,35 @@ class TransactionButton extends Component {
 							<Icon className="level up"/>
 						</Button>
 						
-						<Button className="profile-button donation-request-button"
-						onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
-							<Icon className="level down"/>
-						</Button>
+						{!this.props.donation_request &&
+							<Button className="profile-button donation-request-button"
+							onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
+								<Icon className="level down"/>
+							</Button>}
+							
+						{this.props.donation_request &&
+							<Button className="profile-button donation-request-cancel-button"
+							onClick={()=>this.props.function_set_modal('Cancel donation request', 'Are you sure you want to cancel the donation request made to this user?', this.cancelDonationRequest)}>
+								<Icon className="level down"/>
+							</Button>}
 						
 						<Button className="profile-button loan-button"
 						onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true, true)}>
 							<Icon className="double angle right"/>
 						</Button>
 						
-						<Button className="profile-button loan-request-button"
-						onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
-							<Icon className="double angle left"/>
-						</Button>
+						{!this.props.loan_request &&
+							<Button className="profile-button loan-request-button"
+							onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
+								<Icon className="double angle left"/>
+							</Button>
+						}
+						
+						{this.props.loan_request &&
+							<Button className="profile-button loan-request-cancel-button"
+							onClick={()=>this.props.function_set_modal('Cancel loan request', 'Are you sure you want to cancel the loan request made to this user?', this.cancelLoanRequest)}>
+								<Icon className="level down"/>
+							</Button>}
 					</div>
 				);
 			}
@@ -373,9 +462,14 @@ class ProfileContainer extends Component {
 								id={this.props.id}
 								self={this.props.self}
 								friend={this.state.friend !== undefined ? this.state.friend : this.props.friend}
+								donation_request={this.props.donation_request}
+								loan_request={this.props.loan_request}
 								cookies={this.props.cookies}
+								
 								function_toggle_buttons={this.toggleButtons}
 								function_set_modal={this.setModalContent}
+								function_update_donation_status={this.props.function_update_donation_status}
+								function_update_loan_status={this.props.function_update_loan_status}
 							/>
 							
 							{!this.state.disable_buttons &&
@@ -463,7 +557,6 @@ class ModalContainer extends Component {
 	}
 }
 
-
 class ExtrasContainer extends Component {
 	render() {
 		if (this.props.content === undefined || this.props.content.length === 0) {
@@ -496,6 +589,8 @@ class User extends Component {
         super(props);
         this.state = {id: this.getID()};
 		this.blockUser = this.blockUser.bind(this);
+		this.updateDonationStatus = this.updateDonationStatus.bind(this);
+		this.updateLoanStatus = this.updateLoanStatus.bind(this);
     }
 
     getID() {
@@ -627,38 +722,13 @@ class User extends Component {
 		this.setState({blocked: true});
 	}
 	
-	openDonationModal() {
-		this.setState({
-			modalOpen: true,
-			modalHeader: 'Make a donation', 
-			modalContent: 'Are you sure you want to donate to this user?'
-		});
+	updateDonationStatus(status) {
+		this.setState({donation_request: status});
 	}
 	
-	openDonationRequestModal() {
-		this.setState({
-			modalOpen: true,
-			modalHeader: 'Request a donation', 
-			modalContent: 'Are you sure you want to request a donation to this user?'
-		});
+	updateLoanStatus(status) {
+		this.setState({loan_request: status});
 	}
-	
-	openLoanModal() {
-		this.setState({
-			modalOpen: true,
-			modalHeader: 'Give a loan', 
-			modalContent: 'Are you sure you want to give a loan to this user?'
-		});
-	}
-	
-	openLoanRequestModal() {
-		this.setState({
-			modalOpen: true,
-			modalHeader: 'Request a loan', 
-			modalContent: 'Are you sure you want to request a loan to this user?'
-		});
-	}
-
 	
     render() {
 		const { cookies } = this.props;
@@ -686,8 +756,12 @@ class User extends Component {
 						friend={this.state.friend}
 						friend_request_sent={this.state.friend_request_sent}
 						friend_request_received={this.state.friend_request_received}
+						donation_request={this.state.donation_request}
+						loan_request={this.state.loan_request}
 						
 						cookies={cookies}
+						function_update_donation_status={this.updateDonationStatus}
+						function_update_loan_status={this.updateLoanStatus}
 						function_block_user={this.blockUser}
 					/>
 					

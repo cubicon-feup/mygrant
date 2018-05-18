@@ -226,8 +226,8 @@ router.delete('/block_user', authenticate, function(req, res) {
 });
 
 // Make loan request
-router.post('/loan_request', function(req, res) {
-	var sender_id = 1;
+router.post('/loan_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		INSERT INTO loan_request(sender_id, receiver_id, amount)
 		VALUES ($(sender_id), $(receiver_id), $(amount))`;
@@ -287,8 +287,8 @@ router.post('/loan', authenticate, function(req, res) {
 });
 
 // Make donation request
-router.post('/donation_request', function(req, res) {
-	var sender_id = 1;
+router.post('/donation_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		INSERT INTO donation_request(sender_id, receiver_id, amount)
 		VALUES ($(sender_id), $(receiver_id), $(amount))`;
