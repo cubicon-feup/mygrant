@@ -7,21 +7,43 @@ const expressJwt = require('express-jwt');
 const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
-router.get('/:id', function(req, res) {
+router.get('/:id', authenticate, function(req, res) {
 	try {
         var id = req.params.id;
+		var logged_id = req.user.id;
     } catch (err) {
         res.status(400).json({ error: err.toString() });
         return;
     }
     const query = `
-	    SELECT users.id as user_id, date_joined, full_name, bio, city, country.name AS country, level, high_level, verified, image_url
+	    SELECT
+			users.id=$(logged_id) AS self,
+			blocked.blocker_id IS NOT NULL AS blocked,
+			friend.user1_id IS NOT NULL AS friend,
+			friend_request_sent.sender_id IS NOT NULL AS friend_request_sent,
+			friend_request_received.sender_id IS NOT NULL AS friend_request_received,
+			loan_request.sender_id IS NOT NULL AS loan_request,
+			donation_request.sender_id IS NOT NULL AS donation_request,
+			users.id as user_id, date_joined, full_name, bio, city, country.name AS country, level, high_level, verified, image_url
 		FROM users
 		JOIN country
 		ON users.country_id = country.id
-		WHERE users.id = $(id);`;
+		LEFT JOIN blocked
+		ON (blocked.blocker_id=$(logged_id) AND blocked.target_id=users.id) OR (blocked.blocker_id=users.id AND blocked.target_id=$(logged_id))
+		LEFT JOIN friend
+		ON (friend.user1_id=$(logged_id) AND friend.user2_id=users.id) OR (friend.user1_id=users.id AND friend.user2_id=$(logged_id))
+		LEFT JOIN friend_request AS friend_request_sent
+		ON friend_request_sent.sender_id=$(logged_id) AND friend_request_sent.receiver_id=users.id
+		LEFT JOIN friend_request AS friend_request_received
+		ON friend_request_received.sender_id=users.id AND friend_request_received.receiver_id=$(logged_id)
+		LEFT JOIN loan_request
+		ON loan_request.sender_id=$(logged_id) AND loan_request.receiver_id=users.id
+		LEFT JOIN donation_request
+		ON donation_request.sender_id=$(logged_id) AND donation_request.receiver_id=users.id
+		WHERE users.id = $(id)
+		LIMIT 1;`;
     db
-        .one(query, { id })
+        .one(query, { id, logged_id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -70,8 +92,8 @@ router.get('/:id/friends', function(req, res) {
 });
 
 // Add friend
-router.post('/add_friend', function(req, res) {
-    var user_id = 1;
+router.post('/add_friend', authenticate, function(req, res) {
+    var user_id = req.user.id;
     const query = `
 		INSERT INTO friend(user1_id, user2_id)
 		VALUES ($(user1_id), $(user2_id))`;
@@ -89,8 +111,8 @@ router.post('/add_friend', function(req, res) {
 });
 
 // Remove friend
-router.delete('/add_friend', function(req, res) {
-    var user_id = 1;
+router.delete('/add_friend', authenticate, function(req, res) {
+    var user_id = req.user.id;
     const query = `
 		DELETE FROM friend
 		WHERE (user1_id=$(user1_id) AND user2_id=$(user2_id))
@@ -99,6 +121,45 @@ router.delete('/add_friend', function(req, res) {
         .none(query, {
             user1_id: user_id,
             user2_id: req.body.id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Make friend request
+router.post('/friend_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
+    const query = `
+		INSERT INTO friend_request(sender_id, receiver_id)
+		VALUES ($(sender_id), $(receiver_id))`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.id
+        })
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+// Remove friend request
+router.delete('/friend_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
+    const query = `
+		DELETE FROM friend_request
+		WHERE sender_id = $(sender_id)
+		AND receiver_id = $(receiver_id)`;
+    db
+        .none(query, {
+            sender_id: sender_id,
+            receiver_id: req.body.id
         })
         .then(() => {
             res.sendStatus(200);
@@ -127,8 +188,8 @@ router.get('/:id/blocked', function(req, res) {
 });
 
 // Block user
-router.post('/block_user', function(req, res) {
-    var user_id = 1;
+router.post('/block_user', authenticate, function(req, res) {
+    var user_id = req.user.id;
     const query = `
 		INSERT INTO blocked(blocker_id, target_id)
 		VALUES ($(blocker_id), $(target_id))`;
@@ -363,5 +424,62 @@ router.get('/:id/crowdfundings', function(req, res) {
             res.status(500).json({ error });
         });
 });
+
+// Get user rating
+router.get('/:id/rating', function(req, res) {
+	/* service partner; service creator; crowdfunding service partner; crowdfunding service creator; crowdfunding owner*/
+	const query = `
+			SELECT AVG(rating) AS rating
+			FROM (
+				SELECT creator_rating AS rating
+				FROM service_instance
+				WHERE partner_id=$(user_id) AND service_instance.creator_rating IS NOT NULL
+				
+				UNION ALL
+				
+				SELECT partner_rating AS rating
+				FROM service_instance
+				JOIN service
+				ON service_instance.service_id=service.id
+				WHERE creator_id=$(user_id) AND service_instance.partner_rating IS NOT NULL
+				
+				UNION ALL
+				
+				SELECT creator_rating AS rating
+				FROM service_instance
+				JOIN crowdfunding
+				ON service_instance.crowdfunding_id=crowdfunding.id
+				WHERE crowdfunding.creator_id=$(user_id) AND service_instance.creator_rating IS NOT NULL
+				
+				UNION ALL
+				
+				SELECT partner_rating AS rating
+				FROM service_instance
+				JOIN service
+				ON service_instance.service_id=service.id
+				JOIN crowdfunding
+				ON service.crowdfunding_id=crowdfunding.id
+				WHERE crowdfunding.creator_id=$(user_id) AND service_instance.partner_rating IS NOT NULL
+				
+				UNION ALL
+				
+				SELECT rating AS rating
+				FROM crowdfunding_donation
+				JOIN crowdfunding
+				ON crowdfunding_donation.crowdfunding_id=crowdfunding.id
+				WHERE crowdfunding.creator_id=$(user_id) AND crowdfunding_donation.rating IS NOT NULL
+			) ratings
+	`;
+	
+	db.one(query, { user_id: req.params.id })
+		.then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+
 
 module.exports = router;

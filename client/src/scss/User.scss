@@ -58,15 +58,13 @@ div.profile-container {
 				object-fit:cover;
 			}
 			
-			.edit-button {
+			.profile-button {
 				position: absolute;
-				right: calc(15.65% - 22.5px); /* 100% - 50% * cos(pi/4) - width/2 */
-				top: calc(15.65% - 22.5px); /* 100% - 50% * sin(pi/4) - height/2 */
+				margin: 0;
 				border: 4px solid $purple;
 				height: 45px;
 				width: 45px;
 				border-radius: 500em;
-				background-color: $green;
 				color: white;
 				padding: 4px;
 				text-align: center;
@@ -76,8 +74,35 @@ div.profile-container {
 				}
 			}
 			
-			.edit-button:hover {
+			.edit-button, .remove-friend-button, .send-friend-request-button, .accept-friend-request-button {
+				right: calc(15.65% - 22.5px); /* 100% - 50% * cos(pi/4) - width/2 */
+				top: calc(15.65% - 22.5px); /* 100% - 50% * sin(pi/4) - height/2 */
+			}
+			
+			.edit-button, .send-friend-request-button.sent, .send-friend-request-button.notsent:hover, .remove-friend-button, .accept-friend-request-button {
+				background-color: $green;
+			}
+			
+			.edit-button:hover, .accept-friend-request-button:hover {
 				background-color: $dark-green;
+			}
+			
+			.send-friend-request-button.sent:hover, .remove-friend-button:hover {
+				background-color: $dark-red;
+			}
+			
+			.send-friend-request-button.notsent {
+				background-color: $light-purple;
+			}
+			
+			.block-button {
+				background-color: $red;
+				right: calc(15.65% - 22.5px); /* 100% - 50% * cos(-pi/4) - width/2 */
+				top: calc(84.35% - 22.5px); /* 100% - 50% * sin(-pi/4) - height/2 */
+			}
+			
+			.block-button:hover {
+				background-color: $dark-red;
 			}
 		}
 	}
