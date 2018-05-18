@@ -201,8 +201,7 @@ class TransactionButton extends Component {
 		console.log(amount);
 	}
 	
-	makeLoan(amount) {
-		/*
+	makeLoan(amount, date) {
 		fetch(urlForLoan, {
 			method: 'POST',
 			headers: {
@@ -210,8 +209,9 @@ class TransactionButton extends Component {
 				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
 			},
 			body: JSON.stringify({
-				receiver_id: this.props.id,
-				amount: amount
+				user_id: this.props.id,
+				amount: amount,
+				date_max_repay: date
 			})
 		})
 		.then(response => {
@@ -219,7 +219,6 @@ class TransactionButton extends Component {
 				throw Error('Network request failed');
 			}
 		});
-		*/
 	}
 	
 	requestLoan(amount) {
@@ -247,7 +246,7 @@ class TransactionButton extends Component {
 						</Button>
 						
 						<Button className="profile-button loan-button"
-						onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true)}>
+						onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true, true)}>
 							<Icon className="double angle right"/>
 						</Button>
 						
@@ -323,13 +322,14 @@ class ProfileContainer extends Component {
 		this.setState({disable_buttons: !this.state.disable_buttons});
 	}
 	
-	setModalContent(header, content, callback, has_input) {
+	setModalContent(header, content, callback, has_input, has_date) {
 		this.setState({
 			modal_header: header,
 			modal_content: content,
 			modal_callback: callback,
 			modal_open: true,
-			modal_input: has_input
+			modal_input: has_input,
+			modal_input_date: has_date
 		});
 	}
 	
@@ -394,6 +394,7 @@ class ProfileContainer extends Component {
 								callback={this.state.modal_callback}
 								open={this.state.modal_open}
 								input={this.state.modal_input}
+								date={this.state.modal_input_date}
 								function_close_modal={this.closeModal}
 							/>
 						</div>
@@ -426,6 +427,12 @@ class ModalContainer extends Component {
 		});
 	}
 	
+	updateDate = (e) => {
+		this.setState({
+			date: e.target.value
+		});
+	}
+	
 	render() {
 		return (
 			<Modal size="tiny" open={this.props.open} onClose={this.props.function_close_modal}>
@@ -434,11 +441,16 @@ class ModalContainer extends Component {
 					{this.props.content}
 					{this.props.input &&
 						<Input placeholder="Amount..." onChange={this.updateAmount}/>}
+					{this.props.date &&
+						<Input type="date" onChange={this.updateDate}/>}
 				</Modal.Content>
 				<Modal.Actions>
 					<Button negative content="No" onClick={this.props.function_close_modal}/>
 					<Button positive icon="checkmark" labelPosition="right" content="Yes" onClick={()=>{
-						if (this.props.input) {
+						if (this.props.input && this.props.date) {
+							this.props.callback(this.state.amount, this.state.date);
+						}
+						else if (this.props.input) {
 							this.props.callback(this.state.amount);
 						}
 						else {
