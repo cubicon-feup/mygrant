@@ -6,9 +6,10 @@ import { withCookies, Cookies } from 'react-cookie';
 
 import { Button, Comment, Container, Form, Header } from 'semantic-ui-react';
 
+const urlToUser = id => `/user/${id}`;
+const urlForComments = '/api/comments';
 const urlGetTopComments = (type, id) =>
     `/api/comments/top_comments?${type}=${id}`;
-const urlForComments = (type, id) => `/api/${type}/${id}/comments`;
 const urlGetNestedComments = id => `/api/comments/${id}/nested_comments`;
 
 class CommentsSection extends Component {
@@ -55,9 +56,13 @@ class CommentsSection extends Component {
         const { cookies } = this.props;
         e.preventDefault();
 
-        fetch(urlForComments(this.state.type, this.state.id), {
-            method: 'POST',
+        var type =
+            this.state.type === 'services' ? 'service_id' : 'crowdfunding_id';
+
+        fetch(urlForComments, {
+            method: 'PUT',
             body: JSON.stringify({
+                [type]: this.props.id,
                 message: this.state.message,
                 in_reply_to: this.state.in_reply_to
             }),
