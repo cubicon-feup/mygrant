@@ -60,7 +60,7 @@ class Crowdfunding extends Component {
         let timer = setInterval(this.tick, 1000);
         this.setState({timer});
     }
-    
+
     componentWillUnmount() {
         clearInterval(this.state.timer);
     }
@@ -236,7 +236,7 @@ class Crowdfunding extends Component {
         else if(this.state.crowdfunding.status === 'FINISHED')
             statusExplanation =
                 <p>This mission has finished its collecting and rcruitment process.</p>
-        
+
         let timer;
         if(this.state.crowdfunding.status === 'COLLECTING' && this.state.timeDiff > 0)
             timer =
@@ -260,7 +260,7 @@ class Crowdfunding extends Component {
                             {timer}
                               <h5>Current State: {this.state.crowdfunding.status}</h5>
                               {statusExplanation}
-                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance / this.state.crowdfunding.mygrant_target} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
                               <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
@@ -274,7 +274,7 @@ class Crowdfunding extends Component {
                               <Grid.Column width={8}>
                                   <Grid stackable columns={2} className="crowdfunding_owner">
                                       <Grid.Column width={6}>
-                                          <p>Image</p>
+                                          <Image size='tiny' src='/img/user.jpg' />
                                       </Grid.Column>
                                       <Grid.Column width={10}>
                                           {this.state.crowdfunding.creator_name}

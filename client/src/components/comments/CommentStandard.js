@@ -90,7 +90,7 @@ class CommentStandard extends Component {
         </Container>*/
         return (
             <Comment>
-                <Comment.Avatar src='/assets/images/avatar/small/matt.jpg' />
+                <Comment.Avatar src='/img/user.jpg' />
                 <Comment.Content>
                     <Comment.Author as={Link} to={"/crowdfunding/2"}>{this.props.comment.user_name}</Comment.Author>
                     <Comment.Metadata><span>{new Date(this.props.comment.date_posted).toLocaleString()}</span></Comment.Metadata>

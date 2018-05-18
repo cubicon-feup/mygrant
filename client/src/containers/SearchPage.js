@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import '../css/common.css';
+import '../css/Search.css';
 import { Link } from 'react-router-dom';
-import { Container, Button, Select} from 'semantic-ui-react';
+import { Container, Select, Radio, Grid} from 'semantic-ui-react';
 import SearchCrowdfunding from "../components/SearchCrowdfunding";
 import SearchService from "../components/SearchService";
 
@@ -20,32 +20,28 @@ class SearchPage extends Component {
         if(this.state.search_type == 'services') {
             return (
                 <Container className="main-container">
-                    <Select name="search_type" options={[
-                        {
-                            text: 'Services',
-                            value: 'services'
-                        },
-                        {
-                            text: 'Crowdfundings',
-                            value: 'crowdfundings'
-                        }
-                    ]} onChange={this.handleChange}/>
+                    <Grid centered id="search_type_grid">
+                        <Grid.Column width={8} className="centered aligned selected">
+                            <Radio label="Services" value="services" name="search_type" checked onChange={this.handleChange}/>
+                        </Grid.Column>
+                        <Grid.Column width={8} className="centered aligned">
+                            <Radio label="Missions" value="crowdfundings" name="search_type" onChange={this.handleChange}/>
+                        </Grid.Column>
+                    </Grid>
                     <SearchService/>
                 </Container>
             );
         }else{
             return (
                 <Container className="main-container">
-                    <Select name="search_type" options={[
-                        {
-                            text: 'Services',
-                            value: 'services'
-                        },
-                        {
-                            text: 'Crowdfundings',
-                            value: 'crowdfundings'
-                        }
-                    ]} onChange={this.handleChange}/>
+                    <Grid centered id="search_type_grid">
+                        <Grid.Column width={8} className="centered aligned">
+                            <Radio label="Services" value="services" name="search_type" onChange={this.handleChange}/>
+                        </Grid.Column>
+                        <Grid.Column width={8} className="centered aligned selected">
+                            <Radio label="Missions" value="crowdfundings" name="search_type" checked onChange={this.handleChange}/>
+                        </Grid.Column>
+                    </Grid>
                     <SearchCrowdfunding/>
                 </Container>
             );
