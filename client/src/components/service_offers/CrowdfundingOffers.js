@@ -43,7 +43,7 @@ class CrowdfundingOffers extends Component {
         }
         return (
             <Container>
-                <h4 align="center">Services</h4>
+                <h3 align="center">Services</h3>
                 {requestedServices}
             </Container>
         );

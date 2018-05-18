@@ -1,0 +1,42 @@
+@import 'common';
+
+form.ui.form{
+  margin-top:30px;
+}
+
+#search_type_grid{
+  margin: 30px;
+  margin-bottom: 10px;
+  .column{
+    background: $light-purple;
+  }
+  .column.selected{
+    background: $purple;
+  }
+
+  .column.centered.aligned:first-of-type{
+    border-radius: 30px 0 0 30px;
+  }
+  .column.centered.aligned{
+    border-radius: 0 30px 30px 0;
+  }
+
+  .radio.checkbox{
+    input{
+      display: none;
+      position: absolute;
+    }
+     label::before{
+       display: none;
+       position: absolute;
+     }
+     label::after{
+       display: none;
+       position: absolute;
+     }
+    label{
+      padding:0;
+      color: #fafafa
+    }
+  }
+}
