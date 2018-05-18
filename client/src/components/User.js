@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/User.css';
 
-import { Container, Header, Divider, Button, Image, Icon, Rating } from 'semantic-ui-react';
+import { Container, Header, Divider, Button, Image, Icon, Rating, Modal } from 'semantic-ui-react';
 import { withCookies, Cookies } from 'react-cookie';
 
 const urlForUser = id => `http://localhost:3001/api/users/${id}`;
@@ -53,6 +53,7 @@ class SocialButton extends Component {
 				throw Error('Network request failed');
 			}
 			this.setState({friend: false});
+			this.props.function_update_friend(false);
 		});
 	}
 	
@@ -110,6 +111,7 @@ class SocialButton extends Component {
 				throw Error('Network request failed');
 			}
 			this.setState({friend: true});
+			this.props.function_update_friend(true);
 		});
 	}
 	
@@ -125,33 +127,90 @@ class SocialButton extends Component {
 		// Remove friend button
 		else if (this.state.friend !== undefined ? this.state.friend : this.props.friend) {
 			return (
-				<Button className="profile-button remove-friend-button" onClick={this.removeFriend}>
+				<Button className="profile-button remove-friend-button"
+				onClick={()=>this.props.function_set_modal('Remove friend', 'Are you sure you want to remove this user as a friend?', this.removeFriend)}>
 					<Icon className="user"/>
 				</Button>);
 		}
 		// Unsend friend request button
 		else if (this.state.friend_request_sent !== undefined ? this.state.friend_request_sent : this.props.friend_request_sent) {
 			return (
-				<Button className="profile-button send-friend-request-button sent" onClick={this.unsendFriendRequest}>
+				<Button className="profile-button send-friend-request-button sent"
+				onClick={()=>this.props.function_set_modal('Cancel friend request', 'Are you sure you want to cancel the friend request you sent to this user?', this.unsendFriendRequest)}>
 					<Icon className="add"/>
 				</Button>);
 		}
 		// Accept friend request button
 		else if (this.props.friend_request_received) {
 			return (
-				<Button className="profile-button accept-friend-request-button" onClick={this.acceptFriendRequest}>
+				<Button className="profile-button accept-friend-request-button"
+				onClick={()=>this.props.function_set_modal('Add friend', 'Are you sure you want to add this user as a friend?', this.acceptFriendRequest)}>
 					<Icon className="add"/>
 				</Button>);
 		}
 		// Send friend request button
 		else {
 			return (
-				<Button className="profile-button send-friend-request-button notsent" onClick={this.sendFriendRequest}>
+				<Button className="profile-button send-friend-request-button notsent"
+				onClick={()=>this.props.function_set_modal('Send friend request', 'Are you sure you want to send a friend request to this user?', this.sendFriendRequest)}>
 					<Icon className="add"/>
 				</Button>);
 		}
 	}
 	
+}
+
+class TransactionButton extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {showTransactions: false};
+		this.toggleTransactionButtons = this.toggleTransactionButtons.bind(this);
+	}
+	
+	toggleTransactionButtons() {
+		this.props.function_toggle_buttons();
+		this.setState({showTransactions: !this.state.showTransactions});
+	}
+	
+	render() {
+		if (!this.props.self && this.props.friend) {
+			if (this.state.showTransactions) {
+				return (
+					<div>
+						<Button className="profile-button return-button"
+						onClick={this.toggleTransactionButtons}>
+							<Icon className="left arrow"/>
+						</Button>
+					
+						<Button className="profile-button donation-button" onClick={this.props.function_open_donation_modal}>
+							<Icon className="level up"/>
+						</Button>
+						
+						<Button className="profile-button donation-request-button" onClick={this.props.function_open_donation_request_modal}>
+							<Icon className="level down"/>
+						</Button>
+						
+						<Button className="profile-button loan-button" onClick={this.props.function_open_loan_modal}>
+							<Icon className="double angle right"/>
+						</Button>
+						
+						<Button className="profile-button loan-request-button" onClick={this.props.function_open_loan_request_modal}>
+							<Icon className="double angle left"/>
+						</Button>
+					</div>
+				);
+			}
+			else {
+				return (
+					<Button className="profile-button transaction-button" onClick={this.toggleTransactionButtons}>
+						<Icon className="dollar"/>
+					</Button>);
+			}
+		}		
+		else {
+			return null;
+		}
+	}
 }
 
 class BlockButton extends Component {
@@ -182,7 +241,7 @@ class BlockButton extends Component {
 	render() {
 		if (!this.props.self) {
 			return (
-				<Button className="profile-button block-button" onClick={this.blockUser}>
+				<Button className="profile-button block-button" onClick={()=>this.props.function_set_modal('Block user', 'Are you sure you want to block this user?', this.blockUser)}>
 					<Icon className="remove"/>
 				</Button>);
 		}
@@ -193,6 +252,40 @@ class BlockButton extends Component {
 }
 
 class ProfileContainer extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {disable_buttons: false};
+		this.toggleButtons = this.toggleButtons.bind(this);
+		this.setModalContent = this.setModalContent.bind(this);
+		this.closeModal = this.closeModal.bind(this);
+		this.updateFriendStatus = this.updateFriendStatus.bind(this);
+	}
+	
+	toggleButtons() {
+		this.setState({disable_buttons: !this.state.disable_buttons});
+	}
+	
+	setModalContent(header, content, callback) {
+		this.setState({
+			modal_header: header,
+			modal_content: content,
+			modal_callback: callback,
+			modal_open: true
+		});
+	}
+	
+	closeModal() {
+		this.setState({
+			modal_open: false
+		});
+	}
+
+	updateFriendStatus(status) {
+		this.setState({
+			friend: status
+		});
+	}
+	
 	render() {
 		let location = (this.props.city !== null ? this.props.city : '') +
 						(this.props.city !== null && this.props.country !== null ? ', ' : '') +
@@ -204,20 +297,44 @@ class ProfileContainer extends Component {
 					<div className="six wide column profile-photo">
 						<div className="image-container">
 							<Image circular src={this.props.photo}/>
-							<SocialButton
+							{!this.state.disable_buttons &&
+								<SocialButton
+									id={this.props.id}
+									self={this.props.self}
+									friend={this.state.friend !== undefined ? this.state.friend : this.props.friend}
+									friend_request_sent={this.props.friend_request_sent}
+									friend_request_received={this.props.friend_request_received}
+									cookies={this.props.cookies}
+									function_set_modal={this.setModalContent}
+									function_update_friend={this.updateFriendStatus}
+								/>
+							}
+
+							<TransactionButton
 								id={this.props.id}
 								self={this.props.self}
-								friend={this.props.friend}
-								friend_request_sent={this.props.friend_request_sent}
-								friend_request_received={this.props.friend_request_received}
+								friend={this.state.friend !== undefined ? this.state.friend : this.props.friend}
 								cookies={this.props.cookies}
+								function_toggle_buttons={this.toggleButtons}
+								function_set_modal={this.setModalContent}
 							/>
 							
-							<BlockButton
-								id={this.props.id}
-								self={this.props.self}
-								cookies={this.props.cookies}
-								function_block_user={this.props.function_block_user}
+							{!this.state.disable_buttons &&
+								<BlockButton
+									id={this.props.id}
+									self={this.props.self}
+									cookies={this.props.cookies}
+									function_block_user={this.props.function_block_user}
+									function_set_modal={this.setModalContent}
+								/>
+							}
+							
+							<ModalContainer 
+								header={this.state.modal_header}
+								content={this.state.modal_content}
+								callback={this.state.modal_callback}
+								open={this.state.modal_open}
+								function_close_modal={this.closeModal}
 							/>
 						</div>
 					</div>
@@ -236,6 +353,21 @@ class ProfileContainer extends Component {
 		);
 	}
 }
+
+class ModalContainer extends Component {	
+	render() {
+		return (
+			<Modal size="tiny" open={this.props.open} onClose={this.props.function_close_modal}>
+				<Modal.Header>{this.props.header}</Modal.Header>
+				<Modal.Content>{this.props.content}</Modal.Content>
+				<Modal.Actions>
+					<Button negative content="No" onClick={this.props.function_close_modal}/>
+					<Button positive icon="checkmark" labelPosition="right" content="Yes" onClick={()=>{this.props.callback(); this.props.function_close_modal()}}/>
+				</Modal.Actions>
+			</Modal>);
+	}
+}
+
 
 class ExtrasContainer extends Component {
 	render() {
@@ -267,7 +399,7 @@ class ExtrasContainer extends Component {
 class User extends Component {
     constructor(props) {
         super(props);
-        this.state = { id: this.getID() };
+        this.state = {id: this.getID()};
 		this.blockUser = this.blockUser.bind(this);
     }
 
@@ -399,6 +531,39 @@ class User extends Component {
 	blockUser() {
 		this.setState({blocked: true});
 	}
+	
+	openDonationModal() {
+		this.setState({
+			modalOpen: true,
+			modalHeader: 'Make a donation', 
+			modalContent: 'Are you sure you want to donate to this user?'
+		});
+	}
+	
+	openDonationRequestModal() {
+		this.setState({
+			modalOpen: true,
+			modalHeader: 'Request a donation', 
+			modalContent: 'Are you sure you want to request a donation to this user?'
+		});
+	}
+	
+	openLoanModal() {
+		this.setState({
+			modalOpen: true,
+			modalHeader: 'Give a loan', 
+			modalContent: 'Are you sure you want to give a loan to this user?'
+		});
+	}
+	
+	openLoanRequestModal() {
+		this.setState({
+			modalOpen: true,
+			modalHeader: 'Request a loan', 
+			modalContent: 'Are you sure you want to request a loan to this user?'
+		});
+	}
+
 	
     render() {
 		const { cookies } = this.props;

@@ -207,8 +207,8 @@ router.post('/block_user', authenticate, function(req, res) {
 });
 
 // Unblock user
-router.delete('/block_user', function(req, res) {
-    var user_id = 1;
+router.delete('/block_user', authenticate, function(req, res) {
+    var user_id = req.user.id;
     const query = `
 		DELETE FROM blocked
 		WHERE blocker_id=$(blocker_id) AND target_id=$(target_id)`;
