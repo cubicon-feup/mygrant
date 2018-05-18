@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/User.css';
 
-import { Container, Header, Divider, Button, Image, Icon, Rating, Modal } from 'semantic-ui-react';
+import { Container, Header, Divider, Button, Image, Icon, Rating, Modal, Input } from 'semantic-ui-react';
 import { withCookies, Cookies } from 'react-cookie';
 
 const urlForUser = id => `http://localhost:3001/api/users/${id}`;
@@ -13,6 +13,8 @@ const urlForCrowdfundings = id => `http://localhost:3001/api/users/${id}/crowdfu
 const urlForBlockUser = `http://localhost:3001/api/users/block_user`;
 const urlForFriend = `http://localhost:3001/api/users/add_friend`;
 const urlForFriendRequest = `http://localhost:3001/api/users/friend_request`;
+const urlForDonation = `http://localhost:3001/api/users/donation`;
+const urlForLoan = `http://localhost:3001/api/users/loan`;
 
 class HeaderDivider extends Component {	
 	render() {
@@ -165,11 +167,63 @@ class TransactionButton extends Component {
 		super(props);
 		this.state = {showTransactions: false};
 		this.toggleTransactionButtons = this.toggleTransactionButtons.bind(this);
+		this.makeDonation = this.makeDonation.bind(this);
+		this.requestDonation = this.requestDonation.bind(this);
+		this.makeLoan = this.makeLoan.bind(this);
+		this.requestLoan = this.requestLoan.bind(this);
 	}
 	
 	toggleTransactionButtons() {
 		this.props.function_toggle_buttons();
 		this.setState({showTransactions: !this.state.showTransactions});
+	}
+	
+	makeDonation(amount) {
+		fetch(urlForDonation, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+		});
+	}
+	
+	requestDonation(amount) {
+		console.log(amount);
+	}
+	
+	makeLoan(amount) {
+		/*
+		fetch(urlForLoan, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				receiver_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+		});
+		*/
+	}
+	
+	requestLoan(amount) {
+		console.log(amount);
 	}
 	
 	render() {
@@ -182,19 +236,23 @@ class TransactionButton extends Component {
 							<Icon className="left arrow"/>
 						</Button>
 					
-						<Button className="profile-button donation-button" onClick={this.props.function_open_donation_modal}>
+						<Button className="profile-button donation-button"
+						onClick={()=>this.props.function_set_modal('Make donation', 'Are you sure you want to donate to this user?', this.makeDonation, true)}>
 							<Icon className="level up"/>
 						</Button>
 						
-						<Button className="profile-button donation-request-button" onClick={this.props.function_open_donation_request_modal}>
+						<Button className="profile-button donation-request-button"
+						onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
 							<Icon className="level down"/>
 						</Button>
 						
-						<Button className="profile-button loan-button" onClick={this.props.function_open_loan_modal}>
+						<Button className="profile-button loan-button"
+						onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true)}>
 							<Icon className="double angle right"/>
 						</Button>
 						
-						<Button className="profile-button loan-request-button" onClick={this.props.function_open_loan_request_modal}>
+						<Button className="profile-button loan-request-button"
+						onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
 							<Icon className="double angle left"/>
 						</Button>
 					</div>
@@ -265,12 +323,13 @@ class ProfileContainer extends Component {
 		this.setState({disable_buttons: !this.state.disable_buttons});
 	}
 	
-	setModalContent(header, content, callback) {
+	setModalContent(header, content, callback, has_input) {
 		this.setState({
 			modal_header: header,
 			modal_content: content,
 			modal_callback: callback,
-			modal_open: true
+			modal_open: true,
+			modal_input: has_input
 		});
 	}
 	
@@ -334,6 +393,7 @@ class ProfileContainer extends Component {
 								content={this.state.modal_content}
 								callback={this.state.modal_callback}
 								open={this.state.modal_open}
+								input={this.state.modal_input}
 								function_close_modal={this.closeModal}
 							/>
 						</div>
@@ -354,15 +414,38 @@ class ProfileContainer extends Component {
 	}
 }
 
-class ModalContainer extends Component {	
+class ModalContainer extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {}
+	}
+	
+	updateAmount = (e) => {
+		this.setState({
+			amount: e.target.value
+		});
+	}
+	
 	render() {
 		return (
 			<Modal size="tiny" open={this.props.open} onClose={this.props.function_close_modal}>
 				<Modal.Header>{this.props.header}</Modal.Header>
-				<Modal.Content>{this.props.content}</Modal.Content>
+				<Modal.Content>
+					{this.props.content}
+					{this.props.input &&
+						<Input placeholder="Amount..." onChange={this.updateAmount}/>}
+				</Modal.Content>
 				<Modal.Actions>
 					<Button negative content="No" onClick={this.props.function_close_modal}/>
-					<Button positive icon="checkmark" labelPosition="right" content="Yes" onClick={()=>{this.props.callback(); this.props.function_close_modal()}}/>
+					<Button positive icon="checkmark" labelPosition="right" content="Yes" onClick={()=>{
+						if (this.props.input) {
+							this.props.callback(this.state.amount);
+						}
+						else {
+							this.props.callback();
+						}
+						this.props.function_close_modal();
+					}}/>
 				</Modal.Actions>
 			</Modal>);
 	}

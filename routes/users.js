@@ -266,8 +266,8 @@ router.delete('/loan_request', function(req, res) {
 });
 
 // Make loan
-router.post('/loan', function(req, res) {
-	var sender_id = 1;
+router.post('/loan', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		INSERT INTO loan(sender_id, receiver_id, amount, date_max_repay)
 		VALUES ($(sender_id), $(receiver_id), $(amount), $(date_max_repay))`;
@@ -327,8 +327,8 @@ router.delete('/donation_request', function(req, res) {
 });
 
 // Make donation
-router.post('/donation', function(req, res) {
-	var sender_id = 1;
+router.post('/donation', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		INSERT INTO donation(sender_id, receiver_id, amount)
 		VALUES ($(sender_id), $(receiver_id), $(amount))`;
