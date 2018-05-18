@@ -21,7 +21,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
-router.get('/:type/:image', authenticate, function(req, res) { // check for valid input
+router.get('/:type/:image', function(req, res) { // check for valid input
     // check for valid input
 	try {
 		var type = req.params.type;
