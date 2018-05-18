@@ -27,6 +27,10 @@ module.exports = {
         password: /^[a-zA-Z0-9]{8,32}$/,
         username: /^[a-zA-Z0-9]{6,32}$/
     },
+    rating: {
+        min: 1,
+        max: 3
+    },
     secret,
     transporterOptions: {
         auth: {
@@ -34,5 +38,6 @@ module.exports = {
             user: process.env.MYGRANT_EMAIL
         },
         service: 'Gmail'
-    }
+    },
+    initialMygrantBalance: 20
 };

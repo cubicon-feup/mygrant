@@ -1517,7 +1517,758 @@
     "groupTitle": "Messages"
   },
   {
-<<<<<<< HEAD
+    "type": "post",
+    "url": "/newsfeed",
+    "title": "03 - Create post",
+    "name": "CreatePost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Create a microblogging post</p>",
+    "parameter": {
+      "fields": {
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Content of the post</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>ID of the message this one is replying to (Optional)</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/newsfeed",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "POST: /api/newsfeed\nbody: {\n     message: 'A new post',\n     in_reply_to: 5\n}",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "delete",
+    "url": "/newsfeed/:id",
+    "title": "06 - Delete post",
+    "name": "DeletePost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "post creator"
+      }
+    ],
+    "description": "<p>Deletes a microblogging</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the post to delete</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/newsfeed/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/newsfeed/1",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "put",
+    "url": "/newsfeed/:id",
+    "title": "05 - Edit post",
+    "name": "EditPost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "post creator"
+      }
+    ],
+    "description": "<p>Edits the content of a microblogging post</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the post to edit</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Content of the post</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/newsfeed/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/newsfeed/1\nbody: {\n     message: 'This is an edit'\n}",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "get",
+    "url": "/newsfeed/",
+    "title": "01 - Get newsfeed",
+    "name": "GetNewsfeed",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Returns a list of posts made by friends of the logged in user</p>",
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/newsfeed",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_id",
+            "description": "<p>ID of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_message",
+            "description": "<p>Content of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "post_date_posted",
+            "description": "<p>Date a post was created</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_in_reply_to",
+            "description": "<p>ID of the post this is replying to</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_likes",
+            "description": "<p>Number of likes on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_replies",
+            "description": "<p>Number of replies on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_images",
+            "description": "<p>Number of images on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_image",
+            "description": "<p>URL of the first image of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_edits",
+            "description": "<p>Number of edits on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "sender_id",
+            "description": "<p>ID of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_full_name",
+            "description": "<p>Name of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_image_url",
+            "description": "<p>URL of the image of the creator of the post</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "get",
+    "url": "/newsfeed/:id",
+    "title": "04 - Get post",
+    "name": "GetPost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "visitor"
+      }
+    ],
+    "description": "<p>Returns a microblogging post</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the desired post</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/newsfeed/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/newsfeed/5",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_id",
+            "description": "<p>ID of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_message",
+            "description": "<p>Content of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "post_date_posted",
+            "description": "<p>Date a post was created</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_in_reply_to",
+            "description": "<p>ID of the post this is replying to</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_likes",
+            "description": "<p>Number of likes on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_replies",
+            "description": "<p>Number of replies on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_images",
+            "description": "<p>Number of images on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_image",
+            "description": "<p>URL of the first image of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_edits",
+            "description": "<p>Number of edits on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "sender_id",
+            "description": "<p>ID of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_full_name",
+            "description": "<p>Name of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_image_url",
+            "description": "<p>URL of the image of the creator of the post</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "get",
+    "url": "/newsfeed/user/:id",
+    "title": "02 - Get userfeed",
+    "name": "GetUserfeed",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Returns a list of posts made by a user</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the user to see feed of</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/newsfeed/user/<ID>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/newsfeed/user/5",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_id",
+            "description": "<p>ID of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_message",
+            "description": "<p>Content of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "post_date_posted",
+            "description": "<p>Date a post was created</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_in_reply_to",
+            "description": "<p>ID of the post this is replying to</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_likes",
+            "description": "<p>Number of likes on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_replies",
+            "description": "<p>Number of replies on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_images",
+            "description": "<p>Number of images on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "post_image",
+            "description": "<p>URL of the first image of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "post_n_edits",
+            "description": "<p>Number of edits on the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "sender_id",
+            "description": "<p>ID of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_full_name",
+            "description": "<p>Name of the creator of the post</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "sender_image_url",
+            "description": "<p>URL of the image of the creator of the post</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "post",
+    "url": "/newsfeed/:id/like",
+    "title": "07 - Like post",
+    "name": "LikePost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Likes a microblogging post</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the post to like</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "POST: /api/newsfeed/<ID>/like",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "POST: /api/newsfeed/1/like",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "delete",
+    "url": "/newsfeed/:id/like",
+    "title": "08 - Unlike post",
+    "name": "UnlikePost",
+    "group": "Newsfeed",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "description": "<p>Unlikes a microblogging post</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID of the post to unlike</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/newsfeed/<ID>/like",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/newsfeed/1/like",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/newsfeed.js",
+    "groupTitle": "Newsfeed"
+  },
+  {
     "type": "post",
     "url": "/services/:id/offers/accept",
     "title": "14 - Accept service offer",
@@ -3019,6 +3770,20 @@
             "optional": false,
             "field": "items",
             "description": "<p>number of items per page default/max: 50 (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "the",
+            "description": "<p>field to be ordered by (defaults to title) (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Boolean",
+            "optional": false,
+            "field": "display",
+            "description": "<p>in ascesding order (defaults to true) (Optional)</p>"
           }
         ]
       }
@@ -3037,6 +3802,11 @@
       {
         "title": "Example 2",
         "content": "GET: /api/services?page=1&items=25",
+        "type": "json"
+      },
+      {
+        "title": "Example 3",
+        "content": "GET: /api/services?page=1&items=25&order=description&asc=false",
         "type": "json"
       }
     ],
@@ -3442,8 +4212,29 @@
             "group": "RequestQueryParams",
             "type": "Integer",
             "optional": false,
-            "field": "limit",
-            "description": "<p>Maximum number of results default: 50 (Optional)</p>"
+            "field": "page",
+            "description": "<p>page number to return (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Integer",
+            "optional": false,
+            "field": "items",
+            "description": "<p>number of items per page default/max: 50 (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "the",
+            "description": "<p>field to be ordered by (defaults to search_score) (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Boolean",
+            "optional": false,
+            "field": "display",
+            "description": "<p>in ascesding order (defaults to true) (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
@@ -3624,7 +4415,35 @@
             "optional": false,
             "field": "crowdfunding_title",
             "description": "<p>Title of the crowdfunding if created by a crowdfunding</p>"
-=======
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
     "type": "get",
     "url": "/service_categories/",
     "title": "Get service categories.",
@@ -3638,45 +4457,24 @@
             "optional": false,
             "field": "service_category",
             "description": "<p>Service category name.</p>"
->>>>>>> develop
           }
         ]
       }
     },
     "error": {
       "fields": {
-<<<<<<< HEAD
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
-          }
-        ],
-=======
->>>>>>> develop
         "Error 500": [
           {
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-<<<<<<< HEAD
-            "description": "<p>Database Query Failed</p>"
-=======
             "description": "<p>Couldn't get the service categories.</p>"
->>>>>>> develop
           }
         ]
       }
     },
     "version": "0.0.0",
-<<<<<<< HEAD
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-=======
     "filename": "routes/categories.js",
     "groupTitle": "Service_Categories"
->>>>>>> develop
   }
 ]

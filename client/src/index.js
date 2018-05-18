@@ -11,12 +11,20 @@ import App from './containers/App';
 import Login from './containers/Login';
 import SignUp from './containers/Signup';
 import SignUpInfo from './containers/SignupInfo';
+import CrowdfundingOffers from './containers/CrowdfundingOffers';
 import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
 import TableServices from './components/TableServices';
+import Inbox from './containers/Inbox';
+import Conversation from './containers/Conversation';
+import Search from './containers/SearchPage';
+import CreateCrowdfunding from './components/CreateCrowdfunding';
+import Crowdfunding from './components/Crowdfunding';
+import Crowdfundings from './components/Crowdfundings';
 import { Responsive } from 'semantic-ui-react';
-import { MygrantFooter, MygrantHeader, MygrantNav } from './components/Common';
+import MygrantHeader from './components/MygrantHeader';
+import { MygrantFooter, MygrantNav } from './components/Common';
 
 ReactDom.render(
     <Router>
@@ -27,10 +35,20 @@ ReactDom.render(
                 <Route exact path="/login" component={Login} />
                 <Route exact path="/signup" component={SignUp} />
                 <ProtectedRoute exact path="/signupinfo" component={SignUpInfo} />
-                <Route exact path="/createservice" component={CreateService} />
+                <Route
+                    exact path="/createservice/:type(PROVIDE|REQUEST)"
+                    component={CreateService}
+                />
                 <Route exact path="/user/:id" component={User} />
                 <Route exact path="/service/:id" component={Service} />
+                <ProtectedRoute exact path="/inbox/" component={Inbox} />
+                <ProtectedRoute exact path="/conversation/:id" component={Conversation} />
                 <Route exact path="/tableservices" component={TableServices} />
+                <Route exact path="/search" component={Search} />
+                <Route exact path="/crowdfundings" component={Crowdfundings} />
+                <Route exact path="/crowdfunding/:id" component={Crowdfunding} />
+                <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
+                <Route exact path="/crowdfunding/:crowdfunding_id/offers" component={CrowdfundingOffers} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <Responsive as={MygrantNav} maxWidth={768} />
             </CookiesProvider>

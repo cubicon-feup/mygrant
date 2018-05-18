@@ -7,7 +7,7 @@ var db = require('../config/database');
  * @apiName GetServiceCategories
  * @apiGroup Service Categories
  * 
- * @apiSuccess (Success 201) service_category Service category name.
+ * @apiSuccess (Success 201) {String[]} service_category Service category name.
  * @apiError (Error 500) InternalServerError Couldn\'t get the service categories.
  */
 router.get('/', function(req, res) {
