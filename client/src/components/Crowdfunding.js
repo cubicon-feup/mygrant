@@ -239,9 +239,8 @@ class Crowdfunding extends Component {
 
         let timer;
         if(this.state.crowdfunding.status === 'COLLECTING' && this.state.timeDiff > 0)
-            timer =
-                <p>Ends in: {this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
-        else timer = null;
+            timer = <p>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
+        else timer = <p>Already ended</p>;
 
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
@@ -257,7 +256,6 @@ class Crowdfunding extends Component {
                       <Grid.Column width={6} className="left_col">
                           <Image src='/img/mission.png' />
                           <div id="crowdfunding_progress">
-                            {timer}
                               <h5>Current State: {this.state.crowdfunding.status}</h5>
                               {statusExplanation}
                               <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
@@ -285,8 +283,8 @@ class Crowdfunding extends Component {
                                   </Grid>
                               </Grid.Column>
                               <Grid.Column width={8} align="right">
-                                  <h5>Ends In</h5>
-                                  <p>{new Date(this.state.crowdfunding.date_finished).toLocaleDateString()}</p>
+                                  <h4>Ends in</h4>
+                                  {timer}
                               </Grid.Column>
                           </Grid>
 
