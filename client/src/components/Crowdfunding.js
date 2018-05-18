@@ -18,8 +18,11 @@ const urlForServices = crowdfundingId => `/api/crowdfundings/` + crowdfundingId 
 const urlForDonate = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
 const urlGetDonators = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
 const Role = require('../Role').role;
-// TODO create,update and delete
-// TODO donate
+
+const second = 1000;
+const minute = second * 60;
+const hour = minute * 60;
+const day = hour * 24;
 
 class Crowdfunding extends Component {
     constructor(props) {
@@ -29,11 +32,21 @@ class Crowdfunding extends Component {
             requestFailed: false,
             crowdfundingId: this.props.match.params.crowdfunding_id,
             donators: [],
-            role: Role.NONE
+            timeDiff: '',
+            role: Role.NONE,
+
+            timer: null,
+            counter: 0,
+
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.tick = this.tick.bind(this);
 
         const { cookies } = this.props;
         console.log(cookies);
@@ -43,6 +56,13 @@ class Crowdfunding extends Component {
         this.getData();
         this.getRating();
         this.getDonators();
+
+        let timer = setInterval(this.tick, 1000);
+        this.setState({timer});
+    }
+    
+    componentWillUnmount() {
+        clearInterval(this.state.timer);
     }
 
     assignRole() {
@@ -79,11 +99,27 @@ class Crowdfunding extends Component {
             .then(result => result.json())
             .then(result => {
                 this.setState({ crowdfunding: result });
-                this.assignRole();
+                let timeDiff = new Date(result.date_finished) - new Date().getTime();
+                if(this.state.crowdfunding.status === 'COLLECTING') {
+                    this.setState({ timeDiff: timeDiff});
+                }
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });
+    }
+
+    tick() {
+        if(this.state.timeDiff <= 0) {
+            clearInterval(this.state.timer);
+            // this.getData();
+        }
+
+        this.setState({days: Math.floor(this.state.timeDiff / day)})
+        this.setState({hours: Math.floor((this.state.timeDiff % day) / hour)})
+        this.setState({minutes: Math.floor((this.state.timeDiff % hour) / minute)})
+        this.setState({seconds: Math.floor((this.state.timeDiff % minute) / second)})
+        this.setState({timeDiff: this.state.timeDiff - 1000});
     }
 
     getRating(){
@@ -190,6 +226,23 @@ class Crowdfunding extends Component {
           donators =
             <p>No donators for now</p>
 
+        let statusExplanation;
+        if(this.state.crowdfunding.status === 'COLLECTING')
+            statusExplanation =
+                <p>Actively searching for donations.</p>
+        else if(this.state.crowdfunding.status === 'RECRUITING')
+            statusExplanation =
+                <p>Recruiting service providers.</p>
+        else if(this.state.crowdfunding.status === 'FINISHED')
+            statusExplanation =
+                <p>This mission has finished its collecting and rcruitment process.</p>
+        
+        let timer;
+        if(this.state.crowdfunding.status === 'COLLECTING' && this.state.timeDiff > 0)
+            timer =
+                <p>Ends in: {this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
+        else timer = null;
+
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container textAlign="center">
@@ -204,9 +257,11 @@ class Crowdfunding extends Component {
                       <Grid.Column width={6} className="left_col">
                           <Image src='/img/mission.png' />
                           <div id="crowdfunding_progress">
-                              <h5>{this.state.crowdfunding.status}</h5>
-                              <Progress progress='percentage' value={20} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
-                              <p id="crowdfunding_earned">Earned : {20}
+                            {timer}
+                              <h5>Current State: {this.state.crowdfunding.status}</h5>
+                              {statusExplanation}
+                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance / this.state.crowdfunding.mygrant_target} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
                           </div>
