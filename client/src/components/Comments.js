@@ -12,6 +12,104 @@ const urlGetTopComments = (type, id) =>
     `/api/comments/top_comments?${type}=${id}`;
 const urlGetNestedComments = id => `/api/comments/${id}/nested_comments`;
 
+class CommentD extends Component {
+    constructor(props) {
+        super(props);
+        this.state = this.props.comment;
+    }
+
+    componentDidMount() {
+        this.setState({ showComments: false });
+        this.fetchNestedComments();
+    }
+
+    fetchNestedComments() {
+        fetch(urlGetNestedComments(this.state.comment_id))
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+
+                return response;
+            })
+            .then(result => result.json())
+            .then(
+                result => {
+                    this.setState({
+                        nestedComments: result,
+                        showComments: true
+                    });
+                },
+                () => {
+                    console.log('ERROR', 'Failed to fetch nested comments.');
+                }
+            );
+    }
+
+    render() {
+        return (
+            <Comment key={`${this.state.comment_id}`}>
+                <Comment.Avatar
+                    as={Link}
+                    to={urlToUser(this.state.sender_id)}
+                    src={this.state.image_url}
+                />
+                <Comment.Content>
+                    <Comment.Author
+                        as={Link}
+                        to={urlToUser(this.state.sender_id)}
+                        content={this.state.sender_name}
+                    />
+                    <Comment.Metadata>
+                        <span>{this.state.date_posted}</span>
+                    </Comment.Metadata>
+                    <Comment.Text>{this.state.message}</Comment.Text>
+                </Comment.Content>
+                <Comment.Actions>
+                    <Comment.Action
+                        active={
+                            this.props.in_reply_to === this.state.comment_id
+                        }
+                        id="whitetext"
+                        content={'Reply'}
+                        onClick={this.props.handleReplyClick(
+                            this.state.comment_id
+                        )}
+                    />
+                </Comment.Actions>
+                <Comment.Group>
+                    {this.state.showComments
+                        ? this.state.nestedComments.map(comment =>
+                              <CommentD
+                                  comment={comment}
+                                  handleReplyClick={() =>
+                                      this.props.handleReplyClick
+                                  }
+                                  handleChange={() => this.props.handleChange}
+                                  handleSubmit={() => this.props.handleSubmit}
+                              />
+                          )
+                        : null}
+                </Comment.Group>
+                {this.props.in_reply_to === this.state.comment_id &&
+                    <Form reply onSubmit={this.handleSubmit}>
+                        <Form.TextArea
+                            required
+                            name="message"
+                            onChange={this.handleChange}
+                        />
+                        <Form.Button
+                            content={`Reply to ${this.state.sender_name}`}
+                            labelPosition="left"
+                            icon="edit"
+                        />
+                    </Form>
+                }
+            </Comment>
+        );
+    }
+}
+
 class CommentsSection extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
 
@@ -28,8 +126,10 @@ class CommentsSection extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    fetchComments() {
-        fetch(urlGetTopComments(this.state.type, this.state.id))
+    fetchTopComments() {
+        var type =
+            this.props.type === 'services' ? 'service_id' : 'crowdfudning_id';
+        fetch(urlGetTopComments(type, this.state.id))
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -43,7 +143,7 @@ class CommentsSection extends Component {
                     this.setState({ comments: result });
                 },
                 () => {
-                    console.log('ERROR', 'Failed to fetch comments.');
+                    console.log('ERROR', 'Failed to fetch top comments.');
                 }
             );
     }
@@ -76,7 +176,7 @@ class CommentsSection extends Component {
                     message: '',
                     in_reply_to: ''
                 });
-                this.fetchComments();
+                this.fetchTopComments();
             },
             () => {
                 console.log('ERROR', 'Failed to submit comment');
@@ -91,51 +191,12 @@ class CommentsSection extends Component {
                     Comments
                 </Header>
                 {this.state.comments.map(comment =>
-                    <Comment key={`${comment.comment_id}`}>
-                        <Comment.Avatar
-                            as={Link}
-                            to={urlToUser(comment.sender_id)}
-                            src={comment.image_url}
-                        />
-                        <Comment.Content>
-                            <Comment.Author
-                                as={Link}
-                                to={urlToUser(comment.sender_id)}
-                                content={comment.sender_name}
-                            />
-                            <Comment.Metadata>
-                                <span>{comment.date_posted}</span>
-                            </Comment.Metadata>
-                            <Comment.Text>{comment.message}</Comment.Text>
-                        </Comment.Content>
-                        <Comment.Actions>
-                            <Comment.Action
-                                active={
-                                    this.state.in_reply_to ===
-                                    comment.comment_id
-                                }
-                                id="whitetext"
-                                content={'Reply'}
-                                onClick={this.handleReplyClick(
-                                    comment.comment_id
-                                )}
-                            />
-                        </Comment.Actions>
-                        {this.state.in_reply_to === comment.comment_id &&
-                            <Form reply onSubmit={this.handleSubmit}>
-                                <Form.TextArea
-                                    required
-                                    name="message"
-                                    onChange={this.handleChange}
-                                />
-                                <Form.Button
-                                    content={`Reply to ${comment.sender_name}`}
-                                    labelPosition="left"
-                                    icon="edit"
-                                />
-                            </Form>
-                        }
-                    </Comment>
+                    <CommentD
+                        comment={comment}
+                        handleReplyClick={() => this.handleReplyClick}
+                        handleChange={() => this.handleChange}
+                        handleSubmit={() => this.handleSubmit}
+                    />
                 )}
 
                 <Form onSubmit={this.handleSubmit}>
@@ -165,7 +226,7 @@ class CommentsSection extends Component {
                             className="mygrant-button3"
                             content="Show Comments"
                             onClick={() => {
-                                this.fetchComments();
+                                this.fetchTopComments();
                                 this.setState({ showComments: true });
                             }}
                         />
