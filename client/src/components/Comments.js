@@ -32,12 +32,10 @@ class CommentD extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    handleSubmit = e =>
-        this.props.handleSubmit(
-            e,
-            this.state.replyMessage,
-            this.state.comment_id
-        );
+    handleSubmit = () => {
+        this.props.handleSubmit(this.state.replyMessage, this.state.comment_id),
+            this.fetchNestedComments();
+    };
 
     fetchNestedComments() {
         fetch(urlGetNestedComments(this.state.comment_id))
@@ -80,7 +78,6 @@ class CommentD extends Component {
                         onBlur={this.handleBlur}
                     />
                     <Form.Button
-                        type="submit"
                         content={`Reply to ${this.state.user_name}`}
                         labelPosition="left"
                         icon="edit"
@@ -176,10 +173,9 @@ class CommentsSection extends Component {
             );
     }
 
-    handleSubmit(e, replyMessage, replyTo) {
-        console.log(this, replyMessage, replyTo);
+    handleSubmit = (replyMessage, replyTo, parent) => {
         const { cookies } = this.props;
-        e.preventDefault();
+
         var type =
             this.state.type === 'services' ? 'service_id' : 'crowdfunding_id';
         fetch(urlForComments, {
@@ -195,17 +191,22 @@ class CommentsSection extends Component {
             }
         }).then(
             () => {
-                this.fetchTopComments();
+                parent && this.fetchTopComments();
             },
             () => {
                 console.log('ERROR', 'Failed to submit comment');
             }
         );
-    }
+    };
 
-    handleChildSubmit(e, replyMessage, replyTo) {
-        this.handleSubmit(e, replyMessage, replyTo);
-    }
+    handleParentSubmit = e => {
+        e.preventDefault();
+        this.handleSubmit(this.state.replyMessage, null, true);
+    };
+
+    handleChildSubmit = (replyMessage, replyTo) => {
+        this.handleSubmit(replyMessage, replyTo);
+    };
 
     renderComments() {
         return (
@@ -217,15 +218,11 @@ class CommentsSection extends Component {
                     <CommentD
                         key={comment.comment_id}
                         comment={comment}
-                        handleSubmit={this.handleChildSubmit}
+                        handleSubmit={this.handleChildSubmit.bind(this)}
                     />
                 )}
 
-                <Form
-                    onSubmit={e =>
-                        this.handleSubmit(e, this.state.replyMessage, null)
-                    }
-                >
+                <Form onSubmit={this.handleParentSubmit}>
                     <Form.TextArea
                         required
                         name="replyMessage"
