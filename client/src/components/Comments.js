@@ -87,6 +87,33 @@ class CommentD extends Component {
         }
     }
 
+    // TODO: edit comment handler
+    // TODO: delete comment handler
+    renderOwnerActions() {
+        return [
+            <Comment.Actions>
+                <Comment.Action
+                    id="whitetext"
+                    content={'Reply'}
+                    onClick={() => this.setState({ showReplyBox: true })}
+                />
+                {this.props.currentUser === this.state.user_id
+                    ? [
+                        <Comment.Action
+                            id="whitetext"
+                            content={'Edit'}
+                            onClick={() =>
+                                this.setState({ showReplyBox: true })
+                            }
+                        />,
+                        <Comment.Action id="whitetext" content={'Delete'} />
+                    ]
+                 : <Comment.Action id="whitetext" content={'Report'} />
+                }
+            </Comment.Actions>
+        ];
+    }
+
     render() {
         return (
             <Comment key={`${this.state.comment_id}`}>
@@ -105,22 +132,15 @@ class CommentD extends Component {
                         <span>{this.state.date_posted}</span>
                     </Comment.Metadata>
                     <Comment.Text>{this.state.message}</Comment.Text>
-                    <Comment.Actions>
-                        <Comment.Action
-                            id="whitetext"
-                            content={'Reply'}
-                            onClick={() =>
-                                this.setState({ showReplyBox: true })
-                            }
-                        />
-                    </Comment.Actions>
+                    {this.renderOwnerActions()}
                 </Comment.Content>
 
                 {this.state.showNestedComments
-                    ? <Comment.Group>
+                    ? <Comment.Group id="full-max-width">
                         {this.state.nestedComments.map(comment =>
                             <CommentD
                                 key={comment.comment_id}
+                                currentUser={this.props.currentUser}
                                 comment={comment}
                                 handleSubmit={this.props.handleSubmit}
                             />
@@ -144,6 +164,11 @@ class CommentsSection extends Component {
             comments: [],
             showComments: false
         };
+    }
+
+    componentDidMount() {
+        const { cookies } = this.props;
+        this.setState({ currentUser: parseInt(cookies.get('user_id'), 10) });
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
@@ -210,13 +235,14 @@ class CommentsSection extends Component {
 
     renderComments() {
         return (
-            <Comment.Group id="commentssection">
+            <Comment.Group minimal id="commentssection">
                 <Header as="h4" id="whitetext">
                     Comments
                 </Header>
                 {this.state.comments.map(comment =>
                     <CommentD
                         key={comment.comment_id}
+                        currentUser={this.state.currentUser}
                         comment={comment}
                         handleSubmit={this.handleChildSubmit.bind(this)}
                     />
