@@ -19,9 +19,25 @@ class CommentD extends Component {
     }
 
     componentDidMount() {
-        this.setState({ showComments: false });
+        this.setState({
+            showNestedComments: false,
+            showReplyBox: false
+        });
         this.fetchNestedComments();
     }
+
+    handleBlur = e => {
+        this.setState({ showReplyBox: true });
+    };
+
+    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+
+    handleSubmit = e =>
+        this.props.handleSubmit(
+            e,
+            this.state.replyMessage,
+            this.state.comment_id
+        );
 
     fetchNestedComments() {
         fetch(urlGetNestedComments(this.state.comment_id))
@@ -35,10 +51,15 @@ class CommentD extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState({
-                        nestedComments: result,
-                        showComments: true
-                    });
+                    result.length > 0
+                        ? this.setState({
+                              nestedComments: result,
+                              showNestedComments: true
+                          })
+                        : this.setState({
+                              nestedComments: result,
+                              showNestedComments: false
+                          });
                 },
                 () => {
                     console.log('ERROR', 'Failed to fetch nested comments.');
@@ -46,65 +67,70 @@ class CommentD extends Component {
             );
     }
 
+    renderForm() {
+        if (this.state.showReplyBox) {
+            return (
+                <Form reply onSubmit={this.handleSubmit}>
+                    <Form.TextArea
+                        required
+                        autoFocus
+                        name="replyMessage"
+                        value={this.state.replyMessage}
+                        onChange={this.handleChange}
+                        onBlur={this.handleBlur}
+                    />
+                    <Form.Button
+                        type="submit"
+                        content={`Reply to ${this.state.user_name}`}
+                        labelPosition="left"
+                        icon="edit"
+                    />
+                </Form>
+            );
+        }
+    }
+
     render() {
         return (
             <Comment key={`${this.state.comment_id}`}>
                 <Comment.Avatar
                     as={Link}
-                    to={urlToUser(this.state.sender_id)}
+                    to={urlToUser(this.state.user_id)}
                     src={this.state.image_url}
                 />
                 <Comment.Content>
                     <Comment.Author
                         as={Link}
-                        to={urlToUser(this.state.sender_id)}
-                        content={this.state.sender_name}
+                        to={urlToUser(this.state.user_id)}
+                        content={this.state.user_name}
                     />
                     <Comment.Metadata>
                         <span>{this.state.date_posted}</span>
                     </Comment.Metadata>
                     <Comment.Text>{this.state.message}</Comment.Text>
+                    <Comment.Actions>
+                        <Comment.Action
+                            id="whitetext"
+                            content={'Reply'}
+                            onClick={() =>
+                                this.setState({ showReplyBox: true })
+                            }
+                        />
+                    </Comment.Actions>
                 </Comment.Content>
-                <Comment.Actions>
-                    <Comment.Action
-                        active={
-                            this.props.in_reply_to === this.state.comment_id
-                        }
-                        id="whitetext"
-                        content={'Reply'}
-                        onClick={this.props.handleReplyClick(
-                            this.state.comment_id
+
+                {this.state.showNestedComments
+                    ? <Comment.Group>
+                        {this.state.nestedComments.map(comment =>
+                            <CommentD
+                                key={comment.comment_id}
+                                comment={comment}
+                                handleSubmit={this.props.handleSubmit}
+                            />
                         )}
-                    />
-                </Comment.Actions>
-                <Comment.Group>
-                    {this.state.showComments
-                        ? this.state.nestedComments.map(comment =>
-                              <CommentD
-                                  comment={comment}
-                                  handleReplyClick={() =>
-                                      this.props.handleReplyClick
-                                  }
-                                  handleChange={() => this.props.handleChange}
-                                  handleSubmit={() => this.props.handleSubmit}
-                              />
-                          )
-                        : null}
-                </Comment.Group>
-                {this.props.in_reply_to === this.state.comment_id &&
-                    <Form reply onSubmit={this.handleSubmit}>
-                        <Form.TextArea
-                            required
-                            name="message"
-                            onChange={this.handleChange}
-                        />
-                        <Form.Button
-                            content={`Reply to ${this.state.sender_name}`}
-                            labelPosition="left"
-                            icon="edit"
-                        />
-                    </Form>
-                }
+                    </Comment.Group>
+                 : null}
+                {this.renderForm()}
             </Comment>
         );
     }
@@ -118,9 +144,8 @@ class CommentsSection extends Component {
         this.state = {
             type: this.props.type,
             id: this.props.id,
-            comments: [{}],
-            showComments: false,
-            in_reply_to: ''
+            comments: [],
+            showComments: false
         };
     }
 
@@ -140,7 +165,10 @@ class CommentsSection extends Component {
             .then(result => result.json())
             .then(
                 result => {
-                    this.setState({ comments: result });
+                    this.setState({
+                        comments: result,
+                        showComments: true
+                    });
                 },
                 () => {
                     console.log('ERROR', 'Failed to fetch top comments.');
@@ -148,23 +176,18 @@ class CommentsSection extends Component {
             );
     }
 
-    handleReplyClick = comment_id => e => {
-        this.setState({ in_reply_to: comment_id });
-    };
-
-    handleSubmit = e => {
+    handleSubmit(e, replyMessage, replyTo) {
+        console.log(this, replyMessage, replyTo);
         const { cookies } = this.props;
         e.preventDefault();
-
         var type =
             this.state.type === 'services' ? 'service_id' : 'crowdfunding_id';
-
         fetch(urlForComments, {
             method: 'PUT',
             body: JSON.stringify({
                 [type]: this.props.id,
-                message: this.state.message,
-                in_reply_to: this.state.in_reply_to
+                message: replyMessage,
+                in_reply_to: replyTo
             }),
             headers: {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
@@ -172,17 +195,17 @@ class CommentsSection extends Component {
             }
         }).then(
             () => {
-                this.setState({
-                    message: '',
-                    in_reply_to: ''
-                });
                 this.fetchTopComments();
             },
             () => {
                 console.log('ERROR', 'Failed to submit comment');
             }
         );
-    };
+    }
+
+    handleChildSubmit(e, replyMessage, replyTo) {
+        this.handleSubmit(e, replyMessage, replyTo);
+    }
 
     renderComments() {
         return (
@@ -192,19 +215,21 @@ class CommentsSection extends Component {
                 </Header>
                 {this.state.comments.map(comment =>
                     <CommentD
+                        key={comment.comment_id}
                         comment={comment}
-                        handleReplyClick={() => this.handleReplyClick}
-                        handleChange={() => this.handleChange}
-                        handleSubmit={() => this.handleSubmit}
+                        handleSubmit={this.handleChildSubmit}
                     />
                 )}
 
-                <Form onSubmit={this.handleSubmit}>
+                <Form
+                    onSubmit={e =>
+                        this.handleSubmit(e, this.state.replyMessage, null)
+                    }
+                >
                     <Form.TextArea
                         required
-                        name="message"
+                        name="replyMessage"
                         onChange={this.handleChange}
-                        onClick={this.handleReplyClick(null)}
                     />
                     <Form.Button
                         content="Add Comment"
@@ -225,10 +250,7 @@ class CommentsSection extends Component {
                      : <Button
                             className="mygrant-button3"
                             content="Show Comments"
-                            onClick={() => {
-                                this.fetchTopComments();
-                                this.setState({ showComments: true });
-                            }}
+                            onClick={() => this.fetchTopComments()}
                         />
                     }
                 </Container>
