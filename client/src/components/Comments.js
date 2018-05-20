@@ -8,6 +8,7 @@ import { Button, Comment, Container, Form, Header } from 'semantic-ui-react';
 
 const urlToUser = id => `/user/${id}`;
 const urlForComments = '/api/comments';
+const urlForCommentActions = id => `/api/comments/${id}`;
 const urlGetTopComments = (type, id) =>
     `/api/comments/top_comments?${type}=${id}`;
 const urlGetNestedComments = id => `/api/comments/${id}/nested_comments`;
@@ -16,25 +17,37 @@ class CommentD extends Component {
     constructor(props) {
         super(props);
         this.state = this.props.comment;
+
+        this.fetchNestedComments = this.fetchNestedComments.bind(this);
     }
 
     componentDidMount() {
         this.setState({
             showNestedComments: false,
-            showReplyBox: false
+            showReplyBox: false,
+            showEditBox: false
         });
         this.fetchNestedComments();
     }
 
-    handleBlur = e => {
-        this.setState({ showReplyBox: true });
-    };
-
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = () => {
-        this.props.handleSubmit(this.state.replyMessage, this.state.comment_id),
-            this.fetchNestedComments();
+        this.props.handleSubmit(
+            this.state.replyMessage,
+            this.state.comment_id,
+            this.fetchNestedComments
+        );
+    };
+
+    handleEdit = () => {
+        this.props.handleEdit(this.state.replyMessage, this.state.comment_id);
+        this.setState({ message: this.state.replyMessage });
+    };
+
+    handleDelete = () => {
+        this.props.handleDelete(this.state.comment_id);
+        this.setState({ message: 'Comment removed' });
     };
 
     fetchNestedComments() {
@@ -75,7 +88,6 @@ class CommentD extends Component {
                         name="replyMessage"
                         value={this.state.replyMessage}
                         onChange={this.handleChange}
-                        onBlur={this.handleBlur}
                     />
                     <Form.Button
                         content={`Reply to ${this.state.user_name}`}
@@ -84,34 +96,68 @@ class CommentD extends Component {
                     />
                 </Form>
             );
+        } else if (this.state.showEditBox) {
+            return (
+                <Form reply onSubmit={this.handleEdit}>
+                    <Form.TextArea
+                        required
+                        autoFocus
+                        name="replyMessage"
+                        value={this.state.replyMessage}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Button
+                        content={'Save edditted comment'}
+                        labelPosition="left"
+                        icon="edit"
+                    />
+                </Form>
+            );
         }
     }
 
-    // TODO: edit comment handler
-    // TODO: delete comment handler
     renderOwnerActions() {
-        return [
+        return (
             <Comment.Actions>
                 <Comment.Action
+                    key={`${this.state.comment_id}-reply`}
                     id="whitetext"
                     content={'Reply'}
-                    onClick={() => this.setState({ showReplyBox: true })}
+                    onClick={() =>
+                        this.setState({
+                            showReplyBox: true,
+                            showEditBox: false
+                        })
+                    }
                 />
                 {this.props.currentUser === this.state.user_id
                     ? [
                         <Comment.Action
+                            key={`${this.state.comment_id}-edit`}
                             id="whitetext"
                             content={'Edit'}
                             onClick={() =>
-                                this.setState({ showReplyBox: true })
+                                this.setState({
+                                    showReplyBox: false,
+                                    showEditBox: true
+                                })
                             }
                         />,
-                        <Comment.Action id="whitetext" content={'Delete'} />
+                        <Comment.Action
+                            key={`${this.state.comment_id}-delete`}
+                            id="whitetext"
+                            content={'Delete'}
+                            onClick={this.handleDelete}
+                        />
                     ]
-                 : <Comment.Action id="whitetext" content={'Report'} />
+                 : <Comment.Action
+                        key={`${this.state.comment_id}-report`}
+                        id="whitetext"
+                        content={'Report'}
+                    />
                 }
             </Comment.Actions>
-        ];
+        );
     }
 
     render() {
@@ -143,6 +189,8 @@ class CommentD extends Component {
                                 currentUser={this.props.currentUser}
                                 comment={comment}
                                 handleSubmit={this.props.handleSubmit}
+                                handleEdit={this.props.handleEdit}
+                                handleDelete={this.props.handleDelete}
                             />
                         )}
                     </Comment.Group>
@@ -229,8 +277,43 @@ class CommentsSection extends Component {
         this.handleSubmit(this.state.replyMessage, null, true);
     };
 
-    handleChildSubmit = (replyMessage, replyTo) => {
+    handleChildSubmit = (replyMessage, replyTo, fetchNestedComments) => {
         this.handleSubmit(replyMessage, replyTo);
+        fetchNestedComments();
+    };
+
+    handleEdit = (newMessage, commentID) => {
+        const { cookies } = this.props;
+
+        fetch(urlForCommentActions(commentID), {
+            method: 'PUT',
+            body: JSON.stringify({ message: newMessage }),
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        }).then({}, () => {
+            console.log('ERROR', 'Failed to edit comment');
+        });
+    };
+
+    handleDelete = (commentID, parent) => {
+        const { cookies } = this.props;
+
+        fetch(urlForCommentActions(commentID), {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(
+            () => {
+                parent && this.fetchTopComments();
+            },
+            () => {
+                console.log('ERROR', 'Failed to delete comment');
+            }
+        );
     };
 
     renderComments() {
@@ -245,6 +328,8 @@ class CommentsSection extends Component {
                         currentUser={this.state.currentUser}
                         comment={comment}
                         handleSubmit={this.handleChildSubmit.bind(this)}
+                        handleEdit={this.handleEdit.bind(this)}
+                        handleDelete={this.handleDelete.bind(this)}
                     />
                 )}
 
