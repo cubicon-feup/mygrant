@@ -22,6 +22,7 @@ class Blog extends Component {
             blogOwner: {},
             displayLoadMore: true,
             page: 0,
+            postCount: 0,
             posts: []
         };
 
@@ -37,6 +38,13 @@ class Blog extends Component {
             .then(res => res.json()
                 .then(data => {
                     this.setState({ blogOwner: data });
+                })
+            );
+
+        fetch(`/api/users/${this.props.match.params.id}/postcount`, { headers })
+            .then(res => res.json()
+                .then(data => {
+                    this.setState({ postCount: data.n_posts });
                 })
             );
     }
@@ -93,7 +101,7 @@ class Blog extends Component {
                         fullName: this.state.blogOwner.full_name,
                         id: this.state.blogOwner.user_id,
                         pictureUrl: this.state.blogOwner.picture_url ? this.state.blogOwner.pictureUrl : 'users/kwest.jpg',
-                        postCount: 1231
+                        postCount: this.state.postCount
                     }} />
                 <Responsive as={NewPost} minWidth={768} />
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>

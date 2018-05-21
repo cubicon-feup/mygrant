@@ -195,11 +195,11 @@ router.get('/:id/posts', function(req, res) {
     const offset = req.query.page * 20;
 
     const query = `
-        SELECT id, message, in_reply_to, coalesce(n_replies, 0) as n_replies, coalesce(n_likes, 0) as n_likes, date_posted, full_name, image_url from 
-        (SELECT id, sender_id, in_reply_to, message, date_posted FROM post where sender_id = $(userId)) a
-        LEFT JOIN ( select in_reply_to as op_id, count(*) as n_replies from post group by op_id) b on b.op_id = a.id
-        LEFT JOIN ( select post_id, count(*) as n_likes from like_post group by post_id ) c on a.id = c.post_id
-        JOIN (select users.id as user_id, full_name, image_url from users) d on a.sender_id = d.user_id
+        SELECT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes, date_posted, full_name, image_url FROM 
+        (SELECT id, sender_id, in_reply_to, message, date_posted FROM post WHERE sender_id = $(userId)) a
+        LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
+        LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
+        JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
     ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset)`;
 
     db.manyOrNone(query,
@@ -214,5 +214,27 @@ router.get('/:id/posts', function(req, res) {
             res.status(500).json({ error });
         });
 });
+
+/**
+ * @api {get} /users/:id/postcount get the number of posts made by this user
+ * @apiName getPosts
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.get('/:id/postcount', function(req, res) {
+
+    const query = 'SELECT count(*) as n_posts FROM post WHERE sender_id = $(userId)';
+
+    db.one(query, { userId: req.params.id })
+        .then(number => {
+            res.status(200).json(number);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
 
 module.exports = router;
