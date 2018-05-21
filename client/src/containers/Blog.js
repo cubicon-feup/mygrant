@@ -19,16 +19,29 @@ class Blog extends Component {
         super(props);
 
         this.state = {
+            blogOwner: {},
             displayLoadMore: true,
             page: 0,
             posts: []
         };
 
+        this.loadUserInfo();
         this.loadPosts();
     }
 
-    loadPosts() {
+    loadUserInfo() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
 
+        fetch(`/api/users/${this.props.match.params.id}`, { headers })
+            .then(res => res.json()
+                .then(data => {
+                    this.setState({ blogOwner: data });
+                })
+            );
+    }
+
+    loadPosts() {
         const { cookies } = this.props;
         const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
 
@@ -51,9 +64,9 @@ class Blog extends Component {
                                             likes: post.n_likes
                                         }}
                                         user={{
-                                            fullName: 'Kanye West',
-                                            id: 69,
-                                            pictureUrl: '/users/kwest.jpg'
+                                            fullName: post.full_name,
+                                            id: post.sender_id,
+                                            pictureUrl: post.image_url ? post.image_url : '/users/kwest.jpg'
                                         }}
                                     />
                                 );
@@ -75,11 +88,11 @@ class Blog extends Component {
             <div>
                 <Container className="main-container blog" >
                     <BlogHeader user={{
-                        city: 'Chicago',
-                        country: 'USA',
-                        fullName: 'Kanye West',
-                        id: 69,
-                        pictureUrl: '/users/kwest.jpg',
+                        city: this.state.blogOwner.city,
+                        country: this.state.blogOwner.country,
+                        fullName: this.state.blogOwner.full_name,
+                        id: this.state.blogOwner.user_id,
+                        pictureUrl: this.state.blogOwner.picture_url ? this.state.blogOwner.pictureUrl : 'users/kwest.jpg',
                         postCount: 1231
                     }} />
                 <Responsive as={NewPost} minWidth={768} />
