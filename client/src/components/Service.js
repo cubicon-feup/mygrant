@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import '../css/Service.css';
 import ServiceOffer from './ServiceOffers';
 import ImgGrid from './ImgGrid';
+import CommentsSection from './Comments';
 
 import {
     Button,
-    Comment,
     Container,
     Form,
     Grid,
@@ -20,10 +19,6 @@ const urlForData = id => `http://localhost:3001/api/services/${id}`;
 // TODO: check urlForCreateOffer
 const urlForCreateOffer = id =>
     `http://localhost:3001/api/services/${id}/offers`;
-const urlForComments = id =>
-    `http://localhost:3001/api/services/${id}/comments`;
-const urlForUsers = id => `http://localhost:3001/api/users/${id}`;
-const urlToUser = id => `/user/${id}`;
 
 class Service extends Component {
     constructor(props) {
@@ -31,10 +26,8 @@ class Service extends Component {
         this.state = {
             id: this.getID(),
             service: {},
-            comments: [{}],
             request: '',
-            isFetching: true,
-            showComments: false
+            isFetching: true
         };
     }
 
@@ -61,26 +54,6 @@ class Service extends Component {
                 },
                 () => {
                     console.log('ERROR', 'Failed to fetch service data.');
-                }
-            );
-    }
-
-    fetchComments() {
-        fetch(urlForComments(this.state.id))
-            .then(response => {
-                if (!response.ok) {
-                    throw Error('Network request failed');
-                }
-
-                return response;
-            })
-            .then(result => result.json())
-            .then(
-                result => {
-                    this.setState({ comments: result });
-                },
-                () => {
-                    console.log('ERROR', 'Failed to fetch comments.');
                 }
             );
     }
@@ -197,46 +170,6 @@ class Service extends Component {
             </Container>;
 }
 
-    // TODO: Post comments
-    renderComments() {
-        return (
-            <Comment.Group minimal id="commentssection">
-                <Header as="h4" id="whitetext">
-                    Comments
-                </Header>
-                {this.state.comments.map((comment, index) =>
-                    <Comment key={index}>
-                        <Comment.Avatar
-                            as={Link}
-                            to={urlToUser(comment.sender_id)}
-                            src={comment.sender_image}
-                        />
-                        <Comment.Content>
-                            <Comment.Author
-                                as={Link}
-                                to={urlToUser(comment.sender_id)}
-                                content={comment.sender_name}
-                            />
-                            <Comment.Metadata>
-                                <span>{comment.date_posted}</span>
-                            </Comment.Metadata>
-                            <Comment.Text>{comment.message}</Comment.Text>
-                        </Comment.Content>
-                    </Comment>
-                )}
-
-                <Form reply>
-                    <Form.TextArea />
-                    <Form.Button
-                        content="Add Comment"
-                        labelPosition="left"
-                        icon="edit"
-                    />
-                </Form>
-            </Comment.Group>
-        );
-    }
-
     render() {
         if (this.state.isFetching) {
             return (
@@ -266,21 +199,7 @@ class Service extends Component {
                     <Container fluid className="green-divider" />
                     {this.renderOffers()}
                 </Container>
-                <Container fluid className="purple">
-                    <Container>
-                        {this.state.showComments
-                            ? this.renderComments()
-                         : <Button
-                                className="mygrant-button3"
-                                content="Show Comments"
-                                onClick={() => {
-                                    this.fetchComments();
-                                    this.setState({ showComments: true });
-                                }}
-                            />
-                        }
-                    </Container>
-                </Container>
+                <CommentsSection type="services" id={this.state.id} />
             </Container>
         );
     }

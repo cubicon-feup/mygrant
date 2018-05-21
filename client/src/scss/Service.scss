@@ -21,21 +21,6 @@
     }
 }
 
-#purple-button,
-.ui.button.mygrant-button3 {
-    margin-top: 10px;
-    margin-right: 20px;
-    background-color: lighten($purple, 30%);
-    color: white;
-    width: 20em;
-    height: 39px;
-    border-radius: 500em;
-
-    &:hover {
-        background-color: lighten($purple, 40%);
-    }
-}
-
 h2 > h4 {
     display: inline;
     font-weight: normal;
@@ -110,17 +95,4 @@ p.value {
 
 .ui.form {
     margin: 2em 0em;
-}
-
-.purple {
-    background: $light-purple;
-}
-
-#commentssection {
-    max-width: 100%;
-    background: $light-purple;
-}
-
-#whitetext {
-    color: white;
 }
