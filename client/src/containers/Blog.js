@@ -13,7 +13,7 @@ class Blog extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired,
         match: ReactRouterPropTypes.match.isRequired
-     };
+    };
 
     constructor(props) {
         super(props);
@@ -87,7 +87,6 @@ class Blog extends Component {
                             });
                         }
                     });
-
             });
     }
 

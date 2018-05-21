@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import BlogPost from '../components/BlogPost';
 import BlogComment from '../components/BlogComment';
 import BlogHeaderPost from '../components/BlogHeaderPost';
 import NewPost from '../components/NewPost';
 import ReactRouterPropTypes from 'react-router-prop-types';
-import { Button, Container, Responsive, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
+import { Button, Container, Responsive, Segment } from 'semantic-ui-react';
 
 import '../css/Blog.css';
 
@@ -18,6 +17,21 @@ class Post extends Component {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+            comments: {},
+            displayLoadMore: true,
+            post: {}
+        }
+
+        this.getPostInfo();
+        this.loadComments();
+    }
+
+    getPostInfo() {
+    }
+
+    loadComments() {
     }
 
     render() {
