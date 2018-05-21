@@ -315,7 +315,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id', authenticate, function(req, res) {
+router.get('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
