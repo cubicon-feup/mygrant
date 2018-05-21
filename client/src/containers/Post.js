@@ -49,7 +49,6 @@ class Post extends Component {
             .then(res => res.json()
                 .then(comments => {
                     let commentElements = [];
-                    console.log(comments)
                     comments.forEach(comment => {
                         commentElements = [
                             <BlogComment
