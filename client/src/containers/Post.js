@@ -21,17 +21,34 @@ class Post extends Component {
         this.state = {
             comments: {},
             displayLoadMore: true,
+            page: 0,
             post: {}
-        }
+        };
 
         this.getPostInfo();
         this.loadComments();
     }
 
     getPostInfo() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        fetch(`/api/posts/${this.props.match.params.id}`, { headers })
+            .then(res => res.json()
+                .then(data => console.log(data)
+                )
+            );
     }
 
     loadComments() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        fetch(`/api/posts/${this.props.match.params.id}/comments?page=${this.state.page}`, { headers })
+            .then(res => res.json()
+                .then(data => console.log(data))
+            );
+
     }
 
     render() {
