@@ -183,4 +183,35 @@ router.post('/set_location', authenticate, function(req, res) {
         });
 });
 
+/**
+ * @api {get} /users/:id/posts get the posts made by this user
+ * @apiName getPosts
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.get('/:id/posts', function(req, res) {
+    const offset = req.query.page * 20;
+
+    const query = `
+        SELECT id, message, in_reply_to, coalesce(n_replies, 0) as n_replies, coalesce(n_likes, 0) as n_likes, date_posted from 
+        (SELECT id, sender_id, in_reply_to, message, date_posted FROM post where sender_id = $(userId)) a
+        LEFT JOIN ( select in_reply_to as op_id, count(*) as n_replies from post group by op_id) b on b.op_id = a.id
+        LEFT JOIN ( select post_id, count(*) as n_likes from like_post group by post_id ) c on a.id = c.post_id
+    ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset)`;
+
+    db.manyOrNone(query,
+        {
+            offset,
+            userId: req.params.id
+        })
+        .then(posts => {
+            res.status(200).json({ posts });
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
 module.exports = router;

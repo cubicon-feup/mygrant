@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -9,7 +10,65 @@ import BlogHeader from '../components/BlogHeader';
 import '../css/Blog.css';
 
 class Blog extends Component {
-    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        match: ReactRouterPropTypes.match.isRequired
+     };
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            displayLoadMore: true,
+            page: 0,
+            posts: []
+        };
+
+        this.loadPosts();
+    }
+
+    loadPosts() {
+
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        fetch(`/api/users/${this.props.match.params.id}/posts?page=${this.state.page}`, { headers })
+            .then(res => {
+                res.json()
+                    .then(data => {
+                        if (res.status === 200) {
+                            const postElements = [];
+
+                            data.posts.forEach(post => {
+                                postElements.push(
+                                    <BlogPost
+                                        linked
+                                        postInfo={{
+                                            commentCount: post.n_replies,
+                                            content: post.message,
+                                            datePosted: post.date_posted,
+                                            id: post.id,
+                                            likes: post.n_likes
+                                        }}
+                                        user={{
+                                            fullName: 'Kanye West',
+                                            id: 69,
+                                            pictureUrl: '/users/kwest.jpg'
+                                        }}
+                                    />
+                                );
+                            });
+
+                            this.setState({
+                                displayLoadMore: Boolean(data.posts.length >= 20),
+                                page: this.state.page + 1,
+                                posts: this.state.posts.concat(postElements)
+                            });
+                        }
+                    });
+
+            });
+    }
 
     render() {
         return (
@@ -30,45 +89,24 @@ class Blog extends Component {
                     </Button>
                 </Responsive>
                 <Segment.Group>
-                    <BlogPost
-                        linked
-                        postInfo={{
-                            commentCount: 12,
-                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                            datePosted: '15:00',
-                            id: 123,
-                            likes: 19
-                        }}
-                        user={{
-                            fullName: 'Kanye West',
-                            id: 69,
-                            pictureUrl: '/users/kwest.jpg'
-                        }}
-                    />
-                    <BlogPost
-                        linked
-                        postInfo={{
-                            commentCount: 12,
-                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                            datePosted: '15:00',
-                            id: 23,
-                            likes: 19
-                        }}
-                        user={{
-                            fullName: 'Kanye West',
-                            id: 69,
-                            pictureUrl: '/users/kwest.jpg'
-                        }}
-                    />
-                    <Responsive as={Segment} minWidth={768} textAlign={'center'} className={'load-more-comments'} >
-                        {'Load more posts'}
-                    </Responsive>
+                    {this.state.posts}
+                    {
+                        this.state.displayLoadMore
+                            ? <Responsive as={Segment} minWidth={768} textAlign={'center'} className={'load-more-comments'} onClick={this.loadPosts.bind(this)}>
+                                {'Load more posts'}
+                            </Responsive>
+                            : null
+                    }
                 </Segment.Group>
-                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
-                    <Button textAlign={'center'} className={'load-more-comments'} >
-                        {'Load more posts'}
-                    </Button>
-                </Responsive>
+                {
+                    this.state.displayLoadMore
+                        ? <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                            <Button textAlign={'center'} className={'load-more-comments'} onClick={this.loadPosts.bind(this)}>
+                                {'Load more posts'}
+                            </Button>
+                        </Responsive>
+                        : null
+                }
             </Container>
         </div>
         );

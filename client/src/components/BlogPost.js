@@ -32,6 +32,9 @@ class BlogPost extends Component {
                                                 <Header as={'h4'}>
                                                     {this.props.user.fullName}
                                                 </Header>
+                                                <Header.Subheader verticalAlign={'top'}>
+                                                    {moment(this.props.postInfo.datePosted).fromNow()}
+                                                </Header.Subheader>
                                             </Grid.Column>
                                         </Grid.Row>
                                         <Grid.Row className={'content'} verticalAlign={'top'} >
