@@ -19,7 +19,7 @@ class Post extends Component {
         super(props);
 
         this.state = {
-            comments: {},
+            comments: [],
             displayLoadMore: true,
             page: 0,
             post: {}
@@ -35,8 +35,9 @@ class Post extends Component {
 
         fetch(`/api/posts/${this.props.match.params.id}`, { headers })
             .then(res => res.json()
-                .then(data => console.log(data)
-                )
+                .then(data => {
+                    this.setState({ post: data.post });
+                })
             );
     }
 
@@ -46,7 +47,35 @@ class Post extends Component {
 
         fetch(`/api/posts/${this.props.match.params.id}/comments?page=${this.state.page}`, { headers })
             .then(res => res.json()
-                .then(data => console.log(data))
+                .then(comments => {
+                    let commentElements = [];
+                    console.log(comments)
+                    comments.forEach(comment => {
+                        commentElements = [
+                            <BlogComment
+                                postInfo={{
+                                    content: comment.message,
+                                    datePosted: comment.date_posted,
+                                    id: comment.id,
+                                    likes: comment.n_likes
+                                }}
+
+                                user={{
+                                    fullName: comment.full_name,
+                                    id: comment.sender_id,
+                                    pictureUrl: comment.image_url ? comment.image_url : '/users/kwest.jpg'
+                                }}
+                            />
+                        ].concat(commentElements);
+                    });
+
+                    commentElements = commentElements.concat(this.state.comments);
+                    this.setState({
+                        comments: commentElements,
+                        displayLoadMore: Boolean(comments.length >= 20),
+                        page: this.state.page + 1
+                    });
+                })
             );
 
     }
@@ -57,55 +86,40 @@ class Post extends Component {
                 <Segment>
                     <BlogHeaderPost
                         postInfo={{
-                            commentCount: 2,
-                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                        datePosted: '15:00',
-                        id: 123,
-                        likes: 19
+                            commentCount: this.state.post.n_replies,
+                            content: this.state.post.message,
+                            datePosted: this.state.post.date_sent,
+                        id: this.state.post.id,
+                        likes: this.state.post.n_likes
                         }}
                         user={{
-                            fullName: 'Kanye West',
-                            id: 69,
-                            pictureUrl: '/users/kwest.jpg'
+                            fullName: this.state.post.full_name,
+                            id: this.state.post.sender_id,
+                            pictureUrl: this.state.post.image_url ? this.state.post.image_url : '/users/kwest.jpg'
                         }}
                     />
                 </Segment>
                 <Responsive as={NewPost} minWidth={768} />
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>
-                    <Button textAlign={'center'} className={'load-more-comments'} >
-                        {'Load more comments'}
-                    </Button>
+                    {
+                        this.state.displayLoadMore
+                        ? <Button textAlign={'center'} className={'load-more-comments'} onClick={this.loadComments.bind(this)} >
+                                {'Load more comments'}
+                            </Button>
+                        : null
+                    }
                 </Responsive>
                 <Segment.Group>
-                    <Responsive as={Segment} minWidth={768} textAlign={'center'} className={'load-more-comments'} >
-                        {'Load more comments'}
-                    </Responsive>
-                    <BlogComment
-                        postInfo={{
-                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                        datePosted: '15:00',
-                        id: 123,
-                        likes: 1
-                        }}
-                        user={{
-                            fullName: 'Kanye West',
-                            id: 69,
-                            pictureUrl: '/users/kwest.jpg'
-                        }}
-                    />
-                    <BlogComment
-                        postInfo={{
-                            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-                        datePosted: '15:00',
-                        id: 23,
-                        likes: 0
-                        }}
-                        user={{
-                            fullName: 'Kanye West',
-                            id: 69,
-                            pictureUrl: '/users/kwest.jpg'
-                        }}
-                    />
+                    {
+                        this.state.displayLoadMore
+                            ? <Responsive as={Segment} minWidth={768} textAlign={'center'}
+                                className={'load-more-comments'} onClick={this.loadComments.bind(this)}
+                            >
+                                {'Load more comments'}
+                            </Responsive>
+                            : null
+                    }
+                    {this.state.comments}
                 </Segment.Group>
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>
                     <Button textAlign={'center'} className={'write-new-comment'} >

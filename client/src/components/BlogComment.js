@@ -30,7 +30,7 @@ class BlogComment extends Component {
                                                 {this.props.user.fullName}
                                             </Header>
                                             <span className={'comment-date'}>
-                                                {this.props.postInfo.datePosted}
+                                                {moment(this.props.postInfo.datePosted).fromNow()}
                                                 <Icon className={'post-options'} name={'ellipsis horizontal'}/>
                                             </span>
                                         </Grid.Column>
