@@ -9,7 +9,7 @@ class BlogHeader extends Component {
     render() {
         return (
             <div className="blog-header">
-                <Responsive as={Image} href={`/user/${this.props.user.id}`} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                <Responsive as={Image} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                 <Segment textAlign={'left'}>
                     <Grid padded >
                         <Grid.Row>

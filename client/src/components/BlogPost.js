@@ -11,10 +11,6 @@ class BlogPost extends Component {
         user: instanceOf(Object).isRequired
     };
 
-    constructor(props) {
-        super(props);
-    }
-
     render () {
         return (
             <div>
