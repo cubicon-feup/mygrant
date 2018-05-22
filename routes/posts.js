@@ -46,17 +46,22 @@ router.get('/:id/comments', function(req, res) {
  * @apiSuccess (Success 200)
  *
  */
-router.get('/:id', function(req, res) {
+router.get('/:id', authenticate, function(req, res) {
     const query = `
         SELECT id, message, in_reply_to, 
             coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes,
-            date_posted, sender_id, full_name, image_url FROM
+            date_posted, sender_id, full_name, image_url, coalesce(liked, 0) AS liked FROM
             (SELECT id, sender_id, in_reply_to, message, date_posted FROM post WHERE id = $(postId)) a
             LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
             LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
-            JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id`;
+            JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
+            LEFT JOIN (SELECT COUNT(*) AS liked, post_id from like_post where user_id = $(thisUser) group by post_id) e on a.id = e.post_id
+    `;
 
-    db.one(query, { postId: req.params.id })
+    db.one(query, {
+        postId: req.params.id,
+        thisUser: req.user.id
+    })
         .then(post => {
             res.status(200).json({ post });
         })

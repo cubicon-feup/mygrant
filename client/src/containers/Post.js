@@ -21,6 +21,7 @@ class Post extends Component {
         this.state = {
             comments: [],
             displayLoadMore: true,
+            headerPost: null,
             page: 0,
             post: {}
         };
@@ -36,8 +37,25 @@ class Post extends Component {
         fetch(`/api/posts/${this.props.match.params.id}`, { headers })
             .then(res => res.json()
                 .then(data => {
+
                     this.setState({ post: data.post });
-                    console.log(this.state);
+                    const headerPostElement = <BlogHeaderPost
+                        postInfo={{
+                            commentCount: this.state.post.n_replies,
+                            content: this.state.post.message,
+                            datePosted: this.state.post.date_posted,
+                            id: this.state.post.id,
+                            liked: this.state.post.liked,
+                            likes: this.state.post.n_likes
+                        }}
+                        user={{
+                            fullName: this.state.post.full_name,
+                            id: this.state.post.sender_id,
+                            pictureUrl: this.state.post.image_url ? this.state.post.image_url : '/users/kwest.jpg'
+                        }}
+                    />
+
+                    this.setState({ headerPost: headerPostElement });
                 })
             );
     }
@@ -107,20 +125,7 @@ class Post extends Component {
         return (
             <Container className={'main-container post'} >
                 <Segment>
-                    <BlogHeaderPost
-                        postInfo={{
-                            commentCount: this.state.post.n_replies,
-                            content: this.state.post.message,
-                            datePosted: this.state.post.date_posted,
-                        id: this.state.post.id,
-                        likes: this.state.post.n_likes
-                        }}
-                        user={{
-                            fullName: this.state.post.full_name,
-                            id: this.state.post.sender_id,
-                            pictureUrl: this.state.post.image_url ? this.state.post.image_url : '/users/kwest.jpg'
-                        }}
-                    />
+                    {this.state.headerPost}
                 </Segment>
                 <Responsive as={NewPost} minWidth={768} handleClick={this.submitNewComment.bind(this)} />
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>

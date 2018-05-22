@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
-import { instanceOf, PropTypes } from 'prop-types';
+import { instanceOf } from 'prop-types';
 import moment from 'moment';
 
 class BlogHeaderPost extends Component {
@@ -9,6 +9,11 @@ class BlogHeaderPost extends Component {
         postInfo: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
     };
+
+    constructor(props) {
+        super(props);
+        this.state = { liked: this.props.postInfo.liked };
+    }
 
     render () {
         return (
@@ -57,7 +62,11 @@ class BlogHeaderPost extends Component {
                                         </Grid.Column>
                                         <Grid.Column width={2}>
                                             <span className={'post-likes'}>
-                                                <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                {
+                                                    this.state.liked
+                                                    ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
+                                                    : <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                }
                                                 {this.props.postInfo.likes}
                                             </span>
                                         </Grid.Column>

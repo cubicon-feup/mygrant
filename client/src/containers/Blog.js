@@ -61,7 +61,6 @@ class Blog extends Component {
                             const postElements = [];
 
                             data.posts.forEach(post => {
-                                console.log(post)
                                 postElements.push(
                                     <BlogPost
                                         linked
