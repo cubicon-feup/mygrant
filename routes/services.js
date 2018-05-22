@@ -236,7 +236,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
     const query = `
         SELECT COUNT(*) as COUNT
         FROM (
-        SELECT service.id,
+        SELECT service.id
         ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score` : ``}
         FROM service
@@ -266,9 +266,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
             mygmin,
             datemax,
             datemin,
-            order,
-            latitude_ref,
-            longitude_ref
+            order
         })
         .then(data => {
             res.status(200).json({
@@ -632,7 +630,7 @@ router.get('/:id/images', function(req, res) {
  * @apiDescription Upload image and add it to the service's images
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
- * @apiParam (RequestFiles) {File} file Image file of the image
+ * @apiParam (RequestFiles) {File} image Image file to upload
  *
  * @apiExample Syntax
  * PUT: /api/services/<ID>/images
@@ -856,7 +854,9 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * @apiDescription Create offer to a service
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to make offer to (service can't have deleted=true)
- * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (Optional)
+ * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (crowdfunding must be RECRUTING) (XOR partner_id)
+ * @apiParam (RequestBody) {Integer} partner_id ID of the user making the offer (XOR crowdfunding_id)
+ * @apiParam (RequestBody) {Timestamp} date_propsosed Proposed date for the service (Optional)
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers
@@ -867,7 +867,8 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * [When the offer is being made in the name of a crowdfunding]
  * POST: /api/services/5/offers
  * body: {
- *      crowdfunding_id: 10,
+ *  partner_id: 10,
+ *  data_proposed: "2018-10-10 03:03:03+01"
  * }
  *
  * @apiSuccess (Success 200) OK
@@ -880,7 +881,7 @@ router.post('/:id/offers', authenticate, function(req, res) {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        var data_proposed = req.body.hasOwnProperty('date_proposed') ? req.body.crowdfunding_id : null;
+        var date_proposed = req.body.hasOwnProperty('date_proposed') ? req.body.date_proposed : null;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
@@ -955,6 +956,7 @@ router.post('/:id/offers', authenticate, function(req, res) {
  * }
  *
  * @apiSuccess (Success 200) OK
+ * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
@@ -993,11 +995,17 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
             ON crowdfunding.id=service.crowdfunding_id
             WHERE service.id=$(service_id) AND crowdfunding.creator_id=$(creator_id)
         )`;
-    db.one(query_check_creator, {
+    db.any(query_check_creator, {
             service_id,
             creator_id
         })
         .then((data) => {
+            console.log(data);
+            if (data.length == 0){
+                res.status(403).send('Current user is not the service owner!');
+                return;
+            }
+
             // define query
             let query;
             if (req.body.hasOwnProperty('crowdfunding_id')){
@@ -1038,8 +1046,6 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                 });
         })
         .catch(error => {
-            //error.reason="Current user is not the service creator";
-            console.log(error);
             res.status(500).json(error);
         });
 });
