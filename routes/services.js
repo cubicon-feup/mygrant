@@ -411,9 +411,10 @@ router.put('/', authenticate, function(req, res) {
     // define query
     const query = `
         INSERT INTO service (title, description, category, location, latitude, longitude, acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
-        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))`;
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))
+        RETURNING id;`;
     // place query
-    db.none(query, {
+    db.one(query, {
             title,
             description,
             category,
@@ -427,8 +428,8 @@ router.put('/', authenticate, function(req, res) {
             latitude,
             longitude
         })
-        .then(() => {
-            res.sendStatus(200);
+        .then((data) => {
+            res.status(200).send(data);
         })
         .catch(error => {
             res.status(500).json(error);
