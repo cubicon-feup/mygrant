@@ -24,7 +24,7 @@ class NewPost extends Component {
                 <Form>
                     <TextArea onChange={this.updateContent.bind(this)} placeholder={'Write something'}/>
                 </Form>
-                <Button circular size={'small'} content={'send'.toUpperCase()} onClick={this.props.handleClick.bind(this)} ></Button>
+                <Button circular size={'small'} content={'send'.toUpperCase()} onClick={this.handleClick.bind(this)} ></Button>
             </Segment>
         );
     }

@@ -97,6 +97,7 @@ class Blog extends Component {
             'content-type': 'application/json'
         };
 
+        console.log(content);
         const data = { content };
 
         fetch(`/api/users/${this.props.match.params.id}/posts`, {

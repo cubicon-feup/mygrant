@@ -248,8 +248,8 @@ router.post('/:id/posts', authenticate, function(req, res) {
     const query = 'INSERT INTO post(sender_id, message) VALUES ($(userId), $(content))';
 
     // Check that the user that made the request is trying to post to his blog
-    if (req.user.id === req.params.id) {
-        db.one(query, {
+    if (req.user.id === parseInt(req.params.id, 10)) {
+        db.none(query, {
             content: req.body.content,
             userId: req.user.id
         })
