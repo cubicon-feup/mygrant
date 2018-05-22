@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
 
 class BlogPost extends Component {
     static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
         liked: PropTypes.bool,
         linked: PropTypes.bool,
         postInfo: instanceOf(Object).isRequired,
@@ -17,7 +19,37 @@ class BlogPost extends Component {
         this.state = { liked: this.props.liked };
     }
 
-    render () {
+    handleLike() {
+
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+        console.log('Like');
+
+        // Make request to the api to add a like, and toggle like in state
+        if (this.state.liked) {
+        // Make request to the api to add a like, and toggle like in state
+            fetch(`/api/posts/${this.props.postInfo.id}/like`, {
+                headers,
+                method: 'DELETE'
+            })
+                .then(res => {
+                    this.setState({ liked: res.status === 204 })
+                    console.log(this.state)
+                });
+        } else {
+            fetch(`/api/posts/${this.props.postInfo.id}/like`, {
+                headers,
+                method: 'POST'
+            })
+                .then(res => {
+                    this.setState({ liked: res.status === 201 })
+                    console.log(this.state)
+                });
+        }
+
+    }
+
+    render() {
         return (
             <div>
                 <Segment >
@@ -52,7 +84,9 @@ class BlogPost extends Component {
                                                         <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
                                                     </Grid.Column>
                                                     <Grid.Column width={2}>
-                                                        <span className={'post-likes'}>
+                                                        <span className={'post-likes'}
+                                                            onClick={this.handleLike.bind(this)}
+                                                        >
                                                             {
                                                                 this.state.liked
                                                                 ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
@@ -76,4 +110,4 @@ class BlogPost extends Component {
     }
 }
 
-export default BlogPost;
+export default withCookies(BlogPost);

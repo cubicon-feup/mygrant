@@ -53,7 +53,7 @@ class Post extends Component {
                             id: this.state.post.sender_id,
                             pictureUrl: this.state.post.image_url ? this.state.post.image_url : '/users/kwest.jpg'
                         }}
-                    />
+                    />;
 
                     this.setState({ headerPost: headerPostElement });
                 })

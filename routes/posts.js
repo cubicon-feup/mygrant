@@ -92,4 +92,50 @@ router.post('/:id/comment', authenticate, function(req, res) {
         .catch(() => res.sendStatus(500));
 });
 
+/**
+ * @api {post} /posts/:id/like like a post
+ * @apiName LikePost
+ * @apiGroup Post
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.post('/:id/like', authenticate, function(req, res) {
+
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    const query = 'INSERT into like_post(user_id, post_id) VALUES ($(userId), $(postId))';
+
+    db.none(query, {
+        postId,
+        userId
+    })
+        .then(() => res.sendStatus(201))
+        .catch(() => res.sendStatus(500));
+});
+
+/**
+ * @api {delete} /posts/:id/like unlike a post
+ * @apiName UnlikePost
+ * @apiGroup Post
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.delete('/:id/like', authenticate, function(req, res) {
+
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    const query = 'DELETE FROM like_post WHERE user_id = $(userId) AND post_id = $(postId)';
+
+    db.none(query, {
+        postId,
+        userId
+    })
+        .then(() => res.sendStatus(204))
+        .catch(error => res.sendStatus(500));
+});
+
 module.exports = router;
