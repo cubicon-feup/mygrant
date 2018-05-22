@@ -183,7 +183,7 @@ router.get('/', authenticate, function(req, res) {
             ) u on u.id = ( CASE WHEN mt.sender_id = $(loggedUser) then mt.receiver_id else mt.sender_id end)`;
 
 
-    db.many(query, { loggedUser }).then(data => {
+    db.manyOrNone(query, { loggedUser }).then(data => {
         res.status(200).send(data);
     })
         .catch(() => {
