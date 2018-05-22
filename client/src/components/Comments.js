@@ -223,7 +223,7 @@ class CommentsSection extends Component {
 
     fetchTopComments() {
         var type =
-            this.props.type === 'services' ? 'service_id' : 'crowdfudning_id';
+            this.props.type === 'services' ? 'service_id' : 'crowdfunding_id';
         fetch(urlGetTopComments(type, this.state.id))
             .then(response => {
                 if (!response.ok) {
