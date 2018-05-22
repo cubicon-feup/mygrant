@@ -61,9 +61,11 @@ class Blog extends Component {
                             const postElements = [];
 
                             data.posts.forEach(post => {
+                                console.log(post)
                                 postElements.push(
                                     <BlogPost
                                         linked
+                                        liked={ Boolean(parseInt(post.liked, 10)) }
                                         postInfo={{
                                             commentCount: post.n_replies,
                                             content: post.message,

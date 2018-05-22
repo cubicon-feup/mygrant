@@ -6,10 +6,16 @@ import moment from 'moment';
 
 class BlogPost extends Component {
     static propTypes = {
+        liked: PropTypes.bool,
         linked: PropTypes.bool,
         postInfo: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
     };
+
+    constructor(props) {
+        super(props);
+        this.state = { liked: this.props.liked };
+    }
 
     render () {
         return (
@@ -47,7 +53,11 @@ class BlogPost extends Component {
                                                     </Grid.Column>
                                                     <Grid.Column width={2}>
                                                         <span className={'post-likes'}>
-                                                            <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                            {
+                                                                this.state.liked
+                                                                ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
+                                                                : <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                            }
                                                             {this.props.postInfo.likes}
                                                         </span>
                                                     </Grid.Column>
