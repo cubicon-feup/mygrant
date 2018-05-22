@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import '../css/Service.css';
 import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
@@ -164,19 +165,23 @@ class CreateService extends Component {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             }
-        }).then(
-            () =>
-                this.setState({
-                    title: '',
-                    description: '',
-                    category: '',
-                    location: '',
-                    acceptable_radius: 0,
-                    mygrant_value: 0,
-                    repeatable: false
-                }),
-            () => console.log('ERROR', 'Failed to create the service')
-        );
+        })
+            .then(result => result.json())
+            .then(
+                service => {
+                    this.setState({
+                        title: '',
+                        description: '',
+                        category: '',
+                        location: '',
+                        acceptable_radius: 0,
+                        mygrant_value: 0,
+                        repeatable: false
+                    });
+                    this.props.history.push(`/service/${service.id}`);
+                },
+                () => console.log('ERROR', 'Failed to create the service')
+            );
     };
 
     createHeader() {
