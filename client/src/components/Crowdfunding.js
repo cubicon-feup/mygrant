@@ -72,6 +72,7 @@ class Crowdfunding extends Component {
             this.setState({role: Role.CROWDFUNDING_CREATOR})
         else if(userId)
             this.setState({role: Role.AUTHENTICATED})
+        console.log("Role: " + this.state.role);
     }
 
     getDonators() {
@@ -100,9 +101,9 @@ class Crowdfunding extends Component {
             .then(result => {
                 this.setState({ crowdfunding: result });
                 let timeDiff = new Date(result.date_finished) - new Date().getTime();
-                if(this.state.crowdfunding.status === 'COLLECTING') {
+                if(this.state.crowdfunding.status === 'COLLECTING')
                     this.setState({ timeDiff: timeDiff});
-                }
+                this.assignRole();
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
