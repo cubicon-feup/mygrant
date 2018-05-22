@@ -37,6 +37,7 @@ class Post extends Component {
             .then(res => res.json()
                 .then(data => {
                     this.setState({ post: data.post });
+                    console.log(this.state);
                 })
             );
     }

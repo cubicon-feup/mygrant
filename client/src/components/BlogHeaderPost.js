@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
 import moment from 'moment';
@@ -9,11 +10,6 @@ class BlogHeaderPost extends Component {
         user: instanceOf(Object).isRequired
     };
 
-    constructor(props) {
-        super(props);
-    }
-
-
     render () {
         return (
             <div>
@@ -23,24 +19,28 @@ class BlogHeaderPost extends Component {
                             <Grid.Column width={16}>
                                 <Grid>
                                     <Grid.Row>
-                                        <Responsive as={Grid.Column} width={2} minWidth={768} >
+                                        <Responsive href={`/user/${this.props.user.id}`} as={Grid.Column} width={2} minWidth={768} >
                                             <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={14} minWidth={768} >
-                                            <Header as={'h3'}>
-                                                {this.props.user.fullName}
-                                            </Header>
+                                            <Link to={`/user/${this.props.user.id}`} >
+                                                <Header as={'h3'}>
+                                                    {this.props.user.fullName}
+                                                </Header>
+                                            </Link>
                                             <Header.Subheader verticalAlign={'top'}>
                                                 {moment(this.props.postInfo.datePosted).fromNow()}
                                             </Header.Subheader>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={4} maxWidth={768} >
-                                            <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                            <Image href={`/user/${this.props.user.id}`} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={12} maxWidth={768} >
-                                            <Header as={'h3'}>
-                                                {this.props.user.fullName}
-                                            </Header>
+                                            <Link to={`/user/${this.props.user.id}`} >
+                                                <Header as={'h3'}>
+                                                    {this.props.user.fullName}
+                                                </Header>
+                                            </Link>
                                             <Header.Subheader verticalAlign={'top'}>
                                                 {moment(this.props.postInfo.datePosted).fromNow()}
                                             </Header.Subheader>
