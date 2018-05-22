@@ -79,6 +79,29 @@ class Post extends Component {
 
     }
 
+    submitNewComment(content) {
+        const { cookies } = this.props;
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = { content };
+
+        fetch(`/api/posts/${this.props.match.params.id}/comment`, {
+            body: JSON.stringify(data),
+            headers,
+            method: 'POST'
+        })
+            .then(res => {
+                // Everything went well
+                if (res.status === 201) {
+                    // refresh page
+                    window.location.reload();
+                }
+            });
+    }
+
     render() {
         return (
             <Container className={'main-container post'} >
@@ -87,7 +110,7 @@ class Post extends Component {
                         postInfo={{
                             commentCount: this.state.post.n_replies,
                             content: this.state.post.message,
-                            datePosted: this.state.post.date_sent,
+                            datePosted: this.state.post.date_posted,
                         id: this.state.post.id,
                         likes: this.state.post.n_likes
                         }}
@@ -98,7 +121,7 @@ class Post extends Component {
                         }}
                     />
                 </Segment>
-                <Responsive as={NewPost} minWidth={768} />
+                <Responsive as={NewPost} minWidth={768} handleClick={this.submitNewComment.bind(this)} />
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>
                     {
                         this.state.displayLoadMore

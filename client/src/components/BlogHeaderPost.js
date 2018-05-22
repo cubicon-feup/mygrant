@@ -31,7 +31,7 @@ class BlogHeaderPost extends Component {
                                                 {this.props.user.fullName}
                                             </Header>
                                             <Header.Subheader verticalAlign={'top'}>
-                                                {this.props.postInfo.datePosted}
+                                                {moment(this.props.postInfo.datePosted).fromNow()}
                                             </Header.Subheader>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={4} maxWidth={768} >
@@ -42,7 +42,7 @@ class BlogHeaderPost extends Component {
                                                 {this.props.user.fullName}
                                             </Header>
                                             <Header.Subheader verticalAlign={'top'}>
-                                                {this.props.postInfo.datePosted}
+                                                {moment(this.props.postInfo.datePosted).fromNow()}
                                             </Header.Subheader>
                                         </Responsive>
                                     </Grid.Row>

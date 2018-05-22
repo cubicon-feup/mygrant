@@ -236,8 +236,8 @@ router.get('/:id/postcount', authenticate, function(req, res) {
 });
 
 /**
- * @api {get} /users/:id/postcount get the number of posts made by this user
- * @apiName getPosts
+ * @api {post} /users/:id/posts post a new post
+ * @apiName PostPost
  * @apiGroup User
  *
  * @apiSuccess (Success 200)

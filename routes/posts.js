@@ -63,4 +63,26 @@ router.get('/:id', function(req, res) {
         });
 });
 
+/**
+ * @api {post} /posts/:id/comment post a new post
+ * @apiName PostComment
+ * @apiGroup Post
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.post('/:id/comment', authenticate, function(req, res) {
+
+    const query = 'INSERT INTO post(sender_id, message, in_reply_to) VALUES ($(userId), $(content), $(inReplyTo))';
+
+    // Check that the user that made the request is trying to post to his blog
+    db.none(query, {
+        content: req.body.content,
+        inReplyTo: req.params.id,
+        userId: req.user.id
+    })
+        .then(() => res.sendStatus(201))
+        .catch(() => res.sendStatus(500));
+});
+
 module.exports = router;
