@@ -3,23 +3,36 @@ var db = require('./config/database');
 
 module.exports.scheduleJob = (crowdfundingId, date) => {
     job = schedule.scheduleJob(date, function() {
-        right = closeCrowdfunding(crowdfundingId);
+        updateCrowdfundingState(crowdfundingId);
     });
 
-    function closeCrowdfunding(crowdfundingId) {
-        // TODO: if the project didn't get all the mygrants needed, go immediatly for 'FINISHED'.
-
+    function updateCrowdfundingState(crowdfundingId) {
         let query =
-            `UPDATE crowdfunding
-            SET status = 'RECRUITING'
-            WHERE id = $(crowdfunding_id);`;
-        
-        db.none(query, {
+            `SELECT mygrant_balance, mygrant_target
+            FROM crowdfunding
+            WHERE crowdfunding_id = $(crowdfunding_id);`;
+    
+        db.one(query, {
             crowdfunding_id: crowdfundingId
-        }).then(() => {
-            return true;
-        }).catch(error => {
-            return false;
-        });
+        }).then(data => {
+            let mygrantBalance = data.mygrant_balance;
+            let mygrantTarget = data.mygrant_target
+            let newStatus;
+            if(mygrantBalance >= mygrantTarget)
+                newStatus = 'RECRUITING';
+            else newStatus = 'FINISHED';
+            query =
+                `UPDATE crowdfunding
+                SET status = '${newStatus}'
+                WHERE id = $(crowdfunding_id);`;
+            
+            db.none(query, {
+                crowdfunding_id: crowdfundingId
+            }).then(() => {
+                res.sendStatus(200);
+            }).catch(error => {
+                res.status(500).json({error});
+            })
+        })
     }
 };
