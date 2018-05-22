@@ -90,6 +90,29 @@ class Blog extends Component {
             });
     }
 
+    submitNewPost(content) {
+        const { cookies } = this.props;
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = { content };
+
+        fetch(`/api/users/${this.props.match.params.id}/posts`, {
+            body: JSON.stringify(data),
+            headers,
+            method: 'POST'
+        })
+            .then(res => {
+                // Everything went well
+                if (res.status === 201) {
+                    // refresh page
+                    window.location.reload();
+                }
+            });
+    }
+
     render() {
         return (
             <div>
@@ -102,7 +125,7 @@ class Blog extends Component {
                         pictureUrl: this.state.blogOwner.picture_url ? this.state.blogOwner.pictureUrl : 'users/kwest.jpg',
                         postCount: this.state.postCount
                     }} />
-                <Responsive as={NewPost} minWidth={768} />
+                <Responsive as={NewPost} minWidth={768} handleClick={this.submitNewPost.bind(this)}/>
                 <Responsive as={Container} maxWidth={768} textAlign={'center'}>
                     <Button textAlign={'center'} className={'write-new-comment'} >
                         {'New Post'}

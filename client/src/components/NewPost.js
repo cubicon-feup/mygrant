@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
-import { withCookies, Cookies } from 'react-cookie';
-import { Button, Container, Form, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
+import { Button, Form, Segment, TextArea } from 'semantic-ui-react';
 
 class NewPost extends Component {
-    static propTypes = { cookies: instanceOf(Cookies).isRequired };
+    static propTypes = { handleClick: instanceOf(Function).isRequired };
 
     constructor(props) {
         super(props);
@@ -15,16 +14,20 @@ class NewPost extends Component {
         this.setState({ content: data.value });
     }
 
+    handleClick() {
+        this.props.handleClick(this.state.content);
+    }
+
     render() {
         return (
             <Segment className={'new-post'}>
                 <Form>
                     <TextArea onChange={this.updateContent.bind(this)} placeholder={'Write something'}/>
                 </Form>
-                <Button circular size={'small'} content={'send'.toUpperCase()}></Button>
+                <Button circular size={'small'} content={'send'.toUpperCase()} onClick={this.props.handleClick.bind(this)} ></Button>
             </Segment>
         );
     }
 }
 
-export default withCookies(NewPost);
+export default NewPost;

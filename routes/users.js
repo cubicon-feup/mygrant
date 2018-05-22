@@ -190,7 +190,7 @@ router.post('/set_location', authenticate, function(req, res) {
  * @apiSuccess (Success 200)
  *
  */
-router.get('/:id/posts', function(req, res) {
+router.get('/:id/posts', authenticate, function(req, res) {
     const offset = req.query.page * 20;
 
     const query = `
@@ -222,7 +222,7 @@ router.get('/:id/posts', function(req, res) {
  * @apiSuccess (Success 200)
  *
  */
-router.get('/:id/postcount', function(req, res) {
+router.get('/:id/postcount', authenticate, function(req, res) {
 
     const query = 'SELECT count(*) as n_posts FROM post WHERE sender_id = $(userId)';
 
@@ -233,6 +233,31 @@ router.get('/:id/postcount', function(req, res) {
         .catch(error => {
             res.status(500).json({ error });
         });
+});
+
+/**
+ * @api {get} /users/:id/postcount get the number of posts made by this user
+ * @apiName getPosts
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.post('/:id/posts', authenticate, function(req, res) {
+
+    const query = 'INSERT INTO post(sender_id, message) VALUES ($(userId), $(content))';
+
+    // Check that the user that made the request is trying to post to his blog
+    if (req.user.id === req.params.id) {
+        db.one(query, {
+            content: req.body.content,
+            userId: req.user.id
+        })
+            .then(() => res.sendStatus(201))
+            .catch(() => res.sendStatus(500));
+    } else {
+        res.sendStatus(401);
+    }
 });
 
 
