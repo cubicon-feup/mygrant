@@ -114,6 +114,9 @@ class Blog extends Component {
     }
 
     render() {
+        const { cookies } = this.props;
+        const canPost = cookies.get('user_id') === this.props.match.params.id;
+
         return (
             <div>
                 <Container className="main-container blog" >
@@ -125,12 +128,20 @@ class Blog extends Component {
                         pictureUrl: this.state.blogOwner.picture_url ? this.state.blogOwner.pictureUrl : 'users/kwest.jpg',
                         postCount: this.state.postCount
                     }} />
-                <Responsive as={NewPost} minWidth={768} handleClick={this.submitNewPost.bind(this)}/>
-                <Responsive as={Container} maxWidth={768} textAlign={'center'}>
-                    <Button textAlign={'center'} className={'write-new-comment'} >
-                        {'New Post'}
-                    </Button>
-                </Responsive>
+                {
+                    canPost
+                        ? <Responsive as={NewPost} minWidth={768} handleClick={this.submitNewPost.bind(this)}/>
+                        : null
+                }
+                {
+                    canPost
+                        ? <Responsive as={Container} maxWidth={768} textAlign={'center'}>
+                            <Button textAlign={'center'} className={'write-new-comment'} >
+                                {'New Post'}
+                            </Button>
+                        </Responsive>
+                        : null
+                }
                 <Segment.Group>
                     {this.state.posts}
                     {
