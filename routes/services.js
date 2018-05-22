@@ -3,7 +3,6 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 
-const policy = require('../policies/servicesPolicy');
 const expressJwt = require('express-jwt');
 const appSecret = require('../config/config').secret;
 const authenticate = expressJwt({ secret: appSecret });
@@ -12,6 +11,7 @@ const authenticate = expressJwt({ secret: appSecret });
 // SERVICES
 //
 //
+
 
 /**
  * @api {get} /services - Get service's list
@@ -65,98 +65,52 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', authenticate, function(req, res) {
-    // check for valid input
+router.get('/', function(req, res) { // check for valid input
     try {
-        var q = req.query.hasOwnProperty('q')
-            ? req.query.q.split(' ').join(' | ')
-            : null;
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
-        var itemsPerPage =
-            req.query.hasOwnProperty('items') && req.query.items < 50
-                ? req.query.items
-                : 50;
-        const page =
-            req.query.hasOwnProperty('page') && req.query.page > 1
-                ? req.query.page
-                : 1;
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
         var offset = (page - 1) * itemsPerPage;
         // order by:
-        var order = req.query.hasOwnProperty('order')
-            ? req.query.order.replace(/[|&;$%@"<>()+,]/g, '')
-            : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
         // ascending / descending
-        var asc = req.query.hasOwnProperty('asc')
-            ? req.query.asc == 'true'
-            : true;
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
         // filters:
-        var crowdfunding_only =
-            req.query.hasOwnProperty('owner') &&
-            req.query.owner == 'crowdfundings';
-        var invidivuals_only =
-            req.query.hasOwnProperty('owner') &&
-            req.query.owner == 'individuals';
-        var lang = req.query.hasOwnProperty('lang')
-            ? req.query.lang
-            : 'english'; // lang can either be 'english' or 'portuguese':
-        var inc_descr = req.query.hasOwnProperty('inc_descr')
-            ? req.query.inc_descr != 'no'
-            : true;
-        var cat = req.query.hasOwnProperty('cat')
-            ? req.query.cat.toUpperCase()
-            : false;
-        var type = req.query.hasOwnProperty('type')
-            ? req.query.type.toUpperCase()
-            : false;
-        var mygmax = req.query.hasOwnProperty('mygmax')
-            ? req.query.mygmax
-            : false;
-        var mygmin = req.query.hasOwnProperty('mygmin')
-            ? req.query.mygmin
-            : false;
-        var datemax = req.query.hasOwnProperty('datemax')
-            ? req.query.datemax
-            : false;
-        var datemin = req.query.hasOwnProperty('datemin')
-            ? req.query.datemin
-            : false;
+        var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
+        var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
+        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
+        var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
+        var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define first query
-    const query_latlon =
-        'SELECT latitude, longitude FROM users WHERE id=$(user_id)';
-    db
-        .one(query_latlon, { user_id: req.user.id })
+    const query_latlon = `SELECT latitude, longitude FROM users WHERE id=$(user_id)`;
+    db.one(query_latlon, {user_id: req.user.id})
         .then(data => {
-            const latitude_ref = data.latitude;
+            const latitude_ref = data.latitude; 
             const longitude_ref = data.longitude;
-
+            
             // define query
             const query = `
                 SELECT *
                 FROM (
                 SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
                 2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
-                ${
-                    q
-                        ? `, ts_rank_cd(to_tsvector($(lang), service.title ${
-                              inc_descr ? '|| \'. \' || service.description' : ''
-                          } || '. ' || service.location || '. ' || users.full_name),
-                to_tsquery($(lang), $(q))) AS search_score`
-                        : ''
-                }
+                ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+                to_tsquery($(lang), $(q))) AS search_score` : ``}
                 FROM service
                 LEFT JOIN users on users.id = service.creator_id
                 LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
                 WHERE service.deleted = false
-                ${
-                    crowdfunding_only
-                        ? ' AND service.crowdfunding_id IS NOT NULL'
-                        : ''
-                }
+                ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
                 ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
                 ${cat ? ' AND service.category = $(cat)' : ''}
                 ${type ? ' AND service.service_type = $(type)' : ''}
@@ -164,7 +118,7 @@ router.get('/', authenticate, function(req, res) {
                 ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
                 ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
                 ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-                ) s
+                ) s 
                 ${q ? 'WHERE search_score > 0' : ''}
                 ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
                 LIMIT $(itemsPerPage) OFFSET $(offset);`;
@@ -172,8 +126,7 @@ router.get('/', authenticate, function(req, res) {
             // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
 
             // place query
-            db
-                .any(query, {
+            db.any(query, {
                     q,
                     itemsPerPage,
                     offset,
@@ -199,6 +152,7 @@ router.get('/', authenticate, function(req, res) {
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {get} /services/search-count - Get number of results and pages of a services search
@@ -252,86 +206,39 @@ router.get('/', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get(
-    [
-'/num-pages',
-'/search-count',
-'/count',
-'/npages'
-],
-    authenticate,
-    function(req, res) {
-        try {
-            var q = req.query.hasOwnProperty('q')
-                ? req.query.q.split(' ').join(' | ')
-                : null;
-            // paging
-            var itemsPerPage =
-                req.query.hasOwnProperty('items') && req.query.items < 50
-                    ? req.query.items
-                    : 50;
-            const page =
-                req.query.hasOwnProperty('page') && req.query.page > 1
-                    ? req.query.page
-                    : 1;
-            var offset = (page - 1) * itemsPerPage;
-            // order by:
-            var order = req.query.hasOwnProperty('order')
-                ? req.query.order.replace(/[|&;$%@"<>()+,]/g, '')
-                : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
-            // ascending / descending
-            var asc = req.query.hasOwnProperty('asc')
-                ? req.query.asc == 'true'
-                : true;
-            // filters:
-            var crowdfunding_only =
-                req.query.hasOwnProperty('owner') &&
-                req.query.owner == 'crowdfundings';
-            var invidivuals_only =
-                req.query.hasOwnProperty('owner') &&
-                req.query.owner == 'individuals';
-            var lang = req.query.hasOwnProperty('lang')
-                ? req.query.lang
-                : 'english'; // lang can either be 'english' or 'portuguese':
-            var inc_descr = req.query.hasOwnProperty('inc_descr')
-                ? req.query.inc_descr != 'no'
-                : true;
-            var cat = req.query.hasOwnProperty('cat')
-                ? req.query.cat.toUpperCase()
-                : false;
-            var type = req.query.hasOwnProperty('type')
-                ? req.query.type.toUpperCase()
-                : false;
-            var mygmax = req.query.hasOwnProperty('mygmax')
-                ? req.query.mygmax
-                : false;
-            var mygmin = req.query.hasOwnProperty('mygmin')
-                ? req.query.mygmin
-                : false;
-            var datemax = req.query.hasOwnProperty('datemax')
-                ? req.query.datemax
-                : false;
-            var datemin = req.query.hasOwnProperty('datemin')
-                ? req.query.datemin
-                : false;
-        } catch (err) {
-            res.status(400).json({ error: err.toString() });
-
-            return;
-        }
-        // define query
-        const query = `
+router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, res) {
+    try {
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
+        var offset = (page - 1) * itemsPerPage;
+        // order by:
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
+        // ascending / descending
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
+        // filters:
+        var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
+        var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
+        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
+        var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
+        var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+        return;
+    }
+    // define query
+    const query = `
         SELECT COUNT(*) as COUNT
         FROM (
-        SELECT service.id,
-        ${
-            q
-                ? `, ts_rank_cd(to_tsvector($(lang), service.title ${
-                      inc_descr ? '|| \'. \' || service.description' : ''
-                  } || '. ' || service.location || '. ' || users.full_name),
-        to_tsquery($(lang), $(q))) AS search_score`
-                : ''
-        }
+        SELECT service.id
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
@@ -344,37 +251,34 @@ router.get(
         ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
         ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
         ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-        ) s
+        ) s 
         ${q ? 'WHERE search_score > 0' : ''}`;
-        // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
-        // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
 
-        // place query
-        db
-            .one(query, {
-                q,
-                lang,
-                cat,
-                type,
-                mygmax,
-                mygmin,
-                datemax,
-                datemin,
-                order,
-                latitude_ref,
-                longitude_ref
-            })
-            .then(data => {
-                res.status(200).json({
-                    results: data.count,
-                    pages: Math.ceil(data.count / itemsPerPage)
-                });
-            })
-            .catch(error => {
-                res.status(500).json(error);
+    // place query
+    db.one(query, {
+            q,
+            lang,
+            cat,
+            type,
+            mygmax,
+            mygmin,
+            datemax,
+            datemin,
+            order
+        })
+        .then(data => {
+            res.status(200).json({
+                'results': data.count,
+                'pages': Math.ceil(data.count / itemsPerPage)
             });
-    }
-);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+
 
 /**
  * @api {get} /services/:id - Get service by ID
@@ -413,7 +317,7 @@ router.get('/:id', function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -425,15 +329,16 @@ router.get('/:id', function(req, res) {
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
         WHERE service.id = $(id)`;
     // place query
-    db
-        .one(query, { id })
+    db.one(query, { id })
         .then(data => {
             res.status(200).json(data);
         })
         .catch(error => {
             res.status(500).json(error);
         });
+
 });
+
 
 /**
  * @api {put} /services/ - Create service
@@ -454,7 +359,7 @@ router.get('/:id', function(req, res) {
  * @apiParam (RequestBody) {String} service_type Type of the service [PROVIDE, REQUEST]
  * @apiParam (RequestBody) {Integer} creator_id ID of the creator if created by a user (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding (XOR creator_id)
- * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time
+ * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time (Optional)
  *
  * @apiExample Syntax
  * PUT: /api/services
@@ -485,31 +390,19 @@ router.put('/', authenticate, function(req, res) {
         var acceptable_radius = req.body.acceptable_radius;
         var mygrant_value = req.body.mygrant_value;
         var service_type = req.body.service_type;
-        var creator_id = req.body.hasOwnProperty('creator_id')
-            ? req.body.creator_id
-            : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id')
-            ? req.body.crowdfunding_id
-            : null;
-        var repeatable = req.body.hasOwnProperty('repeatable')
-            ? req.body.repeatable
-            : false;
-        var latitude = req.body.hasOwnProperty('latitude')
-            ? req.body.latitude
-            : null;
-        var longitude = req.body.hasOwnProperty('longitude')
-            ? req.body.longitude
-            : null;
+        var creator_id = req.body.hasOwnProperty('creator_id') ? req.body.creator_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : false;
+        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : null;
+        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : null;
         if (creator_id == null && crowdfunding_id == null) {
             throw new Error('Missing either creator_id or crowdfunding_id');
         }
         if (creator_id != null && crowdfunding_id != null) {
-            throw new Error(
-                'EITHER creator_id OR crowdfunding_id must be selected, not both.'
-            );
+            throw new Error('EITHER creator_id OR crowdfunding_id must be selected, not both.');
         }
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -517,10 +410,9 @@ router.put('/', authenticate, function(req, res) {
     const query = `
         INSERT INTO service (title, description, category, location, latitude, longitude, acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
         VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))
-        RETURNING id`;
+        RETURNING id;`;
     // place query
-    db
-        .one(query, {
+    db.one(query, {
             title,
             description,
             category,
@@ -534,11 +426,14 @@ router.put('/', authenticate, function(req, res) {
             latitude,
             longitude
         })
-        .then(service => res.status(200).send(service))
+        .then((data) => {
+            res.status(200).send(data);
+        })
         .catch(error => {
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {put} /services/:id - Edit service
@@ -577,60 +472,40 @@ router.put('/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
-        var acceptable_radius = req.body.hasOwnProperty('acceptable_radius')
-            ? req.body.acceptable_radius
-            : null;
-        var repeatable = req.body.hasOwnProperty('repeatable')
-            ? req.body.repeatable
-            : null;
+        var acceptable_radius = req.body.hasOwnProperty('acceptable_radius') ? req.body.acceptable_radius : null;
+        var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : null;
         // optionals:
         var title = req.body.hasOwnProperty('title') ? req.body.title : null;
-        var description = req.body.hasOwnProperty('description')
-            ? req.body.description
-            : null;
-        var category = req.body.hasOwnProperty('category')
-            ? req.body.category
-            : null;
-        var location = req.body.hasOwnProperty('location')
-            ? req.body.location
-            : null;
-        var mygrant_value = req.body.hasOwnProperty('mygrant_value')
-            ? req.body.mygrant_value
-            : null;
-        var service_type = req.body.hasOwnProperty('service_type')
-            ? req.body.service_type
-            : null;
-        var repeatable = req.body.hasOwnProperty('repeatable')
-            ? req.body.repeatable
-            : null;
-        var latitude = req.body.hasOwnProperty('latitude')
-            ? req.body.latitude
-            : null;
-        var longitude = req.body.hasOwnProperty('longitude')
-            ? req.body.longitude
-            : null;
+        var description = req.body.hasOwnProperty('description') ? req.body.description : null;
+        var category = req.body.hasOwnProperty('category') ? req.body.category : null;
+        var location = req.body.hasOwnProperty('location') ? req.body.location : null;
+        var mygrant_value = req.body.hasOwnProperty('mygrant_value') ? req.body.mygrant_value : null;
+        var service_type = req.body.hasOwnProperty('service_type') ? req.body.service_type : null;
+        var repeatable = req.body.hasOwnProperty('repeatable') ? req.body.repeatable : null;
+        var latitude = req.body.hasOwnProperty('latitude') ? req.body.latitude : null;
+        var longitude = req.body.hasOwnProperty('longitude') ? req.body.longitude : null;
     } catch (err) {
-        res.sendStatus(400).json({ error: err.toString() });
+        res.sendStatus(400).json({ 'error': err.toString() });
 
         return;
     }
     // define query
-    const query = `UPDATE service SET ${[
-        title ? 'title=$(title)' : null,
-        description ? 'description=$(description)' : null,
-        category ? 'category=$(category)' : null,
-        location ? 'location=$(location)' : null,
-        acceptable_radius ? 'acceptable_radius=$(acceptable_radius)' : null,
-        mygrant_value ? 'mygrant_value=$(mygrant_value)' : null,
-        service_type ? 'service_type=$(service_type)' : null,
-        latitude ? 'latitude=$(latitude)' : null,
-        longitude ? 'longitude=$(longitude)' : null
-    ]
-        .filter(Boolean)
-        .join(', ')} WHERE id=$(id)`;
+    const query =
+        `UPDATE service SET ${
+         [
+            title ? 'title=$(title)' : null,
+            description ? 'description=$(description)' : null,
+            category ? 'category=$(category)' : null,
+            location ? 'location=$(location)' : null,
+            acceptable_radius ? 'acceptable_radius=$(acceptable_radius)' : null,
+            mygrant_value ? 'mygrant_value=$(mygrant_value)' : null,
+            service_type ? 'service_type=$(service_type)' : null,
+            latitude ? 'latitude=$(latitude)' : null,
+            longitude ? 'longitude=$(longitude)' : null
+        ].filter(Boolean).join(', ')
+        } WHERE id=$(id)`;
     // place query
-    db
-        .none(query, {
+    db.none(query, {
             id,
             title,
             description,
@@ -650,6 +525,7 @@ router.put('/:id', authenticate, function(req, res) {
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {delete} /services/:id - Delete service
@@ -675,7 +551,7 @@ router.delete('/:id', authenticate, function(req, res) {
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -685,8 +561,7 @@ router.delete('/:id', authenticate, function(req, res) {
         SET deleted=true
         WHERE id=$(id)`;
     // place query
-    db
-        .none(query, { id })
+    db.none(query, { id })
         .then(() => {
             res.sendStatus(200);
         })
@@ -695,11 +570,13 @@ router.delete('/:id', authenticate, function(req, res) {
         });
 });
 
+
 //
 //
 // IMAGES
 //
 //
+
 
 /**
  * @api {get} /services/:id/images - Get service images' urls
@@ -720,13 +597,12 @@ router.delete('/:id', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/images', authenticate, function(req, res) {
+router.get('/:id/images', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -735,8 +611,7 @@ router.get('/:id/images', authenticate, function(req, res) {
         FROM service_image
         WHERE service_image.service_id = $(id)`;
     // place query
-    db
-        .any(query, { id })
+    db.any(query, { id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -744,6 +619,7 @@ router.get('/:id/images', authenticate, function(req, res) {
             res.status(500).json(error.message);
         });
 });
+
 
 /**
  * @api {put} /services/:id/images - Create service image
@@ -754,7 +630,7 @@ router.get('/:id/images', authenticate, function(req, res) {
  * @apiDescription Upload image and add it to the service's images
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
- * @apiParam (RequestFiles) {File} file Image file of the image
+ * @apiParam (RequestFiles) {File} image Image file to upload
  *
  * @apiExample Syntax
  * PUT: /api/services/<ID>/images
@@ -772,12 +648,11 @@ router.put('/:id/images', authenticate, function(req, res) {
         var service_id = req.params.id;
         // get filename
         var filename = image.uploadImage(req, res, 'services/');
-        if (filename === false) {
+        if(filename === false){
             return;
         }
     } catch (err) {
         res.status(400).json(err);
-
         return;
     }
     // define query
@@ -789,6 +664,7 @@ router.put('/:id/images', authenticate, function(req, res) {
         filename
     });
 });
+
 
 /**
  * @api {delete} /services/:id/images/:image - Delete service image
@@ -817,32 +693,32 @@ router.delete('/:id/images/:image', authenticate, function(req, res) {
         // get filename
         var image_url = req.params.image;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query //TODO: must be restricted to user
     const query = `
-        DELETE FROM service_image
+        DELETE FROM service_image 
         WHERE service_id=$(service_id) AND image_url=$(image_url);`;
-    db
-        .none(query, {
+    db.none(query, {
             service_id,
             image_url
         })
         .then(data => {
-            image.removeImage(req, res, `services/${image_url}`);
+            image.removeImage(req, res, 'services/'+image_url);
         })
         .catch(error => {
             res.status(500).send(error);
         });
 });
 
+
 //
 //
 // OFFERS
 //
 //
+
 
 /**
  * @api {get} /services/:id/offers - Get service offers
@@ -868,7 +744,7 @@ router.get('/:id/offers', authenticate, function(req, res) {
     try {
         var service_id = req.params.id;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -887,8 +763,7 @@ router.get('/:id/offers', authenticate, function(req, res) {
             INNER JOIN service ON crowdfunding_offer.service_id = service.id
             WHERE crowdfunding_offer.service_id = $(service_id)) s`;
     // place query
-    db
-        .any(query, { service_id })
+    db.any(query, { service_id })
         .then(data => {
             res.status(200).json(data);
         })
@@ -896,6 +771,7 @@ router.get('/:id/offers', authenticate, function(req, res) {
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {get} /services/:id/offers/:type/:candidate - Get specific offer
@@ -930,7 +806,7 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
         }
         var candidate_id = req.params.candidate;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
+        res.status(400).json({ 'error': err.toString() });
 
         return;
     }
@@ -952,19 +828,22 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
             WHERE crowdfunding_offer.service_id = $(service_id) AND crowdfunding_offer.crowdfunding_id = $(candidate_id)`;
     }
 
+
     // place query
-    db
-        .any(query, {
+    db.any(query, {
             service_id,
             candidate_id
         })
         .then(data => {
-            res.status(200).json(data);
+            res.status(200)
+                .json(data);
         })
         .catch(error => {
-            res.status(500).json(error.message);
+            res.status(500)
+                .json(error.message);
         });
 });
+
 
 /**
  * @api {post} /services/:id/offers - Make service offer
@@ -975,7 +854,9 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * @apiDescription Create offer to a service
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to make offer to (service can't have deleted=true)
- * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (Optional)
+ * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (crowdfunding must be RECRUTING) (XOR partner_id)
+ * @apiParam (RequestBody) {Integer} partner_id ID of the user making the offer (XOR crowdfunding_id)
+ * @apiParam (RequestBody) {Timestamp} date_propsosed Proposed date for the service (Optional)
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers
@@ -986,7 +867,8 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * [When the offer is being made in the name of a crowdfunding]
  * POST: /api/services/5/offers
  * body: {
- *      crowdfunding_id: 10,
+ *  partner_id: 10,
+ *  data_proposed: "2018-10-10 03:03:03+01"
  * }
  *
  * @apiSuccess (Success 200) OK
@@ -997,23 +879,17 @@ router.post('/:id/offers', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var partner_id = req.body.hasOwnProperty('partner_id')
-            ? req.body.partner_id
-            : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id')
-            ? req.body.crowdfunding_id
-            : 8; // TODO: SESSION ID
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        var date_proposed = req.body.hasOwnProperty('date_proposed') ? req.body.date_proposed : null;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
         if (partner_id != null && crowdfunding_id != null) {
-            throw new Error(
-                'EITHER partner_id OR crowdfunding_id must be selected, not both.'
-            );
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
         }
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
 
@@ -1021,23 +897,23 @@ router.post('/:id/offers', authenticate, function(req, res) {
     let query;
     if (crowdfunding_id != null) {
         query = `
-            INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
-            SELECT $(service_id), $(crowdfunding_id)
+            INSERT INTO crowdfunding_offer (service_id, crowdfunding_id, date_proposed)
+            SELECT $(service_id), $(crowdfunding_id), $(date_proposed)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     } else {
         query = `
-            INSERT INTO service_offer (service_id, candidate_id)
-            SELECT $(service_id), $(partner_id)
+            INSERT INTO service_offer (service_id, candidate_id, date_proposed)
+            SELECT $(service_id), $(partner_id), $(date_proposed)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     }
 
-    db
-        .one(query, {
+    db.one(query, {
             service_id,
             partner_id,
-            crowdfunding_id
+            crowdfunding_id,
+            date_proposed
         })
         .then(data => {
             if (data.service_id) {
@@ -1047,9 +923,11 @@ router.post('/:id/offers', authenticate, function(req, res) {
             }
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {post} /services/:id/offers/accept - Accept service offer
@@ -1062,7 +940,6 @@ router.post('/:id/offers', authenticate, function(req, res) {
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept (service can't have deleted=true)
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
- * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers/accept
@@ -1080,58 +957,100 @@ router.post('/:id/offers', authenticate, function(req, res) {
  * }
  *
  * @apiSuccess (Success 200) OK
+ * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
 router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
-        // TODO: check if SESSION USER is service creator
         var service_id = req.params.id;
-        var partner_id = req.body.hasOwnProperty('partner_id')
-            ? req.body.partner_id
-            : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id')
-            ? req.body.crowdfunding_id
-            : null;
-        var date_scheduled = req.body.date_scheduled;
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
         if (partner_id != null && crowdfunding_id != null) {
-            throw new Error(
-                'EITHER partner_id OR crowdfunding_id must be selected, not both.'
-            );
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
         }
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define query
+    // 
     // TODO: don't allow offers on deleted services -> make this constraint in db
     // TODO: only allow instances to be created when an offer exists -> make this constraint in db
-    const query = `
-        INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
-        SELECT $(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled)
-        WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
-        RETURNING service_id;`;
-    // place query
-    db
-        .one(query, {
+    // ...
+
+    // check if req.user.id is service creator 
+    const creator_id = req.user.id;
+    const query_check_creator = `
+        SELECT 1 AS exists WHERE EXISTS (
+            SELECT service.creator_id
+            FROM service
+            WHERE service.id=$(service_id) AND service.creator_id=$(creator_id)
+        ) OR EXISTS (
+            SELECT crowdfunding.creator_id
+            FROM service
+            INNER JOIN crowdfunding 
+            ON crowdfunding.id=service.crowdfunding_id
+            WHERE service.id=$(service_id) AND crowdfunding.creator_id=$(creator_id)
+        )`;
+    db.any(query_check_creator, {
             service_id,
-            partner_id,
-            crowdfunding_id,
-            date_scheduled
+            creator_id
         })
-        .then(() => {
-            res.sendStatus(200);
+        .then((data) => {
+            console.log(data);
+            if (data.length == 0){
+                res.status(403).send('Current user is not the service owner!');
+                return;
+            }
+
+            // define query
+            let query;
+            if (req.body.hasOwnProperty('crowdfunding_id')){
+                // crowdfunding_offer -> service_instance
+                query = ` 
+                    INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
+                    SELECT service.id, null, crowdfunding_offer.crowdfunding_id, crowdfunding_offer.date_proposed 
+                    FROM crowdfunding_offer
+                    LEFT JOIN service
+                    ON service.id = crowdfunding_offer.service_id 
+                    WHERE service.id=$(service_id) AND crowdfunding_offer.crowdfunding_id=$(crowdfunding_id) AND service.deleted=false
+                    RETURNING service_id;`;
+            }
+            else {
+                // service_offer -> service_instance
+                query = ` 
+                    INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
+                    SELECT service.id, service_offer.candidate_id, null, service_offer.date_proposed 
+                    FROM service_offer
+                    LEFT JOIN service
+                    ON service.id = service_offer.service_id 
+                    WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
+                    RETURNING service_id;`; 
+            }
+            // place query
+            db.one(query, {
+                    service_id,
+                    partner_id,
+                    crowdfunding_id,
+                    date_scheduled
+                })
+                .then(() => {
+                    res.sendStatus(200);
+                })
+                .catch(error => {
+                    console.log(error);
+                    res.status(500).json(error);
+                });
         })
         .catch(error => {
-            console.log(error);
             res.status(500).json(error);
         });
 });
+
 
 /**
  * @api {delete} /services/:id/offers/decline - Decline service offer
@@ -1168,25 +1087,14 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
-        var partner_id = req.body.hasOwnProperty('partner_id')
-            ? req.body.partner_id
-            : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id')
-            ? req.body.crowdfunding_id
-            : null;
-        if (partner_id == null && crowdfunding_id == null) {
-            throw new Error(
-                'Missing candidate. Requires any of partner_id or crowdfunding_id.'
-            );
-        }
-        if (partner_id != null && crowdfunding_id != null) {
-            throw new Error(
-                'EITHER partner_id OR crowdfunding_id must be selected, not both.'
-            );
-        }
+        var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        if (partner_id == null && crowdfunding_id == null)
+            throw new Error('Missing candidate. Requires any of partner_id or crowdfunding_id.');
+        if (partner_id != null && crowdfunding_id != null)
+            throw new Error('EITHER partner_id OR crowdfunding_id must be selected, not both.');
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
@@ -1202,8 +1110,7 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
     }
 
     // place query
-    db
-        .none(query, {
+    db.none(query, {
             service_id,
             partner_id,
             crowdfunding_id
@@ -1216,11 +1123,13 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
         });
 });
 
+
 //
 //
 // REVIEW
 //
 //
+
 
 /**
  * @api {put} /services/instance/:id - Rate a service
@@ -1254,24 +1163,21 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-// TODO: fix this:
 router.put('/instance/:id', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_instance_id = req.params.id;
-        var candidate_id = req.body.hasOwnProperty('crowdfunding_id')
-            ? req.body.crowdfunding_id
-            : req.user.id;
+        var candidate_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : req.user.id;
         var rating = req.body.rating;
     } catch (err) {
-        res.status(400).json({ error: err.toString() });
-
+        res.status(400).json({ 'error': err.toString() });
         return;
     }
     // define query
     let query;
     if (req.body.hasOwnProperty('crowdfunding_id')) {
-        query = `WITH partner AS (
+        query =
+            `WITH partner AS (
                 UPDATE service_instance
                 SET partner_rating=$(rating)
                 WHERE id=$(service_instance_id)
@@ -1295,7 +1201,8 @@ router.put('/instance/:id', authenticate, function(req, res) {
             UNION
             SELECT * FROM creator`;
     } else {
-        query = `WITH partner AS (
+        query =
+            `WITH partner AS (
                 UPDATE service_instance
                 SET partner_rating=$(rating)
                 WHERE id=$(service_instance_id)
@@ -1320,8 +1227,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             SELECT * FROM creator`;
     }
     // place query
-    db
-        .one(query, {
+    db.one(query, {
             service_instance_id,
             candidate_id,
             rating
@@ -1332,77 +1238,74 @@ router.put('/instance/:id', authenticate, function(req, res) {
         .catch(error => {
             res.status(500).json(error);
         });
+
 });
 
-// @api {get} /services/instance/:id Get the service instance requester
-// @apiName GetServiceInstanceRequester
-// @apiGroup Service
-// @apiPermission service creator
-//
+/**
+ * @api {get} /services/instance/:id Get the service instance requester
+ * @apiName GetServiceInstanceRequester
+ * @apiGroup Service
+ * @apiPermission service creator
+ * */
 // TODO: finish api doc.
-// FIXME: not being used.
 router.get('/:service_id/instance/partner', authenticate, function(req, res) {
-    const serviceId = req.params.service_id;
-    const query = `SELECT users.id as requester_id, users.full_name as requester_name
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT users.id as requester_id, users.full_name as requester_name
         FROM users
         INNER JOIN service_instance ON service_instance.partner_id = users.id
         WHERE service_instance.service_id = $(service_id);`;
 
-    db
-        .one(query, { service_id: serviceId })
-        .then(data => {
-            res.status(200).json(data);
-        })
-        .catch(error => {
-            res.status(500).json({ error });
-        });
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    });
 });
 
 // TODO: finish api doc.
 router.get('/:service_id/instance', authenticate, function(req, res) {
-    const serviceId = req.params.service_id;
-    const query = `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
         FROM service_instance
         INNER JOIN users ON users.id = partner_id
         WHERE service_instance.service_id = $(service_id);`;
 
-    db
-        .one(query, { service_id: serviceId })
-        .then(data => {
-            console.log(data);
-            res.status(200).json(data);
-        })
-        .catch(error => {
-            res.status(500).json({ error });
-        });
-});
+    db.one(query, {
+        service_id: serviceId
+    }).then(data => {
+        console.log(data);
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+})
 
-router.get('/:service_id/is_owner_or_partner', authenticate, function(
-    req,
-    res
-) {
-    const userId = req.user.id;
-    const serviceId = req.params.service_id;
-    const query = `SELECT service_instance.partner_id, crowdfunding.creator_id
+// TODO: finish api doc
+router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let serviceId = req.params.service_id;
+    let query =
+        `SELECT service_instance.partner_id, crowdfunding.creator_id
         FROM service_instance
         INNER JOIN service ON service.id = service_instance.service_id
         INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
         WHERE service_instance.service_id = $(service_id);`;
 
-    db
-        .oneOrNone(query, { service_id: serviceId })
-        .then(data => {
-            if (userId === data.creator_id) {
-                res.status(200).json({ type: 'creator' });
-            } else if (userId === data.partner_id) {
-                res.status(200).json({ type: 'partner' });
-            } else {
-                res.status(200).json({ type: 'none' });
-            }
-        })
-        .catch(error => {
-            res.status(500).json({ error });
-        });
-});
+    db.oneOrNone(query, {
+        service_id: serviceId
+    }).then(data => {
+        if(userId === data.creator_id)
+            res.status(200).json({type: 'creator'});
+        else if(userId === data.partner_id)
+            res.status(200).json({type: 'partner'});
+        else res.status(200).json({type: 'none'});
+    }).catch(error => {
+        res.status(500).json({error});
+    })
+})
 
 module.exports = router;
