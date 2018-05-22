@@ -3,7 +3,7 @@ import '../css/Service.css';
 
 import { Container, Grid, Image, Loader, Segment } from 'semantic-ui-react';
 
-const urlForImages = id => `http://localhost:3001/api/services/${id}/images`;
+const urlForImages = id => `/api/services/${id}/images`;
 
 class ImgGrid extends Component {
     constructor(props) {

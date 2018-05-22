@@ -3,6 +3,9 @@ import '../css/Service.css';
 import ServiceOffer from './ServiceOffers';
 import ImgGrid from './ImgGrid';
 import CommentsSection from './Comments';
+import ReactRouterPropTypes from 'react-router-prop-types';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 
 import {
     Button,
@@ -15,12 +18,15 @@ import {
     Modal
 } from 'semantic-ui-react';
 
-const urlForData = id => `http://localhost:3001/api/services/${id}`;
-// TODO: check urlForCreateOffer
-const urlForCreateOffer = id =>
-    `http://localhost:3001/api/services/${id}/offers`;
+const urlForData = id => `/api/services/${id}`;
+const urlForCreateOffer = id => `/api/services/${id}/offers`;
 
 class Service extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        location: ReactRouterPropTypes.location.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -36,6 +42,10 @@ class Service extends Component {
     }
 
     componentDidMount() {
+        const { cookies } = this.props;
+
+        this.setState({ userID: parseInt(cookies.get('user_id'), 10) });
+
         fetch(urlForData(this.state.id))
             .then(response => {
                 if (!response.ok) {
@@ -62,14 +72,19 @@ class Service extends Component {
 
     // TODO: Check body of the message
     handleSubmit = e => {
+        const { cookies } = this.props;
         e.preventDefault();
+
         fetch(urlForCreateOffer(this.state.id), {
             method: 'POST',
             body: JSON.stringify({
-                service_id: this.state.id,
-                partner_id: this.props.idUser
+                partner_id: this.state.userID,
+                date_scheduled: this.state.request
             }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
         })
             .then(result => {
                 result.json();
@@ -79,16 +94,13 @@ class Service extends Component {
                     this.setState({ request: '' });
                 },
                 () => {
-                    console.log('ERROR');
+                    console.log('ERROR', 'Failed to submit the request');
                 }
             );
     };
 
-    // TODO: Check if the user is the owner of the service
     isOwner() {
-        return true;
-
-        return this.state.service.creator_id === this.props.userID;
+        return this.state.service.creator_id === this.state.userID;
     }
 
     oppositeServiceType() {
@@ -152,6 +164,7 @@ class Service extends Component {
                 }
             >
                 <ServiceOffer
+                    idUser={this.state.userID}
                     idService={this.state.id}
                     typeService={this.state.service.service_type}
                 />
@@ -205,4 +218,4 @@ class Service extends Component {
     }
 }
 
-export default Service;
+export default withCookies(Service);
