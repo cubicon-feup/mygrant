@@ -1359,37 +1359,13 @@ router.get('/:service_id/instance/partner', authenticate, function(req, res) {
 });
 
 // TODO: finish api doc.
-<<<<<<< HEAD
-router.get('/:service_id/instance', function(req, res) {
-    let serviceId = req.params.service_id;
-    let query =
-        `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
-=======
 router.get('/:service_id/instance', authenticate, function(req, res) {
     const serviceId = req.params.service_id;
     const query = `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
->>>>>>> develop
         FROM service_instance
         INNER JOIN users ON users.id = partner_id
         WHERE service_instance.service_id = $(service_id);`;
 
-<<<<<<< HEAD
-    db.one(query, {
-        service_id: serviceId
-    }).then(data => {
-        console.log(data);
-        res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error});
-    })
-})
-
-router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) {
-    let userId = req.user.id;
-    let serviceId = req.params.service_id;
-    let query =
-        `SELECT service_instance.partner_id, crowdfunding.creator_id
-=======
     db
         .one(query, { service_id: serviceId })
         .then(data => {
@@ -1408,26 +1384,11 @@ router.get('/:service_id/is_owner_or_partner', authenticate, function(
     const userId = req.user.id;
     const serviceId = req.params.service_id;
     const query = `SELECT service_instance.partner_id, crowdfunding.creator_id
->>>>>>> develop
         FROM service_instance
         INNER JOIN service ON service.id = service_instance.service_id
         INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
         WHERE service_instance.service_id = $(service_id);`;
 
-<<<<<<< HEAD
-    db.oneOrNone(query, {
-        service_id: serviceId
-    }).then(data => {
-        if(userId === data.creator_id)
-            res.status(200).json({type: 'creator'});
-        else if(userId === data.partner_id)
-            res.status(200).json({type: 'partner'});
-        else res.status(200).json({type: 'none'});
-    }).catch(error => {
-        res.status(500).json({error});
-    })
-})
-=======
     db
         .oneOrNone(query, { service_id: serviceId })
         .then(data => {
@@ -1443,6 +1404,5 @@ router.get('/:service_id/is_owner_or_partner', authenticate, function(
             res.status(500).json({ error });
         });
 });
->>>>>>> develop
 
 module.exports = router;
