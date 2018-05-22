@@ -32,7 +32,7 @@ router.get('/:id', function(req, res) {
  * @apiGroup User
  * @apiPermission authenticated user
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) OK
  *
  */
 router.get('/', authenticate, function(req, res) {
