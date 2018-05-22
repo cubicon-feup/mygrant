@@ -5,7 +5,7 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
-const urlForData = '/api/services';
+const urlCreateService = crowdfundingId => '/api/crowdfundings/' + crowdfundingId + '/services_requested';
 const urlForCategories = '/api/service_categories';
 
 class TextInput extends Component {
@@ -77,12 +77,10 @@ class CreateService extends Component {
             description: '',
             category: '',
             location: '',
-            acceptable_radius: 0,
             mygrant_value: 0,
-            creator_id: 0,
-            repeatable: false
         };
         this.service_categories = [];
+        this.crowdfundingId = this.props.match.params.crowdfunding_id;
     }
 
     componentDidMount() {
@@ -137,8 +135,8 @@ class CreateService extends Component {
         const { cookies } = this.props;
         e.preventDefault();
 
-        fetch(urlForData, {
-            method: 'PUT',
+        fetch(urlCreateService(this.crowdfundingId), {
+            method: 'POST',
             body: JSON.stringify(this.state),
             headers: {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
@@ -154,11 +152,10 @@ class CreateService extends Component {
                     description: '',
                     category: '',
                     location: '',
-                    acceptable_radius: 0,
                     mygrant_value: 0,
-                    repeatable: false
                 })
             );
+            this.props.history.push(`/crowdfunding/${this.crowdfundingId}`);
     };
 
     createHeader() {

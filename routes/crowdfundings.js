@@ -626,7 +626,10 @@ router.delete('/:crowdfunding_id/services_offers', authenticate, policy.serviceO
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
  */
-router.post('/:crowdfunding_id/services_requested', authenticate, policy.requestService, function(req, res) {
+router.post('/:crowdfunding_id/services_requested', authenticate, function(req, res) {
+    console.log(req.user)
+    console.log(req.params)
+    console.log(req.body)
     let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
@@ -660,6 +663,7 @@ router.post('/:crowdfunding_id/services_requested', authenticate, policy.request
     }).then(() => {
         res.status(201).send({message: 'Successfully created a new service request for the crowdfunding.'});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t create a service request.'});
     })
 });
