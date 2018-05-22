@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Grid, Header, Icon, Image, Segment, Responsive } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 
@@ -8,18 +9,22 @@ class BlogHeader extends Component {
     render() {
         return (
             <div className="blog-header">
-                <Responsive as={Image} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                <Responsive as={Image} href={`/user/${this.props.user.id}`} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                 <Segment textAlign={'left'}>
                     <Grid padded >
                         <Grid.Row>
                             <Responsive as={Grid.Column} minWidth={768} width={8}>
-                                <Header as={'h1'}>{this.props.user.fullName}</Header>
+                                <Link to={`/user/${this.props.user.id}`} >
+                                    <Header as={'h1'}>{this.props.user.fullName}</Header>
+                                </Link>
                             </Responsive>
                             <Responsive as={Grid.Column} maxWidth={768} width={4}>
-                                <Image size={'tiny'} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                <Image href={`/user/${this.props.user.id}`} size={'tiny'} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                             </Responsive>
                             <Responsive as={Grid.Column} maxWidth={768} textAlign={'left'} verticalAlign={'bottom'} width={12}>
-                                <Header as={'h1'}>{this.props.user.fullName}</Header>
+                                <Link to={`/user/${this.props.user.id}`} >
+                                    <Header as={'h1'}>{this.props.user.fullName}</Header>
+                                </Link>
                             </Responsive>
                             <Responsive as={Grid.Column} minWidth={768} textAlign={'right'} width={8} floated={'right'} >
                                 <Header.Subheader>{`${this.props.user.postCount} posts`}</Header.Subheader>
