@@ -39,9 +39,9 @@ class Service extends Component {
                 res.json()
                     .then(data => {
                         console.log(data.length);
-                        //if(data.length > 0)
-                        this.setState({candidates: data});
-                        //else this.getServiceInstanceInfo();
+                        if(data.length > 0)
+                            this.setState({candidates: data});
+                        else this.getServiceInstanceInfo();
                     })
             }
         })
@@ -105,14 +105,13 @@ class Service extends Component {
     }
 
     render() {
-        let candidates;
+        let candidates, serviceInstance;
         if(this.state.candidates.length > 0) {
-            console.log("mais");
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Card>
                         <Card.Content>
-                            <Card.Header>{candidate.requester_name}</Card.Header>
+                            <Card.Header><Link to={`/user/${candidate.requester_id}`}>{candidate.requester_name}</Link></Card.Header>
                             <Card.Description>
                                 <p>Date proposed: {candidate.date_proposed}</p>
                             </Card.Description>
@@ -126,10 +125,18 @@ class Service extends Component {
                     </Card>
                 )
             })
-        } else {
-            candidates = null;
-            console.log("menos");
-        }
+        } else if(this.state.serviceInstance) {
+            serviceInstance =
+                <Card>
+                    <Card.Content>
+                        <Card.Header>Accepted: <Link to={`/user/${this.state.serviceInstance.partner_id}`}>{this.state.serviceInstance.partner_name}</Link></Card.Header>
+                        <Card.Description>
+                            <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
+                        </Card.Description>
+                    </Card.Content>
+                </Card>
+        } else
+        candidates = null;
 
         return (
             <Container>
