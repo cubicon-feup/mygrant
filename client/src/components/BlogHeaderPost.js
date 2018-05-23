@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
@@ -15,7 +15,7 @@ class BlogHeaderPost extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            liked: Boolean(parseInt(this.props.postInfo.liked,10)),
+            liked: Boolean(parseInt(this.props.postInfo.liked, 10)),
             nLikes: parseInt(this.props.postInfo.likes, 10)
         };
     }
@@ -52,6 +52,10 @@ class BlogHeaderPost extends Component {
     }
 
     render () {
+
+        const { cookies } = this.props;
+        const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
+
         return (
             <div>
                 <Container >
@@ -107,7 +111,16 @@ class BlogHeaderPost extends Component {
                                             </span>
                                         </Grid.Column>
                                         <Grid.Column width={2}>
-                                            <Icon className={'post-options'} name={'ellipsis horizontal'}/>
+                                            {
+                                                canEdit
+                                                ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
+                                                    <Dropdown.Menu >
+                                                        <Dropdown.Item text={'Edit'}/>
+                                                        <Dropdown.Item text={'Delete'}/>
+                                                    </Dropdown.Menu>
+                                                </Dropdown>
+                                                : null
+                                            }
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>

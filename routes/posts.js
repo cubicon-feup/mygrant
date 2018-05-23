@@ -14,21 +14,23 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiSuccess (Success 200)
  *
  */
-router.get('/:id/comments', function(req, res) {
+router.get('/:id/comments', authenticate, function(req, res) {
     const offset = req.query.page * 20;
 
 
     const query = `
-        SELECT id, message, in_reply_to, coalesce(n_likes, 0) AS n_likes, date_posted, full_name, image_url FROM
+        SELECT id, message, in_reply_to, coalesce(n_likes, 0) AS n_likes, coalesce(liked, 0) liked, date_posted, full_name, image_url, sender_id FROM
             (SELECT id, sender_id, in_reply_to, message, date_posted FROM post WHERE in_reply_to = $(postId)) a
             LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
             JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
+            LEFT JOIN (SELECT COUNT(*) AS liked, post_id from like_post where user_id = $(thisUser) group by post_id) e on a.id = e.post_id
         ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset);`;
 
     db.manyOrNone(query,
         {
             offset,
-            postId: req.params.id
+            postId: req.params.id,
+            thisUser: req.user.id
         })
         .then(posts => {
             res.status(200).json(posts);

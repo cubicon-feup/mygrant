@@ -194,7 +194,8 @@ router.get('/:id/posts', authenticate, function(req, res) {
     const offset = req.query.page * 20;
 
     const query = `
-        SELECT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes, date_posted, full_name, image_url, coalesce(liked, 0) as liked FROM 
+        SELECT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes,
+        date_posted, full_name, image_url, coalesce(liked, 0) as liked, sender_id FROM 
         (SELECT id, sender_id, in_reply_to, message, date_posted FROM post WHERE sender_id = $(userId)) a
         LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
         LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id

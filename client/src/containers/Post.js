@@ -75,6 +75,7 @@ class Post extends Component {
                                     content: comment.message,
                                     datePosted: comment.date_posted,
                                     id: comment.id,
+                                    liked: comment.liked,
                                     likes: comment.n_likes
                                 }}
 

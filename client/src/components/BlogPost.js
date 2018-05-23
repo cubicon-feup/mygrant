@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
@@ -54,6 +54,10 @@ class BlogPost extends Component {
     }
 
     render() {
+
+        const { cookies } = this.props;
+        const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
+
         return (
             <div>
                 <Segment >
@@ -100,7 +104,16 @@ class BlogPost extends Component {
                                                         </span>
                                                     </Grid.Column>
                                                     <Grid.Column width={2}>
-                                                        <Icon className={'post-options'} name={'ellipsis horizontal'}/>
+                                                        {
+                                                            canEdit
+                                                            ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
+                                                                <Dropdown.Menu >
+                                                                    <Dropdown.Item text={'Edit'}/>
+                                                                    <Dropdown.Item text={'Delete'}/>
+                                                                </Dropdown.Menu>
+                                                            </Dropdown>
+                                                            : null
+                                                        }
                                                     </Grid.Column>
                                                 </Grid.Row>
                                             </Grid>
