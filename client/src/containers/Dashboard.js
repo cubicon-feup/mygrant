@@ -71,11 +71,8 @@ class Dashboard extends Component {
     }
 
     // Services that the user was a candidate and was accepted.
+    // TODO: last to do.
     getServicesRequestedToRate() {
-
-    }
-
-    getCandidatesToServices() {
 
     }
 

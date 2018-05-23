@@ -165,18 +165,19 @@ class Service extends Component {
             if(cookies.get('user_id') != this.state.serviceInstance.partner_id) {   // If the user is the crowdfunding creator.
                 if(this.state.serviceInstance.creator_rating)   // If the user has already rated the partner.
                     rate = <p>Rated: {this.state.serviceInstance.creator_rating}</p>
-                else rate =
-                    <Form className="mygrant-createform" method="POST" onSubmit={this.handleSubmit}>
-                        <Form.Input
-                            placeholder="Rate"
-                            name="rate"
-                            type="number"
-                            value={this.state.rate}
-                            onChange={this.handleNumberChange}
-                            required
-                        />
-                        <Form.Button id="dark-button" content="Submit" />
-                    </Form>
+                else if(new Date() > new Date(this.state.serviceInstance.date_scheduled))
+                    rate =
+                        <Form className="mygrant-createform" method="POST" onSubmit={this.handleSubmit}>
+                            <Form.Input
+                                placeholder="Rate"
+                                name="rate"
+                                type="number"
+                                value={this.state.rate}
+                                onChange={this.handleNumberChange}
+                                required
+                            />
+                            <Form.Button id="dark-button" content="Submit" />
+                        </Form>
             }
 
             serviceInstance =
