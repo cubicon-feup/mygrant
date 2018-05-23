@@ -12,7 +12,7 @@ class Donator extends Component {
         return (
             <Grid columns={3} textAlign="center">
                 <Grid.Column width={3}>
-                    <Image size='tiny' src='/assets/images/wireframe/image.png' />
+                    <Image size='tiny' src='/img/user.jpg' />
                 </Grid.Column>
 
                 <Grid.Column width={7}>

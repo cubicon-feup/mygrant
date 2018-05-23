@@ -1,31 +1,12 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import '../css/Service.css';
 import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
-const urlForData = '/api/services';
+const urlCreateService = crowdfundingId => '/api/crowdfundings/' + crowdfundingId + '/services_requested';
 const urlForCategories = '/api/service_categories';
-
-const radiusoptions = [
-    {
-        key: '1',
-        text: '10km',
-        value: 10
-    },
-    {
-        key: '2',
-        text: '25km',
-        value: 25
-    },
-    {
-        key: '3',
-        text: '50km',
-        value: 50
-    }
-];
 
 class TextInput extends Component {
     constructor(props) {
@@ -96,21 +77,17 @@ class CreateService extends Component {
             description: '',
             category: '',
             location: '',
-            acceptable_radius: 0,
             mygrant_value: 0,
-            service_type: '',
-            creator_id: 0,
-            repeatable: false
         };
         this.service_categories = [];
+        this.crowdfundingId = this.props.match.params.crowdfunding_id;
     }
 
     componentDidMount() {
         const { cookies } = this.props;
 
         this.setState({
-            creator_id: parseInt(cookies.get('user_id'), 10),
-            service_type: this.props.match.params.type
+            creator_id: parseInt(cookies.get('user_id'), 10)
         });
 
         fetch(urlForCategories)
@@ -158,40 +135,31 @@ class CreateService extends Component {
         const { cookies } = this.props;
         e.preventDefault();
 
-        fetch(urlForData, {
-            method: 'PUT',
+        fetch(urlCreateService(this.crowdfundingId), {
+            method: 'POST',
             body: JSON.stringify(this.state),
             headers: {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             }
         })
-            .then(result => result.json())
-            .then(
-                service => {
-                    this.setState({
-                        title: '',
-                        description: '',
-                        category: '',
-                        location: '',
-                        acceptable_radius: 0,
-                        mygrant_value: 0,
-                        repeatable: false
-                    });
-                    this.props.history.push(`/service/${service.id}`);
-                },
-                () => console.log('ERROR', 'Failed to create the service')
+            .then(result => {
+                result.json();
+            })
+            .then(result =>
+                this.setState({
+                    title: '',
+                    description: '',
+                    category: '',
+                    location: '',
+                    mygrant_value: 0,
+                })
             );
+            this.props.history.push(`/crowdfunding/${this.crowdfundingId}`);
     };
 
     createHeader() {
-        if (this.state.service_type === 'PROVIDE') {
-            return 'Provide Service';
-        } else if (this.state.service_type === 'REQUEST') {
-            return 'Request Service';
-        }
-
-        return 'ERROR';
+        return 'Request Service';
     }
 
     render() {
@@ -230,13 +198,6 @@ class CreateService extends Component {
                         value={this.state.location}
                         onChange={this.handleChange}
                     />
-                    <Form.Field
-                        placeholder="Acceptable Radius"
-                        name="acceptable_radius"
-                        control={Select}
-                        options={radiusoptions}
-                        onChange={this.handleNumberChange}
-                    />
                     <Form.Input
                         placeholder="MyGrant Value"
                         name="mygrant_value"
@@ -244,11 +205,6 @@ class CreateService extends Component {
                         type="number"
                         onChange={this.handleNumberChange}
                         required
-                    />
-                    <Form.Checkbox
-                        label="Repeatable"
-                        name="repeatable"
-                        onChange={this.handleBooleanChange}
                     />
                     <Form.Button id="dark-button" content="Submit" />
                 </Form>

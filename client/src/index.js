@@ -21,6 +21,8 @@ import Search from './containers/SearchPage';
 import CreateCrowdfunding from './components/CreateCrowdfunding';
 import Crowdfunding from './components/Crowdfunding';
 import Crowdfundings from './components/Crowdfundings';
+import CreateServiceCrowdfunding from './components/CreateServiceCrowdfunding';
+import Dashboard from './containers/Dashboard';
 import { Responsive } from 'semantic-ui-react';
 import MygrantHeader from './components/MygrantHeader';
 import { MygrantFooter, MygrantNav } from './components/Common';
@@ -47,6 +49,8 @@ ReactDom.render(
                 <Route exact path="/crowdfundings" component={Crowdfundings} />
                 <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id" component={Crowdfunding} />
                 <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
+                <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id/createservice" component={CreateServiceCrowdfunding} />
+                <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <Responsive as={MygrantNav} maxWidth={768} />
             </CookiesProvider>

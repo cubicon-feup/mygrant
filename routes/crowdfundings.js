@@ -26,7 +26,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiParam (RequestBody) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
  * @apiParam (RequestBody) {Integer} time_interval Number of week to collect donators.
  *
- * @apiSuccess (Success 201) {String} message Sucessfully created a crowdfunding project.
+ * @apiSuccess (Success 201) {Integer} id Newly created crowdfunding id.
  *
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
@@ -36,12 +36,14 @@ router.post('/', authenticate, policy.valid, function(req, res) {
     let description = req.body.description;
     let category = req.body.category;
     let location = req.body.location;
+    let latitude = req.body.latitude;
+    let longitude = req.body.longitude;
     let mygrantTarget = req.body.mygrant_target;
     let timeInterval = req.body.time_interval;
     let creatorId = req.user.id;
     let query =
-        `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
+        `INSERT INTO crowdfunding (title, description, category, location, latitude, longitude, mygrant_target, date_created, date_finished, status, creator_id)
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
         RETURNING id, date_finished;`;
 
     db.one(query, {
@@ -49,6 +51,8 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         description: description,
         category: category,
         location: location,
+        latitude: latitude,
+        longitude: longitude,
         mygrant_target: mygrantTarget,
         time_interval: timeInterval,
         creator_id: creatorId
@@ -56,7 +60,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         let crowdfundingId = data.id;
         let dateFinished = new Date(data.date_finished);
         cronJob.scheduleJob(crowdfundingId, dateFinished);
-        res.status(201).send({message: 'Sucessfully created a crowdfunding project.'});
+        res.status(201).send({id: crowdfundingId});
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
@@ -87,7 +91,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
+        `SELECT title, description, category, location, crowdfunding.latitude, crowdfunding.longitude, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
             ( SELECT avg (total_ratings.rating) as average_rating
                 FROM (
                     SELECT rating
@@ -104,6 +108,7 @@ router.get('/:crowdfunding_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.log("Opa")
         res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
     });
 });
@@ -225,7 +230,7 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
+        `SELECT title, category, location, crowdfunding.latitude, crowdfunding.longitude, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
 
@@ -626,7 +631,10 @@ router.delete('/:crowdfunding_id/services_offers', authenticate, policy.serviceO
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
  */
-router.post('/:crowdfunding_id/services_requested', authenticate, policy.requestService, function(req, res) {
+router.post('/:crowdfunding_id/services_requested', authenticate, function(req, res) {
+    console.log(req.user)
+    console.log(req.params)
+    console.log(req.body)
     let creatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let title = req.body.title;
@@ -660,6 +668,7 @@ router.post('/:crowdfunding_id/services_requested', authenticate, policy.request
     }).then(() => {
         res.status(201).send({message: 'Successfully created a new service request for the crowdfunding.'});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t create a service request.'});
     })
 });
@@ -672,6 +681,7 @@ router.post('/:crowdfunding_id/services_requested', authenticate, policy.request
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
  * 
+ * @apiSuccess (Success 200) {Integer} id Service request id.
  * @apiSuccess (Success 200) {String} title Service request title.
  * @apiSuccess (Success 200) {Integer} mygrant_value Mygrants amount to transfer.
  * @apiSuccess (Success 200) {String} category Service request category.
@@ -1041,35 +1051,5 @@ router.get('/filter/:from-:to/pages_number', function(req, res) {
         res.status(500).json({error: 'Couldn\'t get pages number.'});
     })
 });
-
-/**
- * @api {get} /crowdfundings/:crowdfunding_id/is_owner Checks if the user is the crowdfunding creator
- * @apiName CheckIsOwner
- * @apiGroup Crowdfunding
- *
- * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding number from returned.
- * 
- * @apiSuccess (Success 200) {Bool} owns True if user is the creator, false otherwise.
- * 
- * @apiError (Error 500) InternalServerError Couldn't get owner.
- */
-router.get('/:crowdfunding_id/is_owner', authenticate, function(req, res) {
-    let userId = req.user.id;
-    let crowdfundingId = req.params.crowdfunding_id;
-    let query =
-        `SELECT creator_id
-        FROM crowdfunding
-        WHERE id = $(crowdfunding_id);`;
-
-    db.oneOrNone(query, {
-        crowdfunding_id: crowdfundingId
-    }).then(data => {
-        if(data.creator_id === userId)
-            res.status(200).json({owns: true});
-        else res.status(200).json({owns: false});
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get owner.'});
-    })
-})
 
 module.exports = router;

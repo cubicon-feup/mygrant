@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Container} from 'semantic-ui-react';
+import { Container, Button } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -132,7 +133,8 @@ class RequestedServiceItem extends Component {
         else selectedRequester = null;
         return (
             <Container>
-                <p>
+                <Link to={"/service/" + this.props.requestedService.id}>{this.props.requestedService.title}</Link>
+                {/*<p>
                     <label>Title: </label>
                     {this.props.requestedService.title}
                 </p>
@@ -143,9 +145,9 @@ class RequestedServiceItem extends Component {
                 <p>
                     <label>Category: </label>
                     {this.props.requestedService.category}
-                </p>
-                {candidates}
-                {selectedRequester}
+                </p>*/}
+                {/*candidates}
+                {selectedRequester*/}
             </Container>
         );
     }

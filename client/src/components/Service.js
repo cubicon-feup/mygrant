@@ -79,7 +79,7 @@ class Service extends Component {
             method: 'POST',
             body: JSON.stringify({
                 partner_id: this.state.userID,
-                date_scheduled: this.state.request
+                date_proposed: this.state.request
             }),
             headers: {
                 Authorization: `Bearer ${cookies.get('id_token')}`,
