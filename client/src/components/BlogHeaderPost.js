@@ -113,8 +113,6 @@ class BlogHeaderPost extends Component {
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
 
-        const newPost = <NewPost onCancel={this.cancelEditing.bind(this)} handleClick={this.completeEditing.bind(this)} />;
-
         const headerPost =
             <div>
                 <Container >
@@ -188,6 +186,8 @@ class BlogHeaderPost extends Component {
                     </Grid>
                 </Container>
             </div>;
+
+        const newPost = <NewPost onCancel={this.cancelEditing.bind(this)} handleClick={this.completeEditing.bind(this)} />;
 
         if (this.state.deleted) {
             return <Redirect to={`/user/${cookies.get('user_id')}/blog`} />

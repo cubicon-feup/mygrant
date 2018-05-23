@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Dropdown, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
 import { withCookies, Cookies } from 'react-cookie';
 import { instanceOf } from 'prop-types';
+import NewPost from '../components/NewPost';
 import moment from 'moment';
 
 class BlogComment extends Component {
@@ -15,8 +16,10 @@ class BlogComment extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            editing: false,
             liked: Boolean(parseInt(this.props.postInfo.liked, 10)),
-            nLikes: parseInt(this.props.postInfo.likes, 10)
+            nLikes: parseInt(this.props.postInfo.likes, 10),
+            postContent: this.props.postInfo.content
         };
     }
 
@@ -50,12 +53,66 @@ class BlogComment extends Component {
         }
     }
 
+    editPost() {
+        this.setState({ editing: true });
+    }
+
+    cancelEditing() {
+        this.setState({ editing: false });
+    }
+
+    completeEditing(content) {
+        if (content === '') {
+            return;
+        }
+
+        const { cookies } = this.props;
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = { content };
+
+        // API request to edit the content of the post
+        fetch(`/api/posts/${this.props.postInfo.id}/edit`, {
+            body: JSON.stringify(data),
+            headers,
+            method: 'POST'
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    this.setState({
+                        editing: false,
+                        postContent: content
+                    });
+                }
+            });
+    }
+
+    deletePost() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        // API request to delete the post
+        fetch(`/api/posts/${this.props.postInfo.id}/delete`, {
+            headers,
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.status === 204) {
+                    // Post was deleted
+                    window.location.reload();
+                }
+            });
+    }
+
     render () {
 
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === parseInt(this.props.user.id, 10);
 
-        return (
+        const commentElement = 
             <div>
                 <Segment className={'blog-post post-comment'} >
                 <Container >
@@ -77,8 +134,8 @@ class BlogComment extends Component {
                                                     canEdit
                                                     ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
                                                         <Dropdown.Menu >
-                                                            <Dropdown.Item text={'Edit'}/>
-                                                            <Dropdown.Item text={'Delete'}/>
+                                                            <Dropdown.Item text={'Edit'} onClick={this.editPost.bind(this)} />
+                                                            <Dropdown.Item text={'Delete'} onClick={this.deletePost.bind(this)} />
                                                         </Dropdown.Menu>
                                                     </Dropdown>
                                                     : null
@@ -98,7 +155,7 @@ class BlogComment extends Component {
                                     </Grid.Row>
                                     <Grid.Row className={'content'} verticalAlign={'top'} >
                                         <Grid.Column width={16} >
-                                            {this.props.postInfo.content}
+                                            {this.state.postContent}
                                         </Grid.Column>
                                     </Grid.Row>
                                 </Grid>
@@ -107,8 +164,11 @@ class BlogComment extends Component {
                     </Grid>
                 </Container>
             </Segment>
-        </div>
-        );
+        </div>;
+
+        const newPost = <NewPost onCancel={this.cancelEditing.bind(this)} handleClick={this.completeEditing.bind(this)} />;
+
+        return this.state.editing ? newPost : commentElement;
     }
 }
 
