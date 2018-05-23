@@ -172,7 +172,20 @@ class Crowdfunding extends Component {
         })
     }
 
-  render() {
+    renderMap() {
+        if (this.state.crowdfunding.latitude && this.state.crowdfunding.longitude) {
+            return (
+                <PidgeonMaps
+                    latlng={[
+                        this.state.crowdfunding.latitude,
+                        this.state.crowdfunding.longitude
+                    ]}
+                />
+            );
+        }
+    }
+
+    render() {
 
       if(this.state.requestFailed) {
         return (
@@ -401,7 +414,7 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                 </Grid>
             </Container>
-            <PidgeonMaps />
+            {this.renderMap()}
             <CommentsSection type="crowdfundings" id={this.state.crowdfundingId} />
             {/*<Container>
                 <h3>Comments</h3>

@@ -16,6 +16,12 @@ class PigeonMaps extends Component {
             ],
             zoom: 16
         };
+        if (this.props.latlng) {
+            this.state = {
+                latlng: this.props.latlng,
+                zoom: 16
+            };
+        }
     }
 
     componentDidMount() {
@@ -38,8 +44,10 @@ class PigeonMaps extends Component {
     }
 
     handleClick = ({ event, latLng }) => {
-        this.setState({ latlng: latLng });
-        this.props.handleChange && this.props.handleChange(latLng);
+        if (!this.props.latlng) {
+            this.setState({ latlng: latLng });
+            this.props.handleChange && this.props.handleChange(latLng);
+        }
     };
 
     render() {

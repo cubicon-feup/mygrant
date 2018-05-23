@@ -184,6 +184,19 @@ class Service extends Component {
             </Container>;
 }
 
+    renderMap() {
+        if (this.state.service.latitude && this.state.service.longitude) {
+            return (
+                <PidgeonMaps
+                    latlng={[
+                        this.state.service.latitude,
+                        this.state.service.longitude
+                    ]}
+                />
+            );
+        }
+    }
+
     render() {
         if (this.state.isFetching) {
             return (
@@ -213,7 +226,7 @@ class Service extends Component {
                     <Container fluid className="green-divider" />
                     {this.renderOffers()}
                 </Container>
-                <PidgeonMaps />
+                {this.renderMap()}
                 <CommentsSection type="services" id={this.state.id} />
             </Container>
         );
