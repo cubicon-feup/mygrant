@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Button, Select} from 'semantic-ui-react';
+import { Container, Button, Select, Header, Modal } from 'semantic-ui-react';
 
 import RequestedServiceItem from './RequestedServiceItem';
+import CreateServiceCrowdfunding from '../CreateServiceCrowdfunding';
 
-const urlForRequestedServices = crowdfundingId => `http://localhost:3001/api/crowdfundings/` + crowdfundingId + `/services_requested`;
+const urlForRequestedServices = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/services_requested`;
 
 class CrowdfundingOffers extends Component {
 
@@ -45,6 +46,7 @@ class CrowdfundingOffers extends Component {
             <Container>
                 <h3 align="center">Services</h3>
                 {requestedServices}
+                <a href="/crowdfunding/1001/createservice">Create Service</a>
             </Container>
         );
     }

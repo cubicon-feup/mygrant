@@ -3,7 +3,6 @@ var router = express.Router();
 var db = require('../config/database');
 var image = require('../images/Image');
 
-const policy = require('../policies/servicesPolicy');
 const expressJwt = require('express-jwt');
 const appSecret = require('../config/config').secret;
 const authenticate = expressJwt({ secret: appSecret });
@@ -66,7 +65,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', authenticate, function(req, res) { // check for valid input
+router.get('/', function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -207,7 +206,7 @@ router.get('/', authenticate, function(req, res) { // check for valid input
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, function(req, res) {
+router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, res) {
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -237,7 +236,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
     const query = `
         SELECT COUNT(*) as COUNT
         FROM (
-        SELECT service.id,
+        SELECT service.id
         ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
         to_tsquery($(lang), $(q))) AS search_score` : ``}
         FROM service
@@ -267,9 +266,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
             mygmin,
             datemax,
             datemin,
-            order,
-            latitude_ref,
-            longitude_ref
+            order
         })
         .then(data => {
             res.status(200).json({
@@ -315,7 +312,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], authenticate, f
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id', authenticate, function(req, res) {
+router.get('/:id', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -362,7 +359,7 @@ router.get('/:id', authenticate, function(req, res) {
  * @apiParam (RequestBody) {String} service_type Type of the service [PROVIDE, REQUEST]
  * @apiParam (RequestBody) {Integer} creator_id ID of the creator if created by a user (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding (XOR creator_id)
- * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time
+ * @apiParam (RequestBody) {Boolean} repeatable If the service can be done more than one time (Optional)
  *
  * @apiExample Syntax
  * PUT: /api/services
@@ -412,9 +409,10 @@ router.put('/', authenticate, function(req, res) {
     // define query
     const query = `
         INSERT INTO service (title, description, category, location, latitude, longitude, acceptable_radius, mygrant_value, service_type, creator_id, crowdfunding_id, repeatable)
-        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))`;
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(acceptable_radius), $(mygrant_value), $(service_type), $(creator_id), $(crowdfunding_id), $(repeatable))
+        RETURNING id;`;
     // place query
-    db.none(query, {
+    db.one(query, {
             title,
             description,
             category,
@@ -428,8 +426,8 @@ router.put('/', authenticate, function(req, res) {
             latitude,
             longitude
         })
-        .then(() => {
-            res.sendStatus(200);
+        .then((data) => {
+            res.status(200).send(data);
         })
         .catch(error => {
             res.status(500).json(error);
@@ -599,7 +597,7 @@ router.delete('/:id', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/images', authenticate, function(req, res) {
+router.get('/:id/images', function(req, res) {
     // check for valid input
     try {
         var id = req.params.id;
@@ -632,7 +630,7 @@ router.get('/:id/images', authenticate, function(req, res) {
  * @apiDescription Upload image and add it to the service's images
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to get images of
- * @apiParam (RequestFiles) {File} file Image file of the image
+ * @apiParam (RequestFiles) {File} image Image file to upload
  *
  * @apiExample Syntax
  * PUT: /api/services/<ID>/images
@@ -856,7 +854,9 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * @apiDescription Create offer to a service
  *
  * @apiParam (RequestParam) {Integer} id ID of the service to make offer to (service can't have deleted=true)
- * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (Optional)
+ * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding making the offer (crowdfunding must be RECRUTING) (XOR partner_id)
+ * @apiParam (RequestBody) {Integer} partner_id ID of the user making the offer (XOR crowdfunding_id)
+ * @apiParam (RequestBody) {Timestamp} date_propsosed Proposed date for the service (Optional)
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers
@@ -867,7 +867,8 @@ router.get('/:id/offers/:type/:candidate', authenticate, function(req, res) {
  * [When the offer is being made in the name of a crowdfunding]
  * POST: /api/services/5/offers
  * body: {
- *      crowdfunding_id: 10,
+ *  partner_id: 10,
+ *  data_proposed: "2018-10-10 03:03:03+01"
  * }
  *
  * @apiSuccess (Success 200) OK
@@ -879,7 +880,8 @@ router.post('/:id/offers', authenticate, function(req, res) {
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
-        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : 8; // TODO: SESSION ID
+        var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
+        var date_proposed = req.body.hasOwnProperty('date_proposed') ? req.body.date_proposed : null;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
@@ -895,14 +897,14 @@ router.post('/:id/offers', authenticate, function(req, res) {
     let query;
     if (crowdfunding_id != null) {
         query = `
-            INSERT INTO crowdfunding_offer (service_id, crowdfunding_id)
-            SELECT $(service_id), $(crowdfunding_id)
+            INSERT INTO crowdfunding_offer (service_id, crowdfunding_id, date_proposed)
+            SELECT $(service_id), $(crowdfunding_id), $(date_proposed)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     } else {
         query = `
-            INSERT INTO service_offer (service_id, candidate_id)
-            SELECT $(service_id), $(partner_id)
+            INSERT INTO service_offer (service_id, candidate_id, date_proposed)
+            SELECT $(service_id), $(partner_id), $(date_proposed)
             WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
             RETURNING service_id;`;
     }
@@ -910,7 +912,8 @@ router.post('/:id/offers', authenticate, function(req, res) {
     db.one(query, {
             service_id,
             partner_id,
-            crowdfunding_id
+            crowdfunding_id,
+            date_proposed
         })
         .then(data => {
             if (data.service_id) {
@@ -920,6 +923,7 @@ router.post('/:id/offers', authenticate, function(req, res) {
             }
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -936,7 +940,6 @@ router.post('/:id/offers', authenticate, function(req, res) {
  * @apiParam (RequestParam) {Integer} id ID of the service to offer to accept (service can't have deleted=true)
  * @apiParam (RequestBody) {Integer} partner_id ID of the user that made the offer (XOR crowdfunding_id)
  * @apiParam (RequestBody) {Integer} crowdfunding_id ID of the crowdfunding that made the offer (XOR partner_id)
- * @apiParam (RequestBody) {Date} date_scheduled Date the service is goind to be provided
  *
  * @apiExample Syntax
  * POST: /api/services/<ID>/offers/accept
@@ -954,17 +957,16 @@ router.post('/:id/offers', authenticate, function(req, res) {
  * }
  *
  * @apiSuccess (Success 200) OK
+ * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
 router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
-        // TODO: check if SESSION USER is service creator
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
-        var date_scheduled = req.body.date_scheduled;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
         }
@@ -975,26 +977,76 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define query
+    // 
     // TODO: don't allow offers on deleted services -> make this constraint in db
     // TODO: only allow instances to be created when an offer exists -> make this constraint in db
-    const query = ` 
-        INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
-        SELECT $(service_id), $(partner_id), $(crowdfunding_id), $(date_scheduled)
-        WHERE EXISTS (SELECT * FROM service WHERE service.id=$(service_id) AND deleted=false)
-        RETURNING service_id;`;
-    // place query
-    db.one(query, {
+    // ...
+
+    // check if req.user.id is service creator 
+    const creator_id = req.user.id;
+    const query_check_creator = `
+        SELECT 1 AS exists WHERE EXISTS (
+            SELECT service.creator_id
+            FROM service
+            WHERE service.id=$(service_id) AND service.creator_id=$(creator_id)
+        ) OR EXISTS (
+            SELECT crowdfunding.creator_id
+            FROM service
+            INNER JOIN crowdfunding 
+            ON crowdfunding.id=service.crowdfunding_id
+            WHERE service.id=$(service_id) AND crowdfunding.creator_id=$(creator_id)
+        )`;
+    db.any(query_check_creator, {
             service_id,
-            partner_id,
-            crowdfunding_id,
-            date_scheduled
+            creator_id
         })
-        .then(() => {
-            res.sendStatus(200);
+        .then((data) => {
+            console.log(data);
+            if (data.length == 0){
+                res.status(403).send('Current user is not the service owner!');
+                return;
+            }
+
+            // define query
+            let query;
+            if (req.body.hasOwnProperty('crowdfunding_id')){
+                // crowdfunding_offer -> service_instance
+                query = ` 
+                    INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
+                    SELECT service.id, null, crowdfunding_offer.crowdfunding_id, crowdfunding_offer.date_proposed 
+                    FROM crowdfunding_offer
+                    LEFT JOIN service
+                    ON service.id = crowdfunding_offer.service_id 
+                    WHERE service.id=$(service_id) AND crowdfunding_offer.crowdfunding_id=$(crowdfunding_id) AND service.deleted=false
+                    RETURNING service_id;`;
+            }
+            else {
+                // service_offer -> service_instance
+                query = ` 
+                    INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
+                    SELECT service.id, service_offer.candidate_id, null, service_offer.date_proposed 
+                    FROM service_offer
+                    LEFT JOIN service
+                    ON service.id = service_offer.service_id 
+                    WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
+                    RETURNING service_id;`; 
+            }
+            // place query
+            db.one(query, {
+                    service_id,
+                    partner_id,
+                    crowdfunding_id,
+                    date_scheduled
+                })
+                .then(() => {
+                    res.sendStatus(200);
+                })
+                .catch(error => {
+                    console.log(error);
+                    res.status(500).json(error);
+                });
         })
         .catch(error => {
-            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -1111,7 +1163,6 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
- // TODO: fix this:
 router.put('/instance/:id', authenticate, function(req, res) {
     // check for valid input
     try {
@@ -1197,7 +1248,6 @@ router.put('/instance/:id', authenticate, function(req, res) {
  * @apiPermission service creator
  * */
 // TODO: finish api doc.
-// FIXME: not being used.
 router.get('/:service_id/instance/partner', authenticate, function(req, res) {
     let serviceId = req.params.service_id;
     let query =
@@ -1234,6 +1284,7 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     })
 })
 
+// TODO: finish api doc
 router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) {
     let userId = req.user.id;
     let serviceId = req.params.service_id;

@@ -8,7 +8,7 @@ import { withCookies, Cookies } from 'react-cookie';
 
 import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
 import Donator from './Donator';
-import Comments from './comments/Comments';
+import CommentsSection from './Comments';
 
 const apiPath = require('../config').apiPath;
 const urlForData = crowdfundingId => `/api/crowdfundings/` + crowdfundingId;
@@ -72,6 +72,7 @@ class Crowdfunding extends Component {
             this.setState({role: Role.CROWDFUNDING_CREATOR})
         else if(userId)
             this.setState({role: Role.AUTHENTICATED})
+        console.log("Role: " + this.state.role);
     }
 
     getDonators() {
@@ -100,9 +101,9 @@ class Crowdfunding extends Component {
             .then(result => {
                 this.setState({ crowdfunding: result });
                 let timeDiff = new Date(result.date_finished) - new Date().getTime();
-                if(this.state.crowdfunding.status === 'COLLECTING') {
+                if(this.state.crowdfunding.status === 'COLLECTING')
                     this.setState({ timeDiff: timeDiff});
-                }
+                this.assignRole();
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
@@ -399,7 +400,7 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                 </Grid>
             </Container>
-            <Comments originField={'crowdfunding_id'} originId={this.state.crowdfundingId} />
+            <CommentsSection type="crowdfundings" id={this.state.crowdfundingId} />
             {/*<Container>
                 <h3>Comments</h3>
             </Container>

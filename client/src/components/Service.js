@@ -72,14 +72,19 @@ class Service extends Component {
 
     // TODO: Check body of the message
     handleSubmit = e => {
+        const { cookies } = this.props;
         e.preventDefault();
+
         fetch(urlForCreateOffer(this.state.id), {
             method: 'POST',
             body: JSON.stringify({
-                service_id: this.state.id,
-                partner_id: this.state.userID
+                partner_id: this.state.userID,
+                date_proposed: this.state.request
             }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
         })
             .then(result => {
                 result.json();
@@ -89,7 +94,7 @@ class Service extends Component {
                     this.setState({ request: '' });
                 },
                 () => {
-                    console.log('ERROR');
+                    console.log('ERROR', 'Failed to submit the request');
                 }
             );
     };
@@ -159,6 +164,7 @@ class Service extends Component {
                 }
             >
                 <ServiceOffer
+                    idUser={this.state.userID}
                     idService={this.state.id}
                     typeService={this.state.service.service_type}
                 />

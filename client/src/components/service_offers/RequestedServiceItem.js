@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Container} from 'semantic-ui-react';
+import { Container, Button } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -136,6 +137,7 @@ class RequestedServiceItem extends Component {
                 <ListService crowdfunding={this.props.requestedService}/>
                 {/*candidates}
                 {selectedRequester*/}
+                <Link to={"/service/" + this.props.requestedService.id}>{this.props.requestedService.title}</Link>
             </Container>
         );
     }

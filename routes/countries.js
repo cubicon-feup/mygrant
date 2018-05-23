@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const expressJwt = require('express-jwt');
 const db = require('../config/database');
-const appSecret = require('../config/config').secret;
-
-const authenticate = expressJwt({ secret: appSecret });
 
 // Get a list of all countries
 router.get('/', function(req, res) {
@@ -19,7 +15,7 @@ router.get('/', function(req, res) {
 });
 
 // Get a list of countries with the correct names to appear as options in the client
-router.get('/as_options', authenticate, function(req, res) {
+router.get('/as_options', function(req, res) {
     const query = 'SELECT id as value, name as text, code FROM country ORDER BY name ASC';
     db.any(query)
         .then(data => {
