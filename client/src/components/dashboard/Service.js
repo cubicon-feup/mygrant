@@ -18,7 +18,7 @@ class Service extends Component {
         super(props);
         this.state = {
             service: this.props.service,
-            serviceInstance: {},
+            serviceInstance: null,
             candidates: []
         }
     }
@@ -38,7 +38,6 @@ class Service extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
-                        console.log(data.length);
                         if(data.length > 0)
                             this.setState({candidates: data});
                         else this.getServiceInstanceInfo();
@@ -52,7 +51,9 @@ class Service extends Component {
         const { cookies } = this.props;
         fetch(urlGetServiceInstanceInfo(this.state.service.id), {
             method: 'GET',
-            Authorization: `Bearer ${cookies.get('id_token')}`
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            }
         }).then(res => {
             if(res.status === 200) {
                 res.json()
@@ -65,7 +66,7 @@ class Service extends Component {
 
     acceptCandidate(candidate) {
         const { cookies } = this.props;
-        fetch(urlAcceptCandidate(this.state.serviceId), {
+        fetch(urlAcceptCandidate(this.state.service.id), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,8 +77,10 @@ class Service extends Component {
                 date_scheduled: candidate.date_proposed
             })
         }).then(res => {
-            if(res.status === 200)
+            if(res.status === 200) {
                 this.setState({candidates: []});
+                this.getServiceInstanceInfo()
+            }
         });
     }
 
@@ -105,7 +108,7 @@ class Service extends Component {
     }
 
     render() {
-        let candidates, serviceInstance;
+        let candidates = null, serviceInstance = null;
         if(this.state.candidates.length > 0) {
             candidates = this.state.candidates.map(candidate => {
                 return (
@@ -135,14 +138,14 @@ class Service extends Component {
                         </Card.Description>
                     </Card.Content>
                 </Card>
-        } else
-        candidates = null;
+        }
 
         return (
             <Container>
                 <h3><Link to={`/service/${this.state.service.id}`}>{this.state.service.title}</Link></h3>
                 <Card.Group>
                     {candidates}
+                    {serviceInstance}
                 </Card.Group>
             </Container>
         )

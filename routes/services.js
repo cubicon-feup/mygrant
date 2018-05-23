@@ -965,6 +965,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
+        var date_scheduled = req.body.date_scheduled;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         if (partner_id == null && crowdfunding_id == null) {
@@ -1047,6 +1048,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                 });
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -1279,9 +1281,9 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     db.one(query, {
         service_id: serviceId
     }).then(data => {
-        console.log(data);
         res.status(200).json(data);
     }).catch(error => {
+
         res.status(500).json({error});
     })
 })
