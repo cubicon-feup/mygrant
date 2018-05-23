@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Dropdown, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
 import { withCookies, Cookies } from 'react-cookie';
 import { instanceOf } from 'prop-types';
 import moment from 'moment';

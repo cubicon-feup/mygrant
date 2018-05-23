@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Dropdown, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
@@ -53,8 +53,15 @@ class BlogPost extends Component {
 
     }
 
-    render() {
+    editPost() {
+        console.log("Edit!!!!!");
+    }
 
+    deletePost() {
+        console.log("Delete!!!!!");
+    }
+
+    render() {
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
 
@@ -84,45 +91,46 @@ class BlogPost extends Component {
                                                 {
                                                     this.props.linked
                                                         ? <Link to={`/post/${this.props.postInfo.id}`}>{this.props.postInfo.content}</Link>
-                                                        : this.props.postInfo.content }
-                                                    </Grid.Column>
-                                                </Grid.Row>
-                                                <Grid.Row textAlign={'left'}>
-                                                    <Grid.Column width={2}>
-                                                        <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
-                                                    </Grid.Column>
-                                                    <Grid.Column width={2}>
-                                                        <span className={'post-likes'}
-                                                            onClick={this.handleLike.bind(this)}
-                                                        >
-                                                            {
-                                                                this.state.liked
-                                                                ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
-                                                                : <Icon className={'post-likes-icon'} name={'like outline'}/>
-                                                            }
-                                                            {this.state.nLikes}
-                                                        </span>
-                                                    </Grid.Column>
-                                                    <Grid.Column width={2}>
-                                                        {
-                                                            canEdit
-                                                            ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
-                                                                <Dropdown.Menu >
-                                                                    <Dropdown.Item text={'Edit'}/>
-                                                                    <Dropdown.Item text={'Delete'}/>
-                                                                </Dropdown.Menu>
-                                                            </Dropdown>
-                                                            : null
-                                                        }
-                                                    </Grid.Column>
-                                                </Grid.Row>
-                                            </Grid>
-                                        </Grid.Column>
-                                    </Grid.Row>
-                                </Grid>
-                            </Container>
-                        </Segment>
-                    </div>
+                                                        : this.props.postInfo.content
+                                                }
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                        <Grid.Row textAlign={'left'}>
+                                            <Grid.Column width={2}>
+                                                <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
+                                            </Grid.Column>
+                                            <Grid.Column width={2}>
+                                                <span className={'post-likes'}
+                                                    onClick={this.handleLike.bind(this)}
+                                                >
+                                                    {
+                                                        this.state.liked
+                                                            ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
+                                                            : <Icon className={'post-likes-icon'} name={'like outline'}/>
+                                                    }
+                                                    {this.state.nLikes}
+                                                </span>
+                                            </Grid.Column>
+                                            <Grid.Column width={2}>
+                                                {
+                                                    canEdit
+                                                    ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
+                                                        <Dropdown.Menu >
+                                                            <Dropdown.Item onClick={this.editPost.bind(this)} text={'Edit'}/>
+                                                            <Dropdown.Item onClick={this.deletePost.bind(this)} text={'Delete'}/>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
+                                                    : null
+                                                }
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                    </Grid>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Container>
+                </Segment>
+            </div>
         );
     }
 }

@@ -42,10 +42,10 @@ ReactDom.render(
                     exact path="/createservice/:type(PROVIDE|REQUEST)"
                     component={CreateService}
                 />
-                <Route exact path="/user/:id" component={User} />
-                <Route exact path="/user/:id/blog" component={Blog} />
-                <Route exact path="/user/:id/feed" component={Feed} />
-                <Route exact path="/post/:id" component={Post} />
+                <ProtectedRoute exact path="/user/:id" component={User} />
+                <ProtectedRoute exact path="/user/:id/blog" component={Blog} />
+                <ProtectedRoute exact path="/user/:id/feed" component={Feed} />
+                <ProtectedRoute exact path="/post/:id" component={Post} />
                 <Route exact path="/service/:id" component={Service} />
                 <ProtectedRoute exact path="/inbox/" component={Inbox} />
                 <ProtectedRoute exact path="/conversation/:id" component={Conversation} />
