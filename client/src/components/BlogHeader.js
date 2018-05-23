@@ -46,9 +46,6 @@ class BlogHeader extends Component {
                             <Responsive as={Grid.Column} minWidth={768} width={8} >
                                 <Header.Subheader>{`${this.props.user.city}, ${this.props.user.country}`}</Header.Subheader>
                             </Responsive>
-                            <Grid.Column textAlign={'right'} width={8} floated={'right'} >
-                                <Button compact size={'mini'} floated={'right'}><Icon name={'plus'} size={'mini'}/>{'Add friend'.toUpperCase()}</Button>
-                            </Grid.Column>
                         </Grid.Row>
                     </Grid>
                 </Segment>
