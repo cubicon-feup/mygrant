@@ -2,17 +2,53 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
 
 class BlogHeaderPost extends Component {
     static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
         postInfo: instanceOf(Object).isRequired,
         user: instanceOf(Object).isRequired
     };
 
     constructor(props) {
         super(props);
-        this.state = { liked: this.props.postInfo.liked };
+        this.state = {
+            liked: Boolean(parseInt(this.props.postInfo.liked,10)),
+            nLikes: parseInt(this.props.postInfo.likes, 10)
+        };
+    }
+
+    handleLike() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        // Make request to the api to add a like, and toggle like in state
+        if (this.state.liked) {
+            fetch(`/api/posts/${this.props.postInfo.id}/like`, {
+                headers,
+                method: 'DELETE'
+            })
+                .then(res => {
+                    this.setState({
+                        liked: !res.status === 204,
+                        nLikes: this.state.nLikes - 1
+                    });
+                });
+        } else {
+            fetch(`/api/posts/${this.props.postInfo.id}/like`, {
+                headers,
+                method: 'POST'
+            })
+                .then(res => {
+                    this.setState({
+                        liked: res.status === 201,
+                        nLikes: this.state.nLikes + 1
+                    });
+                });
+        }
+
     }
 
     render () {
@@ -61,13 +97,13 @@ class BlogHeaderPost extends Component {
                                             <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
                                         </Grid.Column>
                                         <Grid.Column width={2}>
-                                            <span className={'post-likes'}>
+                                            <span className={'post-likes'} onClick={this.handleLike.bind(this)}>
                                                 {
                                                     this.state.liked
                                                     ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
                                                     : <Icon className={'post-likes-icon'} name={'like outline'}/>
                                                 }
-                                                {this.props.postInfo.likes}
+                                                {this.state.nLikes}
                                             </span>
                                         </Grid.Column>
                                         <Grid.Column width={2}>
@@ -84,4 +120,4 @@ class BlogHeaderPost extends Component {
     }
 }
 
-export default BlogHeaderPost;
+export default withCookies(BlogHeaderPost);
