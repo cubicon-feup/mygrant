@@ -1,27 +1,30 @@
 import React, { Component } from 'react';
 import '../css/common.css';
 import { Link } from 'react-router-dom';
-import { Container, Header, Loader, Item, Button, Form, Pagination, Icon, Radio} from 'semantic-ui-react';
+import { Container, Header, Loader, Item, Button, Form, Pagination, Icon, Radio, Divider} from 'semantic-ui-react';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+import ReactRouterPropTypes from 'react-router-prop-types';
+import ListService from './ListService';
 
-const urlForServices = text => `/api/services/search?q=${text}`;
+const urlForServices = 'http://localhost:3001/api/services/?items=10';
 const urlForCategories = 'http://localhost:3001/api/service_categories';
 
-const panels = [
-    {
-        title: 'Optional Details',
-        content: {
-            as: Form.Input,
-            key: 'content',
-            label: 'Maiden Name',
-            placeholder: 'Maiden Name',
-        },
-    },
-]
-
 class SearchService extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies),
+        location: ReactRouterPropTypes.location
+    };
 
     componentDidMount() {
-        fetch(urlForServices(''))
+        const { cookies } = this.props;
+        fetch(urlForServices, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -57,14 +60,33 @@ class SearchService extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = (event) => {
-        //this.setState({ amount: "" });
-        var url = urlForServices(this.state.search_text);
-        if(this.state.order){
-            url += '&the=' + this.state.order;
+        const { cookies } = this.props;
+        var url = urlForServices;
+        if(this.state.search_text != ""){
+            url += '&q=' + this.state.search_text;
         }
         if(this.state.category){
             url += '&cat=' + this.state.category;
         }
+        if(this.state.type && this.state.type != "both"){
+            url += '&type=' + this.state.type;
+        }
+        if(this.state.mygmin){
+            url += '&mygmin=' + this.state.mygmin;
+        }
+        if(this.state.mygmin){
+            url += '&mygmax=' + this.state.mygmax;
+        }
+        if(this.state.datemin){
+            url += '&datemin=' + this.state.datemin;
+        }
+        if(this.state.datemax){
+            url += '&datemax=' + this.state.datemax;
+        }
+        if(this.state.order){
+            url += '&order=' + this.state.order;
+        }
+        /*
         if(this.state.location){
             url += '&location=' + this.state.location;
         }
@@ -73,10 +95,11 @@ class SearchService extends Component {
         }
         if(this.state.search_text){
             url += '&keywords=' + this.state.search_text;
-        }
+        }*/
         fetch(url, {
             method: 'GET',
             headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             }
         }).then(response => {
@@ -95,20 +118,27 @@ class SearchService extends Component {
     }
 
     handlePageChange = (event, object) => {
-        var url = urlForServices(this.state.search_text) + "&page=" + object.activePage;
+        const { cookies } = this.props;
+        var url = urlForServices + "&page=" + object.activePage;
         if(this.state.order){
-            url += '&sorting_method=' + this.state.order;
+            //url += '&sorting_method=' + this.state.order;
         }
         if(this.state.category){
             url += '&cat=' + this.state.category;
         }
         if(this.state.location){
-            url += '&location=' + this.state.location;
+            //url += '&location=' + this.state.location;
         }
         if(this.state.status){
             //url += '&status=' + this.state.status;
         }
-        fetch(url)
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -127,10 +157,9 @@ class SearchService extends Component {
     constructor(props) {
         super(props);
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
-        this.state = {};
+        this.state = {category:"", search_text:""};
         this.table_body = {};
         this.categories = [];
-        this.setState({category:""});
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handlePageChange = this.handlePageChange.bind(this);
@@ -147,9 +176,8 @@ class SearchService extends Component {
                 </Container>
             );
         }else{
-            this.table_body = this.state.crowdfundings.map(table_row => {
-                return (
-                    <Item>
+            this.table_body = this.state.crowdfundings.map((table_row, index, array) => {
+                /*<Item>
                         <Item.Image size='small' src='/img/mission.png' />
 
                         <Item.Content verticalAlign='middle'>
@@ -160,7 +188,20 @@ class SearchService extends Component {
                                 <Link to={"/crowdfunding/" + table_row.crowdfunding_id}><Button  floated="right">See Details</Button></Link>
                             </Item.Extra>
                         </Item.Content>
-                    </Item>
+                    </Item>*/
+                if(index==0) {
+                    return (
+                        <ListService crowdfunding={table_row}/>
+
+                    );
+                }
+
+                return (
+                    <div>
+                        <Divider />
+                        <ListService crowdfunding={table_row}/>
+                    </div>
+
                 );
             });
             this.categorie_body = this.state.categories.map(categorie => {
@@ -173,19 +214,31 @@ class SearchService extends Component {
                     <Form.Input type='text' placeholder='Search' name="search_text" value={this.state.search} onChange={this.handleChange}/>
                     <h2>Filter</h2>
                     <Form.Group inline>
-                        <Form.Select placeholder="Categoria" name="category" onChange={this.handleChange} options={this.categories}/>
-                        <Form.Select placeholder="Distancia" name="discance" onChange={this.handleChange} options={[
+                        <Form.Select placeholder="Category" name="category" onChange={this.handleChange} options={this.categories}/>
+                        <Form.Select placeholder="Distance" name="discance" onChange={this.handleChange} options={[
                             {text:'Até 1 km', value:'1'},
                             {text:'Até 3 km', value:'3'},
                             {text:'Até 5 km', value:'5'}
                         ]}/>
+                        <Form.Select placeholder="Type" name="type" onChange={this.handleChange} options={[
+                            {text:'Both', value:'both'},
+                            {text:'Requesting', value:'REQUEST'},
+                            {text:'Providing', value:'PROVIDE'}
+                        ]}/>
+                    </Form.Group>
+                    <Form.Group inline>
+                        <Form.Input type="number" name="mygmin" label="Min" placeholder="Mygrants minimum" onChange={this.handleChange}/>
+                        <Form.Input type="number" name="mygmax" label="Max" placeholder="Mygrants maximum" onChange={this.handleChange}/>
+                    </Form.Group>
+                    <Form.Group inline>
+                        <Form.Input type="date" name="datemin" label="From" placeholder="From date" onChange={this.handleChange}/>
+                        <Form.Input type="date" name="datemax" label="To" placeholder="To date" onChange={this.handleChange}/>
                     </Form.Group>
                     <h2>Order by</h2>
                     <Form.Group inline>
-                        <Form.Select placeholder="Order" name="discance" onChange={this.handleChange} options={[
+                        <Form.Select placeholder="Order" name="order" onChange={this.handleChange} options={[
                             {text:'Beginning date', value:'date_created'},
-                            {text:'End date', value:'date_finished'},
-                            {text:'Mygrant target', value:'mygrant_target'},
+                            {text:'Mygrant value', value:'mygrant_value'},
                             {text:'Name', value:'title'},
                         ]}/>
                     </Form.Group>
@@ -213,4 +266,4 @@ class SearchService extends Component {
     }
 }
 
-export default SearchService;
+export default withCookies(SearchService);
