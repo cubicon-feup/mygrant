@@ -122,7 +122,7 @@ router.post('/:id/like', authenticate, function(req, res) {
  * @apiName UnlikePost
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 204)
  *
  */
 router.delete('/:id/like', authenticate, function(req, res) {
@@ -140,11 +140,18 @@ router.delete('/:id/like', authenticate, function(req, res) {
         .catch(() => res.sendStatus(500));
 });
 
+/**
+ * @api {post} /posts/:id/edit edit a post
+ * @apiName EditPost
+ * @apiGroup Post
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
 router.post('/:id/edit', authenticate, function(req, res) {
 
     const message = req.body.content;
     const postId = req.params.id;
-    console.log(req);
 
     const query = 'UPDATE post SET message=$(message) WHERE id=$(postId)';
 
@@ -153,7 +160,26 @@ router.post('/:id/edit', authenticate, function(req, res) {
         postId
     })
         .then(() => res.sendStatus(200))
-        .catch(error => {console.log(error);res.sendStatus(500)});
+        .catch(() => res.sendStatus(500));
+});
+
+/**
+ * @api {post} /posts/:id/delete delete a post
+ * @apiName DeletePost
+ * @apiGroup Post
+ *
+ * @apiSuccess (Success 204)
+ *
+ */
+router.delete('/:id/delete', authenticate, function(req, res) {
+
+    const postId = req.params.id;
+
+    const query = 'DELETE FROM post WHERE id = $(postId)';
+
+    db.none(query, { postId })
+        .then(() => res.sendStatus(204))
+        .catch(() => res.sendStatus(500));
 });
 
 module.exports = router;

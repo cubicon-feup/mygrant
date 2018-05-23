@@ -94,6 +94,20 @@ class BlogPost extends Component {
     }
 
     deletePost() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        // API request to delete the post
+        fetch(`/api/posts/${this.props.postInfo.id}/delete`, {
+            headers,
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.status === 204) {
+                    // Post was deleted
+                    window.location.reload();
+                }
+            });
     }
 
     render() {
