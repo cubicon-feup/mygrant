@@ -19,22 +19,21 @@ class PigeonMaps extends Component {
 
     handleClick = ({ event, latLng }) => {
         this.setState({ latlng: latLng });
+        this.props.handleChange && this.props.handleChange(latLng);
     };
 
     render() {
         return (
-            <div className="map">
-                <Map
-                    width={900}
-                    height={600}
-                    defaultCenter={this.state.latlng}
-                    defaultZoom={this.state.zoom}
-                    provider={getProvider}
-                    onClick={this.handleClick}
-                >
-                    <Marker anchor={this.state.latlng} />
-                </Map>
-            </div>
+            <Map
+                width={900}
+                height={600}
+                defaultCenter={this.state.latlng}
+                defaultZoom={this.state.zoom}
+                provider={getProvider}
+                onClick={this.handleClick}
+            >
+                <Marker anchor={this.state.latlng} />
+            </Map>
         );
     }
 }

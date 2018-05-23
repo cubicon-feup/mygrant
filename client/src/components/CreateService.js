@@ -97,6 +97,8 @@ class CreateService extends Component {
             description: '',
             category: '',
             location: '',
+            latitude: '',
+            longitude: '',
             acceptable_radius: 0,
             mygrant_value: 0,
             service_type: '',
@@ -148,6 +150,13 @@ class CreateService extends Component {
 
     handleBooleanChange = (e, { name, value }) => {
         this.setState({ [name]: !this.state[name] });
+    };
+
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
+        });
     };
 
     handleNumberChange = (e, { name, value }) => {
@@ -231,7 +240,7 @@ class CreateService extends Component {
                         value={this.state.location}
                         onChange={this.handleChange}
                     />
-                    <PidgeonMaps />
+                    <PidgeonMaps handleChange={this.handleMapChange} />
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"
