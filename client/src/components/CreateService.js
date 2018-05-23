@@ -5,6 +5,7 @@ import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import PidgeonMaps from './Map';
 
 const urlForData = '/api/services';
 const urlForCategories = '/api/service_categories';
@@ -230,6 +231,7 @@ class CreateService extends Component {
                         value={this.state.location}
                         onChange={this.handleChange}
                     />
+                    <PidgeonMaps />
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"
