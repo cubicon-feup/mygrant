@@ -1231,7 +1231,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             SELECT * FROM creator`;
     }
     // place query
-    db.one(query, {
+    db.oneOrNone(query, {
             service_instance_id,
             candidate_id,
             rating
@@ -1240,6 +1240,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             res.status(200).send(data);
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 

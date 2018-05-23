@@ -15,10 +15,7 @@ class Dashboard extends Component {
         super(props);
         this.state = {
             mygrant_balance: 0,
-            candidates: [],
-            crowdfundings: [],
-            crowdfundingsServices: [],
-            candidates: []
+            crowdfundings: []
         }
 
     }
@@ -83,15 +80,6 @@ class Dashboard extends Component {
     }
 
     render() {
-        let candidates;
-        if(this.state.candidates.length > 0) {
-            candidates = this.state.candidates.map(candidate => {
-                return (
-                    <p>{candidate.requester_name}</p>
-                )
-            })
-        }
-
         let crowdfundings;
         if(this.state.crowdfundings) {
             crowdfundings = this.state.crowdfundings.map(crowdfunding => {

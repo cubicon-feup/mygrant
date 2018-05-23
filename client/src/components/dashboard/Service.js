@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
-import { Container, Button, Card, Image } from 'semantic-ui-react';
+import { Container, Button, Card, Image, Form } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -10,6 +10,7 @@ const urlGetServiceCandidates = serviceId => `/api/services/${serviceId}/offers`
 const urlAcceptCandidate = serviceId => `/api/services/${serviceId}/offers/accept`;
 const urlRejectCandidate = serviceId => `/api/services/${serviceId}/offers/decline`;
 const urlGetServiceInstanceInfo = serviceId => `/api/services/${serviceId}/instance`;
+const urlRateService = serviceId => `/api/services/instance/${serviceId}`;
 
 class Service extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -19,7 +20,8 @@ class Service extends Component {
         this.state = {
             service: this.props.service,
             serviceInstance: null,
-            candidates: []
+            candidates: [],
+            rate: null
         }
     }
     
@@ -59,6 +61,7 @@ class Service extends Component {
                 res.json()
                     .then(data => {
                         this.setState({serviceInstance: data});
+                        console.info(this.state.serviceInstance);
                     })
             }
         })
@@ -107,6 +110,34 @@ class Service extends Component {
         });
     }
 
+    // EVENT HANDLERS
+    // =============================================================
+
+    handleNumberChange = (e, { name, value }) => {
+        var newValue = parseInt(value, 10);
+        this.setState({ [name]: newValue });
+    };
+
+    handleSubmit = e => {
+        const { cookies } = this.props;
+        e.preventDefault();
+        fetch(urlRateService(this.state.service.id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                rating: this.state.rate,
+                crowdfunding_id: this.props.crowdfundingId
+            })
+        }).then(res => {
+            if(res.status === 200) {
+                console.log("returned")
+            }
+        })
+    };
+
     render() {
         let candidates = null, serviceInstance = null;
         if(this.state.candidates.length > 0) {
@@ -129,12 +160,32 @@ class Service extends Component {
                 )
             })
         } else if(this.state.serviceInstance) {
+            const { cookies } = this.props;
+            let rate;
+            if(cookies.get('user_id') != this.state.serviceInstance.partner_id) {   // If the user is the crowdfunding creator.
+                if(this.state.serviceInstance.creator_rating)   // If the user has already rated the partner.
+                    rate = <p>Rated: {this.state.serviceInstance.creator_rating}</p>
+                else rate =
+                    <Form className="mygrant-createform" method="POST" onSubmit={this.handleSubmit}>
+                        <Form.Input
+                            placeholder="Rate"
+                            name="rate"
+                            type="number"
+                            value={this.state.rate}
+                            onChange={this.handleNumberChange}
+                            required
+                        />
+                        <Form.Button id="dark-button" content="Submit" />
+                    </Form>
+            }
+
             serviceInstance =
                 <Card>
                     <Card.Content>
                         <Card.Header>Accepted: <Link to={`/user/${this.state.serviceInstance.partner_id}`}>{this.state.serviceInstance.partner_name}</Link></Card.Header>
                         <Card.Description>
                             <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
+                            {rate}
                         </Card.Description>
                     </Card.Content>
                 </Card>
