@@ -121,7 +121,19 @@ class BlogPost extends Component {
                         <Grid padded >
                             <Grid.Row>
                                 <Grid.Column className={'userImage'} width={2}>
-                                    <Image circular href={`/user/${this.props.user.id}/blog`} src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                    <Link to={`/user/${this.props.user.id}/blog`} >
+                                        {
+                                            this.props.user.pictureUrl
+                                            ? <Image
+                                                size={'tiny'}
+                                                href={`/user/${this.props.user.id}/blog`}
+                                                centered
+                                                avatar
+                                                src={`/api/images/${this.props.user.pictureUrl}`}
+                                            />
+                                            : <Icon name="user circle outline" color={'black'} size={'big'} />
+                                        }
+                                    </Link>
                                 </Grid.Column>
                                 <Grid.Column width={14}>
                                     <Grid>

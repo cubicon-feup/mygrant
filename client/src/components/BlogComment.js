@@ -124,7 +124,11 @@ class BlogComment extends Component {
                                         <Grid.Column width={10}>
                                             <Link to={`/user/${this.props.user.id}/blog`} >
                                                 <Header as={'h4'}>
-                                                    <Image size={'tiny'} centered avatar src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                                    {
+                                                        this.props.user.pictureUrl
+                                                            ? <Image size={'tiny'} centered avatar src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                                            : <Icon name="user circle outline" color={'black'} size={'big'} />
+                                                    }
                                                     {this.props.user.fullName}
                                                 </Header>
                                             </Link>

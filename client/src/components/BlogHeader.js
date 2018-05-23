@@ -9,7 +9,11 @@ class BlogHeader extends Component {
     render() {
         return (
             <div className="blog-header">
-                <Responsive as={Image} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                {
+                    this.props.user.pictureUrl
+                        ? <Responsive as={Image} minWidth={768} centered circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                        : null
+                }
                 <Segment textAlign={'left'}>
                     <Grid padded >
                         <Grid.Row>
@@ -18,9 +22,13 @@ class BlogHeader extends Component {
                                     <Header as={'h1'}>{this.props.user.fullName}</Header>
                                 </Link>
                             </Responsive>
-                            <Responsive as={Grid.Column} maxWidth={768} width={4}>
-                                <Image href={`/user/${this.props.user.id}`} size={'tiny'} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
-                            </Responsive>
+                            {
+                                this.props.user.pictureUrl
+                                    ? <Responsive as={Grid.Column} maxWidth={768} width={4}>
+                                        <Image href={`/user/${this.props.user.id}`} size={'tiny'} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                        </Responsive>
+                                    : null
+                            }
                             <Responsive as={Grid.Column} maxWidth={768} textAlign={'left'} verticalAlign={'bottom'} width={12}>
                                 <Link to={`/user/${this.props.user.id}`} >
                                     <Header as={'h1'}>{this.props.user.fullName}</Header>

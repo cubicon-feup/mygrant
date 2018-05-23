@@ -75,7 +75,7 @@ class Blog extends Component {
                                         user={{
                                             fullName: post.full_name,
                                             id: post.sender_id,
-                                            pictureUrl: post.image_url ? post.image_url : '/users/kwest.jpg'
+                                            pictureUrl: post.image_url
                                         }}
                                     />
                                 );
@@ -126,7 +126,7 @@ class Blog extends Component {
                         country: this.state.blogOwner.country,
                         fullName: this.state.blogOwner.full_name,
                         id: this.state.blogOwner.user_id,
-                        pictureUrl: this.state.blogOwner.picture_url ? this.state.blogOwner.pictureUrl : 'users/kwest.jpg',
+                        pictureUrl: this.state.blogOwner.pictureUrl,
                         postCount: this.state.postCount
                     }} />
                 {

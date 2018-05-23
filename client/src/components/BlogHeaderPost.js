@@ -122,7 +122,13 @@ class BlogHeaderPost extends Component {
                                 <Grid>
                                     <Grid.Row>
                                         <Responsive href={`/user/${this.props.user.id}/blog`} as={Grid.Column} width={2} minWidth={768} >
-                                            <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                            <Link to={`/user/${this.props.user.id}/blog`} >
+                                            {
+                                                this.props.user.pictureUrl
+                                                    ? <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                                    : <Icon name="user circle outline" color={'black'} size={'huge'} />
+                                            }
+                                            </Link>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={14} minWidth={768} >
                                             <Link to={`/user/${this.props.user.id}/blog`} >
@@ -135,7 +141,13 @@ class BlogHeaderPost extends Component {
                                             </Header.Subheader>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={4} maxWidth={768} >
-                                            <Image href={`/user/${this.props.user.id}/blog`} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                            <Link to={`/user/${this.props.user.id}/blog`} >
+                                            {
+                                                this.props.user.pictureUrl
+                                                    ? <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                                    : <Icon name="user circle outline" color={'black'} size={'huge'} />
+                                            }
+                                            </Link>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={12} maxWidth={768} >
                                             <Link to={`/user/${this.props.user.id}/blog`} >

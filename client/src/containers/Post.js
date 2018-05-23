@@ -51,7 +51,7 @@ class Post extends Component {
                         user={{
                             fullName: this.state.post.full_name,
                             id: this.state.post.sender_id,
-                            pictureUrl: this.state.post.image_url ? this.state.post.image_url : '/users/kwest.jpg'
+                            pictureUrl: this.state.post.image_url
                         }}
                     />;
 
@@ -82,7 +82,7 @@ class Post extends Component {
                                 user={{
                                     fullName: comment.full_name,
                                     id: comment.sender_id,
-                                    pictureUrl: comment.image_url ? comment.image_url : '/users/kwest.jpg'
+                                    pictureUrl: comment.image_url
                                 }}
                             />
                         ].concat(commentElements);
