@@ -121,11 +121,11 @@ class BlogHeaderPost extends Component {
                             <Grid.Column width={16}>
                                 <Grid>
                                     <Grid.Row>
-                                        <Responsive href={`/user/${this.props.user.id}`} as={Grid.Column} width={2} minWidth={768} >
+                                        <Responsive href={`/user/${this.props.user.id}/blog`} as={Grid.Column} width={2} minWidth={768} >
                                             <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={14} minWidth={768} >
-                                            <Link to={`/user/${this.props.user.id}`} >
+                                            <Link to={`/user/${this.props.user.id}/blog`} >
                                                 <Header as={'h3'}>
                                                     {this.props.user.fullName}
                                                 </Header>
@@ -135,10 +135,10 @@ class BlogHeaderPost extends Component {
                                             </Header.Subheader>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={4} maxWidth={768} >
-                                            <Image href={`/user/${this.props.user.id}`} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                            <Image href={`/user/${this.props.user.id}/blog`} circular src={`/api/images/${this.props.user.pictureUrl}`}/>
                                         </Responsive>
                                         <Responsive as={Grid.Column} width={12} maxWidth={768} >
-                                            <Link to={`/user/${this.props.user.id}`} >
+                                            <Link to={`/user/${this.props.user.id}/blog`} >
                                                 <Header as={'h3'}>
                                                     {this.props.user.fullName}
                                                 </Header>

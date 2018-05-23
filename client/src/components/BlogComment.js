@@ -122,7 +122,7 @@ class BlogComment extends Component {
                                 <Grid>
                                     <Grid.Row>
                                         <Grid.Column width={10}>
-                                            <Link to={`/user/${this.props.user.id}`} >
+                                            <Link to={`/user/${this.props.user.id}/blog`} >
                                                 <Header as={'h4'}>
                                                     <Image size={'tiny'} centered avatar src={`/api/images/${this.props.user.pictureUrl}`}/>
                                                     {this.props.user.fullName}

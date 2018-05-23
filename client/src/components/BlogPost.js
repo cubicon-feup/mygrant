@@ -121,15 +121,17 @@ class BlogPost extends Component {
                         <Grid padded >
                             <Grid.Row>
                                 <Grid.Column className={'userImage'} width={2}>
-                                    <Image circular src={`/api/images/${this.props.user.pictureUrl}`}/>
+                                    <Image circular href={`/user/${this.props.user.id}/blog`} src={`/api/images/${this.props.user.pictureUrl}`}/>
                                 </Grid.Column>
                                 <Grid.Column width={14}>
                                     <Grid>
                                         <Grid.Row>
                                             <Grid.Column width={10}>
-                                                <Header as={'h4'}>
-                                                    {this.props.user.fullName}
-                                                </Header>
+                                                <Link to={`/user/${this.props.user.id}/blog`} >
+                                                    <Header as={'h4'}>
+                                                        {this.props.user.fullName}
+                                                    </Header>
+                                                </Link>
                                                 <Header.Subheader verticalAlign={'top'}>
                                                     {moment(this.props.postInfo.datePosted).fromNow()}
                                                 </Header.Subheader>
