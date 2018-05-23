@@ -263,5 +263,43 @@ router.post('/:id/posts', authenticate, function(req, res) {
     }
 });
 
+/**
+ * @api {get} /users/getfeed get the posts made by this user and their friends
+ * @apiName getFeed
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ * */
+router.get('/:id/getfeed', authenticate, function(req, res) {
+    const offset = req.query.page * 20;
+
+    const query = `
+        SELECT DISTINCT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes,
+        date_posted, full_name, image_url, coalesce(liked, 0) as liked, sender_id
+        FROM
+            (
+                SELECT user1_id as user_id from friend where user2_id = $(thisUser) 
+                UNION SELECT user2_id as user_id FROM friend WHERE user1_id = $(thisUser)
+                UNION SELECT $(thisUser) as user_id
+            ) friends
+            JOIN (SELECT id, sender_id, in_reply_to, message, date_posted FROM post) a on (user_id = sender_id or user_id = $(thisUser))
+            LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
+            LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
+            JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
+            LEFT JOIN (SELECT COUNT(*) AS liked, post_id FROM like_post WHERE user_id = $(thisUser) group by post_id) e on a.id = e.post_id
+        ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset);`;
+
+    db.manyOrNone(query,
+        {
+            offset,
+            thisUser: req.user.id
+        })
+        .then(posts => {
+            res.status(200).json({ posts });
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
 
 module.exports = router;

@@ -44,7 +44,7 @@ ReactDom.render(
                 />
                 <ProtectedRoute exact path="/user/:id" component={User} />
                 <ProtectedRoute exact path="/user/:id/blog" component={Blog} />
-                <ProtectedRoute exact path="/user/:id/feed" component={Feed} />
+                <ProtectedRoute exact path="/feed" component={Feed} />
                 <ProtectedRoute exact path="/post/:id" component={Post} />
                 <Route exact path="/service/:id" component={Service} />
                 <ProtectedRoute exact path="/inbox/" component={Inbox} />
