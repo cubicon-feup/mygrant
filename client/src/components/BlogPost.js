@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Dropdown, Grid, Header, Icon, Image, Segment, TextArea } from 'semantic-ui-react';
+import { Container, Dropdown, Grid, Header, Icon, Image, Segment } from 'semantic-ui-react';
 import { instanceOf, PropTypes } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import NewPost from '../components/NewPost';
 import moment from 'moment';
 
 class BlogPost extends Component {
@@ -17,8 +18,10 @@ class BlogPost extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            editing: false,
             liked: this.props.liked,
-            nLikes: parseInt(this.props.postInfo.likes, 10)
+            nLikes: parseInt(this.props.postInfo.likes, 10),
+            postContent: this.props.postInfo.content
         };
     }
 
@@ -54,18 +57,50 @@ class BlogPost extends Component {
     }
 
     editPost() {
-        console.log("Edit!!!!!");
+        this.setState({ editing: true });
+    }
+
+    cancelEditing() {
+        this.setState({ editing: false });
+    }
+
+    completeEditing(content) {
+        if (content === '') {
+            return;
+        }
+
+        const { cookies } = this.props;
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = { content };
+
+        // API request to edit the content of the post
+        fetch(`/api/posts/${this.props.postInfo.id}/edit`, {
+            body: JSON.stringify(data),
+            headers,
+            method: 'POST'
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    this.setState({
+                        editing: false,
+                        postContent: content
+                    });
+                }
+            });
     }
 
     deletePost() {
-        console.log("Delete!!!!!");
     }
 
     render() {
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
 
-        return (
+        const postElement =
             <div>
                 <Segment >
                     <Container className={`blog-post ${this.props.linked ? 'linked' : ''}`} >
@@ -90,7 +125,7 @@ class BlogPost extends Component {
                                             <Grid.Column width={16} >
                                                 {
                                                     this.props.linked
-                                                        ? <Link to={`/post/${this.props.postInfo.id}`}>{this.props.postInfo.content}</Link>
+                                                        ? <Link to={`/post/${this.props.postInfo.id}`}>{this.state.postContent}</Link>
                                                         : this.props.postInfo.content
                                                 }
                                             </Grid.Column>
@@ -130,8 +165,11 @@ class BlogPost extends Component {
                         </Grid>
                     </Container>
                 </Segment>
-            </div>
-        );
+            </div>;
+
+        const newPost = <NewPost handleClick={this.completeEditing.bind(this)} />;
+
+        return this.state.editing ? newPost : postElement;
     }
 }
 

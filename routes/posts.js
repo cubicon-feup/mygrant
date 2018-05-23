@@ -137,7 +137,23 @@ router.delete('/:id/like', authenticate, function(req, res) {
         userId
     })
         .then(() => res.sendStatus(204))
-        .catch(error => res.sendStatus(500));
+        .catch(() => res.sendStatus(500));
+});
+
+router.post('/:id/edit', authenticate, function(req, res) {
+
+    const message = req.body.content;
+    const postId = req.params.id;
+    console.log(req);
+
+    const query = 'UPDATE post SET message=$(message) WHERE id=$(postId)';
+
+    db.none(query, {
+        message,
+        postId
+    })
+        .then(() => res.sendStatus(200))
+        .catch(error => {console.log(error);res.sendStatus(500)});
 });
 
 module.exports = router;
