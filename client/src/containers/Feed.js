@@ -53,7 +53,7 @@ class Feed extends Component {
                                         user={{
                                             fullName: post.full_name,
                                             id: post.sender_id,
-                                            pictureUrl: post.image_url ? post.image_url : '/users/kwest.jpg'
+                                            pictureUrl: post.image_url
                                         }}
                                     />
                                 );
