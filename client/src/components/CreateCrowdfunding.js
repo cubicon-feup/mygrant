@@ -4,6 +4,7 @@ import { Container, Header, Form, Dropdown } from "semantic-ui-react";
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import PidgeonMaps from './Map';
 
 const urlForCreate = '/api/crowdfundings';
 const urlGetCategories = '/api/service_categories';
@@ -22,6 +23,8 @@ class CreateCrowdfunding extends Component {
             description: "",
             category: "",
             location: "",
+            latitude: "",
+            longitude: "",
             mygrant_target: "",
             categories: []
         };
@@ -30,7 +33,7 @@ class CreateCrowdfunding extends Component {
     componentDidMount() {
         this.getCategories();
     }
-    
+
     getCategories() {
         fetch(urlGetCategories, {
             method: 'GET'
@@ -55,6 +58,13 @@ class CreateCrowdfunding extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
+        });
+    };
+
     handleSubmit = () => {
         const { cookies } = this.props;
         fetch(urlForCreate, {
@@ -68,6 +78,8 @@ class CreateCrowdfunding extends Component {
                 description: this.state.description,
                 category: this.state.category,
                 location: this.state.location,
+                latitude: this.state.latitude,
+                longitude: this.state.longitude,
                 time_interval: crowdfundingCollectingWeeks,
                 mygrant_target: this.state.mygrant_target,
             })
@@ -124,6 +136,7 @@ class CreateCrowdfunding extends Component {
                             value={location}
                             onChange={this.handleChange}
                         />
+                        <PidgeonMaps handleChange={this.handleMapChange} />
                         <Form.Input
                             placeholder="MyGrant Target"
                             name="mygrant_target"
