@@ -16,25 +16,27 @@ class BlogPost extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { liked: this.props.liked };
+        this.state = {
+            liked: this.props.liked,
+            nLikes: parseInt(this.props.postInfo.likes, 10)
+        };
     }
 
     handleLike() {
-
         const { cookies } = this.props;
         const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
-        console.log('Like');
 
         // Make request to the api to add a like, and toggle like in state
         if (this.state.liked) {
-        // Make request to the api to add a like, and toggle like in state
             fetch(`/api/posts/${this.props.postInfo.id}/like`, {
                 headers,
                 method: 'DELETE'
             })
                 .then(res => {
-                    this.setState({ liked: res.status === 204 })
-                    console.log(this.state)
+                    this.setState({
+                        liked: !res.status === 204,
+                        nLikes: this.state.nLikes - 1
+                    });
                 });
         } else {
             fetch(`/api/posts/${this.props.postInfo.id}/like`, {
@@ -42,8 +44,10 @@ class BlogPost extends Component {
                 method: 'POST'
             })
                 .then(res => {
-                    this.setState({ liked: res.status === 201 })
-                    console.log(this.state)
+                    this.setState({
+                        liked: res.status === 201,
+                        nLikes: this.state.nLikes + 1
+                    });
                 });
         }
 
@@ -92,7 +96,7 @@ class BlogPost extends Component {
                                                                 ? <Icon className={'post-likes-icon'} color={'red'} name={'like'}/>
                                                                 : <Icon className={'post-likes-icon'} name={'like outline'}/>
                                                             }
-                                                            {this.props.postInfo.likes}
+                                                            {this.state.nLikes}
                                                         </span>
                                                     </Grid.Column>
                                                     <Grid.Column width={2}>
