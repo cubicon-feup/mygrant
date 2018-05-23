@@ -93,24 +93,25 @@ class SearchCrowdfunding extends Component {
             // "catch" the error
             this.setState({ requestFailed: true });
         });
+        this.paginationState = this.state;
     }
 
     handlePageChange = (event, object) => {
         var url = urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10) + '?';
-        if(this.state.order){
-            url += '&sorting_method=' + this.state.order;
+        if(this.paginationState.order){
+            url += '&sorting_method=' + this.paginationState.order;
         }
-        if(this.state.category){
-            url += '&category=' + this.state.category;
+        if(this.paginationState.category){
+            url += '&category=' + this.paginationState.category;
         }
-        if(this.state.location){
-            url += '&location=' + this.state.location;
+        if(this.paginationState.location){
+            url += '&location=' + this.paginationState.location;
         }
-        if(this.state.status){
-            //url += '&status=' + this.state.status;
+        if(this.paginationState.status){
+            //url += '&status=' + this.paginationState.status;
         }
-        if(this.state.search_text){
-            url += '&keywords=' + this.state.search_text;
+        if(this.paginationState.search_text){
+            url += '&keywords=' + this.paginationState.search_text;
         }
         fetch(url)
             .then(response => {
@@ -133,6 +134,7 @@ class SearchCrowdfunding extends Component {
         super(props);
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
         this.state = {};
+        this.paginationState = {};
         this.table_body = {};
         this.categories = [];
         this.setState({category:""});

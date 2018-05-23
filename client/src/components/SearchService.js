@@ -9,12 +9,64 @@ import ListService from './ListService';
 
 const urlForServices = 'http://localhost:3001/api/services/?items=10';
 const urlForCategories = 'http://localhost:3001/api/service_categories';
+const urlForTotalPages = 'http://localhost:3001/api/services/search-count/?items=10';
 
 class SearchService extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies),
         location: ReactRouterPropTypes.location
     };
+
+    getTotalPages() {
+        const { cookies } = this.props;
+        var url = urlForTotalPages;
+        if(this.state) {
+            if (this.state.search_text && this.state.search_text != "") {
+                url += '&q=' + this.state.search_text;
+            }
+            if (this.state.category) {
+                url += '&cat=' + this.state.category;
+            }
+            if (this.state.type && this.state.type != "both") {
+                url += '&type=' + this.state.type;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmin=' + this.state.mygmin;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmax=' + this.state.mygmax;
+            }
+            if (this.state.datemin) {
+                url += '&datemin=' + this.state.datemin;
+            }
+            if (this.state.datemax) {
+                url += '&datemax=' + this.state.datemax;
+            }
+            if (this.state.order) {
+                url += '&order=' + this.state.order;
+            }
+        }
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+                return response;
+            })
+            .then(result => result.json())
+            .then(result => {
+                this.setState({ total_pages : result.pages });
+            }, () => {
+                // "catch" the error
+                this.setState({ requestFailed: true });
+            });
+    }
 
     componentDidMount() {
         const { cookies } = this.props;
@@ -34,12 +86,12 @@ class SearchService extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                console.log(result);
                 this.setState({ crowdfundings: result });
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });
+        this.getTotalPages();
         fetch(urlForCategories)
             .then(response => {
                 if (!response.ok) {
@@ -115,22 +167,37 @@ class SearchService extends Component {
                 // "catch" the error
                 this.setState({ requestFailed: true });
             });
+
+        this.paginationState = this.state;
+        this.getTotalPages();
     }
 
     handlePageChange = (event, object) => {
         const { cookies } = this.props;
         var url = urlForServices + "&page=" + object.activePage;
-        if(this.state.order){
-            //url += '&sorting_method=' + this.state.order;
+        if(this.paginationState.search_text != ""){
+            url += '&q=' + this.paginationState.search_text;
         }
-        if(this.state.category){
-            url += '&cat=' + this.state.category;
+        if(this.paginationState.category){
+            url += '&cat=' + this.paginationState.category;
         }
-        if(this.state.location){
-            //url += '&location=' + this.state.location;
+        if(this.paginationState.type && this.paginationState.type != "both"){
+            url += '&type=' + this.paginationState.type;
         }
-        if(this.state.status){
-            //url += '&status=' + this.state.status;
+        if(this.paginationState.mygmin){
+            url += '&mygmin=' + this.paginationState.mygmin;
+        }
+        if(this.paginationState.mygmin){
+            url += '&mygmax=' + this.paginationState.mygmax;
+        }
+        if(this.paginationState.datemin){
+            url += '&datemin=' + this.paginationState.datemin;
+        }
+        if(this.paginationState.datemax){
+            url += '&datemax=' + this.paginationState.datemax;
+        }
+        if(this.paginationState.order){
+            url += '&order=' + this.paginationState.order;
         }
         fetch(url, {
             method: 'GET',
@@ -158,6 +225,7 @@ class SearchService extends Component {
         super(props);
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
         this.state = {category:"", search_text:""};
+        this.paginationState={};
         this.table_body = {};
         this.categories = [];
         this.handleChange = this.handleChange.bind(this);
@@ -239,7 +307,8 @@ class SearchService extends Component {
                         <Form.Select placeholder="Order" name="order" onChange={this.handleChange} options={[
                             {text:'Beginning date', value:'date_created'},
                             {text:'Mygrant value', value:'mygrant_value'},
-                            {text:'Name', value:'title'},
+                            {text:'Distance', value:'distance'},
+                            {text:'Name', value:'title'}
                         ]}/>
                     </Form.Group>
                     <Form.Button content="search"/>
@@ -258,7 +327,7 @@ class SearchService extends Component {
                         prevItem={{ content: <Icon name='angle left' />, icon: true }}
                         nextItem={{ content: <Icon name='angle right' />, icon: true }}
                         onPageChange={this.handlePageChange}
-                        totalPages={10}
+                        totalPages={this.state.total_pages}
                     />
                 </div>
             </Container>
