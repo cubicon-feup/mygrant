@@ -181,7 +181,7 @@ class BlogPost extends Component {
                 </Segment>
             </div>;
 
-        const newPost = <NewPost handleClick={this.completeEditing.bind(this)} />;
+        const newPost = <NewPost onCancel={this.cancelEditing.bind(this)} handleClick={this.completeEditing.bind(this)} />;
 
         return this.state.editing ? newPost : postElement;
     }

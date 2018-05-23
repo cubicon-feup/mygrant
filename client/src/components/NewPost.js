@@ -3,7 +3,10 @@ import { instanceOf } from 'prop-types';
 import { Button, Form, Segment, TextArea } from 'semantic-ui-react';
 
 class NewPost extends Component {
-    static propTypes = { handleClick: instanceOf(Function).isRequired };
+    static propTypes = {
+        handleClick: instanceOf(Function).isRequired,
+        onCancel: instanceOf(Function)
+    };
 
     constructor(props) {
         super(props);
@@ -25,6 +28,11 @@ class NewPost extends Component {
                     <TextArea onChange={this.updateContent.bind(this)} placeholder={'Write something'}/>
                 </Form>
                 <Button circular size={'small'} content={'send'.toUpperCase()} onClick={this.handleClick.bind(this)} ></Button>
+                {
+                    this.props.onCancel
+                    ? <Button circular size={'small'} content={'CANCEL'.toUpperCase()} onClick={this.props.onCancel.bind(this)} ></Button>
+                    : null
+                }
             </Segment>
         );
     }
