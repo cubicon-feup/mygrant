@@ -10,7 +10,7 @@ const authenticate = expressJwt({ secret: appSecret });
 router.get('/:id', function(req, res) {
 
     const query = `
-        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
+        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url,
         FROM users
         JOIN country
         ON country.id=users.country_id
@@ -31,7 +31,7 @@ router.get('/:id', function(req, res) {
  * @apiGroup User
  * @apiPermission authenticated user
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) OK
  *
  */
 router.get('/', authenticate, function(req, res) {
@@ -165,14 +165,16 @@ router.delete('/block_user', function(req, res) {
 // Set location (Country, region, city) info
 router.post('/set_location', authenticate, function(req, res) {
     const query =
-        `UPDATE users SET country_id = $(country), city = $(city), region = $(region) 
+        `UPDATE users SET country_id = $(country), city = $(city), region = $(region), latitude = $(latitude), longitude = $(longitude)
         WHERE id = $(id)`;
 
     db.none(query, {
         city: req.body.city,
         country: req.body.country,
         id: req.user.id,
-        region: req.body.region
+        region: req.body.region,
+        latitude: req.body.hasOwnProperty('latitude') ? req.body.latitude : null,
+        longitude: req.body.hasOwnProperty('longitude') ? req.body.longitude : null,
     })
         .then(() => {
             res.sendStatus(200);

@@ -11,7 +11,6 @@ import App from './containers/App';
 import Login from './containers/Login';
 import SignUp from './containers/Signup';
 import SignUpInfo from './containers/SignupInfo';
-import CrowdfundingOffers from './containers/CrowdfundingOffers';
 import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
@@ -25,6 +24,8 @@ import Search from './containers/SearchPage';
 import CreateCrowdfunding from './components/CreateCrowdfunding';
 import Crowdfunding from './components/Crowdfunding';
 import Crowdfundings from './components/Crowdfundings';
+import CreateServiceCrowdfunding from './components/CreateServiceCrowdfunding';
+import Dashboard from './containers/Dashboard';
 import { Responsive } from 'semantic-ui-react';
 import MygrantHeader from './components/MygrantHeader';
 import { MygrantFooter, MygrantNav } from './components/Common';
@@ -52,9 +53,10 @@ ReactDom.render(
                 <Route exact path="/tableservices" component={TableServices} />
                 <Route exact path="/search" component={Search} />
                 <Route exact path="/crowdfundings" component={Crowdfundings} />
-                <Route exact path="/crowdfunding/:id" component={Crowdfunding} />
+                <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id" component={Crowdfunding} />
                 <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
-                <Route exact path="/crowdfunding/:crowdfunding_id/offers" component={CrowdfundingOffers} />
+                <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id/createservice" component={CreateServiceCrowdfunding} />
+                <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
             </CookiesProvider>
         </div>

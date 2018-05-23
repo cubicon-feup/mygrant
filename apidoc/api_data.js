@@ -1,8 +1,777 @@
 define({ "api": [
   {
+    "type": "put",
+    "url": "/crowdfundings/:crowdfunding_id/comments",
+    "title": "Create comment",
+    "name": "CreateComment",
+    "group": "Comment",
+    "permission": [
+      {
+        "name": "CommentStandard creator"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that the comment belongs.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Message to serve as comment.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>CommentStandard id that this new comment is replying to.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "optional": false,
+            "field": "Created",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get pages number.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "put",
+    "url": "/crowdfundings/:comment_id",
+    "title": "Delete comment",
+    "name": "DeleteComment",
+    "group": "Comment",
+    "permission": [
+      {
+        "name": "CommentStandard creator"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_id",
+            "description": "<p>CommentStandard id to update.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get pages number.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/comments",
+    "title": "Get crowdfunding comments",
+    "name": "GetCrowdfundingComments",
+    "group": "Comment",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that the comments belong.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get pages number.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "put",
+    "url": "/crowdfundings/:comment_id",
+    "title": "Update comment",
+    "name": "UpdateComment",
+    "group": "Comment",
+    "permission": [
+      {
+        "name": "CommentStandard creator"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_id",
+            "description": "<p>CommentStandard id to update.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Updated message to serve as comment.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get pages number.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/:crowdfunding_id/:service_requested_id",
+    "title": "Assigns a candidate to a requested service.",
+    "name": "AssignServiceRequestCandidate",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id associated with the service requests.</p>"
+          },
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "service_requested_id",
+            "description": "<p>Service request id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "Created",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/",
+    "title": "Create crowdfunding",
+    "name": "CreateCrowdfunding",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": "<p>Crowdfunding title.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": "<p>Crowdfunding description.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "category",
+            "description": "<p>Crowdfunding category.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "location",
+            "description": "<p>Location where the crowdfunding is going to take place.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_target",
+            "description": "<p>Number of mygrants needed for the crowdfunding to success.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "time_interval",
+            "description": "<p>Number of week to collect donators.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Sucessfully created a crowdfunding project.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid crowdfunding data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't create a crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/:crowdfunding_id/donations",
+    "title": "Create donation.",
+    "name": "CreateDonation",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that gets the donation.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "amount",
+            "description": "<p>Number of mygrants to donate.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully donated to crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid donation data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't donate.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "put",
+    "url": "/crowdfundings/:crowdfunding_id/rating",
+    "title": "Create rate",
+    "name": "CreateRate",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "rating",
+            "description": "<p>Donator user rating.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully rated the crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid rate data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get donations.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/:crowdfunding_id/services",
+    "title": "Create service accorded",
+    "name": "CreateServiceAccorded",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that the service is going to be applied to.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "service_id",
+            "description": "<p>Service id that is going to be applied.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully agreed with a service.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid service accorded data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't save the agreed service.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/:crowdfunding_id/services_offers",
+    "title": "Create service offer.",
+    "name": "CreateServiceOffer",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that the service is being offered.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "service_id",
+            "description": "<p>Service id to offer.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "Integer",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully offered a service to the crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid service offer data.</p>"
+          }
+        ],
+        "Error 403": [
+          {
+            "group": "Error 403",
+            "optional": false,
+            "field": "Forbidden",
+            "description": "<p>You do not have permission to offer the specified service.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't offer service.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "post",
+    "url": "/crowdfundings/:crowdfunding_id/services_requested",
+    "title": "Create service request",
+    "name": "CreateServiceRequest",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id associated with the service request.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "title",
+            "description": "<p>Request service title.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "description",
+            "description": "<p>Request service description.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "category",
+            "description": "<p>Request service category.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "location",
+            "description": "<p>Location for the service to happen.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_value",
+            "description": "<p>Mygrants amount to transfer.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully created a new service request for the crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid service request data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't create a service request.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
     "type": "delete",
     "url": "/crowdfundings/:crowdfunding_id",
-    "title": "Delete crowdfunding.",
+    "title": "Delete crowdfunding",
     "name": "DeleteCrowdfunding",
     "group": "Crowdfunding",
     "permission": [
@@ -43,7 +812,69 @@ define({ "api": [
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Could't update the crowdfunding project.</p>"
+            "description": "<p>Could't delete the crowdfunding project.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "delete",
+    "url": "/crowdfundings/:crowdfunding_id/services/requested",
+    "title": "Delete service accorded",
+    "name": "DeleteServiceAccorded",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "service_id",
+            "description": "<p>Service id to remove.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully deleted the service instance.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't delete the accorded service.'</p>"
           }
         ]
       }
@@ -55,7 +886,7 @@ define({ "api": [
   {
     "type": "delete",
     "url": "/crowdfundings/:crowdfunding_id/services_offers",
-    "title": "Delete crowdfunding service offer.",
+    "title": "Delete service offer.",
     "name": "DeleteServiceOffer",
     "group": "Crowdfunding",
     "permission": [
@@ -125,7 +956,7 @@ define({ "api": [
   {
     "type": "delete",
     "url": "/crowdfundings/:crowdfunding_id/services_requested",
-    "title": "Delete a service request.",
+    "title": "Delete service request",
     "name": "DeleteServiceRequest",
     "group": "Crowdfunding",
     "permission": [
@@ -193,179 +1024,13 @@ define({ "api": [
     "groupTitle": "Crowdfunding"
   },
   {
-    "type": "post",
-    "url": "/crowdfundings/:crowdfunding_id/donations",
-    "title": "Donate.",
-    "name": "Donate",
-    "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id.</p>"
-          }
-        ],
-        "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "donator_id",
-            "description": "<p>Donator user id.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "amount",
-            "description": "<p>Number of mygrant to donate.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 201": [
-          {
-            "group": "Success 201",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Successfully donated to crowdfunding.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid donation data.</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't donate.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
     "type": "get",
-    "url": "/crowdfundings/:crowdfunding_id/services_offers",
-    "title": "Get all crowdfunding service offers.",
-    "name": "GetAllServiceOffer",
+    "url": "/crowdfundings/",
+    "title": "Get all crowdfundings",
+    "name": "GetAllCrowdfundings",
     "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id that the services are offered.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "service_id",
-            "description": "<p>Offered service id.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "service_title",
-            "description": "<p>Offered service title.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "service_category",
-            "description": "<p>Offered service category.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "service_type",
-            "description": "<p>Offered service type.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't get service offers.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
-    "type": "get",
-    "url": "/crowdfundings/:crowdfunding_id/services_requested",
-    "title": "Get all service requests.",
-    "name": "GetAllServiceRequests",
-    "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id associated with the service requests.</p>"
-          }
-        ]
-      }
+    "deprecated": {
+      "content": "use now (#Crowdfunding:SearchCrowdfunding)."
     },
     "success": {
       "fields": {
@@ -375,21 +1040,49 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "title",
-            "description": "<p>Service request title.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_value",
-            "description": "<p>Mygrants amount to transfer.</p>"
+            "description": "<p>Crowdfunding title.</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "category",
-            "description": "<p>Service request category.</p>"
+            "description": "<p>Crowdfunding category.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "location",
+            "description": "<p>Location where the crowdfunding is going to take place.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_target",
+            "description": "<p>Number of mygrants needed for the crowdfunding to success.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Current crowdfunding status.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "creator_name",
+            "description": "<p>Creator user name.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "creator_id",
+            "description": "<p>Creator user id.</p>"
           }
         ]
       }
@@ -401,7 +1094,7 @@ define({ "api": [
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get service requests.</p>"
+            "description": "<p>Couldn't get crowdfunding projects.</p>"
           }
         ]
       }
@@ -413,14 +1106,9 @@ define({ "api": [
   {
     "type": "get",
     "url": "/crowdfundings/:crowdfunding_id",
-    "title": "Get crowdfunding project.",
+    "title": "Get crowdfunding",
     "name": "GetCrowdfunding",
     "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -531,7 +1219,7 @@ define({ "api": [
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Could't get the crowdfunding.</p>"
+            "description": "<p>Could't get the crowdfunding project.</p>"
           }
         ]
       }
@@ -543,14 +1231,9 @@ define({ "api": [
   {
     "type": "get",
     "url": "/crowdfundings/:crowdfunding_id/rating",
-    "title": "Get crowdfunding average rating.",
+    "title": "Get crowdfunding average rating",
     "name": "GetCrowdfundingAverageRating",
     "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -584,89 +1267,7 @@ define({ "api": [
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Could't update the crowdfunding project.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
-    "type": "get",
-    "url": "/crowdfundings/",
-    "title": "Get all crowdfundings.",
-    "name": "GetCrowdfundings",
-    "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "title",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "category",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "location",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_target",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "status",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "creator_name",
-            "description": "<p>Crowdfunding average rating.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "creator_id",
-            "description": "<p>Crowdfunding average rating.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't get crowdfundings.</p>"
+            "description": "<p>Couldn't get the rating.</p>"
           }
         ]
       }
@@ -743,16 +1344,11 @@ define({ "api": [
     "groupTitle": "Crowdfunding"
   },
   {
-    "type": "post",
-    "url": "/crowdfundings/:crowdfunding_id/services_offers",
-    "title": "Offer service to crowdfunding.",
-    "name": "OfferService",
+    "type": "get",
+    "url": "/crowdfundings/filter/:from-:to/pages_number",
+    "title": "Get pages number",
+    "name": "GetPagesNumber",
     "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
     "parameter": {
       "fields": {
         "RequestParam": [
@@ -760,30 +1356,28 @@ define({ "api": [
             "group": "RequestParam",
             "type": "Integer",
             "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id that is offered the service.</p>"
-          }
-        ],
-        "RequestBody": [
+            "field": "from",
+            "description": "<p>Crowdfunding number from returned.</p>"
+          },
           {
-            "group": "RequestBody",
+            "group": "RequestParam",
             "type": "Integer",
             "optional": false,
-            "field": "service_id",
-            "description": "<p>Service id to offer.</p>"
+            "field": "to",
+            "description": "<p>Crowdfunding number to returned.</p>"
           }
         ]
       }
     },
     "success": {
       "fields": {
-        "Success 201": [
+        "Success 200": [
           {
-            "group": "Success 201",
+            "group": "Success 200",
             "type": "Integer",
             "optional": false,
-            "field": "message",
-            "description": "<p>Successfully offered a service to the crowdfunding.</p>"
+            "field": "pages_number",
+            "description": "<p>Number of crowdfunding pages when using :from and :to.</p>"
           }
         ]
       }
@@ -795,7 +1389,7 @@ define({ "api": [
             "group": "Error 400",
             "optional": false,
             "field": "BadRequest",
-            "description": "<p>Invalid service offer data.</p>"
+            "description": "<p>Invalid pages number data.</p>"
           }
         ],
         "Error 500": [
@@ -803,7 +1397,7 @@ define({ "api": [
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't offer service.</p>"
+            "description": "<p>Couldn't get pages number.</p>"
           }
         ]
       }
@@ -813,113 +1407,10 @@ define({ "api": [
     "groupTitle": "Crowdfunding"
   },
   {
-    "type": "post",
-    "url": "/crowdfundings/",
-    "title": "Creates a new crowdfunding project.",
-    "name": "PostCrowdfunding",
-    "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "title",
-            "description": "<p>Crowdfunding title.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "description",
-            "description": "<p>Crowdfunding description.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "category",
-            "description": "<p>Crowdfunding category.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "location",
-            "description": "<p>Location where the crowdfunding is going to take place.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_target",
-            "description": "<p>Number of mygrants needed for the crowdfunding to success.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "time_interval",
-            "description": "<p>Number of week to collect donators.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "creator_id",
-            "description": "<p>Creator user id.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 201": [
-          {
-            "group": "Success 201",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Sucessfully created a crowdfunding project.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid crowdfunding data.</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't create a crowdfunding.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
-    "type": "put",
-    "url": "/crowdfundings/:crowdfunding_id/rating",
-    "title": "Rate.",
-    "name": "Rate",
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/services/offered",
+    "title": "Get services accorded offered",
+    "name": "GetSearvicesAccordedOffered",
     "group": "Crowdfunding",
     "permission": [
       {
@@ -936,21 +1427,93 @@ define({ "api": [
             "field": "crowdfunding_id",
             "description": "<p>Crowdfunding id.</p>"
           }
-        ],
-        "RequestBody": [
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
           {
-            "group": "RequestBody",
+            "group": "Success 200",
             "type": "Integer",
             "optional": false,
-            "field": "rating",
-            "description": "<p>Donator user rating.</p>"
+            "field": "service_id",
+            "description": "<p>Accorded service id.</p>"
           },
           {
-            "group": "RequestBody",
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_agreed",
+            "description": "<p>Data the service was agreed users.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_scheduled",
+            "description": "<p>Schedule data for the service.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_title",
+            "description": "<p>Service title.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_description",
+            "description": "<p>Service description.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "creator_name",
+            "description": "<p>Service creator name.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get the services accorded offered.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/services/requested",
+    "title": "Get services accorded requested",
+    "name": "GetSearvicesAccordedRequested",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
             "type": "Integer",
             "optional": false,
-            "field": "donator_id",
-            "description": "<p>Donator user id.</p>"
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id.</p>"
           }
         ]
       }
@@ -962,28 +1525,196 @@ define({ "api": [
             "group": "Success 200",
             "type": "Integer",
             "optional": false,
-            "field": "message",
-            "description": "<p>Successfully rated the crowdfunding.</p>"
+            "field": "service_id",
+            "description": "<p>Accorded service id.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_agreed",
+            "description": "<p>Data the service was agreed users.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_scheduled",
+            "description": "<p>Schedule data for the service.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_title",
+            "description": "<p>Service title.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_description",
+            "description": "<p>Service description.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "creator_name",
+            "description": "<p>Service provider name.</p>"
           }
         ]
       }
     },
     "error": {
       "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid rate data.</p>"
-          }
-        ],
         "Error 500": [
           {
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get donations.</p>"
+            "description": "<p>Couldn't get the services accorded requested.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/services_offers",
+    "title": "Get crowdfunding service offers.",
+    "name": "GetServiceOffers",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id that the services are offered.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "service_id",
+            "description": "<p>Offered service id.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_title",
+            "description": "<p>Offered service title.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_category",
+            "description": "<p>Offered service category.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "service_type",
+            "description": "<p>Offered service type.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get service offers.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/services_requested",
+    "title": "Get service requests",
+    "name": "GetServiceRequests",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding id associated with the service requests.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": "<p>Service request title.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_value",
+            "description": "<p>Mygrants amount to transfer.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "category",
+            "description": "<p>Service request category.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get service requests.</p>"
           }
         ]
       }
@@ -1167,107 +1898,9 @@ define({ "api": [
     "groupTitle": "Crowdfunding"
   },
   {
-    "type": "post",
-    "url": "/crowdfundings/:crowdfunding_id/services_requested",
-    "title": "Create service request.",
-    "name": "ServiceRequest",
-    "group": "Crowdfunding",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id associated with the service request.</p>"
-          }
-        ],
-        "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "title",
-            "description": "<p>Request service title.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "description",
-            "description": "<p>Request service description.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "category",
-            "description": "<p>Request service category.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "location",
-            "description": "<p>Location for the service to happen.</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_value",
-            "description": "<p>Mygrants amount to transfer.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 201": [
-          {
-            "group": "Success 201",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Successfully created a new service request for the crowdfunding.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid service request data.</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't create a service request.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
     "type": "put",
     "url": "/crowdfundings/:crowdfunding_id",
-    "title": "Update crowdfunding.",
+    "title": "Update crowdfunding",
     "name": "UpdateCrowdfunding",
     "group": "Crowdfunding",
     "permission": [
@@ -1343,6 +1976,74 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/images/:type/:image",
+    "title": "Get image",
+    "name": "GetImage",
+    "group": "Images",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Type of image (crowdfundings | services).</p>"
+          },
+          {
+            "group": "RequestParam",
+            "type": "String",
+            "optional": false,
+            "field": "image",
+            "description": "<p>Filename of the image to retrieve.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Sucessfully created a crowdfunding project.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid crowdfunding data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't create a crowdfunding.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/images.js",
+    "groupTitle": "Images"
+  },
+  {
+    "type": "get",
     "url": "/messages/:other_user",
     "title": "Get messages between users.",
     "name": "GetMessages",
@@ -1361,6 +2062,13 @@ define({ "api": [
             "optional": false,
             "field": "other_user",
             "description": "<p>Other user unique id.</p>"
+          },
+          {
+            "group": "RequestParams",
+            "type": "Integer",
+            "optional": false,
+            "field": "page",
+            "description": "<p>current page.</p>"
           }
         ]
       }
@@ -1407,8 +2115,8 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/messages/",
-    "title": "Get topics for user.",
+    "url": "/messages/ Get topics for user. Returns an array of users that the logged user has conversations with, the last message sent between them, as well as the",
+    "title": "other user's id, name and picture",
     "name": "GetTopics",
     "group": "Messages",
     "permission": [
@@ -1464,13 +2172,6 @@ define({ "api": [
     "parameter": {
       "fields": {
         "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "sender_id",
-            "description": "<p>Sender's unique id.</p>"
-          },
           {
             "group": "RequestBody",
             "type": "Integer",
@@ -2271,7 +2972,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/services/:id/offers/accept",
-    "title": "14 - Accept service offer",
+    "title": "- Accept service offer",
     "name": "AcceptServiceOffer",
     "group": "Service",
     "permission": [
@@ -2372,7 +3073,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/services/:id/comments",
-    "title": "18 - Comment on a service",
+    "title": "- CommentStandard on a service",
     "name": "CommentService",
     "group": "Service",
     "permission": [
@@ -2461,7 +3162,7 @@ define({ "api": [
   {
     "type": "put",
     "url": "/services/",
-    "title": "05 - Create service",
+    "title": "- Create service",
     "name": "CreateService",
     "group": "Service",
     "permission": [
@@ -2500,6 +3201,20 @@ define({ "api": [
             "optional": false,
             "field": "location",
             "description": "<p>Geographic coordinated of the service (Optional)</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Double",
+            "optional": false,
+            "field": "latitude",
+            "description": "<p>Latitude coordinates of the service (Optional)</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Double",
+            "optional": false,
+            "field": "longitude",
+            "description": "<p>Longitude- coordinates of the service (Optional)</p>"
           },
           {
             "group": "RequestBody",
@@ -2597,7 +3312,7 @@ define({ "api": [
   {
     "type": "put",
     "url": "/services/:id/images",
-    "title": "09 - Create service image",
+    "title": "- Create service image",
     "name": "CreateServiceImage",
     "group": "Service",
     "permission": [
@@ -2677,9 +3392,9 @@ define({ "api": [
     "groupTitle": "Service"
   },
   {
-    "type": "post",
+    "type": "delete",
     "url": "/services/:id/offers/decline",
-    "title": "15 - Decline service offer",
+    "title": "- Decline service offer",
     "name": "DeclineServiceOffer",
     "group": "Service",
     "permission": [
@@ -2713,13 +3428,6 @@ define({ "api": [
             "optional": false,
             "field": "crowdfunding_id",
             "description": "<p>ID of the crowdfunding that made the offer (XOR partner_id)</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Date",
-            "optional": false,
-            "field": "date_scheduled",
-            "description": "<p>Date the service is goind to be provided</p>"
           }
         ]
       }
@@ -2780,7 +3488,7 @@ define({ "api": [
   {
     "type": "delete",
     "url": "/services/comments/:id",
-    "title": "20 - Delete a comment",
+    "title": "- Delete a comment",
     "name": "DeleteComment",
     "group": "Service",
     "permission": [
@@ -2853,7 +3561,7 @@ define({ "api": [
   {
     "type": "delete",
     "url": "/services/:id",
-    "title": "07 - Delete service",
+    "title": "- Delete service",
     "name": "DeleteService",
     "group": "Service",
     "permission": [
@@ -2926,7 +3634,7 @@ define({ "api": [
   {
     "type": "delete",
     "url": "/services/:id/images/:image",
-    "title": "10 - Delete service image",
+    "title": "- Delete service image",
     "name": "DeleteServiceImage",
     "group": "Service",
     "permission": [
@@ -3006,7 +3714,7 @@ define({ "api": [
   {
     "type": "put",
     "url": "/services/comments/:id",
-    "title": "19 - Edit a comment",
+    "title": "- Edit a comment",
     "name": "EditComment",
     "group": "Service",
     "permission": [
@@ -3088,7 +3796,7 @@ define({ "api": [
   {
     "type": "put",
     "url": "/services/:id",
-    "title": "06 - Edit service",
+    "title": "- Edit service",
     "name": "EditService",
     "group": "Service",
     "permission": [
@@ -3233,7 +3941,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/services/:id",
-    "title": "04 - Get service by ID",
+    "title": "- Get service by ID",
     "name": "GetServiceByID",
     "group": "Service",
     "permission": [
@@ -3391,7 +4099,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/services/:id/comments",
-    "title": "17 - Get service comments",
+    "title": "- Get service comments",
     "name": "GetServiceComments",
     "group": "Service",
     "permission": [
@@ -3507,7 +4215,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/services/:id/images",
-    "title": "08 - Get service images",
+    "title": "- Get service images' urls",
     "name": "GetServiceImages",
     "group": "Service",
     "permission": [
@@ -3579,8 +4287,23 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/services/instance/:id",
+    "title": "Get the service instance requester",
+    "name": "GetServiceInstanceRequester",
+    "group": "Service",
+    "permission": [
+      {
+        "name": "service creator"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": "routes/services.js",
+    "groupTitle": "Service"
+  },
+  {
+    "type": "get",
     "url": "/services/:id/offers",
-    "title": "11 - Get service offers",
+    "title": "- Get service offers",
     "name": "GetServiceOffers",
     "group": "Service",
     "permission": [
@@ -3653,7 +4376,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/services/:id/offers/:type/:candidate",
-    "title": "12 - Get specific offer",
+    "title": "- Get specific offer",
     "name": "GetServiceSpecificOffer",
     "group": "Service",
     "permission": [
@@ -3744,197 +4467,8 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/services/",
-    "title": "01 - Get service list",
-    "name": "GetServices",
-    "group": "Service",
-    "permission": [
-      {
-        "name": "visitor"
-      }
-    ],
-    "description": "<p>Get a list of active services, by page, containing up to N items. The maximum of items/page is 50.</p>",
-    "parameter": {
-      "fields": {
-        "RequestQueryParams": [
-          {
-            "group": "RequestQueryParams",
-            "type": "Integer",
-            "optional": false,
-            "field": "page",
-            "description": "<p>page number to return (Optional)</p>"
-          },
-          {
-            "group": "RequestQueryParams",
-            "type": "Integer",
-            "optional": false,
-            "field": "items",
-            "description": "<p>number of items per page default/max: 50 (Optional)</p>"
-          },
-          {
-            "group": "RequestQueryParams",
-            "type": "String",
-            "optional": false,
-            "field": "the",
-            "description": "<p>field to be ordered by (defaults to title) (Optional)</p>"
-          },
-          {
-            "group": "RequestQueryParams",
-            "type": "Boolean",
-            "optional": false,
-            "field": "display",
-            "description": "<p>in ascesding order (defaults to true) (Optional)</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "Syntax",
-        "content": "GET: /api/services?page=<PAGE>&items=<ITEMS>",
-        "type": "json"
-      },
-      {
-        "title": "Example 1",
-        "content": "GET: /api/services?page=3",
-        "type": "json"
-      },
-      {
-        "title": "Example 2",
-        "content": "GET: /api/services?page=1&items=25",
-        "type": "json"
-      },
-      {
-        "title": "Example 3",
-        "content": "GET: /api/services?page=1&items=25&order=description&asc=false",
-        "type": "json"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "id",
-            "description": "<p>ID of the service</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "title",
-            "description": "<p>Title of the service</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "description",
-            "description": "<p>Description of the service</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "category",
-            "description": "<p>Category of the service [BUSINESS, ARTS, ...]</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "location",
-            "description": "<p>Geographic coordinated of the service</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "acceptable_radius",
-            "description": "<p>Maximum distance from location where the service can be done</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_value",
-            "description": "<p>Number of hours the service will take</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Date",
-            "optional": false,
-            "field": "date_created",
-            "description": "<p>Date the service was created</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "service_type",
-            "description": "<p>Type of the service [PROVIDE, REQUEST]</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "creator_id",
-            "description": "<p>ID of the creator if created by a user</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "provider_name",
-            "description": "<p>Name of the creator if created by a user</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>ID of the crowdfunding if created by a crowdfunding</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "crowdfunding_title",
-            "description": "<p>Title of the crowdfunding if created by a crowdfunding</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Database Query Failed</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-  },
-  {
-    "type": "get",
     "url": "/services/num-pages",
-    "title": "02 - Get number of pages of service list",
+    "title": "- Get number of pages of service list",
     "name": "GetServicesNumPages",
     "group": "Service",
     "permission": [
@@ -4008,7 +4542,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/services/:id/offers",
-    "title": "13 - Make service offer",
+    "title": "- Make service offer",
     "name": "MakeServiceOffer",
     "group": "Service",
     "permission": [
@@ -4095,7 +4629,7 @@ define({ "api": [
   {
     "type": "put",
     "url": "/services/instance/:id",
-    "title": "16 - Rate a service",
+    "title": "- Rate a service",
     "name": "ReviewServiceInstance",
     "group": "Service",
     "permission": [
@@ -4188,8 +4722,8 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/services/search",
-    "title": "03 - Search for services",
+    "url": "/services",
+    "title": "- Get service's list",
     "name": "SearchService",
     "group": "Service",
     "permission": [
@@ -4197,7 +4731,7 @@ define({ "api": [
         "name": "visitor"
       }
     ],
-    "description": "<p>Search among active services' titles and descriptions using the given query text</p>",
+    "description": "<p>Search for and filters listing of active services according to parameters given</p>",
     "parameter": {
       "fields": {
         "RequestQueryParams": [
@@ -4206,7 +4740,7 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "q",
-            "description": "<p>Search query (Required)</p>"
+            "description": "<p>Search query; seraches among titles and descriptions (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
@@ -4319,6 +4853,11 @@ define({ "api": [
       {
         "title": "Example 4",
         "content": "GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01",
+        "type": "json"
+      },
+      {
+        "title": "Example 5",
+        "content": "GET: /api/services/search?q=service&order=distance&asc=false",
         "type": "json"
       }
     ],
@@ -4454,6 +4993,7 @@ define({ "api": [
         "Success 201": [
           {
             "group": "Success 201",
+            "type": "String[]",
             "optional": false,
             "field": "service_category",
             "description": "<p>Service category name.</p>"
