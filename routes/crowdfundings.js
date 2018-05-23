@@ -104,6 +104,7 @@ router.get('/:crowdfunding_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.log("Opa")
         res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
     });
 });
@@ -676,6 +677,7 @@ router.post('/:crowdfunding_id/services_requested', authenticate, function(req, 
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
  * 
+ * @apiSuccess (Success 200) {Integer} id Service request id.
  * @apiSuccess (Success 200) {String} title Service request title.
  * @apiSuccess (Success 200) {Integer} mygrant_value Mygrants amount to transfer.
  * @apiSuccess (Success 200) {String} category Service request category.
