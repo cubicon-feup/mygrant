@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Dropdown, Grid, Header, Icon, Image, Responsive, TextArea } from 'semantic-ui-react';
+import { Link, Redirect } from 'react-router-dom';
+import { Container, Dropdown, Grid, Header, Icon, Image, Responsive } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import moment from 'moment';
+import NewPost from '../components/NewPost';
 
 class BlogHeaderPost extends Component {
     static propTypes = {
@@ -15,8 +16,11 @@ class BlogHeaderPost extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            deleted: false,
+            editing: false,
             liked: Boolean(parseInt(this.props.postInfo.liked, 10)),
-            nLikes: parseInt(this.props.postInfo.likes, 10)
+            nLikes: parseInt(this.props.postInfo.likes, 10),
+            postContent: this.props.postInfo.content
         };
     }
 
@@ -51,12 +55,67 @@ class BlogHeaderPost extends Component {
 
     }
 
-    render () {
+    editPost() {
+        this.setState({ editing: true });
+    }
 
+    cancelEditing() {
+        this.setState({ editing: false });
+    }
+
+    completeEditing(content) {
+        if (content === '') {
+            return;
+        }
+
+        const { cookies } = this.props;
+        const headers = {
+            Authorization: `Bearer ${cookies.get('id_token')}`,
+            'content-type': 'application/json'
+        };
+
+        const data = { content };
+
+        // API request to edit the content of the post
+        fetch(`/api/posts/${this.props.postInfo.id}/edit`, {
+            body: JSON.stringify(data),
+            headers,
+            method: 'POST'
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    this.setState({
+                        editing: false,
+                        postContent: content
+                    });
+                }
+            });
+    }
+
+    deletePost() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        // API request to delete the post
+        fetch(`/api/posts/${this.props.postInfo.id}/delete`, {
+            headers,
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.status === 204) {
+                    // Post was deleted
+                    this.setState({ deleted: true });
+                }
+            });
+    }
+
+    render () {
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === this.props.user.id;
 
-        return (
+        const newPost = <NewPost onCancel={this.cancelEditing.bind(this)} handleClick={this.completeEditing.bind(this)} />;
+
+        const headerPost =
             <div>
                 <Container >
                     <Grid padded >
@@ -93,7 +152,7 @@ class BlogHeaderPost extends Component {
                                     </Grid.Row>
                                     <Grid.Row className={'content'} verticalAlign={'top'} >
                                         <Grid.Column width={16} >
-                                            <h3>{this.props.postInfo.content}</h3>
+                                            <h3>{this.state.postContent}</h3>
                                         </Grid.Column>
                                     </Grid.Row>
                                     <Grid.Row textAlign={'left'}>
@@ -115,8 +174,8 @@ class BlogHeaderPost extends Component {
                                                 canEdit
                                                 ? <Dropdown icon={'ellipsis horizontal'} className={'post-options'} >
                                                     <Dropdown.Menu >
-                                                        <Dropdown.Item text={'Edit'}/>
-                                                        <Dropdown.Item text={'Delete'}/>
+                                                        <Dropdown.Item onClick={this.editPost.bind(this)} text={'Edit'}/>
+                                                        <Dropdown.Item onClick={this.deletePost.bind(this)} text={'Delete'}/>
                                                     </Dropdown.Menu>
                                                 </Dropdown>
                                                 : null
@@ -128,8 +187,13 @@ class BlogHeaderPost extends Component {
                         </Grid.Row>
                     </Grid>
                 </Container>
-            </div>
-        );
+            </div>;
+
+        if (this.state.deleted) {
+            return <Redirect to={`/user/${cookies.get('user_id')}/blog`} />
+        }
+
+        return this.state.editing ? newPost : headerPost;
     }
 }
 
