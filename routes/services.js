@@ -735,7 +735,7 @@ router.delete('/:id/images/:image', authenticate, function(req, res) {
  * @apiExample Example
  * GET: /api/services/5/offers
  *
- * @apiSuccess (Success 200) requesters List of the users making the offers {type, requester_id, requester_name}
+ * @apiSuccess (Success 200) requesters List of the users making the offers {type, requester_id, requester_name, date_proposed}
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
@@ -751,13 +751,13 @@ router.get('/:id/offers', authenticate, function(req, res) {
     // define query
     const query = `
         SELECT *
-        FROM (SELECT 'user' as type, users.id as requester_id, users.full_name as requester_name
+        FROM (SELECT 'user' as type, users.id as requester_id, users.full_name as requester_name, date_proposed
             FROM users
             INNER JOIN service_offer ON service_offer.candidate_id = users.id
             INNER JOIN service ON service_offer.service_id = service.id
             WHERE service_offer.service_id = $(service_id)
             UNION
-            SELECT 'crowdfunding' as type, crowdfunding.id as requester_id, crowdfunding.title as requester_name
+            SELECT 'crowdfunding' as type, crowdfunding.id as requester_id, crowdfunding.title as requester_name, date_proposed
             FROM crowdfunding
             INNER JOIN crowdfunding_offer ON crowdfunding_offer.crowdfunding_id = crowdfunding.id
             INNER JOIN service ON crowdfunding_offer.service_id = service.id
@@ -965,6 +965,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
+        var date_scheduled = req.body.date_scheduled;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         if (partner_id == null && crowdfunding_id == null) {
@@ -1047,6 +1048,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                 });
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -1085,6 +1087,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
  */
 router.delete('/:id/offers/decline', authenticate, function(req, res) {
     // check for valid input
+    console.log(req.params, req.body)
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
@@ -1119,6 +1122,7 @@ router.delete('/:id/offers/decline', authenticate, function(req, res) {
             res.sendStatus(200);
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 });
@@ -1227,7 +1231,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             SELECT * FROM creator`;
     }
     // place query
-    db.one(query, {
+    db.oneOrNone(query, {
             service_instance_id,
             candidate_id,
             rating
@@ -1236,6 +1240,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             res.status(200).send(data);
         })
         .catch(error => {
+            console.log(error);
             res.status(500).json(error);
         });
 
@@ -1277,14 +1282,15 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     db.one(query, {
         service_id: serviceId
     }).then(data => {
-        console.log(data);
         res.status(200).json(data);
     }).catch(error => {
+
         res.status(500).json({error});
     })
 })
 
 // TODO: finish api doc
+// TODO: are we using this route???
 router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) {
     let userId = req.user.id;
     let serviceId = req.params.service_id;

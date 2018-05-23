@@ -3,13 +3,61 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
 
+import Crowdfunding from '../components/dashboard/Crowdfunding';
+
+const urlGetMygrantBalance = `/api/comments/mygrant_balance`;
+const urlGetUserCrowdfundings = `/api/comments/crowdfundings`;
 
 class Dashboard extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
 
     constructor(props) {
         super(props);
+        this.state = {
+            mygrant_balance: 0,
+            crowdfundings: []
+        }
 
+    }
+
+    componentDidMount() {
+        this.getMygrantBalance();
+        this.getUserCrowdfundings();
+    }
+
+    getMygrantBalance() {
+        const { cookies } = this.props;
+        fetch(urlGetMygrantBalance, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            }
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        // TODO: not saving the value, why?
+                        this.setState({mygrant_balance: data.mygrant_balance});
+                    })
+            }
+        })
+    }
+
+    getUserCrowdfundings() {
+        const { cookies } = this.props;
+        fetch(urlGetUserCrowdfundings, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            }
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        this.setState({crowdfundings: data.data})
+                    })
+            }
+        })
     }
 
     // Crowdfundings that the user supported.
@@ -23,11 +71,19 @@ class Dashboard extends Component {
     }
 
     // Services that the user was a candidate and was accepted.
+    // TODO: last to do.
     getServicesRequestedToRate() {
 
     }
 
     render() {
+        let crowdfundings;
+        if(this.state.crowdfundings) {
+            crowdfundings = this.state.crowdfundings.map(crowdfunding => {
+                return <Crowdfunding key={crowdfunding.id} crowdfunding={crowdfunding} />
+            })
+        } else crowdfundings = 'Nothing yet.';
+
         return (
             <Container>
                 <br />
@@ -37,22 +93,11 @@ class Dashboard extends Component {
                 <br />
                 <br />
                 <br />
-                <p>My mygrants: </p>
+                <p>Mygrant Balance: {this.state.mygrant_balance}</p>
                 <p>Ratings to give </p>
-
-            <Container id="services_donators">
-                <Grid stackable columns={3}>
-                    <Grid.Column width={9}>
-                        <h2>Cenas</h2>
-                    </Grid.Column>
-                    <Grid.Column width={1}>
-                    </Grid.Column>
-                    <Grid.Column width={6}>
-                        <h3 align="center">Donators</h3>
-
-                    </Grid.Column>
-                </Grid>
-            </Container>
+                
+                <h2>Crowdfundings</h2>
+                {crowdfundings}
 
             </Container>
         )

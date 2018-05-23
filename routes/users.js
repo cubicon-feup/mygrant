@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+
 const appSecret = require('../config/config').secret;
 const expressJwt = require('express-jwt');
-
 const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
@@ -37,6 +37,33 @@ router.get('/:id', function(req, res) {
  */
 router.get('/', authenticate, function(req, res) {
     res.status(200).json(req.user);
+});
+
+/**
+ * @api {get} /users/mygrant_balalnce Get mygrant balance
+ * @apiName GetMygrantBalance
+ * @apiGroup User
+ * @apiPermission authenticated user
+ *
+ * @apiSuccess (Success 200) {Integer} mygrant_balance Current amount of mygrants owned by the user.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
+router.get('/mygrant_balance', function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT mygrant_balance
+        FROM users
+        WHERE users.id = $(user_id);`;
+
+    db.one(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
 });
 
 // Get friends
@@ -183,6 +210,61 @@ router.post('/set_location', authenticate, function(req, res) {
         .catch(error => {
             res.status(500).json({ error });
         });
+});
+
+router.get('/provided_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    const query =
+        `SELECT service.id as service_id, service.title as service_title
+        FROM service
+        INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+        INNER JOIN users ON users.id = crowdfunding.creator_id
+        WHERE users.id = $(user_id)
+        ORDER BY crowdfunding.id;`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+});
+
+router.get('/crowdfundings', authenticate, function(req, res) {
+    let userId = req.user.id;
+    const query =
+        `SELECT *
+        FROM crowdfunding
+        WHERE crowdfunding.creator_id = $(user_id);`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
+// Get all crowdfundings from a user.
+router.get('/crowdfundings', authenticate, function(req, res) {
+    let userId = req.user.id;
+    const query =
+        `SELECT *
+        FROM crowdfunding
+        WHERE crowdfunding.creator_id = $(user_id);`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
 });
 
 module.exports = router;
