@@ -9,6 +9,7 @@ import { withCookies, Cookies } from 'react-cookie';
 import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
 import Donator from './Donator';
 import CommentsSection from './Comments';
+import PidgeonMaps from './Map';
 
 const apiPath = require('../config').apiPath;
 const urlForData = crowdfundingId => `/api/crowdfundings/` + crowdfundingId;
@@ -400,6 +401,7 @@ class Crowdfunding extends Component {
                     </Grid.Column>
                 </Grid>
             </Container>
+            <PidgeonMaps />
             <CommentsSection type="crowdfundings" id={this.state.crowdfundingId} />
             {/*<Container>
                 <h3>Comments</h3>

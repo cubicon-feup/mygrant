@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import '../css/Service.css';
-import ServiceOffer from './ServiceOffers';
-import ImgGrid from './ImgGrid';
-import CommentsSection from './Comments';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import ServiceOffer from './ServiceOffers';
+import ImgGrid from './ImgGrid';
+import CommentsSection from './Comments';
+import PidgeonMaps from './Map';
 
 import {
     Button,
@@ -212,6 +213,7 @@ class Service extends Component {
                     <Container fluid className="green-divider" />
                     {this.renderOffers()}
                 </Container>
+                <PidgeonMaps />
                 <CommentsSection type="services" id={this.state.id} />
             </Container>
         );
