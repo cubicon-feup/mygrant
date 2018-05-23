@@ -1274,7 +1274,7 @@ router.get('/:service_id/instance/partner', authenticate, function(req, res) {
 router.get('/:service_id/instance', authenticate, function(req, res) {
     let serviceId = req.params.service_id;
     let query =
-        `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
+        `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating, service_instance.id as service_instance_id
         FROM service_instance
         INNER JOIN users ON users.id = partner_id
         WHERE service_instance.service_id = $(service_id);`;

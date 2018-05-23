@@ -11,6 +11,7 @@ const urlAcceptCandidate = serviceId => `/api/services/${serviceId}/offers/accep
 const urlRejectCandidate = serviceId => `/api/services/${serviceId}/offers/decline`;
 const urlGetServiceInstanceInfo = serviceId => `/api/services/${serviceId}/instance`;
 const urlRateService = serviceId => `/api/services/instance/${serviceId}`;
+const Role = require('../../Role').role;
 
 class Service extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -18,15 +19,21 @@ class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            type: this.props.type,
             service: this.props.service,
             serviceInstance: null,
             candidates: [],
-            rate: null
+            rate: null,
+            role: Role.AUTHENTICATED
         }
     }
     
     componentDidMount() {
-        this.getCandidates()
+        if(this.state.type === 'CROWDFUNDING')  // PARTNED, CROWDFUNDING
+            this.getCandidates();
+        else if(this.state.type === 'PARTNED') {
+            this.setState({serviceInstance: this.props.service});
+        }
     }
 
     getCandidates() {
@@ -61,7 +68,6 @@ class Service extends Component {
                 res.json()
                     .then(data => {
                         this.setState({serviceInstance: data});
-                        console.info(this.state.serviceInstance);
                     })
             }
         })
@@ -121,16 +127,24 @@ class Service extends Component {
     handleSubmit = e => {
         const { cookies } = this.props;
         e.preventDefault();
-        fetch(urlRateService(this.state.service.id), {
+
+        let body;
+        if(this.state.type === 'CROWDFUNDING')
+            body = JSON.stringify({
+                rating: this.state.rate,
+                crowdfunding_id: this.props.crowdfundingId
+            });
+        else body = JSON.stringify({
+            rating: this.state.rate
+        });
+
+        fetch(urlRateService(this.state.serviceInstance.service_instance_id), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${cookies.get('id_token')}`
             },
-            body: JSON.stringify({
-                rating: this.state.rate,
-                crowdfunding_id: this.props.crowdfundingId
-            })
+            body: body
         }).then(res => {
             if(res.status === 200) {
                 console.log("returned")
@@ -162,7 +176,37 @@ class Service extends Component {
         } else if(this.state.serviceInstance) {
             const { cookies } = this.props;
             let rate;
-            if(cookies.get('user_id') != this.state.serviceInstance.partner_id) {   // If the user is the crowdfunding creator.
+
+            console.log(this.state.serviceInstance)
+            if(cookies.get('user_id') == this.state.serviceInstance.partner_id) {   // If the user is the partner.
+                if(this.state.serviceInstance.partner_rating)
+                    rate = <p>Rated: {this.state.serviceInstance.partner_rating}</p>
+                else if(new Date() > new Date(this.state.serviceInstance.date_scheduled))
+                    rate =
+                        <Form className="mygrant-createform" method="POST" onSubmit={this.handleSubmit}>
+                            <Form.Input
+                                placeholder="Rate"
+                                name="rate"
+                                type="number"
+                                value={this.state.rate}
+                                onChange={this.handleNumberChange}
+                                required
+                            />
+                            <Form.Button id="dark-button" content="Submit" />
+                        </Form>
+
+                serviceInstance =
+                    <Card>
+                        <Card.Content>
+                            <Card.Header>Requester: <Link to={`/user/${this.state.serviceInstance.creator_id}`}>{this.state.serviceInstance.creator_name}</Link></Card.Header>
+                            <Card.Description>
+                                <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
+                                {rate}
+                            </Card.Description>
+                        </Card.Content>
+                    </Card>
+
+            } else if(cookies.get('user_id') != this.state.serviceInstance.partner_id) {   // If the user is the crowdfunding creator.
                 if(this.state.serviceInstance.creator_rating)   // If the user has already rated the partner.
                     rate = <p>Rated: {this.state.serviceInstance.creator_rating}</p>
                 else if(new Date() > new Date(this.state.serviceInstance.date_scheduled))
@@ -178,18 +222,19 @@ class Service extends Component {
                             />
                             <Form.Button id="dark-button" content="Submit" />
                         </Form>
+
+                serviceInstance =
+                    <Card>
+                        <Card.Content>
+                            <Card.Header>Accepted: <Link to={`/user/${this.state.serviceInstance.partner_id}`}>{this.state.serviceInstance.partner_name}</Link></Card.Header>
+                            <Card.Description>
+                                <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
+                                {rate}
+                            </Card.Description>
+                        </Card.Content>
+                    </Card>
             }
 
-            serviceInstance =
-                <Card>
-                    <Card.Content>
-                        <Card.Header>Accepted: <Link to={`/user/${this.state.serviceInstance.partner_id}`}>{this.state.serviceInstance.partner_name}</Link></Card.Header>
-                        <Card.Description>
-                            <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
-                            {rate}
-                        </Card.Description>
-                    </Card.Content>
-                </Card>
         }
 
         return (

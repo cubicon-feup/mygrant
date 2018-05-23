@@ -318,8 +318,17 @@ router.get('/provided_services', authenticate, function(req, res) {
 // TODO: move to user.js file. Not working there, so I put them here.
 
 
-// Get all crowdfundings from a user.
-router.get('/crowdfundings', authenticate, function(req, res) {
+// TODO: finish api doc.
+/**
+ * @api {get} /users/crowdfundings Get user's crowdfundings.
+ * @apiName GetUserCrowdfundings
+ * @apiGroup User
+ * @apiPermission authenticated user
+ *
+ * @apiError (Sucess 200) OK
+ * 
+ * @apiError (Error 500) InternalServerError
+ */router.get('/crowdfundings', authenticate, function(req, res) {
     let userId = req.user.id;
     const query =
         `SELECT *
@@ -362,5 +371,35 @@ router.get('/mygrant_balance', authenticate, function(req, res) {
         res.status(500).json({error});
     })
 });
+
+// Gets all services that the user helped/worked.
+router.get('/partned_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT *
+        FROM (
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id
+            FROM service_instance
+            INNER JOIN service ON service.id = service_instance.service_id
+            INNER JOIN users ON users.id = service.creator_id
+            WHERE service_instance.partner_id = $(user_id)
+            UNION
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id
+            FROM service_instance
+            INNER JOIN service ON service.id = service_instance.service_id
+            INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+            INNER JOIN users ON users.id = crowdfunding.creator_id
+            WHERE service_instance.partner_id = $(user_id)
+        ) s;`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
 
 module.exports = router;
