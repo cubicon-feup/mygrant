@@ -24,7 +24,7 @@ class ListService extends Component {
                     </Grid.Column>
 
                     <Grid.Column width={2}>
-                        <Link to="">
+                        <Link to={"/user/"+this.props.crowdfunding.creator_id}>
                             <Image size='tiny' scr='/img/user.jpg'/>
                             <p>{this.props.crowdfunding.provider_name}</p>
                         </Link>
@@ -36,7 +36,7 @@ class ListService extends Component {
 
                     <Grid.Column width={2}>
                         <Label floated="right">{this.props.crowdfunding.mygrant_value} MyGrants</Label>
-                        <Link to={"/service/" + this.props.crowdfunding.id}><Button>Details</Button></Link>
+                        <Link to={"/service/" + this.props.crowdfunding.service_id}><Button>Details</Button></Link>
                     </Grid.Column>
                 </Grid>
             );
