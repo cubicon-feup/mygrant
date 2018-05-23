@@ -203,7 +203,7 @@ class Dashboard extends Component {
         let crowdfundings;
         if(this.state.crowdfundings) {
             crowdfundings = this.state.crowdfundings.map(crowdfunding => {
-                return <Crowdfunding crowdfunding={crowdfunding} />
+                return <Crowdfunding key={crowdfunding.id} crowdfunding={crowdfunding} />
             })
         } else crowdfundings = 'Nothing yet.';
 

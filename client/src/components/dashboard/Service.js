@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'
 import { Container, Button, Card, Image } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -8,6 +9,7 @@ import Candidate from './Candidate';
 const urlGetServiceCandidates = serviceId => `/api/services/${serviceId}/offers`;
 const urlAcceptCandidate = serviceId => `/api/services/${serviceId}/offers/accept`;
 const urlRejectCandidate = serviceId => `/api/services/${serviceId}/offers/decline`;
+const urlGetServiceInstanceInfo = serviceId => `/api/services/${serviceId}/instance`;
 
 class Service extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -16,6 +18,7 @@ class Service extends Component {
         super(props);
         this.state = {
             service: this.props.service,
+            serviceInstance: {},
             candidates: []
         }
     }
@@ -35,7 +38,26 @@ class Service extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
+                        console.log(data.length);
+                        //if(data.length > 0)
                         this.setState({candidates: data});
+                        //else this.getServiceInstanceInfo();
+                    })
+            }
+        })
+    }
+
+    // When a service already has someone assigned, we retrieve the instance information.
+    getServiceInstanceInfo() {
+        const { cookies } = this.props;
+        fetch(urlGetServiceInstanceInfo(this.state.service.id), {
+            method: 'GET',
+            Authorization: `Bearer ${cookies.get('id_token')}`
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        this.setState({serviceInstance: data});
                     })
             }
         })
@@ -82,13 +104,10 @@ class Service extends Component {
         });
     }
 
-    getCandidatesRender() {
-        
-    }
-
     render() {
         let candidates;
         if(this.state.candidates.length > 0) {
+            console.log("mais");
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Card>
@@ -107,10 +126,14 @@ class Service extends Component {
                     </Card>
                 )
             })
-        } else candidates = <p>No candidates yet.</p>;
+        } else {
+            candidates = null;
+            console.log("menos");
+        }
 
         return (
             <Container>
+                <h3><Link to={`/service/${this.state.service.id}`}>{this.state.service.title}</Link></h3>
                 <Card.Group>
                     {candidates}
                 </Card.Group>
