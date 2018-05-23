@@ -112,7 +112,7 @@ class BlogComment extends Component {
         const { cookies } = this.props;
         const canEdit = parseInt(cookies.get('user_id'), 10) === parseInt(this.props.user.id, 10);
 
-        const commentElement = 
+        const commentElement =
             <div>
                 <Segment className={'blog-post post-comment'} >
                 <Container >
