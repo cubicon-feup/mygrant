@@ -30,7 +30,7 @@ class MygrantHeader extends Component {
         const user = {
             fullName: cookies.get('user_full_name'),
             userId: cookies.get('user_id')
-        }
+        };
 
         this.setState({ user });
     }
@@ -49,6 +49,15 @@ class MygrantHeader extends Component {
                                             : <Icon name="user circle outline" color={'black'} size={'big'} />
                                     }
                                     <strong>{this.state.user.fullName}</strong>
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/Feed'} >
+                                    {'My Feed'}
                                 </Link>
                             </Menu.Item>
                         : null
