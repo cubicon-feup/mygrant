@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -9,10 +8,7 @@ import NewPost from '../components/NewPost';
 import '../css/Blog.css';
 
 class Feed extends Component {
-    static propTypes = {
-        cookies: instanceOf(Cookies).isRequired,
-        match: ReactRouterPropTypes.match.isRequired
-    };
+    static propTypes = { cookies: instanceOf(Cookies).isRequired };
 
     constructor(props) {
         super(props);
@@ -78,7 +74,7 @@ class Feed extends Component {
 
         const data = { content };
 
-        fetch(`/api/users/${this.props.match.params.id}/posts`, {
+        fetch(`/api/users/${cookies.get('user_id')}/posts`, {
             body: JSON.stringify(data),
             headers,
             method: 'POST'
