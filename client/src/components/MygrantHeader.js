@@ -30,9 +30,25 @@ class MygrantHeader extends Component {
         const user = {
             fullName: cookies.get('user_full_name'),
             userId: cookies.get('user_id')
-        }
+        };
 
         this.setState({ user });
+    }
+
+    signOut() {
+        const { cookies } = this.props;
+        const headers = { Authorization: `Bearer ${cookies.get('id_token')}` };
+
+        fetch('/api/auth/logout', { headers })
+            .then(res => {
+                if (res.status === 200) {
+                    cookies.remove('id_token');
+                    cookies.remove('user_id');
+                    cookies.remove('user_full_name');
+                    cookies.remove('user_image_url');
+                    window.location.reload();
+                }
+            });
     }
 
     render() {
@@ -45,9 +61,10 @@ class MygrantHeader extends Component {
                                 <Link to={`/user/${this.state.user.userId}`} >
                                     {
                                         this.state.user.image_url
-                                            ? <Image avatar src={'/api/images/users/kwest.jpg'} size={'mini'} />
+                                            ? <Image avatar src={`/api/images/${this.state.user.image_url}`} size={'mini'} />
                                             : <Icon name="user circle outline" color={'black'} size={'big'} />
                                     }
+
                                     <strong>{this.state.user.fullName}</strong>
                                 </Link>
                             </Menu.Item>
@@ -73,7 +90,9 @@ class MygrantHeader extends Component {
                 }
                 {
                     this.state.user.userId
-                        ? null
+                        ? <Menu.Item position="right" onClick={this.signOut.bind(this)}>
+                                <strong>Sign Out</strong>
+                            </Menu.Item>
                         : <Menu.Item position="right">
                                 <Link to="/login">
                                     <strong>Login</strong>
