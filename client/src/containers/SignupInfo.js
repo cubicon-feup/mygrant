@@ -4,8 +4,9 @@ import { instanceOf } from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
-import { Button, Container, Form, Header, Message, Responsive } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Message, Modal, Responsive } from 'semantic-ui-react';
 import { MygrantDivider } from '../components/Common';
+import PidgeonMaps from '../components/Map';
 
 import '../css/SignupInfo.css';
 
@@ -29,7 +30,9 @@ class SignUpInfo extends Component {
             requestCities: true,
             selectedCity: '',
             selectedCountry: '',
-            selectedRegion: ''
+            selectedRegion: '',
+            latitude: '',
+            longitude: ''
         };
     }
 
@@ -193,7 +196,9 @@ class SignUpInfo extends Component {
         const data = {
             city: this.state.selectedCity,
             country: this.state.selectedCountry,
-            region: this.state.selectedRegion
+            region: this.state.selectedRegion,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude
         };
 
         fetch(
@@ -211,6 +216,27 @@ class SignUpInfo extends Component {
                     this.setState({ formError: true });
                 }
             });
+    }
+
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
+        });
+    };
+
+    renderMap() {
+        return (
+            <Modal
+                trigger={
+                    <Button content={'Open Map'} />
+                }
+            >
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
     }
 
     render() {
@@ -250,6 +276,7 @@ class SignUpInfo extends Component {
                                 error
                                 content={'something went wrong, please try again'}
                             />
+                            {this.renderMap()}
                             <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
                         </Form>
                     </div>
@@ -260,4 +287,3 @@ class SignUpInfo extends Component {
 }
 
 export default withCookies(SignUpInfo);
-

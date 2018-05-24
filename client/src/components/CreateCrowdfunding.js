@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../css/common.css";
-import { Container, Header, Form, Dropdown } from "semantic-ui-react";
+import { Button, Container, Header, Form, Modal } from "semantic-ui-react";
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
@@ -93,11 +93,24 @@ class CreateCrowdfunding extends Component {
         })
     }
 
+    renderMap() {
+        return (
+            <Modal
+                trigger={
+                    <Button content={'Open Map'} />
+                }
+            >
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
+    }
+
     render() {
         const {
             title,
             description,
-            category,
             location,
             mygrant_target,
             categories
@@ -136,7 +149,6 @@ class CreateCrowdfunding extends Component {
                             value={location}
                             onChange={this.handleChange}
                         />
-                        <PidgeonMaps handleChange={this.handleMapChange} />
                         <Form.Input
                             placeholder="MyGrant Target"
                             name="mygrant_target"
@@ -145,6 +157,7 @@ class CreateCrowdfunding extends Component {
                             onChange={this.handleChange}
                             required
                         />
+                        {this.renderMap()}
                         <Form.Button content="Submit" />
                     </Form>
                 </div>

@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import '../css/Service.css';
-import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
+import {
+    Button,
+    Container,
+    Header,
+    Icon,
+    Form,
+    Modal,
+    Select
+} from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -204,6 +211,20 @@ class CreateService extends Component {
         return 'ERROR';
     }
 
+    renderMap() {
+        return (
+            <Modal
+                trigger={
+                    <Button content={'Open Map'} />
+                }
+            >
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
+    }
+
     render() {
         return (
             <Container className="main-container">
@@ -240,7 +261,6 @@ class CreateService extends Component {
                         value={this.state.location}
                         onChange={this.handleChange}
                     />
-                    <PidgeonMaps handleChange={this.handleMapChange} />
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"
@@ -261,6 +281,7 @@ class CreateService extends Component {
                         name="repeatable"
                         onChange={this.handleBooleanChange}
                     />
+                    {this.renderMap()}
                     <Form.Button id="dark-button" content="Submit" />
                 </Form>
             </Container>
