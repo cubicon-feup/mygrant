@@ -10,7 +10,6 @@ class SearchLocation extends Component {
         super(props);
         this.state = {
             title: '',
-            location: '',
             latitude: '',
             longitude: '',
             results: []
@@ -19,6 +18,7 @@ class SearchLocation extends Component {
 
     handleChange = (e, data) => {
         this.setState(data.result);
+        this.props.handleChange(data.result);
     };
 
     fetchLocation = (e, data) => {
@@ -48,7 +48,6 @@ class SearchLocation extends Component {
                 ...location_results,
                 {
                     title: location.display_name,
-                    location: location.display_name,
                     latitude: location.lat,
                     longitude: location.lon
                 }

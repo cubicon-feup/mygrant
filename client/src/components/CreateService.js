@@ -13,6 +13,7 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import PidgeonMaps from './Map';
+import SearchLocation from './SearchLocation';
 
 const urlForData = '/api/services';
 const urlForCategories = '/api/service_categories';
@@ -159,6 +160,14 @@ class CreateService extends Component {
         this.setState({ [name]: !this.state[name] });
     };
 
+    handleLocationChange = data => {
+        this.setState({
+            location: data.title,
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
     handleMapChange = latlng => {
         this.setState({
             latitude: latlng[0],
@@ -213,11 +222,7 @@ class CreateService extends Component {
 
     renderMap() {
         return (
-            <Modal
-                trigger={
-                    <Button content={'Open Map'} />
-                }
-            >
+            <Modal trigger={<Button content={'Open Map'} />}>
                 <Modal.Content>
                     <PidgeonMaps handleChange={this.handleMapChange} />
                 </Modal.Content>
@@ -256,11 +261,7 @@ class CreateService extends Component {
                         options={this.service_categories}
                         onChange={this.handleChange}
                     />
-                    <TextInput
-                        placeholder="Location"
-                        value={this.state.location}
-                        onChange={this.handleChange}
-                    />
+                    <SearchLocation handleChange={this.handleLocationChange} />
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"

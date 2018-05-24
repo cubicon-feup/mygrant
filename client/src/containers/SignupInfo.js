@@ -7,6 +7,7 @@ import { withCookies, Cookies } from 'react-cookie';
 import { Button, Container, Form, Header, Message, Modal, Responsive } from 'semantic-ui-react';
 import { MygrantDivider } from '../components/Common';
 import PidgeonMaps from '../components/Map';
+import SearchLocation from '../components/SearchLocation';
 
 import '../css/SignupInfo.css';
 
@@ -218,6 +219,13 @@ class SignUpInfo extends Component {
             });
     }
 
+    handleLocationChange = data => {
+        this.setState({
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
     handleMapChange = latlng => {
         this.setState({
             latitude: latlng[0],
@@ -227,11 +235,7 @@ class SignUpInfo extends Component {
 
     renderMap() {
         return (
-            <Modal
-                trigger={
-                    <Button content={'Open Map'} />
-                }
-            >
+            <Modal trigger={<Button content={'Open Map'} />}>
                 <Modal.Content>
                     <PidgeonMaps handleChange={this.handleMapChange} />
                 </Modal.Content>
@@ -272,11 +276,12 @@ class SignUpInfo extends Component {
                                 placeholder={'City'}
                                 options={this.state.cities}
                             />
+                            <SearchLocation handleChange={this.handleLocationChange} />
+                            {this.renderMap()}
                             <Message
                                 error
                                 content={'something went wrong, please try again'}
                             />
-                            {this.renderMap()}
                             <Button fluid circular className="mygrant-button" content={'Continue'.toUpperCase()}></Button>
                         </Form>
                     </div>

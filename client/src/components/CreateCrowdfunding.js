@@ -5,6 +5,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import PidgeonMaps from './Map';
+import SearchLocation from './SearchLocation';
 
 const urlForCreate = '/api/crowdfundings';
 const urlGetCategories = '/api/service_categories';
@@ -58,6 +59,14 @@ class CreateCrowdfunding extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
+    handleLocationChange = data => {
+        this.setState({
+            location: data.title,
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
     handleMapChange = latlng => {
         this.setState({
             latitude: latlng[0],
@@ -95,11 +104,7 @@ class CreateCrowdfunding extends Component {
 
     renderMap() {
         return (
-            <Modal
-                trigger={
-                    <Button content={'Open Map'} />
-                }
-            >
+            <Modal trigger={<Button content={'Open Map'} />}>
                 <Modal.Content>
                     <PidgeonMaps handleChange={this.handleMapChange} />
                 </Modal.Content>
@@ -111,7 +116,6 @@ class CreateCrowdfunding extends Component {
         const {
             title,
             description,
-            location,
             mygrant_target,
             categories
         } = this.state;
@@ -143,12 +147,7 @@ class CreateCrowdfunding extends Component {
                             options={categories}
                             onChange={this.handleChange}
                         />
-                        <Form.Input
-                            placeholder="Location"
-                            name="location"
-                            value={location}
-                            onChange={this.handleChange}
-                        />
+                        <SearchLocation handleChange={this.handleLocationChange} />
                         <Form.Input
                             placeholder="MyGrant Target"
                             name="mygrant_target"
