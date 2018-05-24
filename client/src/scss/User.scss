@@ -78,6 +78,36 @@ div.profile-container {
 				}
 			}
 			
+			.self-menu-buttons {			
+				.edit-text-button, .save-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+				
+				.edit-image-button, .return-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+					
+					label {
+						display: inline-block;
+						height: 100%;
+						width: 100%;
+						cursor: pointer;
+						line-height: 29px;
+						vertical-align: middle;
+					}
+				}
+			}
+			
+			.button-green {
+				background-color: $green;
+			}
+			
+			.button-green:hover, button-green:focus, button-green:active {
+				background-color: $dark-green;
+			}
+			
+			
 			.edit-button, .remove-friend-button, .send-friend-request-button, .accept-friend-request-button, .donation-request-button, .donation-request-cancel-button {
 				right: calc(15.65% - 22.5px);
 				top: calc(15.65% - 22.5px);

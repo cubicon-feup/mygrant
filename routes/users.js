@@ -1,20 +1,24 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+var image = require('../images/Image');
+
 const appSecret = require('../config/config').secret;
 const expressJwt = require('express-jwt');
+
 
 const authenticate = expressJwt({ secret: appSecret });
 
 // Get user by id
-router.get('/:id', authenticate, function(req, res) {
+router.get('/:id', expressJwt({credentialsRequired: false, secret: appSecret}), function(req, res) {
 	try {
         var id = req.params.id;
-		var logged_id = req.user.id;
+		var logged_id = req.hasOwnProperty('user') && req.user.hasOwnProperty('id') ? req.user.id : null;
     } catch (err) {
         res.status(400).json({ error: err.toString() });
         return;
     }
+	
     const query = `
 	  SELECT
 			users.id=$(logged_id) AS self,
@@ -45,13 +49,57 @@ router.get('/:id', authenticate, function(req, res) {
     db
         .one(query, { id, logged_id })
         .then(data => {
-            res.status(200).json(data);
+            res.status(200).json({...data, authenticated: logged_id ? true : false});
         })
         .catch(error => {
-            console.log(error.message);
             res.status(500).json(error.message);
         });
 });
+
+// Edit user
+router.put('/', authenticate, function(req, res) {
+	try {
+		var user_id = req.user.id;
+		var full_name = req.body.name;
+		var bio = req.body.bio;
+    } catch (err) {
+        res.status(400).json({ error: err.toString() });
+        return;
+    }
+	
+	const query = `
+		UPDATE users
+		SET full_name=$(full_name), bio=$(bio)
+		WHERE id=$(user_id)`;
+		
+	db.none(query, {user_id, full_name, bio})
+	.then(() => res.sendStatus(200))
+	.catch(error => {res.status(500).json(error.message)});
+});
+
+// Edit image
+router.post('/image', authenticate, function(req, res) {
+	try {
+		var user_id = req.user.id;
+		var filename = image.uploadImage(req, res, 'users/');
+        if (filename === false){
+            return;
+        }
+    } catch (err) {
+        res.status(400).json({ error: err.toString() });
+        return;
+    }
+	
+	const query = `
+		UPDATE users
+		SET image_url=$(filename)
+		WHERE id=$(user_id)`;
+		
+	db.none(query, {user_id, filename})
+	.then(() => res.sendStatus(200))
+	.catch(error => {res.status(500).json(error.message)});
+});
+
 
 /**
  * @api {get} /users/get_from_token get the authenticated user that is identified by a JWT
@@ -431,46 +479,9 @@ router.get('/:id/crowdfundings', function(req, res) {
 router.get('/:id/rating', function(req, res) {
 	/* service partner; service creator; crowdfunding service partner; crowdfunding service creator; crowdfunding owner*/
 	const query = `
-			SELECT AVG(rating) AS rating
-			FROM (
-				SELECT creator_rating AS rating
-				FROM service_instance
-				WHERE partner_id=$(user_id) AND service_instance.creator_rating IS NOT NULL
-				
-				UNION ALL
-				
-				SELECT partner_rating AS rating
-				FROM service_instance
-				JOIN service
-				ON service_instance.service_id=service.id
-				WHERE creator_id=$(user_id) AND service_instance.partner_rating IS NOT NULL
-				
-				UNION ALL
-				
-				SELECT creator_rating AS rating
-				FROM service_instance
-				JOIN crowdfunding
-				ON service_instance.crowdfunding_id=crowdfunding.id
-				WHERE crowdfunding.creator_id=$(user_id) AND service_instance.creator_rating IS NOT NULL
-				
-				UNION ALL
-				
-				SELECT partner_rating AS rating
-				FROM service_instance
-				JOIN service
-				ON service_instance.service_id=service.id
-				JOIN crowdfunding
-				ON service.crowdfunding_id=crowdfunding.id
-				WHERE crowdfunding.creator_id=$(user_id) AND service_instance.partner_rating IS NOT NULL
-				
-				UNION ALL
-				
-				SELECT rating AS rating
-				FROM crowdfunding_donation
-				JOIN crowdfunding
-				ON crowdfunding_donation.crowdfunding_id=crowdfunding.id
-				WHERE crowdfunding.creator_id=$(user_id) AND crowdfunding_donation.rating IS NOT NULL
-			) ratings
+			SELECT value AS rating
+			FROM rating
+			WHERE user_id=$(user_id)
 	`;
 	
 	db.one(query, { user_id: req.params.id })

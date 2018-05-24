@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/User.css';
 
-import { Container, Header, Divider, Button, Image, Icon, Rating, Modal, Input } from 'semantic-ui-react';
+import { Container, Header, Divider, Button, Image, Icon, Rating, Modal, Input, TextArea } from 'semantic-ui-react';
 import { withCookies } from 'react-cookie';
 
 const urlForUser = id => `http://localhost:3001/api/users/${id}`;
@@ -17,6 +17,9 @@ const urlForDonation = `http://localhost:3001/api/users/donation`;
 const urlForLoan = `http://localhost:3001/api/users/loan`;
 const urlForDonationRequest = `http://localhost:3001/api/users/donation_request`;
 const urlForLoanRequest = `http://localhost:3001/api/users/loan_request`;
+const urlForEditUser = `http://localhost:3001/api/users`;
+const urlForEditImage = `http://localhost:3001/api/users/image`;
+const urlForUserImage = `http://localhost:3001/users/`;
 
 class HeaderDivider extends Component {	
 	render() {
@@ -30,6 +33,12 @@ class HeaderDivider extends Component {
 		);
 	}
 }
+
+/*
+************************************************************************************************
+Menus
+************************************************************************************************
+*/
 
 class SocialButton extends Component {
 	constructor(props) {
@@ -120,16 +129,8 @@ class SocialButton extends Component {
 	}
 	
 	render() {
-		// Edit button
-		if (this.props.self) {
-			return (
-				<Button className="profile-button edit-button">
-					<Icon className="pencil"/>
-				</Button>);
-				
-		}
 		// Remove friend button
-		else if (this.state.friend !== undefined ? this.state.friend : this.props.friend) {
+		if (this.state.friend !== undefined ? this.state.friend : this.props.friend) {
 			return (
 				<Button className="profile-button remove-friend-button"
 				onClick={()=>this.props.function_set_modal('Remove friend', 'Are you sure you want to remove this user as a friend?', this.removeFriend)}>
@@ -397,14 +398,140 @@ class BlockButton extends Component {
 	}
 }
 
+
+/*
+************************************************************************************************
+Menus
+************************************************************************************************
+*/
+ 
+// Props: function_toggle_input, function_update_image
+// State: editing
+class SelfMenu extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {editing: false};
+		this.updateImage = this.updateImage.bind(this);
+	}
+	
+	updateImage(file) {
+		let reader = new FileReader();
+		reader.onload = (e) => {
+			this.props.function_update_image(file, e.target.result);
+			
+		};
+		reader.readAsDataURL(file);
+	}	
+	
+	render () {
+		let buttons;
+		if (this.state.editing) {
+			buttons = 
+						<div className="self-menu-buttons">
+							<Button className="profile-button button-green save-button" onClick={() => {this.props.function_toggle_input(true); this.state.editing=false;}}><Icon className="save"/></Button>
+							<Button className="profile-button button-green return-button" onClick={() => {this.props.function_toggle_input(false); this.state.editing=false;}}><Icon className="left arrow"/></Button>
+							<input type="file" id="image-input" accept="image/jpeg, image/png" hidden />
+						</div>
+		}
+		else {
+			buttons = 	<div className="self-menu-buttons">
+							<Button className="profile-button button-green edit-text-button" onClick={() => {this.props.function_toggle_input(); this.state.editing=true;}}><Icon className="pencil"/></Button>
+							<Button className="profile-button button-green edit-image-button"><label htmlFor="image-input"><Icon className="image"/></label></Button>
+							<input type="file" id="image-input" accept="image/*" onChange={(e) => this.updateImage(e.target.files[0])}hidden />
+						</div>;
+		}
+		
+		return (
+			<div>
+				{buttons}
+			</div>
+		);
+	}
+}
+
+
+/*
+************************************************************************************************
+Containers
+************************************************************************************************
+*/
+
 class ProfileContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {disable_buttons: false};
+		this.state = {disable_buttons: false, editing: false, image_url: this.props.photo};
 		this.toggleButtons = this.toggleButtons.bind(this);
+		this.toggleInput = this.toggleInput.bind(this);
+		this.updateImage = this.updateImage.bind(this);
 		this.setModalContent = this.setModalContent.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.updateFriendStatus = this.updateFriendStatus.bind(this);
+	}
+	
+	componentWillReceiveProps(nextProps) {
+		if (!this.state.name) {
+			this.setState({name: nextProps.name, input_name: nextProps.name});
+		}
+		
+		if (!this.state.bio) {
+			this.setState({bio: nextProps.bio, input_bio: nextProps.bio});
+		}
+		
+		var url = this.state.image_url;
+		if (url.split('/')[url.length-1] === undefined) {
+			this.setState({image_url: nextProps.photo});
+		}
+	}
+	
+	toggleInput(save) {
+		if (this.state.editing) {
+			if (save) {
+				fetch(urlForEditUser, 
+				{
+					method: 'PUT',
+					headers: {
+						Authorization: `Bearer ${this.props.cookies.get('id_token')}`,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						name: this.state.input_name,
+						bio: this.state.input_bio
+					})
+				})
+				.then(response => {
+					if (!response.ok) {
+						throw Error('Network request failed');
+					}
+					this.setState({editing: false, name: this.state.input_name, bio: this.state.input_bio});
+				});
+			}
+			else {
+				this.setState({editing: false});
+			}
+		}
+		else {
+			this.setState({editing: true});
+		}
+	}
+	
+	updateImage(backend, frontend) {
+		let form = new FormData()
+		form.append('image', backend);
+		
+		fetch(urlForEditImage,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`,
+			},
+			body: form
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.setState({image_url: frontend});
+		});
 	}
 	
 	toggleButtons() {
@@ -438,49 +565,31 @@ class ProfileContainer extends Component {
 		let location = (this.props.city !== null ? this.props.city : '') +
 						(this.props.city !== null && this.props.country !== null ? ', ' : '') +
 						(this.props.country !== null ? this.props.country : '');
+			
+		let menu;
+		if (this.props.self) {
+			menu = <SelfMenu
+						function_toggle_input={this.toggleInput}
+						function_update_image={this.updateImage}/>
+		}
+		else if (this.props.friend) {
+			menu = null;//<FriendMenu />
+		}
+		else if (this.props.authenticated) {
+			menu = null;//<UnkownMenu />
+		}
+		else {
+			menu = null;
+		}
+		
 		return (
 			<div>
 				<HeaderDivider title="User" color="purple"/>
 				<div className="profile-container ui grid centered stackable middle aligned">
 					<div className="six wide column profile-photo">
 						<div className="image-container">
-							<Image circular src={this.props.photo}/>
-							{!this.state.disable_buttons &&
-								<SocialButton
-									id={this.props.id}
-									self={this.props.self}
-									friend={this.state.friend !== undefined ? this.state.friend : this.props.friend}
-									friend_request_sent={this.props.friend_request_sent}
-									friend_request_received={this.props.friend_request_received}
-									cookies={this.props.cookies}
-									function_set_modal={this.setModalContent}
-									function_update_friend={this.updateFriendStatus}
-								/>
-							}
-
-							<TransactionButton
-								id={this.props.id}
-								self={this.props.self}
-								friend={this.state.friend !== undefined ? this.state.friend : this.props.friend}
-								donation_request={this.props.donation_request}
-								loan_request={this.props.loan_request}
-								cookies={this.props.cookies}
-								
-								function_toggle_buttons={this.toggleButtons}
-								function_set_modal={this.setModalContent}
-								function_update_donation_status={this.props.function_update_donation_status}
-								function_update_loan_status={this.props.function_update_loan_status}
-							/>
-							
-							{!this.state.disable_buttons &&
-								<BlockButton
-									id={this.props.id}
-									self={this.props.self}
-									cookies={this.props.cookies}
-									function_block_user={this.props.function_block_user}
-									function_set_modal={this.setModalContent}
-								/>
-							}
+							<Image circular src={this.state.image_url}/>
+							{menu}
 							
 							<ModalContainer 
 								header={this.state.modal_header}
@@ -495,12 +604,23 @@ class ProfileContainer extends Component {
 					</div>
 					<div id="profile-info" className="ten wide column">
 						<div className="profile-info-wrapper">
-							<Header className="profile-name" size="large">{this.props.name}</Header><br/>
-							<Header className="profile-location" size="medium">{location}</Header><br/>
+							{this.state.editing ? (
+								<Input value={this.state.input_name} onChange={(e) => this.setState({input_name: e.target.value})} />
+							) : (
+								<Header className="profile-name" size="large">{this.state.name}</Header>
+							)}
+							<br/>
+							<Header className="profile-location" size="medium">{location}</Header>
+							<br/>
 							{this.props.rating !== undefined &&
 								<Rating defaultRating={Math.round(this.props.rating)} maxRating={3} size="large" disabled />
-							}<br/>
-							<p>{this.props.bio}</p>
+							}
+							<br/>
+							{this.state.editing ? (
+								<TextArea value={this.state.input_bio} onChange={(e) => this.setState({input_bio: e.target.value})} />
+							) : (
+								<p>{this.state.bio}</p>
+							)}
 						</div>
 					</div>
 				</div>
@@ -571,7 +691,7 @@ class ExtrasContainer extends Component {
 							return (
 								<div className="center aligned">
 									<a href={this.props.url+elem.id}>
-										<Image circular src={elem.image_url}/>
+										<Image circular src={this.props.image_directory+elem.image_url}/>
 										<div>{elem.name}</div>
 									</a>
 								</div>
@@ -601,12 +721,20 @@ class User extends Component {
 		const { cookies } = this.props;
 		
 		// User info
-        fetch(urlForUser(this.state.id), {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${cookies.get('id_token')}`
-			}
-		})
+		let init;
+		if (cookies.get('id_token')) {
+			init = {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${cookies.get('id_token')}`
+				}
+			};
+		}
+		else {
+			init = { method: 'GET' };
+		}
+		
+        fetch(urlForUser(this.state.id), init)
 		.then(response => {
 			if (!response.ok) {
 				throw Error('Network request failed');
@@ -749,9 +877,10 @@ class User extends Component {
 						country={this.state.country}
 						high_level={this.state.high_level}
 						bio={this.state.bio}
-						photo={this.state.image_url}
+						photo={urlForUserImage + this.state.image_url}
 						rating={this.state.rating}
 						
+						authenticated={this.state.authenticated}
 						self={this.state.self}
 						friend={this.state.friend}
 						friend_request_sent={this.state.friend_request_sent}
@@ -787,6 +916,7 @@ class User extends Component {
 						title="Friends"
 						content={this.state.friends}
 						url="/user/"
+						image_directory={urlForUserImage}
 					/>
 				</Container>
 			);
