@@ -163,14 +163,13 @@ router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), fun
 
 /**
  * @api {get} /services/search-count - Get number of results and pages of a services search
- * @apiName GetServicesNumPages
+ * @apiName GetServicesSearchCount
  * @apiGroup Service
  * @apiPermission visitor
  *
  * @apiDescription Returns the number of pages of a services search
  *
  * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
- * @apiParam (RequestQueryParams) {Integer} page Page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items Number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
  * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
@@ -207,12 +206,6 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
         var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
-        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
-        var offset = (page - 1) * itemsPerPage;
-        // order by:
-        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
-        // ascending / descending
-        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
         // filters:
         var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
         var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
