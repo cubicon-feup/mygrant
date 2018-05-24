@@ -4,8 +4,10 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Button, Container, Form, Header, Input, Message, Responsive } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Input, Modal, Message, Responsive } from 'semantic-ui-react';
 import { MygrantDivider } from '../components/Common';
+import PidgeonMaps from '../components/Map';
+import SearchLocation from '../components/SearchLocation';
 
 class SignUp extends Component {
     static propTypes = {
@@ -20,6 +22,8 @@ class SignUp extends Component {
             emailError: false,
             errorMessage: '',
             formError: false,
+            latitude: '',
+            longitude: '',
             name: '',
             password: '',
             passwordError: false,
@@ -72,6 +76,8 @@ class SignUp extends Component {
 
         const data = {
             email: this.state.email,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude,
             name: this.state.name,
             password: this.state.password,
             phone: this.state.phone
@@ -84,7 +90,7 @@ class SignUp extends Component {
         }).then(res => {
             if (res.status === 201) {
                 // User created - redirect to more info
-                this.props.history.push('/signupinfo');
+                this.props.history.push('/');
             } else if (res.status === 409) {
                 // Email or phone already in use
                 this.setState({
@@ -95,6 +101,30 @@ class SignUp extends Component {
                 });
             }
         });
+    }
+
+    handleLocationChange = data => {
+        this.setState({
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
+        });
+    };
+
+    renderMap() {
+        return (
+            <Modal trigger={<Button content={'Open Map'} />}>
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
     }
 
     render() {
@@ -137,6 +167,9 @@ class SignUp extends Component {
                                     onChange={this.handleInput.bind(this)}
                                 />
                             </Form.Field>
+                            <Form.Field>
+                                <SearchLocation handleChange={this.handleLocationChange} />
+                            </Form.Field>
                             <Form.Field required >
                                 <label>{'password'.toUpperCase()}</label>
                                 <Input
@@ -165,6 +198,7 @@ class SignUp extends Component {
                                     content={this.state.errorMessage}
                                 />
                             </Form.Field>
+                            {this.renderMap()}
                             <Button circular fluid className={'mygrant-button'} content={'sign up'.toUpperCase()}></Button>
                         </Form>
                     </div>

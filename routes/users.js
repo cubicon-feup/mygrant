@@ -10,10 +10,8 @@ const authenticate = expressJwt({ secret: appSecret });
 router.get('/:id', function(req, res) {
 
     const query = `
-        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url,
+        SELECT users.id as user_id, date_joined, full_name, latitude, longitude, level, high_level, verified, image_url,
         FROM users
-        JOIN country
-        ON country.id=users.country_id
         WHERE users.id = $(id);`;
 
     db.one(query, { id: req.params.id })
@@ -21,7 +19,6 @@ router.get('/:id', function(req, res) {
             res.status(200).json(data);
         })
         .catch(error => {
-            console.log(error.message);
             res.status(500).json(error.message);
         });
 });
@@ -155,28 +152,6 @@ router.delete('/block_user', function(req, res) {
             blocker_id: user_id,
             target_id: req.body.id
         })
-        .then(() => {
-            res.sendStatus(200);
-        })
-        .catch(error => {
-            res.status(500).json({ error });
-        });
-});
-
-// Set location (Country, region, city) info
-router.post('/set_location', authenticate, function(req, res) {
-    const query =
-        `UPDATE users SET country_id = $(country), city = $(city), region = $(region), latitude = $(latitude), longitude = $(longitude)
-        WHERE id = $(id)`;
-
-    db.none(query, {
-        city: req.body.city,
-        country: req.body.country,
-        id: req.user.id,
-        region: req.body.region,
-        latitude: req.body.hasOwnProperty('latitude') ? req.body.latitude : null,
-        longitude: req.body.hasOwnProperty('longitude') ? req.body.longitude : null,
-    })
         .then(() => {
             res.sendStatus(200);
         })

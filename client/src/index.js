@@ -10,7 +10,6 @@ import registerServiceWorker from './registerServiceWorker';
 import App from './containers/App';
 import Login from './containers/Login';
 import SignUp from './containers/Signup';
-import SignUpInfo from './containers/SignupInfo';
 import CreateService from './components/CreateService';
 import User from './components/User';
 import Service from './components/Service';
@@ -35,7 +34,6 @@ ReactDom.render(
                 <Route exact path="/" component={App} />
                 <Route exact path="/login" component={Login} />
                 <Route exact path="/signup" component={SignUp} />
-                <ProtectedRoute exact path="/signupinfo" component={SignUpInfo} />
                 <Route
                     exact path="/createservice/:type(PROVIDE|REQUEST)"
                     component={CreateService}
