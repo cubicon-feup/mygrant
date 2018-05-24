@@ -32,6 +32,7 @@ class SearchCrowdfunding extends Component {
             })
             .then(result => result.json())
             .then(result => {
+                console.log(result);
                 this.setState({ crowdfundings: result });
             }, () => {
                 // "catch" the error
@@ -94,6 +95,7 @@ class SearchCrowdfunding extends Component {
         })
         .then(result => result.json())
         .then(result => {
+            console.log(result);
             this.setState({ crowdfundings: result });
             console.log(this.state.crowdfundings);
         }, () => {
@@ -146,6 +148,7 @@ class SearchCrowdfunding extends Component {
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
         this.state = {};
         this.table_body = {};
+        this.categories = [];
         this.setState({category:""});
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -166,53 +169,44 @@ class SearchCrowdfunding extends Component {
             this.table_body = this.state.crowdfundings.map(table_row => {
                 return (
                     <Item>
-                        <Item.Image size='small' src='/assets/images/wireframe/image.png' />
+                        <Item.Image size='small' src='/img/mission.png' />
 
                         <Item.Content verticalAlign='middle'>
                             <Item.Header>{table_row.title}</Item.Header>
                             <Item.Meta><a>{table_row.category}</a> <a>{table_row.creator_name}</a></Item.Meta>
                             <Item.Description>{table_row.status}</Item.Description>
                             <Item.Extra>
-                                <Link to={"/crowdfunding/" + table_row.id}><Button  floated="right">See Details</Button></Link>
+                                <Link to={"/crowdfunding/" + table_row.crowdfunding_id}><Button  floated="right">See Details</Button></Link>
                             </Item.Extra>
                         </Item.Content>
                     </Item>
                 );
             });
             this.categorie_body = this.state.categories.map(categorie => {
-                return (
-                    <Form.Field control={Radio} name="category" label={categorie.service_category} value={categorie.service_category} checked={this.state.category === categorie.service_category} onChange={this.handleChange} />
-                );
+                this.categories.push({text:categorie.service_category, value: categorie.service_category});
             });
         }
         return (
-            <Container className="main-container">
+            <Container className="individual-page-container">
                 <Form method="POST" onSubmit={this.handleSubmit}>
                     <Form.Input type='text' placeholder='Search' name="search_text" value={this.state.search} onChange={this.handleChange}/>
                     <h2>Filter</h2>
                     <Form.Group inline>
-                        <label>Categorias</label>
-                        {this.categorie_body}
-                    </Form.Group>
-                        <Form.Group inline>
-                        <label>Distancia</label>
-                        <Form.Radio label='Até 1 km' name="distance" value='1' checked={this.state.filter === '1'} onChange={this.handleChange} />
-                        <Form.Radio label='Até 5 km' name="distance" value='5' checked={this.state.filter === '5'} onChange={this.handleChange} />
-                        <Form.Radio label='Até 10 km' name="distance" value='10' checked={this.state.filter === '10'} onChange={this.handleChange} />
-                    </Form.Group>
-                    <Form.Group inline>
-                        <label>Localidade</label>
-                        <Form.Radio label='Small' name="location" value='sm' checked={this.state.filter === 'sm'} onChange={this.handleChange} />
-                        <Form.Radio label='Medium' name="location" value='' checked={this.state.filter === 'md'} onChange={this.handleChange} />
-                        <Form.Radio label='Large' name="location" value='lg' checked={this.state.filter === 'lg'} onChange={this.handleChange} />
+                        <Form.Select placeholder="Categoria" name="category" onChange={this.handleChange} options={this.categories}/>
+                        <Form.Select placeholder="Distancia" name="discance" onChange={this.handleChange} options={[
+                            {text:'Até 1 km', value:'1'},
+                            {text:'Até 3 km', value:'3'},
+                            {text:'Até 5 km', value:'5'}
+                        ]}/>
                     </Form.Group>
                     <h2>Order by</h2>
                     <Form.Group inline>
-                        <Form.Radio label='Beginning date' name="order" value='date_created' checked={this.state.order === 'date_created'} onChange={this.handleChange} />
-                        <Form.Radio label='End date' name="order" value='date_finished' checked={this.state.order === 'date_finished'} onChange={this.handleChange} />
-                        <Form.Radio label='Mygrant target' name="order" value='mygrant_target' checked={this.state.order === 'mygrant_target'} onChange={this.handleChange} />
-                        <Form.Radio label='Rating' name="order" value='lg' checked={this.state.order === 'lg'} onChange={this.handleChange} />
-                        <Form.Radio label='Name' name="order" value='title' checked={this.state.order === 'title'} onChange={this.handleChange} selected="selected" />
+                        <Form.Select placeholder="Order" name="discance" onChange={this.handleChange} options={[
+                            {text:'Beginning date', value:'date_created'},
+                            {text:'End date', value:'date_finished'},
+                            {text:'Mygrant target', value:'mygrant_target'},
+                            {text:'Name', value:'title'},
+                        ]}/>
                     </Form.Group>
                     <Form.Button content="search"/>
                 </Form>

@@ -13,31 +13,27 @@ import {
 } from 'semantic-ui-react';
 import User from './User';
 
-const urlForData = id => `http://localhost:3001/api/services/${id}/offers`;
-const urlForUser = id => `http://localhost:3001/api/users/${id}`;
-const urlForAccept = id =>
-    `http://localhost:3001/api/services/${id}/offers/accept`;
-const urlForDecline = id =>
-    `http://localhost:3001/api/services/${id}/offers/decline`;
+const urlForData = id => `/api/services/${id}/offers`;
+const urlForUser = id => `/api/users/${id}`;
+const urlForAccept = id => `/api/services/${id}/offers/accept`;
+const urlForDecline = id => `/api/services/${id}/offers/decline`;
 
 class AnswerProposal extends Component {
-    handleAcceptClick = e => {
+    handleClick = accept => e => {
+        const { cookies } = this.props;
         e.preventDefault();
-        fetch(urlForAccept(this.props.idService), {
-            method: 'POST',
-            body: JSON.stringify(this.props.idUser),
-            headers: { 'Content-Type': 'application/json' }
-        }).then(result => {
-            result.json();
-        });
-    };
 
-    handleDeclineClick = e => {
-        e.preventDefault();
-        fetch(urlForDecline(this.props.idService), {
+        var urlToUser = accept
+            ? urlForAccept(this.props.idService)
+            : urlForDecline(this.props.idService);
+
+        fetch(urlToUser, {
             method: 'POST',
             body: JSON.stringify(this.props.idUser),
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
         }).then(result => {
             result.json();
         });
@@ -50,11 +46,11 @@ class AnswerProposal extends Component {
                     <Button
                         basic
                         color="green"
-                        onClick={this.handleAcceptClick}
+                        onClick={this.handleClick(true)}
                     >
                         Approve
                     </Button>
-                    <Button basic color="red" onClick={this.handleDeclineClick}>
+                    <Button basic color="red" onClick={this.handleClick(false)}>
                         Decline
                     </Button>
                 </div>

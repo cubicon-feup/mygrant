@@ -7,6 +7,8 @@ const initialMygrantBalance = require('../config/config').initialMygrantBalance;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const expressJwt = require('express-jwt');
+const authenticate = expressJwt({ secret: appSecret });
 
 // Register a user
 router.post('/signup', function(req, res) {
@@ -92,6 +94,12 @@ router.post('/login', function(req, res) {
             res.status(400).json({ error: 'Invalid email or password' });
         }
     })(req, res);
+});
+
+// Logout
+router.get('/logout', authenticate, function(req, res) {
+    req.logout();
+    res.sendStatus(200);
 });
 
 module.exports = router;

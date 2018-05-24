@@ -1,10 +1,20 @@
 import React, { Component } from "react";
 import "../css/common.css";
-import { Container, Header, Form } from "semantic-ui-react";
+import { Container, Header, Form, Dropdown } from "semantic-ui-react";
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
-const urlForCreate = 'http://localhost:3001/api/crowdfundings';
+const urlForCreate = '/api/crowdfundings';
+const urlGetCategories = '/api/service_categories';
+const crowdfundingCollectingWeeks = require('../config').crowdfundingCollectingWeeks;
 
 class CreateCrowdfunding extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        history: ReactRouterPropTypes.history.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -12,38 +22,62 @@ class CreateCrowdfunding extends Component {
             description: "",
             category: "",
             location: "",
-            date_finished: "",
             mygrant_target: "",
-            creator_id: 2
+            categories: []
         };
+    }
+
+    componentDidMount() {
+        this.getCategories();
+    }
+    
+    getCategories() {
+        fetch(urlGetCategories, {
+            method: 'GET'
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        let categories = [];
+                        for(let i = 0; i < data.length; i++) {
+                            let object = {
+                                key: i,
+                                text: data[i].service_category,
+                                value: data[i].service_category
+                            }
+                            categories.push(object);
+                        }
+                        this.setState({categories: categories});
+                    })
+            }
+        })
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = () => {
-        this.setState({
-            title: "",
-            description: "",
-            category: "",
-            location: "",
-            date_finished: "",
-            mygrant_target: ""
-        });
-
+        const { cookies } = this.props;
         fetch(urlForCreate, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
             },
             body: JSON.stringify({
                 title: this.state.title,
                 description: this.state.description,
                 category: this.state.category,
                 location: this.state.location,
-                date_finished: this.state.date_finished,
+                time_interval: crowdfundingCollectingWeeks,
                 mygrant_target: this.state.mygrant_target,
-                creator_id: this.state.creator_id
             })
+        }).then(res => {
+            if(res.status === 201) {
+                res.json()
+                    .then(data => {
+                        this.props.history.push(`/crowdfunding/${data.id}`);
+                    })
+            }
         })
     }
 
@@ -53,8 +87,8 @@ class CreateCrowdfunding extends Component {
             description,
             category,
             location,
-            date_finished,
-            mygrant_target
+            mygrant_target,
+            categories
         } = this.state;
 
         return (
@@ -75,12 +109,14 @@ class CreateCrowdfunding extends Component {
                             value={description}
                             onChange={this.handleChange}
                         />
-                        <Form.Input
+                        <Form.Dropdown
                             placeholder="Category"
                             name="category"
-                            value={category}
+                            fluid
+                            search
+                            selection
+                            options={categories}
                             onChange={this.handleChange}
-                            required
                         />
                         <Form.Input
                             placeholder="Location"
@@ -89,17 +125,10 @@ class CreateCrowdfunding extends Component {
                             onChange={this.handleChange}
                         />
                         <Form.Input
-                            placeholder="Finish Date"
-                            name="date_finished"
-                            value={date_finished}
-                            type="date"
-                            onChange={this.handleChange}
-                            required
-                        />
-                        <Form.Input
                             placeholder="MyGrant Target"
                             name="mygrant_target"
                             value={mygrant_target}
+                            type="number"
                             onChange={this.handleChange}
                             required
                         />
@@ -111,4 +140,4 @@ class CreateCrowdfunding extends Component {
     }
 }
 
-export default CreateCrowdfunding;
+export default withCookies(CreateCrowdfunding);
