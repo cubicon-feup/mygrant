@@ -47,6 +47,7 @@ class SearchLocation extends Component {
             location_results = [
                 ...location_results,
                 {
+                    key: location.place_id,
                     title: location.display_name,
                     latitude: location.lat,
                     longitude: location.lon
