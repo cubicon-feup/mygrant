@@ -276,7 +276,9 @@ class SignUpInfo extends Component {
                                 placeholder={'City'}
                                 options={this.state.cities}
                             />
-                            <SearchLocation handleChange={this.handleLocationChange} />
+                            <Form.Field>
+                                <SearchLocation handleChange={this.handleLocationChange} />
+                            </Form.Field>
                             {this.renderMap()}
                             <Message
                                 error

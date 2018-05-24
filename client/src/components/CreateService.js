@@ -261,7 +261,9 @@ class CreateService extends Component {
                         options={this.service_categories}
                         onChange={this.handleChange}
                     />
-                    <SearchLocation handleChange={this.handleLocationChange} />
+                    <Form.Field>
+                        <SearchLocation handleChange={this.handleLocationChange} />
+                    </Form.Field>
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"

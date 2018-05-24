@@ -147,7 +147,9 @@ class CreateCrowdfunding extends Component {
                             options={categories}
                             onChange={this.handleChange}
                         />
-                        <SearchLocation handleChange={this.handleLocationChange} />
+                        <Form.Field>
+                            <SearchLocation handleChange={this.handleLocationChange} />
+                        </Form.Field>
                         <Form.Input
                             placeholder="MyGrant Target"
                             name="mygrant_target"

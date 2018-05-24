@@ -59,6 +59,8 @@ class SearchLocation extends Component {
     render() {
         return (
             <Search
+                fluid
+                id="search-location"
                 onResultSelect={this.handleChange}
                 onSearchChange={this.fetchLocation}
                 results={this.state.results}
