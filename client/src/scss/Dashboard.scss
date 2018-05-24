@@ -1,0 +1,82 @@
+@import 'common';
+
+#dashboard_base_container { /* Divider Overload */
+  div.mygrant-divider {
+  background: transparent;
+    .first-divider.divider {
+      margin-bottom: 36px;
+      margin-top: 5px;
+      width: 90%;
+    }
+
+    .second-divider.divider {
+      margin-top: 5px;
+      margin-bottom: 36px;
+      width: 90%;
+    }
+  }
+
+  .service-container{
+    text-align: center;
+    background-color: $light-green;
+    padding:20px;
+    margin: 0 0 20px 0;
+    border-radius: 10px;
+  }
+
+  .service-title{
+    color: $purple;
+  }
+
+  .service-title:hover{
+    color: $light-purple;
+  }
+
+  .crowdfunding-container{
+    text-align: center;
+    background-color: $light-green;
+    padding:20px;
+    margin: 0 0 20px 0;
+    border-radius: 10px;
+  }
+
+  .crowdfunding-title{
+    color: $purple;
+  }
+
+  .crowdfunding-title:hover{
+    color: $light-purple;
+  }
+
+  .crowdfunding-service-container{
+    text-align: center;
+    background-color: $light-purple;
+    padding:20px;
+    margin: 0 0 20px 0;
+    border-radius: 10px;
+    .service-title{
+      color: $green;
+    }
+  }
+
+  #balance{
+    text-align: center;
+    margin: 0 auto;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: $purple;
+    color: $green;
+  }
+
+  #balance > h3{
+    position: relative;
+    top:75px;
+  }
+  #balance > h1{
+    position: relative;
+    top:55px;
+  }
+}
+
+
