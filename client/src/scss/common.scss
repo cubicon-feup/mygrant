@@ -54,7 +54,7 @@ div.site-header {
 
     .item.header a {
         color: $purple;
-    }    
+    }
 }
 /* Header End */
 
@@ -157,4 +157,7 @@ div.site-nav-mobile {
 }
 /* Main Container End */
 
+.modals.visible.transition {
+    display: flex !important;
+}
 
