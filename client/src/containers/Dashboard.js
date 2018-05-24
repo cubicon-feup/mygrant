@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form, Card } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 import Service from '../components/dashboard/Service'; 
 import Crowdfunding from '../components/dashboard/Crowdfunding';
+import DonatedCrowdfunding from '../components/dashboard/DonatedCrowdfunding';
 
 const urlGetMygrantBalance = `/api/comments/mygrant_balance`;
 const urlGetMyServices = `/api/comments/my_services`;
 const urlGetPartnerServices = `/api/comments/partned_services`;
 const urlGetUserCrowdfundings = `/api/comments/crowdfundings`;
+const urlGetDonatedCrowdfundings = `/api/comments/donated_crowdfundings`;
 
 class Dashboard extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -20,9 +23,9 @@ class Dashboard extends Component {
             mygrant_balance: 0,
             myServices: [],
             partnedServices: [],
-            crowdfundings: []
+            crowdfundings: [],
+            donatedCrowdfundings: []
         }
-
     }
 
     componentDidMount() {
@@ -30,6 +33,7 @@ class Dashboard extends Component {
         this.getMyServices();
         this.getPartnedServices();
         this.getUserCrowdfundings();
+        this.getDonatedCrowdfundings();
     }
 
     getMygrantBalance() {
@@ -101,9 +105,23 @@ class Dashboard extends Component {
         })
     }
 
-    // Crowdfundings that the user supported.
-    getCrowdfundingsToRate() {
-
+    getDonatedCrowdfundings() {
+        const { cookies } = this.props;
+        fetch(urlGetDonatedCrowdfundings, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            }
+        }).then(res => {
+            if(res.status === 200) {
+                res.json()
+                    .then(data => {
+                        console.log(data);
+                        this.setState({donatedCrowdfundings: data.data});
+                        console.log(this.state.donatedCrowdfundings);
+                    })
+            }
+        })
     }
 
     // Services that the user was a candidate and was accepted.
@@ -134,6 +152,24 @@ class Dashboard extends Component {
             })
         } else crowdfundings = 'Nothing yet.';
 
+        let donatedCrowdfundings;
+        if(this.state.donatedCrowdfundings.length > 0) {
+            donatedCrowdfundings = this.state.donatedCrowdfundings.map(donatedCrowdfunding => {
+                return (
+                    <Card>
+                        <Card.Content>
+                            <Card.Header>Crowdfunding: <Link to={`/user/${donatedCrowdfunding.crowdfunding_id}`}>{donatedCrowdfunding.crowdfunding_title}</Link></Card.Header>
+                            <Card.Description>
+                                <p>Amount: {donatedCrowdfunding.amount}</p>
+                            </Card.Description>
+                            {/*Ainda faltam os botoes para dar rate.*/}
+                        </Card.Content>
+                    </Card>
+                )
+                return <DonatedCrowdfunding crowdfunding={donatedCrowdfunding}/>
+            })
+        } else donatedCrowdfundings = 'Nothing yet.';
+
         return (
             <Container>
                 <br />
@@ -154,6 +190,8 @@ class Dashboard extends Component {
                 <h2>Crowdfundings</h2>
                 {crowdfundings}
 
+                <h2>Donated Crowdfundings</h2>
+                {donatedCrowdfundings}
             </Container>
         )
     }

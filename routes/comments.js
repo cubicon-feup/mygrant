@@ -420,4 +420,24 @@ router.get('/my_services', authenticate, function(req, res) {
     })
 })
 
+router.get('/donated_crowdfundings', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT crowdfunding.id as crowdfunding_id, crowdfunding.title as crowdfunding_title, crowdfunding_donation.amount
+        FROM crowdfunding_donation
+        INNER JOIN crowdfunding ON crowdfunding.id = crowdfunding_donation.crowdfunding_id
+        WHERE crowdfunding_donation.donator_id = $(user_id)
+            AND crowdfunding_donation.rating IS NULL
+            AND crowdfunding."status" = 'FINISHED';`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
 module.exports = router;
