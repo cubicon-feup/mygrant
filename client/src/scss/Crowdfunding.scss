@@ -5,11 +5,6 @@
   margin-bottom: 36px;
 }
 
-#crowdfunding_dot_divider{
-  font-size: 30pt;
-}
-
-
 .crowdfunding_grid{
   .left_col{
 
@@ -38,17 +33,19 @@
       height: 200px;
     }
     #rating{
+      margin-bottom: 40px;
     }
 
     #crowdfunding_donate{
       margin:0;
       padding:0;
-      margin-top:60px;
-    }
 
-    .ui.button{
-      background: $purple;
-      color: white;
+      .ui.input{
+        margin-top: 5px;
+      }
+      .ui.button{
+        margin:0;
+      }
     }
   }
 }
@@ -61,19 +58,21 @@
 #crowdfunding_comments{
   margin-bottom:36px;
 }
-/* Divider Overload */
-div.mygrant-divider {
 
-  .first-divider.divider {
-    margin-bottom: 36px;
-    margin-top: 36px;
-    width: 90%;
-  }
+#crowdfunding_base_container { /* Divider Overload */
+  div.mygrant-divider {
+  background: transparent;
+    .first-divider.divider {
+      margin-bottom: 36px;
+      margin-top: 36px;
+      width: 90%;
+    }
 
-  .second-divider.divider {
-    margin-top: 5px;
-    margin-bottom: 36px;
-    width: 90%;
+    .second-divider.divider {
+      margin-top: 5px;
+      margin-bottom: 36px;
+      width: 90%;
+    }
   }
 }
 
@@ -88,7 +87,7 @@ div.mygrant-divider {
 
 .ui.primary.button{
   background-color: $green;
-  
+
 }
 
 

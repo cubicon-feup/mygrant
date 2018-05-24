@@ -16,7 +16,7 @@ router.get('/:id', authenticate, function(req, res) {
         return;
     }
     const query = `
-	    SELECT
+	  SELECT
 			users.id=$(logged_id) AS self,
 			blocked.blocker_id IS NOT NULL AS blocked,
 			friend.user1_id IS NOT NULL AS friend,
@@ -59,7 +59,7 @@ router.get('/:id', authenticate, function(req, res) {
  * @apiGroup User
  * @apiPermission authenticated user
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) OK
  *
  */
 router.get('/', authenticate, function(req, res) {
@@ -349,14 +349,16 @@ router.post('/donation', authenticate, function(req, res) {
 // Set location (Country, region, city) info
 router.post('/set_location', authenticate, function(req, res) {
     const query =
-        `UPDATE users SET country_id = $(country), city = $(city), region = $(region) 
+        `UPDATE users SET country_id = $(country), city = $(city), region = $(region), latitude = $(latitude), longitude = $(longitude)
         WHERE id = $(id)`;
 
     db.none(query, {
         city: req.body.city,
         country: req.body.country,
         id: req.user.id,
-        region: req.body.region
+        region: req.body.region,
+        latitude: req.body.hasOwnProperty('latitude') ? req.body.latitude : null,
+        longitude: req.body.hasOwnProperty('longitude') ? req.body.longitude : null,
     })
         .then(() => {
             res.sendStatus(200);
