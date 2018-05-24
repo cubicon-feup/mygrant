@@ -97,8 +97,30 @@ div.profile-container {
 				}
 			
 				.message-button {
-					right: - 22.5px;
 					top: calc(50% - 22.5px);
+					right: - 22.5px;
+				}
+			
+				.block-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+			
+			.friend-menu-buttons {
+				.friend-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			
+				.transaction-button {
+					top: calc(37.06% - 22.5px);
+					right: calc(1.70% - 22.5px);
+				}
+				
+				.message-button {
+					top: calc(62.94% - 22.5px);
+					right: calc(1.70% - 22.5px);
 				}
 			
 				.block-button {

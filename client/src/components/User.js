@@ -493,6 +493,41 @@ class AddFriendButton extends Component {
 	}
 }
 
+// Props: id, cookies, function_update_friend, function_set_modal
+class RemoveFriendButton extends Component {
+	constructor(props) {
+		super(props);
+		this.removeFriend = this.removeFriend.bind(this);
+	}
+	
+	removeFriend() {
+		fetch(urlForFriend, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				id: this.props.id
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_friend(false);
+		});
+	}
+	
+	render() {
+		return (
+			<Button className="profile-button friend-button button-green-red"
+			onClick={()=>this.props.function_set_modal('Remove friend', 'Are you sure you want to remove this user as a friend?', this.removeFriend)}>
+				<Icon className="user"/>
+			</Button>);
+	}
+}
+
 // Props: id
 class ChatButton extends Component {
 	render() {
@@ -567,6 +602,31 @@ class UnknownMenu extends Component {
 					function_update_friend={this.props.function_update_friend}
 				/>
 			
+				<ChatButton id={this.props.id}/>
+			
+				<BlockButton
+					id={this.props.id}
+					self={this.props.self}
+					cookies={this.props.cookies}
+					function_block_user={this.props.function_block_user}
+					function_set_modal={this.props.function_set_modal}
+				/>
+			</div>
+		);
+	}
+}
+
+// id, self, cookies, function_set_modal, function_update_friend, function_block_user
+class FriendMenu extends Component {
+	render() {
+		return (
+			<div className="friend-menu-buttons">
+				<RemoveFriendButton 
+					id={this.props.id}
+					cookies={this.props.cookies}
+					function_set_modal={this.props.function_set_modal}
+					function_update_friend={this.props.function_update_friend}
+				/>
 			
 				<ChatButton id={this.props.id}/>
 			
@@ -580,8 +640,6 @@ class UnknownMenu extends Component {
 			</div>
 		);
 	}
-	
-	
 }
 
 
@@ -713,7 +771,13 @@ class ProfileContainer extends Component {
 						function_update_image={this.updateImage}/>
 		}
 		else if (this.state.friend) {
-			menu = null;//<FriendMenu />
+			menu = <FriendMenu 
+						id={this.props.id}
+						self={this.props.self}
+						cookies={this.props.cookies}
+						function_block_user={this.props.function_block_user}
+						function_set_modal={this.setModalContent}
+						function_update_friend={this.updateFriendStatus}/>
 		}
 		else if (this.props.authenticated) {
 			menu = <UnknownMenu
