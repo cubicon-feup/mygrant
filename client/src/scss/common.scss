@@ -56,7 +56,7 @@ div.site-header {
     .item.header a {
         font-family: Helvetica, sans-serif !important;
         color: $purple;
-    }    
+    }
 }
 /* Header End */
 
@@ -160,4 +160,10 @@ div.site-nav-mobile {
 }
 /* Main Container End */
 
+.modals.visible.transition {
+    display: flex !important;
+}
 
+#search-location {
+    display: block !important;
+}
