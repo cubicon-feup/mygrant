@@ -1276,15 +1276,16 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     let query =
         `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating, service_instance.id as service_instance_id
         FROM service_instance
+        INNER JOIN service ON service.id = service_instance.service_id
         INNER JOIN users ON users.id = partner_id
         WHERE service_instance.service_id = $(service_id);`;
 
-    db.one(query, {
+    db.oneOrNone(query, {
         service_id: serviceId
     }).then(data => {
         res.status(200).json(data);
+        console.log(data);
     }).catch(error => {
-
         res.status(500).json({error});
     })
 })

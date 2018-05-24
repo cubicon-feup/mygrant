@@ -27,9 +27,8 @@ class Service extends Component {
     componentDidMount() {
         if(this.state.type === 'CROWDFUNDING' || this.state.type === 'MY_SERVICES')  // PARTNED, CROWDFUNDING
             this.getCandidates();
-        else if(this.state.type === 'PARTNED') {
+        else if(this.state.type === 'PARTNED')
             this.setState({serviceInstance: this.props.service});
-        }
     }
 
     getCandidates() {
@@ -193,7 +192,7 @@ class Service extends Component {
                 serviceInstance =
                     <Card>
                         <Card.Content>
-                            <Card.Header>Requester: <Link to={`/user/${this.state.serviceInstance.creator_id}`}>{this.state.serviceInstance.creator_name}</Link></Card.Header>
+                            <Card.Header>Service: <Link to={`/service/${this.state.serviceInstance.service_id}`}>{this.state.serviceInstance.service_title}</Link></Card.Header>
                             <Card.Description>
                                 <p>Date scheduled: {this.state.serviceInstance.date_scheduled}</p>
                                 {rate}

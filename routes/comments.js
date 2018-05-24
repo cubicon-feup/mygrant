@@ -378,13 +378,13 @@ router.get('/partned_services', authenticate, function(req, res) {
     let query =
         `SELECT *
         FROM (
-            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id, service.id as service_id, service.title as service_title
             FROM service_instance
             INNER JOIN service ON service.id = service_instance.service_id
             INNER JOIN users ON users.id = service.creator_id
             WHERE service_instance.partner_id = $(user_id)
             UNION
-            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id, service.id as service_id, service.title as service_title
             FROM service_instance
             INNER JOIN service ON service.id = service_instance.service_id
             INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id

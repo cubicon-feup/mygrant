@@ -61,7 +61,6 @@ class Dashboard extends Component {
                 res.json()
                     .then(data => {
                         this.setState({myServices: data.data});
-                        console.log(this.state.myServices)
                     })
             }
         })
