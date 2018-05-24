@@ -22,10 +22,10 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiDescription Search for and filters listing of active services according to parameters given
  *
  * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
- * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
- * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
- * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
- * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
+ * @apiParam (RequestQueryParams) {Integer} page Page number to return (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items Number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} order The field to be ordered by (defaults to search_score) (Optional)
+ * @apiParam (RequestQueryParams) {Boolean} asc Display in ascesding order (defaults to true) (Optional)
  * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
  * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
  * @apiParam (RequestQueryParams) {String} cat Category of the service [BUSINESS, ARTS, ...] (Optional)
@@ -34,6 +34,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiParam (RequestQueryParams) {Integer} mygmin Min bound for mygrant_value (Optional)
  * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
  * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Integer} distmax Max bound for distance to service (Optional)
  *
  * @apiExample Syntax
  * GET: /api/services/?q=<QUERY>
@@ -65,7 +66,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', function(req, res) { // check for valid input
+router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), function(req, res) {
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -80,77 +81,76 @@ router.get('/', function(req, res) { // check for valid input
         var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
         var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
         var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
-        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
+        var inc_descr = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
         var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
         var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
         var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var distmax = req.query.hasOwnProperty('distmax') ? req.query.distmax : false;
+        // user id
+        var user_id = req.hasOwnProperty('user') && req.user.hasOwnProperty('id') ? req.user.id : null;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // define first query
-    const query_latlon = `SELECT latitude, longitude FROM users WHERE id=$(user_id)`;
-    db.one(query_latlon, {user_id: req.user.id})
-        .then(data => {
-            const latitude_ref = data.latitude; 
-            const longitude_ref = data.longitude;
-            
-            // define query
-            const query = `
-                SELECT *
-                FROM (
-                SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
-                2 * 3961 * asin(sqrt((sin(radians((service.latitude - $(latitude_ref)) / 2))) ^ 2 + cos(radians($(latitude_ref))) * cos(radians(service.latitude)) * (sin(radians((service.longitude - $(longitude_ref)) / 2))) ^ 2)) AS distance
-                ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
-                to_tsquery($(lang), $(q))) AS search_score` : ``}
-                FROM service
-                LEFT JOIN users on users.id = service.creator_id
-                LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
-                WHERE service.deleted = false
-                ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
-                ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
-                ${cat ? ' AND service.category = $(cat)' : ''}
-                ${type ? ' AND service.service_type = $(type)' : ''}
-                ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
-                ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
-                ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
-                ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-                ) s 
-                ${q ? 'WHERE search_score > 0' : ''}
-                ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
-                LIMIT $(itemsPerPage) OFFSET $(offset);`;
-            // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
-            // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+    // define query
+    const query = `
+        SELECT *
+        FROM (
+        WITH refs AS (
+            SELECT 
+            COALESCE((SELECT latitude FROM users WHERE id = $(user_id)),NULL) AS latitude_ref,
+            COALESCE((SELECT longitude FROM users WHERE id = $(user_id)),NULL) AS longitude_ref
+        )
+        SELECT service.id AS service_id, service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name AS provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title,
+        1.60934 * 2 * 3961 * asin(sqrt((sin(radians((service.latitude - latitude_ref) / 2))) ^ 2 + cos(radians(latitude_ref)) * cos(radians(service.latitude)) * (sin(radians((service.longitude - longitude_ref) / 2))) ^ 2)) AS distance
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), service.title ${inc_descr ? '|| \'. \' || service.description' : ''} || '. ' || service.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
+        FROM refs,service
+        LEFT JOIN users on users.id = service.creator_id
+        LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
+        WHERE service.deleted = false
+        ${crowdfunding_only ? ' AND service.crowdfunding_id IS NOT NULL' : ''}
+        ${invidivuals_only ? ' AND service.creator_id IS NOT NULL' : ''}
+        ${cat ? ' AND service.category = $(cat)' : ''}
+        ${type ? ' AND service.service_type = $(type)' : ''}
+        ${mygmax ? ' AND service.mygrant_value <= $(mygmax)' : ''}
+        ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
+        ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
+        ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
+        ) s 
+        ${q ? 'WHERE search_score > 0' : ''}
+        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
+        LIMIT $(itemsPerPage) OFFSET $(offset);`;
 
-            // place query
-            db.any(query, {
-                    q,
-                    itemsPerPage,
-                    offset,
-                    lang,
-                    cat,
-                    type,
-                    mygmax,
-                    mygmin,
-                    datemax,
-                    datemin,
-                    order,
-                    latitude_ref,
-                    longitude_ref
-                })
-                .then(data => {
-                    res.status(200).json(data);
-                })
-                .catch(error => {
-                    res.status(500).json(error);
-                });
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+
+    // place query
+    db.any(query, {
+        q,
+        itemsPerPage,
+        offset,
+        lang,
+        cat,
+        type,
+        mygmax,
+        mygmin,
+        datemax,
+        datemin,
+        order,
+        distmax,
+        user_id
+    })
+    .then(data => {
+        res.status(200).json(data);
+    })
+    .catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 
@@ -163,10 +163,8 @@ router.get('/', function(req, res) { // check for valid input
  * @apiDescription Returns the number of pages of a services search
  *
  * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
- * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
- * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
- * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
- * @apiParam (RequestQueryParams) {Boolean} display in ascesding order (defaults to true) (Optional)
+ * @apiParam (RequestQueryParams) {Integer} page Page number to return (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items Number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
  * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
  * @apiParam (RequestQueryParams) {String} cat Category of the service [BUSINESS, ARTS, ...] (Optional)
@@ -175,6 +173,7 @@ router.get('/', function(req, res) { // check for valid input
  * @apiParam (RequestQueryParams) {Integer} mygmin Min bound for mygrant_value (Optional)
  * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
  * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Integer} distmax Max bound for distance to service (Optional)
  *
  * @apiExample Syntax
  * GET: /api/services/search-count?q=<QUERY>
@@ -221,13 +220,14 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
         var crowdfunding_only = req.query.hasOwnProperty('owner') && req.query.owner=="crowdfundings";
         var invidivuals_only = req.query.hasOwnProperty('owner') && req.query.owner=="individuals";
         var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
-        var inc_descr = req.query.hasOwnProperty('inc_descr') ? req.query.inc_descr != 'no' : true;
+        var inc_descr = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
         var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
         var type = req.query.hasOwnProperty('type') ? req.query.type.toUpperCase() : false;
         var mygmax = req.query.hasOwnProperty('mygmax') ? req.query.mygmax : false;
         var mygmin = req.query.hasOwnProperty('mygmin') ? req.query.mygmin : false;
         var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
         var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var distmax = req.query.hasOwnProperty('distmax') ? req.query.distmax : false;
     } catch (err) {
         res.status(400).json({ 'error': err.toString() });
         return;
@@ -251,6 +251,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
         ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
         ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
         ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
         ) s 
         ${q ? 'WHERE search_score > 0' : ''}`;
     // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
@@ -266,7 +267,8 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
             mygmin,
             datemax,
             datemin,
-            order
+            order,
+            distmax
         })
         .then(data => {
             res.status(200).json({
@@ -1179,7 +1181,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
     }
     // define query
     let query;
-    if (req.body.hasOwnProperty('crowdfunding_id')) {
+    if (req.body.hasOwnProperty('crowdfunding_id')) { //we're a crowdfunding
         query =
             `WITH partner AS (
                 UPDATE service_instance
@@ -1204,7 +1206,7 @@ router.put('/instance/:id', authenticate, function(req, res) {
             SELECT * FROM partner
             UNION
             SELECT * FROM creator`;
-    } else {
+    } else { //
         query =
             `WITH partner AS (
                 UPDATE service_instance
