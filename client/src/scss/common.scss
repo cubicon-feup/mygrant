@@ -8,6 +8,7 @@ $light-purple: #9872A8;
 $grey: #696969;
 $light-grey: #BEC0C1;
 $lighter-grey: rgba(0,0,0,0.05);
+$lightest-grey: rgba(0,0,0,0.02);
 
 html, body {
     height: 100%;
@@ -53,6 +54,7 @@ div.site-header {
     }
 
     .item.header a {
+        font-family: Helvetica, sans-serif !important;
         color: $purple;
     }
 }
@@ -126,6 +128,7 @@ div.mygrant-divider {
     }
 
     .header {
+        font-family: Helvetica, sans-serif !important;
         color: $dark-green;
         padding-left: 30px;
         margin-bottom: -20px;
