@@ -46,7 +46,7 @@ class CrowdfundingOffers extends Component {
             <Container>
                 <h3 align="center">Services</h3>
                 {requestedServices}
-                <a href="/crowdfunding/1001/createservice">Create Service</a>
+                <Link to={`/crowdfunding/${this.props.crowdfundingId}/createservice`}>Create Service</Link>
             </Container>
         );
     }

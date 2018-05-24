@@ -44,7 +44,7 @@ class Crowdfunding extends Component {
         if(this.state.services) {
             services = this.state.services.map(service => {
                 return (
-                    <Service key={service.id} service={service} crowdfundingId={this.state.crowdfunding.id}/>
+                    <Service key={service.id} service={service} crowdfundingId={this.state.crowdfunding.id} type={'CROWDFUNDING'}/>
                 )
             })
         } else services = null;
