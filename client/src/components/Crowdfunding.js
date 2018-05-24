@@ -171,6 +171,21 @@ class Crowdfunding extends Component {
         })
     }
 
+    getProgress() {
+        if(this.state.crowdfunding.status === 'COLLECTING')
+            return (
+                <div>
+                    <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
+                    <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
+                    <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
+                    </p>
+                </div>
+            )
+        else return (
+            <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
+        )
+    }
+
   render() {
 
       if(this.state.requestFailed) {
@@ -259,10 +274,7 @@ class Crowdfunding extends Component {
                           <div id="crowdfunding_progress">
                               <h5>Current State: {this.state.crowdfunding.status}</h5>
                               {statusExplanation}
-                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
-                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
-                                <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
-                              </p>
+                              {this.getProgress()}
                           </div>
                       </Grid.Column>
                       <Grid.Column width={10} className="right_col">
