@@ -246,8 +246,8 @@ router.post('/loan_request', authenticate, function(req, res) {
 });
 
 // Remove loan request
-router.delete('/loan_request', function(req, res) {
-	var sender_id = 1;
+router.delete('/loan_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		DELETE FROM loan_request
 		WHERE sender_id = $(sender_id)
@@ -307,8 +307,8 @@ router.post('/donation_request', authenticate, function(req, res) {
 });
 
 // Delete donation request
-router.delete('/donation_request', function(req, res) {
-	var sender_id = 1;
+router.delete('/donation_request', authenticate, function(req, res) {
+	var sender_id = req.user.id;
     const query = `
 		DELETE FROM donation_request
 		WHERE sender_id = $(sender_id)

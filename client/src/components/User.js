@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../css/User.css';
 
 import { Container, Header, Divider, Button, Image, Icon, Rating, Modal, Input } from 'semantic-ui-react';
-import { withCookies, Cookies } from 'react-cookie';
+import { withCookies } from 'react-cookie';
 
 const urlForUser = id => `http://localhost:3001/api/users/${id}`;
 const urlForRating = id => `http://localhost:3001/api/users/${id}/rating`;
