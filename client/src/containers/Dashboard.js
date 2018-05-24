@@ -3,7 +3,6 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
 
-import MyServices from '../components/dashboard/MyServices';
 import Service from '../components/dashboard/Service'; 
 import Crowdfunding from '../components/dashboard/Crowdfunding';
 
@@ -44,7 +43,6 @@ class Dashboard extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
-                        // TODO: not saving the value, why?
                         this.setState({mygrant_balance: data.mygrant_balance});
                     })
             }
@@ -147,7 +145,6 @@ class Dashboard extends Component {
                 <br />
                 <br />
                 <p>Mygrant Balance: {this.state.mygrant_balance}</p>
-                <p>Ratings to give </p>
                 
                 <h2>My Services</h2>
                 {myServices}

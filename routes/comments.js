@@ -365,7 +365,7 @@ router.get('/mygrant_balance', authenticate, function(req, res) {
     db.one(query, {
         user_id: userId
     }).then(data => {
-        res.status(200).json({data});
+        res.status(200).json({mygrant_balance: data.mygrant_balance});
     }).catch(error => {
         console.log(error);
         res.status(500).json({error});
