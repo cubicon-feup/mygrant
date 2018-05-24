@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+var image = require('../images/Image');
 const appSecret = require('../config/config').secret;
 const expressJwt = require('express-jwt');
 
@@ -183,6 +184,57 @@ router.post('/set_location', authenticate, function(req, res) {
         .catch(error => {
             res.status(500).json({ error });
         });
+});
+
+// IMAGES
+// ===============================================================================
+
+
+/**
+ * @api {put} /users/change-image - Change user image
+ * @apiName ChangeUserImage
+ * @apiGroup user
+ * @apiPermission user itself
+ *
+ * @apiDescription Upload image and replace current one with new
+ *
+ * @apiParam (RequestFiles) {File} file Image file of the image
+ *
+ * @apiExample Syntax
+ * PUT: /api/users/change-image
+ * files.image?
+ *
+ * @apiSuccess (Success 200) OK
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.put('/change-image', authenticate, function(req, res) {
+    try {
+        // upload
+        var filename = image.uploadImage(req, res, 'users/');
+        if(filename === false){
+            return;
+        }
+    } catch (err) {
+        res.status(400).json(err);
+        return;
+    }
+    // define query
+    const query = `
+        UPDATE users
+        SET image_url = $(new_filename)
+        WHERE id = $(user_id)
+        RETURNING (SELECT image_url FROM users WHERE id = $(user_id)) AS old_filename`;
+    // update db
+    db.one(query, {
+        user_id: req.user.id,
+        new_filename: filename
+    }).then(data => {
+        // remove old image
+        image.removeImage(req, res, 'users/'+data.old_filename, true);
+    }).catch(error => {
+        res.status(500).json(error);
+    });
 });
 
 module.exports = router;
