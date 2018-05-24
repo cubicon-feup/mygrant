@@ -61,6 +61,7 @@ class SearchLocation extends Component {
             <Search
                 fluid
                 id="search-location"
+                placeholder="Location"
                 onResultSelect={this.handleChange}
                 onSearchChange={this.fetchLocation}
                 results={this.state.results}
