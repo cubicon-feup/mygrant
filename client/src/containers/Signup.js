@@ -119,7 +119,7 @@ class SignUp extends Component {
 
     renderMap() {
         return (
-            <Modal trigger={<Button content={'Open Map'} />}>
+            <Modal trigger={<Button fluid content={'open map'.toUpperCase()} />}>
                 <Modal.Content>
                     <PidgeonMaps handleChange={this.handleMapChange} />
                 </Modal.Content>
@@ -168,6 +168,7 @@ class SignUp extends Component {
                                 />
                             </Form.Field>
                             <Form.Field>
+                                <label>{'location'.toUpperCase()}</label>
                                 <SearchLocation handleChange={this.handleLocationChange} />
                             </Form.Field>
                             <Form.Field required >
