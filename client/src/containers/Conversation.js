@@ -102,7 +102,7 @@ class Conversation extends Component {
                                     );
                                 }
 
-                                messageList.push(this.state.messageList);
+                                messageList.concat(this.state.messageList);
                                 this.setState({
                                     messageList,
                                     page: this.state.page + 1
