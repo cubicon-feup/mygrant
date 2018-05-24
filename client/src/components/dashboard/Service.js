@@ -4,14 +4,11 @@ import { Container, Button, Card, Image, Form } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
-import Candidate from './Candidate';
-
 const urlGetServiceCandidates = serviceId => `/api/services/${serviceId}/offers`;
 const urlAcceptCandidate = serviceId => `/api/services/${serviceId}/offers/accept`;
 const urlRejectCandidate = serviceId => `/api/services/${serviceId}/offers/decline`;
 const urlGetServiceInstanceInfo = serviceId => `/api/services/${serviceId}/instance`;
 const urlRateService = serviceId => `/api/services/instance/${serviceId}`;
-const Role = require('../../Role').role;
 
 class Service extends Component {
     static propTypes = { cookies: instanceOf(Cookies).isRequired };
@@ -23,13 +20,12 @@ class Service extends Component {
             service: this.props.service,
             serviceInstance: null,
             candidates: [],
-            rate: null,
-            role: Role.AUTHENTICATED
+            rate: null
         }
     }
     
     componentDidMount() {
-        if(this.state.type === 'CROWDFUNDING')  // PARTNED, CROWDFUNDING
+        if(this.state.type === 'CROWDFUNDING' || this.state.type === 'MY_SERVICES')  // PARTNED, CROWDFUNDING
             this.getCandidates();
         else if(this.state.type === 'PARTNED') {
             this.setState({serviceInstance: this.props.service});
@@ -147,7 +143,7 @@ class Service extends Component {
             body: body
         }).then(res => {
             if(res.status === 200) {
-                console.log("returned")
+                console.log("Rated with success.")
             }
         })
     };
@@ -177,7 +173,6 @@ class Service extends Component {
             const { cookies } = this.props;
             let rate;
 
-            console.log(this.state.serviceInstance)
             if(cookies.get('user_id') == this.state.serviceInstance.partner_id) {   // If the user is the partner.
                 if(this.state.serviceInstance.partner_rating)
                     rate = <p>Rated: {this.state.serviceInstance.partner_rating}</p>

@@ -402,4 +402,22 @@ router.get('/partned_services', authenticate, function(req, res) {
     })
 })
 
+// Gets all the user's services.
+router.get('/my_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT *
+        FROM service
+        WHERE service.creator_id = $(user_id);`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
 module.exports = router;
