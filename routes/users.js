@@ -10,7 +10,7 @@ const authenticate = expressJwt({ secret: appSecret });
 router.get('/:id', function(req, res) {
 
     const query = `
-        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url,
+        SELECT users.id as user_id, date_joined, full_name, city, country.name AS country, level, high_level, verified, image_url
         FROM users
         JOIN country
         ON country.id=users.country_id
@@ -21,7 +21,7 @@ router.get('/:id', function(req, res) {
             res.status(200).json(data);
         })
         .catch(error => {
-            console.log(error.message);
+            console.log(error);
             res.status(500).json(error.message);
         });
 });
@@ -179,6 +179,126 @@ router.post('/set_location', authenticate, function(req, res) {
     })
         .then(() => {
             res.sendStatus(200);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+/**
+ * @api {get} /users/:id/posts get the posts made by this user
+ * @apiName getPosts
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.get('/:id/posts', authenticate, function(req, res) {
+    const offset = req.query.page * 20;
+
+    const query = `
+        SELECT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes,
+        date_posted, full_name, image_url, coalesce(liked, 0) as liked, sender_id FROM 
+        (SELECT id, sender_id, in_reply_to, message, date_posted FROM post WHERE sender_id = $(userId)) a
+        LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
+        LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
+        JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
+        LEFT JOIN (SELECT COUNT(*) AS liked, post_id from like_post where user_id = $(thisUser) group by post_id) e on a.id = e.post_id
+    ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset)`;
+
+    db.manyOrNone(query,
+        {
+            offset,
+            thisUser: req.user.id,
+            userId: req.params.id
+        })
+        .then(posts => {
+            res.status(200).json({ posts });
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+/**
+ * @api {get} /users/:id/postcount get the number of posts made by this user
+ * @apiName getPosts
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.get('/:id/postcount', authenticate, function(req, res) {
+
+    const query = 'SELECT count(*) as n_posts FROM post WHERE sender_id = $(userId)';
+
+    db.one(query, { userId: req.params.id })
+        .then(number => {
+            res.status(200).json(number);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+/**
+ * @api {post} /users/:id/posts post a new post
+ * @apiName PostPost
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ *
+ */
+router.post('/:id/posts', authenticate, function(req, res) {
+
+    const query = 'INSERT INTO post(sender_id, message) VALUES ($(userId), $(content))';
+
+    // Check that the user that made the request is trying to post to his blog
+    if (req.user.id === parseInt(req.params.id, 10)) {
+        db.none(query, {
+            content: req.body.content,
+            userId: req.user.id
+        })
+            .then(() => res.sendStatus(201))
+            .catch(() => res.sendStatus(500));
+    } else {
+        res.sendStatus(401);
+    }
+});
+
+/**
+ * @api {get} /users/getfeed get the posts made by this user and their friends
+ * @apiName getFeed
+ * @apiGroup User
+ *
+ * @apiSuccess (Success 200)
+ * */
+router.get('/:id/getfeed', authenticate, function(req, res) {
+    const offset = req.query.page * 20;
+
+    const query = `
+        SELECT DISTINCT id, message, in_reply_to, coalesce(n_replies, 0) AS n_replies, coalesce(n_likes, 0) AS n_likes,
+        date_posted, full_name, image_url, coalesce(liked, 0) as liked, sender_id
+        FROM
+            (
+                SELECT user1_id as user_id from friend where user2_id = $(thisUser) 
+                UNION SELECT user2_id as user_id FROM friend WHERE user1_id = $(thisUser)
+                UNION SELECT $(thisUser) as user_id
+            ) friends
+            JOIN (SELECT id, sender_id, in_reply_to, message, date_posted FROM post) a on (user_id = sender_id or user_id = $(thisUser))
+            LEFT JOIN ( SELECT in_reply_to AS op_id, count(*) AS n_replies FROM post GROUP BY op_id) b ON b.op_id = a.id
+            LEFT JOIN ( SELECT post_id, count(*) AS n_likes FROM like_post GROUP BY post_id ) c ON a.id = c.post_id
+            JOIN (SELECT users.id AS user_id, full_name, image_url FROM users) d ON a.sender_id = d.user_id
+            LEFT JOIN (SELECT COUNT(*) AS liked, post_id FROM like_post WHERE user_id = $(thisUser) group by post_id) e on a.id = e.post_id
+        ORDER BY date_posted DESC LIMIT 20 OFFSET $(offset);`;
+
+    db.manyOrNone(query,
+        {
+            offset,
+            thisUser: req.user.id
+        })
+        .then(posts => {
+            res.status(200).json({ posts });
         })
         .catch(error => {
             res.status(500).json({ error });
