@@ -71,7 +71,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), function(req, res) {
+router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), policy.search, function(req, res) {
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -202,7 +202,7 @@ router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), fun
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, res) {
+router.get(['/num-pages', '/search-count', '/count', '/npages'], policy.search, function(req, res) {
     try {
 
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
