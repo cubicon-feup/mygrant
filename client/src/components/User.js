@@ -36,7 +36,7 @@ class HeaderDivider extends Component {
 
 /*
 ************************************************************************************************
-Menus
+Buttons
 ************************************************************************************************
 */
 
@@ -388,13 +388,117 @@ class BlockButton extends Component {
 	render() {
 		if (!this.props.self) {
 			return (
-				<Button className="profile-button block-button" onClick={()=>this.props.function_set_modal('Block user', 'Are you sure you want to block this user?', this.blockUser)}>
+				<Button className="profile-button button-red block-button" onClick={()=>this.props.function_set_modal('Block user', 'Are you sure you want to block this user?', this.blockUser)}>
 					<Icon className="remove"/>
 				</Button>);
 		}
 		else {
 			return null;
 		}
+	}
+}
+
+// Props: id, cookies, friend_request_sent, friend_request_received, function_set_modal, function_update_friend
+class AddFriendButton extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+		this.sendFriendRequest = this.sendFriendRequest.bind(this);
+		this.unsendFriendRequest = this.unsendFriendRequest.bind(this);
+		this.acceptFriendRequest = this.acceptFriendRequest.bind(this);
+	}
+	
+	sendFriendRequest() {
+		fetch(urlForFriendRequest, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				id: this.props.id
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.setState({friend_request_sent: true});
+		});
+	}
+	
+	unsendFriendRequest() {
+		fetch(urlForFriendRequest, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				id: this.props.id
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.setState({friend_request_sent: false});
+		});
+	}
+	
+	acceptFriendRequest() {
+		fetch(urlForFriend, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				id: this.props.id
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_friend(true);
+		});
+	}
+	
+	render() {
+		// Unsend friend request button
+		if (this.state.friend_request_sent !== undefined ? this.state.friend_request_sent : this.props.friend_request_sent) {
+			return (
+				<Button className="profile-button friend-button button-green-red"
+				onClick={()=>this.props.function_set_modal('Cancel friend request', 'Are you sure you want to cancel the friend request you sent to this user?', this.unsendFriendRequest)}>
+					<Icon className="add"/>
+				</Button>);
+		}
+		// Accept friend request button
+		else if (this.props.friend_request_received) {
+			return (
+				<Button className="profile-button friend-button button-green"
+				onClick={()=>this.props.function_set_modal('Add friend', 'Are you sure you want to add this user as a friend?', this.acceptFriendRequest)}>
+					<Icon className="add"/>
+				</Button>);
+		}
+		// Send friend request button
+		else {
+			return (
+				<Button className="profile-button friend-button button-purple-green"
+				onClick={()=>this.props.function_set_modal('Send friend request', 'Are you sure you want to send a friend request to this user?', this.sendFriendRequest)}>
+					<Icon className="add"/>
+				</Button>);
+		}
+	}
+}
+
+// Props: id
+class ChatButton extends Component {
+	render() {
+		return (
+			<Button className="profile-button button-green message-button"><a href={"/conversation/"+this.props.id}><Icon className="chat"/></a></Button>
+		);
 	}
 }
 
@@ -427,14 +531,14 @@ class SelfMenu extends Component {
 		let buttons;
 		if (this.state.editing) {
 			buttons = 
-						<div className="self-menu-buttons">
+						<div>
 							<Button className="profile-button button-green save-button" onClick={() => {this.props.function_toggle_input(true); this.state.editing=false;}}><Icon className="save"/></Button>
 							<Button className="profile-button button-green return-button" onClick={() => {this.props.function_toggle_input(false); this.state.editing=false;}}><Icon className="left arrow"/></Button>
 							<input type="file" id="image-input" accept="image/jpeg, image/png" hidden />
 						</div>
 		}
 		else {
-			buttons = 	<div className="self-menu-buttons">
+			buttons = 	<div>
 							<Button className="profile-button button-green edit-text-button" onClick={() => {this.props.function_toggle_input(); this.state.editing=true;}}><Icon className="pencil"/></Button>
 							<Button className="profile-button button-green edit-image-button"><label htmlFor="image-input"><Icon className="image"/></label></Button>
 							<input type="file" id="image-input" accept="image/*" onChange={(e) => this.updateImage(e.target.files[0])}hidden />
@@ -442,12 +546,44 @@ class SelfMenu extends Component {
 		}
 		
 		return (
-			<div>
+			<div className="self-menu-buttons">
 				{buttons}
 			</div>
 		);
 	}
 }
+
+// Props: id, self, cookies, friend_request_sent, friend_request_received, function_block_user, function_set_modal, function_update_friend
+class UnknownMenu extends Component {
+	render() {
+		return (
+			<div className="unknown-menu-buttons">
+				<AddFriendButton 
+					id={this.props.id}
+					cookies={this.props.cookies}
+					friend_request_sent={this.props.friend_request_sent}
+					friend_request_received={this.props.friend_request_received}
+					function_set_modal={this.props.function_set_modal}
+					function_update_friend={this.props.function_update_friend}
+				/>
+			
+			
+				<ChatButton id={this.props.id}/>
+			
+				<BlockButton
+					id={this.props.id}
+					self={this.props.self}
+					cookies={this.props.cookies}
+					function_block_user={this.props.function_block_user}
+					function_set_modal={this.props.function_set_modal}
+				/>
+			</div>
+		);
+	}
+	
+	
+}
+
 
 
 /*
@@ -459,7 +595,7 @@ Containers
 class ProfileContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {disable_buttons: false, editing: false, image_url: this.props.photo};
+		this.state = {disable_buttons: false, editing: false, image_url: this.props.photo, friend: this.props.friend};
 		this.toggleButtons = this.toggleButtons.bind(this);
 		this.toggleInput = this.toggleInput.bind(this);
 		this.updateImage = this.updateImage.bind(this);
@@ -480,6 +616,10 @@ class ProfileContainer extends Component {
 		var url = this.state.image_url;
 		if (url.split('/')[url.length-1] === undefined) {
 			this.setState({image_url: nextProps.photo});
+		}
+		
+		if (this.state.friend === undefined) {
+			this.setState({friend: nextProps.friend});
 		}
 	}
 	
@@ -572,11 +712,19 @@ class ProfileContainer extends Component {
 						function_toggle_input={this.toggleInput}
 						function_update_image={this.updateImage}/>
 		}
-		else if (this.props.friend) {
+		else if (this.state.friend) {
 			menu = null;//<FriendMenu />
 		}
 		else if (this.props.authenticated) {
-			menu = null;//<UnkownMenu />
+			menu = <UnknownMenu
+						id={this.props.id}
+						self={this.props.self}
+						cookies={this.props.cookies}
+						friend_request_sent={this.props.friend_request_sent}
+						friend_request_received={this.props.friend_request_received}
+						function_block_user={this.props.function_block_user}
+						function_set_modal={this.setModalContent}
+						function_update_friend={this.updateFriendStatus}/>
 		}
 		else {
 			menu = null;

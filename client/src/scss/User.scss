@@ -87,16 +87,34 @@ div.profile-container {
 				.edit-image-button, .return-button {
 					top: calc(85.36% - 22.5px);
 					right: calc(14.64% - 22.5px);
-					
-					label {
-						display: inline-block;
-						height: 100%;
-						width: 100%;
-						cursor: pointer;
-						line-height: 29px;
-						vertical-align: middle;
-					}
 				}
+			}
+			
+			.unknown-menu-buttons {
+				.friend-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			
+				.message-button {
+					right: - 22.5px;
+					top: calc(50% - 22.5px);
+				}
+			
+				.block-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+			
+			.message-button a, .edit-image-button label {
+				display: inline-block;
+				height: 100%;
+				width: 100%;
+				cursor: pointer;
+				line-height: 29px;
+				vertical-align: middle;
+				color: white;
 			}
 			
 			.button-green {
@@ -107,7 +125,32 @@ div.profile-container {
 				background-color: $dark-green;
 			}
 			
+			.button-red {
+				background-color: $red;
+			}
 			
+			.button-red:hover, .button-red:focus, button-red:active {
+				background-color: $dark-red;
+			}
+			
+			.button-green-red {
+				background-color: $green;
+			}
+			
+			.button-green-red:hover, .button-green-red:focus, .button-green-red:active {
+				background-color: $dark-red;
+			}
+			
+			.button-purple-green {
+				background-color: $light-purple;
+			}
+			
+			.button-purple-green:hover, .button-purple-green:focus, .button-purple-green:active {
+				background-color: $green;
+			}
+			
+			
+			/*
 			.edit-button, .remove-friend-button, .send-friend-request-button, .accept-friend-request-button, .donation-request-button, .donation-request-cancel-button {
 				right: calc(15.65% - 22.5px);
 				top: calc(15.65% - 22.5px);
@@ -152,6 +195,7 @@ div.profile-container {
 				right: calc(50% - 22.5px);
 				top: calc(100% - 22.5px);
 			}
+			*/
 		}
 	}
 	
