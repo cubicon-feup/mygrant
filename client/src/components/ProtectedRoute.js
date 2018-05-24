@@ -5,13 +5,14 @@ import { withCookies, Cookies } from 'react-cookie';
 
 class ProtectedRoute extends Component {
     static propTypes = {
-        LinkedComponent: instanceOf(Component).isRequired,
+        component: instanceOf(Component).isRequired,
         cookies: instanceOf(Cookies).isRequired
     };
 
     render() {
         const { cookies } = this.props;
-        const { LinkedComponent, ...rest } = this.props;
+        const { component, ...rest } = this.props;
+        const CustomComponent = component;
         const idToken = cookies.get('id_token');
 
         // Check if the id_token is set - meaning the user is logged in
@@ -19,7 +20,7 @@ class ProtectedRoute extends Component {
             {...rest}
             render={
                 function(props) {
-                    return idToken ? <LinkedComponent {...props} /> : <Redirect to={{ pathname: '/login' }} />;
+                    return idToken ? <CustomComponent {...props} /> : <Redirect to={{ pathname: '/login' }} />;
                 }
             }
         />;
