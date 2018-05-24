@@ -11,26 +11,19 @@ class PigeonMaps extends Component {
         super(props);
         this.state = {
             latlng: [
-                41.178,
-                -8.598
-            ],
-            zoom: 16
+41.178,
+-8.598
+],
+            zoom: 16,
+            containerWidth: this.props.containerWidth,
+            containerHeight: this.calculateHeight()
         };
         if (this.props.latlng) {
             this.state = {
-                latlng: this.props.latlng,
-                zoom: 16
+                ...this.state,
+                latlng: this.props.latlng
             };
         }
-    }
-
-    componentDidMount() {
-        var height = this.calculateHeight();
-
-        this.setState({
-            containerWidth: this.props.containerWidth,
-            containerHeight: height
-        });
     }
 
     calculateHeight() {
