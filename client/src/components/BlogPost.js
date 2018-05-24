@@ -160,7 +160,15 @@ class BlogPost extends Component {
                                         </Grid.Row>
                                         <Grid.Row textAlign={'left'}>
                                             <Grid.Column width={2}>
-                                                <Icon name={'comment outline'}/>{this.props.postInfo.commentCount}
+                                                {
+                                                    this.props.linked
+                                                    ? <Link to={`/post/${this.props.postInfo.id}`}>
+                                                            <Icon name={'comment outline'}/> {this.props.postInfo.commentCount}
+                                                        </Link>
+                                                    : <span>
+                                                            <Icon name={'comment outline'}/> {this.props.postInfo.commentCount}
+                                                        </span>
+                                                }
                                             </Grid.Column>
                                             <Grid.Column width={2}>
                                                 <span className={'post-likes'}
