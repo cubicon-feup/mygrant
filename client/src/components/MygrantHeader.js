@@ -75,6 +75,18 @@ class MygrantHeader extends Component {
                             </Menu.Item>
                         : null
                 }
+                    <Menu.Item>
+                        <Link to={'/search'}>Search</Link>
+                    </Menu.Item>
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/Inbox'} >
+                                <Icon name={'mail outline'} />
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
                 {
                     this.state.user.userId
                         ? <Menu.Item >

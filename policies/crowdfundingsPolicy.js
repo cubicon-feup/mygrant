@@ -14,8 +14,8 @@ module.exports = {
             location: Joi.string().regex(
                 new RegExp(config.regex.line)
             ),
-            latitude: Joi.required(),
-            longitude: Joi.required(),
+            //latitude: Joi.required(),
+            //longitude: Joi.required(),
             mygrant_target: Joi.number().min(1).required(),
             time_interval: Joi.number().min(1).required(),
         }

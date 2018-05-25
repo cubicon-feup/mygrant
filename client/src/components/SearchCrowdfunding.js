@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import '../css/common.css';
 import { Link } from 'react-router-dom';
-import { Container, Header, Loader, Item, Button, Form, Pagination, Icon, Radio} from 'semantic-ui-react';
+import { Container, Header, Loader, Item, Divider, Form, Pagination, Icon, Radio} from 'semantic-ui-react';
+import ListCrowdfunding from './ListCrowdfunding';
 
 const urlForCrowdfundings = 'http://localhost:3001/api/crowdfundings/filter/';
-const urlForData = id => `http://localhost:3001/api/crowdfundings/${id}`;
 const urlForCategories = 'http://localhost:3001/api/service_categories';
 
 const panels = [
@@ -79,14 +79,7 @@ class SearchCrowdfunding extends Component {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            /*body: JSON.stringify({
-                sorting_method:this.state.order,
-                category: this.state.category,
-                location: this.state.location,
-                status: this.state.status,
-                keywords: this.state.search_text
-            })*/
+            }
         }).then(response => {
             if (!response.ok) {
                 throw Error('Network request failed');
@@ -95,36 +88,30 @@ class SearchCrowdfunding extends Component {
         })
         .then(result => result.json())
         .then(result => {
-            console.log(result);
             this.setState({ crowdfundings: result });
-            console.log(this.state.crowdfundings);
         }, () => {
             // "catch" the error
             this.setState({ requestFailed: true });
         });
-        console.log(this.state.category);
-        console.log(this.state.distance);
-        console.log(this.state.location);
-        console.log(this.state.order);
-        console.log(this.state.search_text);
+        this.paginationState = this.state;
     }
 
     handlePageChange = (event, object) => {
         var url = urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10) + '?';
-        if(this.state.order){
-            url += '&sorting_method=' + this.state.order;
+        if(this.paginationState.order){
+            url += '&sorting_method=' + this.paginationState.order;
         }
-        if(this.state.category){
-            url += '&category=' + this.state.category;
+        if(this.paginationState.category){
+            url += '&category=' + this.paginationState.category;
         }
-        if(this.state.location){
-            url += '&location=' + this.state.location;
+        if(this.paginationState.location){
+            url += '&location=' + this.paginationState.location;
         }
-        if(this.state.status){
-            //url += '&status=' + this.state.status;
+        if(this.paginationState.status){
+            //url += '&status=' + this.paginationState.status;
         }
-        if(this.state.search_text){
-            url += '&keywords=' + this.state.search_text;
+        if(this.paginationState.search_text){
+            url += '&keywords=' + this.paginationState.search_text;
         }
         fetch(url)
             .then(response => {
@@ -147,6 +134,7 @@ class SearchCrowdfunding extends Component {
         super(props);
         this.page = 1; // from -> 1 + (this.page-1)*10 || to -> 10 + (this.page-1)*10
         this.state = {};
+        this.paginationState = {};
         this.table_body = {};
         this.categories = [];
         this.setState({category:""});
@@ -166,20 +154,17 @@ class SearchCrowdfunding extends Component {
                 </Container>
             );
         }else{
-            this.table_body = this.state.crowdfundings.map(table_row => {
+            this.table_body = this.state.crowdfundings.map((table_row, index, array) => {
+                if(index != 0){
+                    return (
+                        <div>
+                            <Divider />
+                        <ListCrowdfunding crowdfunding={table_row}/>
+                        </div>
+                    );
+                }
                 return (
-                    <Item>
-                        <Item.Image size='small' src='/img/mission.png' />
-
-                        <Item.Content verticalAlign='middle'>
-                            <Item.Header>{table_row.title}</Item.Header>
-                            <Item.Meta><a>{table_row.category}</a> <a>{table_row.creator_name}</a></Item.Meta>
-                            <Item.Description>{table_row.status}</Item.Description>
-                            <Item.Extra>
-                                <Link to={"/crowdfunding/" + table_row.crowdfunding_id}><Button  floated="right">See Details</Button></Link>
-                            </Item.Extra>
-                        </Item.Content>
-                    </Item>
+                    <ListCrowdfunding crowdfunding={table_row}/>
                 );
             });
             this.categorie_body = this.state.categories.map(categorie => {

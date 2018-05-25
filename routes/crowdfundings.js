@@ -295,7 +295,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], policy.search, 
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
-router.post('/', authenticate, policy.valid, function(req, res) {
+router.post('/', authenticate, function(req, res) {
     let title = req.body.title;
     let description = req.body.description;
     let category = req.body.category;
@@ -326,6 +326,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         cronJob.scheduleJob(crowdfundingId, dateFinished);
         res.status(201).send({id: crowdfundingId});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
 });
@@ -344,12 +345,12 @@ router.post('/', authenticate, policy.valid, function(req, res) {
  * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
  * @apiSuccess (Success 200) {Date} date_created Creation date.
  * @apiSuccess (Success 200) {Date} date_finished Close date.
- * @apiSuccess (Success 200) {String} status Current crowdfunding status. 
+ * @apiSuccess (Success 200) {String} status Current crowdfunding status.
  * @apiSuccess (Success 200) {String} creator_name Creator user name.
  * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
  * @apiSuccess (Success 200) {Integer} average_rating Average rating given by donators.
  * @apiSuccess (Success 200) {Array} images Array of images.
- * 
+ *
  * @apiError (Error 500) InternalServerError Could't get the crowdfunding project.
  */
 router.get('/:crowdfunding_id', function(req, res) {
@@ -388,7 +389,7 @@ router.get('/:crowdfunding_id', function(req, res) {
  * @apiParam (RequestBody) {String} description
  *
  * @apiSuccess (Success 200) {String} message Successfully updated crowdfunding project.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Could't update the crowdfunding project.
  */
@@ -425,7 +426,7 @@ router.put('/:crowdfunding_id', authenticate, policy.edit, function(req, res) {
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding project id.
  *
  * @apiSuccess (Success 200) {String} message Successfully deleted crowdfunding project.
- * 
+ *
  * @apiError (Error 500) InternalServerError Could't delete the crowdfunding project.
  */
 router.delete('/:crowdfunding_id', authenticate, function(req, res) {
@@ -454,7 +455,7 @@ router.delete('/:crowdfunding_id', authenticate, function(req, res) {
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding project id.
  *
  * @apiSuccess (Success 200) {String} average_rating Crowdfunding average rating.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get the rating.
  */
 router.get('/:crowdfunding_id/rating', function(req, res) {
@@ -477,6 +478,36 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
 });
 
 /**
+ * @api {get} /crowdfundings/ Get all crowdfundings
+ * @apiName GetAllCrowdfundings
+ * @apiGroup Crowdfunding
+ * @apiDeprecated use now (#Crowdfunding:SearchCrowdfunding).
+ *
+ * @apiSuccess (Success 200) {String} title Crowdfunding title.
+ * @apiSuccess (Success 200) {String} category Crowdfunding category.
+ * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
+ * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {String} status Current crowdfunding status.
+ * @apiSuccess (Success 200) {String} creator_name Creator user name.
+ * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
+ *
+ * @apiError (Error 500) InternalServerError Couldn't get crowdfunding projects.
+ */
+router.get('/', function(req, res) {
+    let query =
+        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
+        FROM crowdfunding
+        INNER JOIN users ON users.id = crowdfunding.creator_id;`;
+
+    db.manyOrNone(query)
+    .then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get crowdfunding projects.'});
+    });
+});
+
+/**
  * @api {post} /crowdfundings/:crowdfunding_id/donations Create donation.
  * @apiName CreateDonation
  * @apiGroup Crowdfunding
@@ -484,9 +515,9 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that gets the donation.
  * @apiParam (RequestBody) {Integer} amount Number of mygrants to donate.
- * 
+ *
  * @apiSuccess (Success 201) {String} message Successfully donated to crowdfunding.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid donation data.
  * @apiError (Error 500) InternalServerError Couldn't donate.
  */
@@ -516,11 +547,11 @@ router.post('/:crowdfunding_id/donations', authenticate, policy.donate, function
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
- * 
+ *
  * @apiSuccess (Success 200) {Integer} donator_id Donator user id.
  * @apiSuccess (Success 200) {String} donator_name Donator user name.
  * @apiSuccess (Success 200) {Integer} amount Number of mygrants donated.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get donations.
  */
 router.get('/:crowdfunding_id/donations', function(req, res) {
@@ -548,9 +579,9 @@ router.get('/:crowdfunding_id/donations', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
  * @apiParam (RequestBody) {Integer} rating Donator user rating.
- * 
+ *
  * @apiSuccess (Success 200) {Integer} message Successfully rated the crowdfunding.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid rate data.
  * @apiError (Error 500) InternalServerError Couldn't get donations.
  */
@@ -724,9 +755,9 @@ router.delete('/:crowdfunding_id/images/:image', authenticate, function(req, res
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is being offered.
  * @apiParam (RequestBody) {Integer} service_id Service id to offer.
- * 
+ *
  * @apiSuccess (Success 201) {Integer} message Successfully offered a service to the crowdfunding.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid service offer data.
  * @apiError (Error 403) Forbidden You do not have permission to offer the specified service.
  * @apiError (Error 500) InternalServerError Couldn't offer service.
@@ -777,12 +808,12 @@ router.post('/:crowdfunding_id/services_offers', authenticate, policy.serviceOff
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the services are offered.
- * 
+ *
  * @apiSuccess (Success 200) {Integer} service_id Offered service id.
  * @apiSuccess (Success 200) {String} service_title Offered service title.
  * @apiSuccess (Success 200) {String} service_category Offered service category.
  * @apiSuccess (Success 200) {String} service_type Offered service type.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get service offers.
  */
 // TODO: test this one.
@@ -816,9 +847,9 @@ router.get('/:crowdfunding_id/services_offers', authenticate, function(req, res)
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is offered.
  * @apiParam (RequestBody) {Integer} service_id Service id to remove from the offers.
- * 
+ *
  * @apiSuccess (Success 200) {String} message Successfully deleted the service offer.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid service offer data.
  * @apiError (Error 500) InternalServerError Couldn't delete the service offer.
  */
@@ -859,9 +890,9 @@ router.delete('/:crowdfunding_id/services_offers', authenticate, policy.serviceO
  * @apiParam (RequestBody) {Integer} category Request service category.
  * @apiParam (RequestBody) {Integer} location Location for the service to happen.
  * @apiParam (RequestBody) {Integer} mygrant_value Mygrants amount to transfer.
- * 
+ *
  * @apiSuccess (Success 201) {String} message Successfully created a new service request for the crowdfunding.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn\'t create a service request.
  */
@@ -914,12 +945,11 @@ router.post('/:crowdfunding_id/services_requested', authenticate, function(req, 
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
- * 
- * @apiSuccess (Success 200) {Integer} id Service request id.
+ *
  * @apiSuccess (Success 200) {String} title Service request title.
  * @apiSuccess (Success 200) {Integer} mygrant_value Mygrants amount to transfer.
  * @apiSuccess (Success 200) {String} category Service request category.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
 // TODO: test this.
@@ -927,7 +957,7 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
     //let crowdfundingCreatorId = req.user.id;
     let crowdfundingId = req.params.crowdfunding_id;
     let query =
-        `SELECT service.id, service.title, service.mygrant_value, service.category
+        `SELECT service.*
         FROM service
         INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
         INNER JOIN users ON users.id = crowdfunding.creator_id
@@ -953,9 +983,9 @@ router.get('/:crowdfunding_id/services_requested', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
  * @apiParam (RequestBody) {Integer} service_id Service request id.
- * 
+ *
  * @apiSuccess (Success 200) {String} message Successfully removed the service requested.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid service request data.
  * @apiError (Error 500) InternalServerError Couldn't get service requests.
  */
@@ -989,9 +1019,9 @@ router.delete('/:crowdfunding_id/services_requested', authenticate, policy.delet
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
  * @apiParam (RequestParam) {Integer} service_requested_id Service request id.
- * 
+ *
  * @apiSuccess (Success 200) Created
- * 
+ *
  * @apiError (Error 500) InternalServerError
  */
 router.post('/:crowdfunding_id/:service_requested_id', authenticate, function(req, res) {
@@ -1022,9 +1052,9 @@ router.post('/:crowdfunding_id/:service_requested_id', authenticate, function(re
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id that the service is going to be applied to.
  * @apiParam (RequestBody) {Integer} service_id Service id that is going to be applied.
- * 
+ *
  * @apiSuccess (Success 200) {String} message Successfully agreed with a service.
- * 
+ *
  * @apiError (Error 400) BadRequest Invalid service accorded data.
  * @apiError (Error 500) InternalServerError Couldn't save the agreed service.
  */
@@ -1056,14 +1086,14 @@ router.post('/:crowdfunding_id/services', authenticate, policy.serviceAccorded, 
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
- * 
+ *
  * @apiSuccess (Success 200) {Integer} service_id Accorded service id.
  * @apiSuccess (Success 200) {Date} date_agreed Data the service was agreed users.
  * @apiSuccess (Success 200) {Date} date_scheduled Schedule data for the service.
  * @apiSuccess (Success 200) {String} service_title Service title.
  * @apiSuccess (Success 200) {String} service_description Service description.
  * @apiSuccess (Success 200) {String} creator_name Service creator name.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get the services accorded offered.
  */
 router.get('/:crowdfunding_id/services/offered', function(req, res) {
@@ -1092,14 +1122,14 @@ router.get('/:crowdfunding_id/services/offered', function(req, res) {
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
- * 
+ *
  * @apiSuccess (Success 200) {Integer} service_id Accorded service id.
  * @apiSuccess (Success 200) {Date} date_agreed Data the service was agreed users.
  * @apiSuccess (Success 200) {Date} date_scheduled Schedule data for the service.
  * @apiSuccess (Success 200) {String} service_title Service title.
  * @apiSuccess (Success 200) {String} service_description Service description.
  * @apiSuccess (Success 200) {String} creator_name Service provider name.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't get the services accorded requested.
  */
 router.get('/:crowdfunding_id/services/requested', function(req, res) {
@@ -1130,9 +1160,9 @@ router.get('/:crowdfunding_id/services/requested', function(req, res) {
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
  * @apiParam (RequestBody) {Integer} service_id Service id to remove.
- * 
+ *
  * @apiSuccess (Success 200) {String} message Successfully deleted the service instance.
- * 
+ *
  * @apiError (Error 500) InternalServerError Couldn't delete the accorded service.'
  */
 router.delete('/:crowdfunding_id/services', policy.serviceAccorded, function(req, res) {

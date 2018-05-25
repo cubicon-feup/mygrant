@@ -972,12 +972,12 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // 
+    //
     // TODO: don't allow offers on deleted services -> make this constraint in db
     // TODO: only allow instances to be created when an offer exists -> make this constraint in db
     // ...
 
-    // check if req.user.id is service creator 
+    // check if req.user.id is service creator
     const creator_id = req.user.id;
     const query_check_creator = `
         SELECT 1 AS exists WHERE EXISTS (
@@ -1024,7 +1024,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                     LEFT JOIN service
                     ON service.id = service_offer.service_id 
                     WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
-                    RETURNING service_id;`; 
+                    RETURNING service_id;`;
             }
             // place query
             db.one(query, {
@@ -1282,7 +1282,7 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     }).catch(error => {
         res.status(500).json({error});
     })
-})
+});
 
 // TODO: finish api doc
 // TODO: are we using this route???
@@ -1307,6 +1307,6 @@ router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) 
     }).catch(error => {
         res.status(500).json({error});
     })
-})
+});
 
 module.exports = router;

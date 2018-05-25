@@ -67,6 +67,8 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/images', imagesRouter);
 app.use('/api/posts', postsRouter);
 
+app.use(express.static('images'));
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     next(createError(404));

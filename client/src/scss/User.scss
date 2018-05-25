@@ -1,0 +1,258 @@
+@import 'common';
+
+@media (max-width: 768px) {
+	div.profile-container {
+		div#profile-info {
+			display: flex !important;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+
+	div.extra-container {
+		text-align: center;
+	}
+}
+
+.modals.visible.transition {
+	display: flex !important;
+}
+
+div.mygrant-title {
+	margin-top: 50px;
+	margin-bottom: 20px;
+
+	.header {
+		color: $purple;
+		padding-left: 30px;
+	}
+
+	div.mygrant-divider {
+		.title-divider.divider {
+			border: 0;
+			box-shadow: 0;
+			margin: 0;
+			width: 95%;
+			border-top-right-radius: 500em;
+			border-bottom-right-radius: 500em;
+		}
+	}
+}
+
+div.profile-container {
+	margin: 0 !important;
+	padding: 0px !important;
+
+	div.profile-photo {
+		display: inline-block;
+		margin-left: auto;
+		margin-right: auto;
+
+		.image-container {
+			width: 250px;
+			height: 250px;
+			margin-left: auto;
+			margin-right: auto;
+			position: relative;
+
+			img {
+				border: 5px solid $purple;
+				width: 100%;
+				height: 100%;
+				object-fit:cover;
+			}
+
+			.profile-button {
+				position: absolute;
+				margin: 0;
+				border: 4px solid $purple;
+				height: 45px;
+				width: 45px;
+				border-radius: 500em;
+				color: white;
+				padding: 4px;
+				text-align: center;
+
+				.icon {
+					margin: 0 !important;
+				}
+			}
+
+			.self-menu-buttons {
+				.edit-text-button, .save-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+
+				.edit-image-button, .return-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+
+			.unknown-menu-buttons {
+				.friend-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+
+				.message-button {
+					top: calc(50% - 22.5px);
+					right: - 22.5px;
+				}
+
+				.block-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+
+			.friend-menu-buttons {
+				.friend-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+
+				.transaction-button {
+					top: calc(37.06% - 22.5px);
+					right: calc(1.70% - 22.5px);
+				}
+
+				.message-button {
+					top: calc(62.94% - 22.5px);
+					right: calc(1.70% - 22.5px);
+				}
+
+				.block-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+
+			.transaction-menu-buttons {
+				.donation-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+
+				.donation-request-button {
+					top: calc(30.87% - 22.5px);
+					right: calc(3.81% - 22.5px);
+				}
+
+				.loan-button {
+					top: calc(50% - 22.5px);
+					right: - 22.5px;
+				}
+
+				.loan-request-button {
+					top: calc(69.13% - 22.5px);
+					right: calc(3.81% - 22.5px);
+				}
+
+				.return-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+
+			.message-button a, .edit-image-button label {
+				display: inline-block;
+				height: 100%;
+				width: 100%;
+				cursor: pointer;
+				line-height: 29px;
+				vertical-align: middle;
+				color: white;
+			}
+
+			/* Button colors */
+			.button-green {
+				background-color: $green;
+			}
+
+			.button-green:hover, button-green:focus, button-green:active {
+				background-color: $dark-green;
+			}
+
+			.button-red {
+				background-color: $red;
+			}
+
+			.button-red:hover, .button-red:focus, button-red:active {
+				background-color: $dark-red;
+			}
+
+			.button-green-red {
+				background-color: $green;
+			}
+
+			.button-green-red:hover, .button-green-red:focus, .button-green-red:active {
+				background-color: $dark-red;
+			}
+
+			.button-purple-green {
+				background-color: $light-purple;
+			}
+
+			.button-purple-green:hover, .button-purple-green:focus, .button-purple-green:active {
+				background-color: $green;
+			}
+		}
+	}
+
+	div#profile-info {
+		display: inline-block;
+		padding: 3rem !important;
+
+		.profile-info-wrapper {
+			display: inline-block;
+		}
+
+		.profile-info-wrapper > * {
+			display: inline-block;
+		}
+
+		.profile-name {
+			margin: 0;
+		}
+
+		.profile-location {
+			margin: 0 0 20px 0;
+			font-weight: normal;
+		}
+
+		.rating {
+			margin: 0 0 20px 0;
+
+			.active.icon {
+				color: $purple;
+			}
+		}
+	}
+}
+
+div.extra-container {
+	margin: 0 !important;
+	padding: 0px !important;
+
+	.center {
+		vertical-align: top;
+		width : 175px;
+		display: inline-block;
+		margin-bottom: 20px;
+
+		img {
+			border: 3px solid $purple;
+			width: 100px;
+			height: 100px;
+			margin: 10px auto;
+			object-fit: cover;
+		}
+
+		div {
+			color: rgba(0,0,0,.87);
+			text-align: center;
+		}
+	}
+}
