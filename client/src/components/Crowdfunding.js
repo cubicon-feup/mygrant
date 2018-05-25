@@ -10,6 +10,7 @@ import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
 import Donator from './Donator';
 import CommentsSection from './Comments';
 import PidgeonMaps from './Map';
+import UserCard from './UserCard';
 
 const apiPath = require('../config').apiPath;
 const urlForData = crowdfundingId => `/api/crowdfundings/` + crowdfundingId;
@@ -114,14 +115,15 @@ class Crowdfunding extends Component {
     tick() {
         if(this.state.timeDiff <= 0) {
             clearInterval(this.state.timer);
-            // this.getData();
         }
 
-        this.setState({days: Math.floor(this.state.timeDiff / day)})
-        this.setState({hours: Math.floor((this.state.timeDiff % day) / hour)})
-        this.setState({minutes: Math.floor((this.state.timeDiff % hour) / minute)})
-        this.setState({seconds: Math.floor((this.state.timeDiff % minute) / second)})
-        this.setState({timeDiff: this.state.timeDiff - 1000});
+        this.setState({
+            days: Math.floor(this.state.timeDiff / day),
+            hours: Math.floor(this.state.timeDiff % day / hour),
+            minutes: Math.floor(this.state.timeDiff % hour / minute),
+            seconds: Math.floor(this.state.timeDiff % minute / second),
+            timeDiff: this.state.timeDiff - 1000
+        });
     }
 
     getRating(){
@@ -252,11 +254,6 @@ class Crowdfunding extends Component {
             statusExplanation =
                 <p>This mission has finished its collecting and rcruitment process.</p>
 
-        let timer;
-        if(this.state.crowdfunding.status === 'COLLECTING' && this.state.timeDiff > 0)
-            timer = <p>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
-        else timer = <p>Already ended</p>;
-
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container textAlign="center">
@@ -277,34 +274,25 @@ class Crowdfunding extends Component {
                               <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
                                 <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
                               </p>
+                              <p>
+                                  <b>Ends in: </b>
+                                  {this.state.crowdfunding.status === 'COLLECTING' &&
+                                  this.state.timeDiff > 0
+                                      ? `${this.state.days} days, ${
+                                            this.state.hours
+                                        } hours, ${this.state.minutes} minutes, ${
+                                            this.state.seconds
+                                        } seconds`
+                                      : 'Already ended'}
+                              </p>
                           </div>
                       </Grid.Column>
                       <Grid.Column width={10} className="right_col">
                           <h3>Description</h3>
                           <p id="description">{this.state.crowdfunding.description}</p>
                           <p><strong>Location: </strong>{this.state.crowdfunding.location}</p>
-                          <Grid columns={2}>
-                              <Grid.Column width={8}>
-                                  <Grid stackable columns={2} className="crowdfunding_owner">
-                                      <Grid.Column width={6}>
-                                          <Image size='tiny' src='/img/user.jpg' />
-                                      </Grid.Column>
-                                      <Grid.Column width={10}>
-                                          {this.state.crowdfunding.creator_name}
-                                          <div id="rating">
-                                              <Rating disabled icon='star' defaultRating={this.state.rating.average_rating} maxRating={5} />
-                                          </div>
-                                      </Grid.Column>
-                                  </Grid>
-                              </Grid.Column>
-                              <Grid.Column width={8} align="right">
-                                  <h4>Ends in</h4>
-                                  {timer}
-                              </Grid.Column>
-                          </Grid>
-
+                          <UserCard data={this.state.crowdfunding} />
                           {donate}
-
                       </Grid.Column>
                   </Grid>
               </Container>

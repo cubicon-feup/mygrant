@@ -5,6 +5,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ServiceOffer from './ServiceOffers';
 import ImgGrid from './ImgGrid';
+import UserCard from './UserCard';
 import CommentsSection from './Comments';
 import PidgeonMaps from './Map';
 
@@ -32,9 +33,9 @@ class Service extends Component {
         super(props);
         this.state = {
             id: this.getID(),
-            service: {},
+            isFetching: true,
             request: '',
-            isFetching: true
+            service: {}
         };
     }
 
@@ -114,8 +115,8 @@ class Service extends Component {
     }
 
     renderDescGrid() {
-        return (
-            <Grid className="desc" container width={5}>
+        return [
+            <Grid key={1} className="desc" container width={5}>
                 <Grid.Row>
                     <Grid.Column textAlign="justified">
                         {this.state.service.description}
@@ -134,8 +135,9 @@ class Service extends Component {
                         </p>
                     </Grid.Column>
                 </Grid.Row>
-            </Grid>
-        );
+            </Grid>,
+            <UserCard key={2} data={this.state.service} />
+        ];
     }
 
     renderMainGrid() {
