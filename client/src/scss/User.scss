@@ -129,6 +129,33 @@ div.profile-container {
 				}
 			}
 			
+			.transaction-menu-buttons {
+				.donation-button {
+					top: calc(14.64% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+				
+				.donation-request-button {
+					top: calc(30.87% - 22.5px);
+					right: calc(3.81% - 22.5px);
+				}
+				
+				.loan-button {
+					top: calc(50% - 22.5px);
+					right: - 22.5px;
+				}
+				
+				.loan-request-button {
+					top: calc(69.13% - 22.5px);
+					right: calc(3.81% - 22.5px);
+				}
+				
+				.return-button {
+					top: calc(85.36% - 22.5px);
+					right: calc(14.64% - 22.5px);
+				}
+			}
+			
 			.message-button a, .edit-image-button label {
 				display: inline-block;
 				height: 100%;
@@ -139,6 +166,7 @@ div.profile-container {
 				color: white;
 			}
 			
+			/* Button colors */
 			.button-green {
 				background-color: $green;
 			}
@@ -170,54 +198,6 @@ div.profile-container {
 			.button-purple-green:hover, .button-purple-green:focus, .button-purple-green:active {
 				background-color: $green;
 			}
-			
-			
-			/*
-			.edit-button, .remove-friend-button, .send-friend-request-button, .accept-friend-request-button, .donation-request-button, .donation-request-cancel-button {
-				right: calc(15.65% - 22.5px);
-				top: calc(15.65% - 22.5px);
-			}
-			
-			.edit-button, .send-friend-request-button.sent, .send-friend-request-button.notsent:hover, .remove-friend-button, .accept-friend-request-button, .transaction-button, .return-button, .donation-button, .loan-button, .donation-request-button:hover, .loan-request-button:hover, .donation-request-cancel-button, .loan-request-cancel-button {
-				background-color: $green;
-			}
-			
-			.edit-button:hover, .accept-friend-request-button:hover, .transaction-button:hover, .return-button:hover, .donation-button:hover, .loan-button:hover {
-				background-color: $dark-green;
-			}
-			
-			.send-friend-request-button.sent:hover, .remove-friend-button:hover, .block-button:hover, .donation-request-cancel-button:hover, .loan-request-cancel-button:hover {
-				background-color: $dark-red;
-			}
-			
-			.send-friend-request-button.notsent, .donation-request-button, .loan-request-button {
-				background-color: $light-purple;
-			}
-			
-			.transaction-button, .loan-button {
-				right: - 22.5px;
-				top: calc(50% - 22.5px);
-			}
-			
-			.block-button {
-				background-color: $red;
-			}
-			
-			.block-button, .loan-request-button, .loan-request-cancel-button {
-				right: calc(15.65% - 22.5px);
-				top: calc(84.35% - 22.5px);
-			}
-			
-			.donation-button {
-				right: calc(50% - 22.5px);
-				top: - 22.5px;
-			}
-			
-			.return-button {
-				right: calc(50% - 22.5px);
-				top: calc(100% - 22.5px);
-			}
-			*/
 		}
 	}
 	

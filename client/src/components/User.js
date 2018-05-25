@@ -40,364 +40,6 @@ Buttons
 ************************************************************************************************
 */
 
-class SocialButton extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-		this.removeFriend = this.removeFriend.bind(this);
-		this.sendFriendRequest = this.sendFriendRequest.bind(this);
-		this.unsendFriendRequest = this.unsendFriendRequest.bind(this);
-		this.acceptFriendRequest = this.acceptFriendRequest.bind(this);
-	}
-		
-	removeFriend() {
-		fetch(urlForFriend, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				id: this.props.id
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.setState({friend: false});
-			this.props.function_update_friend(false);
-		});
-	}
-	
-	sendFriendRequest() {
-		fetch(urlForFriendRequest, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				id: this.props.id
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.setState({friend_request_sent: true});
-		});
-	}
-	
-	unsendFriendRequest() {
-		fetch(urlForFriendRequest, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				id: this.props.id
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.setState({friend_request_sent: false});
-		});
-	}
-	
-	acceptFriendRequest() {
-		fetch(urlForFriend, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				id: this.props.id
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.setState({friend: true});
-			this.props.function_update_friend(true);
-		});
-	}
-	
-	render() {
-		// Remove friend button
-		if (this.state.friend !== undefined ? this.state.friend : this.props.friend) {
-			return (
-				<Button className="profile-button remove-friend-button"
-				onClick={()=>this.props.function_set_modal('Remove friend', 'Are you sure you want to remove this user as a friend?', this.removeFriend)}>
-					<Icon className="user"/>
-				</Button>);
-		}
-		// Unsend friend request button
-		else if (this.state.friend_request_sent !== undefined ? this.state.friend_request_sent : this.props.friend_request_sent) {
-			return (
-				<Button className="profile-button send-friend-request-button sent"
-				onClick={()=>this.props.function_set_modal('Cancel friend request', 'Are you sure you want to cancel the friend request you sent to this user?', this.unsendFriendRequest)}>
-					<Icon className="add"/>
-				</Button>);
-		}
-		// Accept friend request button
-		else if (this.props.friend_request_received) {
-			return (
-				<Button className="profile-button accept-friend-request-button"
-				onClick={()=>this.props.function_set_modal('Add friend', 'Are you sure you want to add this user as a friend?', this.acceptFriendRequest)}>
-					<Icon className="add"/>
-				</Button>);
-		}
-		// Send friend request button
-		else {
-			return (
-				<Button className="profile-button send-friend-request-button notsent"
-				onClick={()=>this.props.function_set_modal('Send friend request', 'Are you sure you want to send a friend request to this user?', this.sendFriendRequest)}>
-					<Icon className="add"/>
-				</Button>);
-		}
-	}
-	
-}
-
-class TransactionButton extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {showTransactions: false};
-		this.toggleTransactionButtons = this.toggleTransactionButtons.bind(this);
-		this.makeDonation = this.makeDonation.bind(this);
-		this.requestDonation = this.requestDonation.bind(this);
-		this.cancelDonationRequest = this.cancelDonationRequest.bind(this);
-		this.makeLoan = this.makeLoan.bind(this);
-		this.requestLoan = this.requestLoan.bind(this);
-		this.cancelLoanRequest = this.cancelLoanRequest.bind(this);
-	}
-	
-	toggleTransactionButtons() {
-		this.props.function_toggle_buttons();
-		this.setState({showTransactions: !this.state.showTransactions});
-	}
-	
-	makeDonation(amount) {
-		fetch(urlForDonation, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-				amount: amount
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-		});
-	}
-	
-	requestDonation(amount) {
-		fetch(urlForDonationRequest, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-				amount: amount
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.props.function_update_donation_status(true);
-		});
-	}
-	
-	cancelDonationRequest() {
-		fetch(urlForDonationRequest, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.props.function_update_donation_status(false);
-		});
-	}
-	
-	makeLoan(amount, date) {
-		fetch(urlForLoan, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-				amount: amount,
-				date_max_repay: date
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-		});
-	}
-	
-	requestLoan(amount) {
-		fetch(urlForLoanRequest, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-				amount: amount
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.props.function_update_loan_status(true);
-		});
-	}
-	
-	cancelLoanRequest() {
-		fetch(urlForLoanRequest, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				user_id: this.props.id,
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.props.function_update_loan_status(false);
-		});
-	}
-	
-	render() {
-		if (!this.props.self && this.props.friend) {
-			if (this.state.showTransactions) {
-				return (
-					<div>
-						<Button className="profile-button return-button"
-						onClick={this.toggleTransactionButtons}>
-							<Icon className="left arrow"/>
-						</Button>
-					
-						<Button className="profile-button donation-button"
-						onClick={()=>this.props.function_set_modal('Make donation', 'Are you sure you want to donate to this user?', this.makeDonation, true)}>
-							<Icon className="level up"/>
-						</Button>
-						
-						{!this.props.donation_request &&
-							<Button className="profile-button donation-request-button"
-							onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
-								<Icon className="level down"/>
-							</Button>}
-							
-						{this.props.donation_request &&
-							<Button className="profile-button donation-request-cancel-button"
-							onClick={()=>this.props.function_set_modal('Cancel donation request', 'Are you sure you want to cancel the donation request made to this user?', this.cancelDonationRequest)}>
-								<Icon className="level down"/>
-							</Button>}
-						
-						<Button className="profile-button loan-button"
-						onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true, true)}>
-							<Icon className="double angle right"/>
-						</Button>
-						
-						{!this.props.loan_request &&
-							<Button className="profile-button loan-request-button"
-							onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
-								<Icon className="double angle left"/>
-							</Button>
-						}
-						
-						{this.props.loan_request &&
-							<Button className="profile-button loan-request-cancel-button"
-							onClick={()=>this.props.function_set_modal('Cancel loan request', 'Are you sure you want to cancel the loan request made to this user?', this.cancelLoanRequest)}>
-								<Icon className="level down"/>
-							</Button>}
-					</div>
-				);
-			}
-			else {
-				return (
-					<Button className="profile-button transaction-button" onClick={this.toggleTransactionButtons}>
-						<Icon className="dollar"/>
-					</Button>);
-			}
-		}		
-		else {
-			return null;
-		}
-	}
-}
-
-class BlockButton extends Component {
-	constructor(props) {
-		super(props);
-		this.blockUser = this.blockUser.bind(this);
-	}
-	
-	blockUser() {
-		fetch(urlForBlockUser, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
-			},
-			body: JSON.stringify({
-				id: this.props.id
-			})
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw Error('Network request failed');
-			}
-			this.props.function_block_user();
-		});
-	}
-	
-	render() {
-		if (!this.props.self) {
-			return (
-				<Button className="profile-button button-red block-button" onClick={()=>this.props.function_set_modal('Block user', 'Are you sure you want to block this user?', this.blockUser)}>
-					<Icon className="remove"/>
-				</Button>);
-		}
-		else {
-			return null;
-		}
-	}
-}
-
 // Props: id, cookies, friend_request_sent, friend_request_received, function_set_modal, function_update_friend
 class AddFriendButton extends Component {
 	constructor(props) {
@@ -537,6 +179,252 @@ class ChatButton extends Component {
 	}
 }
 
+// Props: id, cookies, self, function_block_user, function_set_modal
+class BlockButton extends Component {
+	constructor(props) {
+		super(props);
+		this.blockUser = this.blockUser.bind(this);
+	}
+	
+	blockUser() {
+		fetch(urlForBlockUser, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				id: this.props.id
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_block_user();
+		});
+	}
+	
+	render() {
+		if (!this.props.self) {
+			return (
+				<Button className="profile-button button-red block-button" onClick={()=>this.props.function_set_modal('Block user', 'Are you sure you want to block this user?', this.blockUser)}>
+					<Icon className="remove"/>
+				</Button>);
+		}
+		else {
+			return null;
+		}
+	}
+}
+
+// Props: id, cookies, function_set_modal
+class DonationButton extends Component {
+	constructor(props) {
+		super(props);
+		this.makeDonation = this.makeDonation.bind(this);
+	}
+	
+	makeDonation(amount) {
+		fetch(urlForDonation, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+		});
+	}
+	
+	render() {
+		return (
+			<Button className="profile-button donation-button button-green" onClick={()=>this.props.function_set_modal('Make donation', 'Are you sure you want to donate to this user?', this.makeDonation, true)}>
+				<Icon className="level up"/>
+			</Button>
+		);
+	}
+}
+
+// Props: id, cookies, donation_request, function_update_donation_status, function_set_modal
+class DonationRequestButton extends Component {
+	constructor(props) {
+		super(props);
+		this.requestDonation = this.requestDonation.bind(this);
+		this.cancelDonationRequest = this.cancelDonationRequest.bind(this);
+	}
+	
+	requestDonation(amount) {
+		fetch(urlForDonationRequest, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_donation_status(true);
+		});
+	}
+	
+	cancelDonationRequest() {
+		fetch(urlForDonationRequest, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_donation_status(false);
+		});
+	}
+	
+	render() {
+		let button;
+		if (this.props.donation_request) {
+			button = 	<Button className="profile-button donation-request-button button-green-red"
+							onClick={()=>this.props.function_set_modal('Cancel donation request', 'Are you sure you want to cancel the donation request made to this user?', this.cancelDonationRequest)}>
+							<Icon className="level down"/>
+						</Button>;
+		}
+		else {
+			button = 	<Button className="profile-button donation-request-button button-purple-green"
+							onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
+							<Icon className="level down"/>
+						</Button>;
+		}
+		
+		return (<div>{button}</div>);
+	}
+}
+
+// Props: id, cookies, function_set_modal
+class LoanButton extends Component {
+	constructor(props) {
+		super(props);
+		this.makeLoan = this.makeLoan.bind(this);
+	}
+	
+	makeLoan(amount, date) {
+		fetch(urlForLoan, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount,
+				date_max_repay: date
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+		});
+	}
+	
+	render() {
+		return (
+			<Button className="profile-button loan-button" onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true, true)}>
+				<Icon className="double angle right"/>
+			</Button>
+		);
+	}
+}
+
+// Props: id, cookies, loan_request, function_update_loan_status, function_set_modal
+class LoanRequestButton extends Component {
+	constructor(props) {
+		super(props);
+		this.requestLoan = this.requestLoan.bind(this);
+		this.cancelLoanRequest = this.cancelLoanRequest.bind(this);
+	}
+	
+	requestLoan(amount) {
+		fetch(urlForLoanRequest, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+				amount: amount
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_loan_status(true);
+		});
+	}
+	
+	cancelLoanRequest() {
+		fetch(urlForLoanRequest, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${this.props.cookies.get('id_token')}`
+			},
+			body: JSON.stringify({
+				user_id: this.props.id,
+			})
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+			this.props.function_update_loan_status(false);
+		});
+	}
+	
+	render() {
+		let button;
+		if (this.props.loan_request) {
+			button =
+				<Button className="profile-button loan-request-button button-green-red"
+				onClick={()=>this.props.function_set_modal('Cancel loan request', 'Are you sure you want to cancel the loan request made to this user?', this.cancelLoanRequest)}>
+					<Icon className="double angle left"/>
+				</Button>;
+		}
+		else {
+			button = 
+				<Button className="profile-button loan-request-button button-purple-green"
+				onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
+					<Icon className="double angle left"/>
+				</Button>;
+		}
+		
+		return (<div>{button}</div>);
+	}
+}
+
+
+
 
 /*
 ************************************************************************************************
@@ -616,7 +504,7 @@ class UnknownMenu extends Component {
 	}
 }
 
-// id, self, cookies, function_set_modal, function_update_friend, function_block_user
+// id, self, cookies, function_set_modal, function_update_friend, function_block_user, function_update_transaction
 class FriendMenu extends Component {
 	render() {
 		return (
@@ -627,6 +515,8 @@ class FriendMenu extends Component {
 					function_set_modal={this.props.function_set_modal}
 					function_update_friend={this.props.function_update_friend}
 				/>
+				
+				<Button className="profile-button button-green transaction-button" onClick={() => this.props.function_update_transaction(true)}><Icon className="dollar"/></Button>
 			
 				<ChatButton id={this.props.id}/>
 			
@@ -642,7 +532,44 @@ class FriendMenu extends Component {
 	}
 }
 
-
+// Props: id, cookies, donation_request, loan_request, function_update_transaction, function_update_donation_status, function_update_loan_status
+class TransactionMenu extends Component {
+	render() {
+		return (
+			<div className="transaction-menu-buttons">
+				<DonationButton
+					id={this.props.id}
+					cookies={this.props.cookies}
+					function_set_modal={this.props.function_set_modal}
+				/>
+				
+				<DonationRequestButton
+					id={this.props.id}
+					cookies={this.props.cookies}
+					donation_request={this.props.donation_request}
+					function_update_donation_status={this.props.function_update_donation_status}
+					function_set_modal={this.props.function_set_modal}
+				/>
+				
+				<LoanButton
+					id={this.props.id}
+					cookies={this.props.cookies}
+					function_set_modal={this.props.function_set_modal}
+				/>
+				
+				<LoanRequestButton
+					id={this.props.id}
+					cookies={this.props.cookies}
+					loan_request={this.props.loan_request}
+					function_update_loan_status={this.props.function_update_loan_status}
+					function_set_modal={this.props.function_set_modal}
+				/>
+				
+				<Button className="profile-button return-button button-green" onClick={() => this.props.function_update_transaction(false)}><Icon className="left arrow"/></Button>
+			</div>
+		);
+	}
+}
 
 /*
 ************************************************************************************************
@@ -653,13 +580,14 @@ Containers
 class ProfileContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {disable_buttons: false, editing: false, image_url: this.props.photo, friend: this.props.friend};
+		this.state = {disable_buttons: false, editing: false, image_url: this.props.photo, friend: this.props.friend, transaction: false};
 		this.toggleButtons = this.toggleButtons.bind(this);
 		this.toggleInput = this.toggleInput.bind(this);
 		this.updateImage = this.updateImage.bind(this);
 		this.setModalContent = this.setModalContent.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.updateFriendStatus = this.updateFriendStatus.bind(this);
+		this.updateTransaction = this.updateTransaction.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -754,9 +682,11 @@ class ProfileContainer extends Component {
 	}
 
 	updateFriendStatus(status) {
-		this.setState({
-			friend: status
-		});
+		this.setState({ friend: status });
+	}
+	
+	updateTransaction(status) {
+		this.setState({ transaction: status });
 	}
 	
 	render() {
@@ -770,6 +700,17 @@ class ProfileContainer extends Component {
 						function_toggle_input={this.toggleInput}
 						function_update_image={this.updateImage}/>
 		}
+		else if (this.state.transaction) {
+			menu = <TransactionMenu
+						id={this.props.id}
+						cookies={this.props.cookies}
+						donation_request={this.props.donation_request}
+						loan_request={this.props.loan_request}
+						function_set_modal={this.setModalContent}
+						function_update_transaction={this.updateTransaction}
+						function_update_donation_status={this.props.function_update_donation_status}
+						function_update_loan_status={this.props.function_update_loan_status}/>
+		}
 		else if (this.state.friend) {
 			menu = <FriendMenu 
 						id={this.props.id}
@@ -777,7 +718,8 @@ class ProfileContainer extends Component {
 						cookies={this.props.cookies}
 						function_block_user={this.props.function_block_user}
 						function_set_modal={this.setModalContent}
-						function_update_friend={this.updateFriendStatus}/>
+						function_update_friend={this.updateFriendStatus}
+						function_update_transaction={this.updateTransaction}/>
 		}
 		else if (this.props.authenticated) {
 			menu = <UnknownMenu
