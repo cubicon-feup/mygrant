@@ -4,41 +4,37 @@ import '../css/User.css';
 import { Container, Header, Divider, Button, Image, Icon, Rating, Modal, Input, TextArea } from 'semantic-ui-react';
 import { withCookies } from 'react-cookie';
 
-const urlForUser = id => `http://localhost:3001/api/users/${id}`;
-const urlForRating = id => `http://localhost:3001/api/users/${id}/rating`;
-const urlForFriends = id => `http://localhost:3001/api/users/${id}/friends`;
-const urlForProvides = id => `http://localhost:3001/api/users/${id}/provides`;
-const urlForRequests = id => `http://localhost:3001/api/users/${id}/requests`;
-const urlForCrowdfundings = id => `http://localhost:3001/api/users/${id}/crowdfundings`;
-const urlForBlockUser = `http://localhost:3001/api/users/block_user`;
-const urlForFriend = `http://localhost:3001/api/users/add_friend`;
-const urlForFriendRequest = `http://localhost:3001/api/users/friend_request`;
-const urlForDonation = `http://localhost:3001/api/users/donation`;
-const urlForLoan = `http://localhost:3001/api/users/loan`;
-const urlForDonationRequest = `http://localhost:3001/api/users/donation_request`;
-const urlForLoanRequest = `http://localhost:3001/api/users/loan_request`;
-const urlForEditUser = `http://localhost:3001/api/users`;
-const urlForEditImage = `http://localhost:3001/api/users/image`;
-const urlForUserImage = `http://localhost:3001/users/`;
+const urlForUser = id => `/api/users/${id}`;
+const urlForRating = id => `/api/users/${id}/rating`;
+const urlForFriends = id => `/api/users/${id}/friends`;
+const urlForProvides = id => `/api/users/${id}/provides`;
+const urlForRequests = id => `/api/users/${id}/requests`;
+const urlForCrowdfundings = id => `/api/users/${id}/crowdfundings`;
+const urlForBlockUser = `/api/users/block_user`;
+const urlForFriend = `/api/users/add_friend`;
+const urlForFriendRequest = `/api/users/friend_request`;
+const urlForDonation = `/api/users/donation`;
+const urlForLoan = `/api/users/loan`;
+const urlForDonationRequest = `/api/users/donation_request`;
+const urlForLoanRequest = `/api/users/loan_request`;
+const urlForEditUser = `/api/users`;
+const urlForEditImage = `/api/users/image`;
+const urlForUserImage = `/users/`;
 
-class HeaderDivider extends Component {	
+class HeaderDivider extends Component {
 	render() {
 		return (
 			<div className="mygrant-title">
-				<Header size="large">{this.props.title}</Header>
+				<Container>
+					<Header size="large">{this.props.title}</Header>
+				</Container>
 				<div className={`mygrant-divider ${this.props.color}`}>
 					<Divider className="title-divider" />
 				</div>
-			</div>	
+			</div>
 		);
 	}
 }
-
-/*
-************************************************************************************************
-Buttons
-************************************************************************************************
-*/
 
 // Props: id, cookies, friend_request_sent, friend_request_received, function_set_modal, function_update_friend
 class AddFriendButton extends Component {
@@ -49,7 +45,7 @@ class AddFriendButton extends Component {
 		this.unsendFriendRequest = this.unsendFriendRequest.bind(this);
 		this.acceptFriendRequest = this.acceptFriendRequest.bind(this);
 	}
-	
+
 	sendFriendRequest() {
 		fetch(urlForFriendRequest, {
 			method: 'POST',
@@ -68,7 +64,7 @@ class AddFriendButton extends Component {
 			this.setState({friend_request_sent: true});
 		});
 	}
-	
+
 	unsendFriendRequest() {
 		fetch(urlForFriendRequest, {
 			method: 'DELETE',
@@ -87,7 +83,7 @@ class AddFriendButton extends Component {
 			this.setState({friend_request_sent: false});
 		});
 	}
-	
+
 	acceptFriendRequest() {
 		fetch(urlForFriend, {
 			method: 'POST',
@@ -106,26 +102,21 @@ class AddFriendButton extends Component {
 			this.props.function_update_friend(true);
 		});
 	}
-	
+
 	render() {
-		// Unsend friend request button
 		if (this.state.friend_request_sent !== undefined ? this.state.friend_request_sent : this.props.friend_request_sent) {
 			return (
 				<Button className="profile-button friend-button button-green-red"
 				onClick={()=>this.props.function_set_modal('Cancel friend request', 'Are you sure you want to cancel the friend request you sent to this user?', this.unsendFriendRequest)}>
 					<Icon className="add"/>
 				</Button>);
-		}
-		// Accept friend request button
-		else if (this.props.friend_request_received) {
+		} else if (this.props.friend_request_received) {
 			return (
 				<Button className="profile-button friend-button button-green"
 				onClick={()=>this.props.function_set_modal('Add friend', 'Are you sure you want to add this user as a friend?', this.acceptFriendRequest)}>
 					<Icon className="add"/>
 				</Button>);
-		}
-		// Send friend request button
-		else {
+		} else {
 			return (
 				<Button className="profile-button friend-button button-purple-green"
 				onClick={()=>this.props.function_set_modal('Send friend request', 'Are you sure you want to send a friend request to this user?', this.sendFriendRequest)}>
@@ -141,7 +132,7 @@ class RemoveFriendButton extends Component {
 		super(props);
 		this.removeFriend = this.removeFriend.bind(this);
 	}
-	
+
 	removeFriend() {
 		fetch(urlForFriend, {
 			method: 'DELETE',
@@ -160,7 +151,7 @@ class RemoveFriendButton extends Component {
 			this.props.function_update_friend(false);
 		});
 	}
-	
+
 	render() {
 		return (
 			<Button className="profile-button friend-button button-green-red"
@@ -185,7 +176,7 @@ class BlockButton extends Component {
 		super(props);
 		this.blockUser = this.blockUser.bind(this);
 	}
-	
+
 	blockUser() {
 		fetch(urlForBlockUser, {
 			method: 'POST',
@@ -204,7 +195,7 @@ class BlockButton extends Component {
 			this.props.function_block_user();
 		});
 	}
-	
+
 	render() {
 		if (!this.props.self) {
 			return (
@@ -212,9 +203,8 @@ class BlockButton extends Component {
 					<Icon className="remove"/>
 				</Button>);
 		}
-		else {
-			return null;
-		}
+
+		return null;
 	}
 }
 
@@ -224,7 +214,7 @@ class DonationButton extends Component {
 		super(props);
 		this.makeDonation = this.makeDonation.bind(this);
 	}
-	
+
 	makeDonation(amount) {
 		fetch(urlForDonation, {
 			method: 'POST',
@@ -243,10 +233,13 @@ class DonationButton extends Component {
 			}
 		});
 	}
-	
+
 	render() {
 		return (
-			<Button className="profile-button donation-button button-green" onClick={()=>this.props.function_set_modal('Make donation', 'Are you sure you want to donate to this user?', this.makeDonation, true)}>
+			<Button
+				className="profile-button donation-button button-green"
+				onClick={()=>this.props.function_set_modal('Make donation', 'Are you sure you want to donate to this user?', this.makeDonation, true)}
+			>
 				<Icon className="level up"/>
 			</Button>
 		);
@@ -260,7 +253,7 @@ class DonationRequestButton extends Component {
 		this.requestDonation = this.requestDonation.bind(this);
 		this.cancelDonationRequest = this.cancelDonationRequest.bind(this);
 	}
-	
+
 	requestDonation(amount) {
 		fetch(urlForDonationRequest, {
 			method: 'POST',
@@ -280,7 +273,7 @@ class DonationRequestButton extends Component {
 			this.props.function_update_donation_status(true);
 		});
 	}
-	
+
 	cancelDonationRequest() {
 		fetch(urlForDonationRequest, {
 			method: 'DELETE',
@@ -299,23 +292,19 @@ class DonationRequestButton extends Component {
 			this.props.function_update_donation_status(false);
 		});
 	}
-	
+
 	render() {
-		let button;
-		if (this.props.donation_request) {
-			button = 	<Button className="profile-button donation-request-button button-green-red"
-							onClick={()=>this.props.function_set_modal('Cancel donation request', 'Are you sure you want to cancel the donation request made to this user?', this.cancelDonationRequest)}>
-							<Icon className="level down"/>
-						</Button>;
-		}
-		else {
-			button = 	<Button className="profile-button donation-request-button button-purple-green"
-							onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
-							<Icon className="level down"/>
-						</Button>;
-		}
-		
-		return (<div>{button}</div>);
+		let button = this.props.donation_request
+			? <Button className="profile-button donation-request-button button-green-red"
+				onClick={() => this.props.function_set_modal('Cancel donation request', 'Are you sure you want to cancel the donation request made to this user?', this.cancelDonationRequest)}>
+				<Icon className="level down"/>
+			</Button>
+			: <Button className="profile-button donation-request-button button-purple-green"
+				onClick={()=>this.props.function_set_modal('Request donation', 'Are you sure you want request a donation from this user?', this.requestDonation, true)}>
+				<Icon className="level down"/>
+			</Button>
+
+		return button;
 	}
 }
 
@@ -325,7 +314,7 @@ class LoanButton extends Component {
 		super(props);
 		this.makeLoan = this.makeLoan.bind(this);
 	}
-	
+
 	makeLoan(amount, date) {
 		fetch(urlForLoan, {
 			method: 'POST',
@@ -345,7 +334,7 @@ class LoanButton extends Component {
 			}
 		});
 	}
-	
+
 	render() {
 		return (
 			<Button className="profile-button loan-button" onClick={()=>this.props.function_set_modal('Give loan', 'Are you sure you want give this user a loan?', this.makeLoan, true, true)}>
@@ -362,7 +351,7 @@ class LoanRequestButton extends Component {
 		this.requestLoan = this.requestLoan.bind(this);
 		this.cancelLoanRequest = this.cancelLoanRequest.bind(this);
 	}
-	
+
 	requestLoan(amount) {
 		fetch(urlForLoanRequest, {
 			method: 'POST',
@@ -382,7 +371,7 @@ class LoanRequestButton extends Component {
 			this.props.function_update_loan_status(true);
 		});
 	}
-	
+
 	cancelLoanRequest() {
 		fetch(urlForLoanRequest, {
 			method: 'DELETE',
@@ -401,37 +390,22 @@ class LoanRequestButton extends Component {
 			this.props.function_update_loan_status(false);
 		});
 	}
-	
+
 	render() {
-		let button;
-		if (this.props.loan_request) {
-			button =
-				<Button className="profile-button loan-request-button button-green-red"
+		let button = this.props.loan_request
+			? <Button className="profile-button loan-request-button button-green-red"
 				onClick={()=>this.props.function_set_modal('Cancel loan request', 'Are you sure you want to cancel the loan request made to this user?', this.cancelLoanRequest)}>
 					<Icon className="double angle left"/>
-				</Button>;
-		}
-		else {
-			button = 
-				<Button className="profile-button loan-request-button button-purple-green"
+				</Button>
+			: <Button className="profile-button loan-request-button button-purple-green"
 				onClick={()=>this.props.function_set_modal('Request loan', 'Are you sure you want to request a loan from this user?', this.requestLoan, true)}>
 					<Icon className="double angle left"/>
 				</Button>;
-		}
-		
-		return (<div>{button}</div>);
+
+		return button;
 	}
 }
 
-
-
-
-/*
-************************************************************************************************
-Menus
-************************************************************************************************
-*/
- 
 // Props: function_toggle_input, function_update_image
 // State: editing
 class SelfMenu extends Component {
@@ -440,34 +414,44 @@ class SelfMenu extends Component {
 		this.state = {editing: false};
 		this.updateImage = this.updateImage.bind(this);
 	}
-	
+
 	updateImage(file) {
 		let reader = new FileReader();
 		reader.onload = (e) => {
 			this.props.function_update_image(file, e.target.result);
-			
+
 		};
 		reader.readAsDataURL(file);
-	}	
-	
+	}
+
 	render () {
-		let buttons;
-		if (this.state.editing) {
-			buttons = 
-						<div>
-							<Button className="profile-button button-green save-button" onClick={() => {this.props.function_toggle_input(true); this.state.editing=false;}}><Icon className="save"/></Button>
-							<Button className="profile-button button-green return-button" onClick={() => {this.props.function_toggle_input(false); this.state.editing=false;}}><Icon className="left arrow"/></Button>
-							<input type="file" id="image-input" accept="image/jpeg, image/png" hidden />
-						</div>
-		}
-		else {
-			buttons = 	<div>
-							<Button className="profile-button button-green edit-text-button" onClick={() => {this.props.function_toggle_input(); this.state.editing=true;}}><Icon className="pencil"/></Button>
-							<Button className="profile-button button-green edit-image-button"><label htmlFor="image-input"><Icon className="image"/></label></Button>
-							<input type="file" id="image-input" accept="image/*" onChange={(e) => this.updateImage(e.target.files[0])}hidden />
-						</div>;
-		}
-		
+		let buttons = this.state.editing
+			? <div>
+					<Button
+						className="profile-button button-green save-button"
+						onClick={() => {this.props.function_toggle_input(true); this.state.editing=false;}}
+					>
+						<Icon className="save"/>
+					</Button>
+					<Button
+						className="profile-button button-green return-button"
+						onClick={() => {this.props.function_toggle_input(false); this.state.editing=false;}}
+					>
+						<Icon className="left arrow"/>
+					</Button>
+				</div>
+			: <div>
+					<Button className="profile-button button-green edit-text-button" onClick={() => {this.props.function_toggle_input(); this.state.editing=true;}}>
+						<Icon className="pencil"/>
+					</Button>
+					<Button className="profile-button button-green edit-image-button">
+						<label htmlFor="image-input">
+							<Icon className="image"/>
+						</label>
+					</Button>
+					<input type="file" id="image-input" accept="image/*" onChange={e => this.updateImage(e.target.files[0])}hidden />
+				</div>;
+
 		return (
 			<div className="self-menu-buttons">
 				{buttons}
@@ -481,7 +465,7 @@ class UnknownMenu extends Component {
 	render() {
 		return (
 			<div className="unknown-menu-buttons">
-				<AddFriendButton 
+				<AddFriendButton
 					id={this.props.id}
 					cookies={this.props.cookies}
 					friend_request_sent={this.props.friend_request_sent}
@@ -489,9 +473,9 @@ class UnknownMenu extends Component {
 					function_set_modal={this.props.function_set_modal}
 					function_update_friend={this.props.function_update_friend}
 				/>
-			
+
 				<ChatButton id={this.props.id}/>
-			
+
 				<BlockButton
 					id={this.props.id}
 					self={this.props.self}
@@ -509,17 +493,17 @@ class FriendMenu extends Component {
 	render() {
 		return (
 			<div className="friend-menu-buttons">
-				<RemoveFriendButton 
+				<RemoveFriendButton
 					id={this.props.id}
 					cookies={this.props.cookies}
 					function_set_modal={this.props.function_set_modal}
 					function_update_friend={this.props.function_update_friend}
 				/>
-				
+
 				<Button className="profile-button button-green transaction-button" onClick={() => this.props.function_update_transaction(true)}><Icon className="dollar"/></Button>
-			
+
 				<ChatButton id={this.props.id}/>
-			
+
 				<BlockButton
 					id={this.props.id}
 					self={this.props.self}
@@ -542,7 +526,7 @@ class TransactionMenu extends Component {
 					cookies={this.props.cookies}
 					function_set_modal={this.props.function_set_modal}
 				/>
-				
+
 				<DonationRequestButton
 					id={this.props.id}
 					cookies={this.props.cookies}
@@ -550,13 +534,13 @@ class TransactionMenu extends Component {
 					function_update_donation_status={this.props.function_update_donation_status}
 					function_set_modal={this.props.function_set_modal}
 				/>
-				
+
 				<LoanButton
 					id={this.props.id}
 					cookies={this.props.cookies}
 					function_set_modal={this.props.function_set_modal}
 				/>
-				
+
 				<LoanRequestButton
 					id={this.props.id}
 					cookies={this.props.cookies}
@@ -564,18 +548,12 @@ class TransactionMenu extends Component {
 					function_update_loan_status={this.props.function_update_loan_status}
 					function_set_modal={this.props.function_set_modal}
 				/>
-				
+
 				<Button className="profile-button return-button button-green" onClick={() => this.props.function_update_transaction(false)}><Icon className="left arrow"/></Button>
 			</div>
 		);
 	}
 }
-
-/*
-************************************************************************************************
-Containers
-************************************************************************************************
-*/
 
 class ProfileContainer extends Component {
 	constructor(props) {
@@ -589,30 +567,30 @@ class ProfileContainer extends Component {
 		this.updateFriendStatus = this.updateFriendStatus.bind(this);
 		this.updateTransaction = this.updateTransaction.bind(this);
 	}
-	
+
 	componentWillReceiveProps(nextProps) {
 		if (!this.state.name) {
 			this.setState({name: nextProps.name, input_name: nextProps.name});
 		}
-		
+
 		if (!this.state.bio) {
 			this.setState({bio: nextProps.bio, input_bio: nextProps.bio});
 		}
-		
+
 		var url = this.state.image_url;
 		if (url.split('/')[url.length-1] === undefined) {
 			this.setState({image_url: nextProps.photo});
 		}
-		
+
 		if (this.state.friend === undefined) {
 			this.setState({friend: nextProps.friend});
 		}
 	}
-	
+
 	toggleInput(save) {
 		if (this.state.editing) {
 			if (save) {
-				fetch(urlForEditUser, 
+				fetch(urlForEditUser,
 				{
 					method: 'PUT',
 					headers: {
@@ -639,11 +617,11 @@ class ProfileContainer extends Component {
 			this.setState({editing: true});
 		}
 	}
-	
+
 	updateImage(backend, frontend) {
 		let form = new FormData()
 		form.append('image', backend);
-		
+
 		fetch(urlForEditImage,
 		{
 			method: 'POST',
@@ -659,11 +637,11 @@ class ProfileContainer extends Component {
 			this.setState({image_url: frontend});
 		});
 	}
-	
+
 	toggleButtons() {
 		this.setState({disable_buttons: !this.state.disable_buttons});
 	}
-	
+
 	setModalContent(header, content, callback, has_input, has_date) {
 		this.setState({
 			modal_header: header,
@@ -674,7 +652,7 @@ class ProfileContainer extends Component {
 			modal_input_date: has_date
 		});
 	}
-	
+
 	closeModal() {
 		this.setState({
 			modal_open: false
@@ -684,23 +662,23 @@ class ProfileContainer extends Component {
 	updateFriendStatus(status) {
 		this.setState({ friend: status });
 	}
-	
+
 	updateTransaction(status) {
 		this.setState({ transaction: status });
 	}
-	
+
 	render() {
 		let location = (this.props.city !== null ? this.props.city : '') +
 						(this.props.city !== null && this.props.country !== null ? ', ' : '') +
 						(this.props.country !== null ? this.props.country : '');
-			
+
 		let menu;
 		if (this.props.self) {
 			menu = <SelfMenu
 						function_toggle_input={this.toggleInput}
-						function_update_image={this.updateImage}/>
-		}
-		else if (this.state.transaction) {
+						function_update_image={this.updateImage}
+					/>
+		} else if (this.state.transaction) {
 			menu = <TransactionMenu
 						id={this.props.id}
 						cookies={this.props.cookies}
@@ -709,17 +687,18 @@ class ProfileContainer extends Component {
 						function_set_modal={this.setModalContent}
 						function_update_transaction={this.updateTransaction}
 						function_update_donation_status={this.props.function_update_donation_status}
-						function_update_loan_status={this.props.function_update_loan_status}/>
-		}
-		else if (this.state.friend) {
-			menu = <FriendMenu 
+						function_update_loan_status={this.props.function_update_loan_status}
+					/>
+		} else if (this.state.friend) {
+			menu = <FriendMenu
 						id={this.props.id}
 						self={this.props.self}
 						cookies={this.props.cookies}
 						function_block_user={this.props.function_block_user}
 						function_set_modal={this.setModalContent}
 						function_update_friend={this.updateFriendStatus}
-						function_update_transaction={this.updateTransaction}/>
+						function_update_transaction={this.updateTransaction}
+					/>
 		}
 		else if (this.props.authenticated) {
 			menu = <UnknownMenu
@@ -730,54 +709,53 @@ class ProfileContainer extends Component {
 						friend_request_received={this.props.friend_request_received}
 						function_block_user={this.props.function_block_user}
 						function_set_modal={this.setModalContent}
-						function_update_friend={this.updateFriendStatus}/>
-		}
-		else {
+						function_update_friend={this.updateFriendStatus}
+					/>
+		} else {
 			menu = null;
 		}
-		
+
 		return (
 			<div>
 				<HeaderDivider title="User" color="purple"/>
-				<div className="profile-container ui grid centered stackable middle aligned">
-					<div className="six wide column profile-photo">
-						<div className="image-container">
-							<Image circular src={this.state.image_url}/>
-							{menu}
-							
-							<ModalContainer 
-								header={this.state.modal_header}
-								content={this.state.modal_content}
-								callback={this.state.modal_callback}
-								open={this.state.modal_open}
-								input={this.state.modal_input}
-								date={this.state.modal_input_date}
-								function_close_modal={this.closeModal}
-							/>
+				<Container>
+					<div className="profile-container ui grid centered stackable middle aligned">
+						<div className="six wide column profile-photo">
+							<div className="image-container">
+								<Image circular src={this.state.image_url}/>
+								{menu}
+								<ModalContainer
+									header={this.state.modal_header}
+									content={this.state.modal_content}
+									callback={this.state.modal_callback}
+									open={this.state.modal_open}
+									input={this.state.modal_input}
+									date={this.state.modal_input_date}
+									function_close_modal={this.closeModal}
+								/>
+							</div>
+						</div>
+						<div id="profile-info" className="ten wide column">
+							<div className="profile-info-wrapper">
+								{this.state.editing
+									? <Input value={this.state.input_name} onChange={(e) => this.setState({input_name: e.target.value})} />
+									: <Header className="profile-name" size="large">{this.state.name}</Header>
+								}
+								<br/>
+								<Header className="profile-location" size="medium">{location}</Header>
+								<br/>
+								{this.props.rating !== undefined &&
+									<Rating defaultRating={Math.round(this.props.rating)} maxRating={3} size="large" disabled />
+								}
+								<br/>
+								{this.state.editing
+									? <TextArea value={this.state.input_bio} onChange={(e) => this.setState({input_bio: e.target.value})} />
+									: <p>{this.state.bio}</p>
+								}
+							</div>
 						</div>
 					</div>
-					<div id="profile-info" className="ten wide column">
-						<div className="profile-info-wrapper">
-							{this.state.editing ? (
-								<Input value={this.state.input_name} onChange={(e) => this.setState({input_name: e.target.value})} />
-							) : (
-								<Header className="profile-name" size="large">{this.state.name}</Header>
-							)}
-							<br/>
-							<Header className="profile-location" size="medium">{location}</Header>
-							<br/>
-							{this.props.rating !== undefined &&
-								<Rating defaultRating={Math.round(this.props.rating)} maxRating={3} size="large" disabled />
-							}
-							<br/>
-							{this.state.editing ? (
-								<TextArea value={this.state.input_bio} onChange={(e) => this.setState({input_bio: e.target.value})} />
-							) : (
-								<p>{this.state.bio}</p>
-							)}
-						</div>
-					</div>
-				</div>
+				</Container>
 			</div>
 		);
 	}
@@ -788,19 +766,19 @@ class ModalContainer extends Component {
 		super(props);
 		this.state = {}
 	}
-	
+
 	updateAmount = (e) => {
 		this.setState({
 			amount: e.target.value
 		});
 	}
-	
+
 	updateDate = (e) => {
 		this.setState({
 			date: e.target.value
 		});
 	}
-	
+
 	render() {
 		return (
 			<Modal size="tiny" open={this.props.open} onClose={this.props.function_close_modal}>
@@ -817,11 +795,9 @@ class ModalContainer extends Component {
 					<Button positive icon="checkmark" labelPosition="right" content="Yes" onClick={()=>{
 						if (this.props.input && this.props.date) {
 							this.props.callback(this.state.amount, this.state.date);
-						}
-						else if (this.props.input) {
+						} else if (this.props.input) {
 							this.props.callback(this.state.amount);
-						}
-						else {
+						} else {
 							this.props.callback();
 						}
 						this.props.function_close_modal();
@@ -836,25 +812,22 @@ class ExtrasContainer extends Component {
 		if (this.props.content === undefined || this.props.content.length === 0) {
 			return null;
 		}
-		else {
-			return (
-				<div>
-					<HeaderDivider title={this.props.title} color="purple"/>
-					<div className="extra-container">
-						{this.props.content.map((elem, i) => {
-							return (
-								<div className="center aligned">
-									<a href={this.props.url+elem.id}>
-										<Image circular src={this.props.image_directory+elem.image_url}/>
-										<div>{elem.name}</div>
-									</a>
-								</div>
-							);
-						})}
-					</div>
-				</div>
-			);
-		}
+
+		return (
+			<div>
+				<HeaderDivider title={this.props.title} color="purple"/>
+				<Container className="extra-container">
+					{this.props.content.map((elem, i) =>
+						<div className="center aligned">
+							<a href={this.props.url + elem.id}>
+								<Image circular src={this.props.image_directory + elem.image_url}/>
+								<div>{elem.name}</div>
+							</a>
+						</div>
+					)}
+				</Container>
+			</div>
+		);
 	}
 }
 
@@ -873,7 +846,7 @@ class User extends Component {
 
     componentDidMount() {
 		const { cookies } = this.props;
-		
+
 		// User info
 		let init;
 		if (cookies.get('id_token')) {
@@ -883,11 +856,10 @@ class User extends Component {
 					Authorization: `Bearer ${cookies.get('id_token')}`
 				}
 			};
-		}
-		else {
+		} else {
 			init = { method: 'GET' };
 		}
-		
+
         fetch(urlForUser(this.state.id), init)
 		.then(response => {
 			if (!response.ok) {
@@ -897,14 +869,10 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState(result);
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState(result),
+			() => console.log('ERROR')
 		);
-		
+
 		// Rating
 		fetch(urlForRating(this.state.id))
 		.then(response => {
@@ -916,14 +884,10 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState(result);
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState(result),
+			() => console.log('ERROR')
 		);
-	
+
 		// Friends
 		fetch(urlForFriends(this.state.id))
 		.then(response => {
@@ -934,14 +898,10 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState({friends: result});
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState({friends: result}),
+			() => console.log('ERROR')
 		);
-			
+
 		// Service Provides
 		fetch(urlForProvides(this.state.id))
 		.then(response => {
@@ -953,14 +913,10 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState({provides: result});
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState({provides: result}),
+			() => console.log('ERROR')
 		);
-			
+
 		// Service Provides
 		fetch(urlForRequests(this.state.id))
 		.then(response => {
@@ -972,14 +928,10 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState({requests: result});
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState({requests: result}),
+			() => console.log('ERROR')
 		);
-			
+
 		// Crowdfundings
 		fetch(urlForCrowdfundings(this.state.id))
 		.then(response => {
@@ -991,27 +943,23 @@ class User extends Component {
 		})
 		.then(result => result.json())
 		.then(
-			result => {
-				this.setState({crowdfundings: result});
-			},
-			() => {
-				console.log('ERROR');
-			}
+			result => this.setState({crowdfundings: result}),
+			() => console.log('ERROR')
 		);
     }
-	
+
 	blockUser() {
 		this.setState({blocked: true});
 	}
-	
+
 	updateDonationStatus(status) {
 		this.setState({donation_request: status});
 	}
-	
+
 	updateLoanStatus(status) {
 		this.setState({loan_request: status});
 	}
-	
+
     render() {
 		const { cookies } = this.props;
 		if (this.state.blocked) {
@@ -1023,7 +971,7 @@ class User extends Component {
 		}
 		else {
 			return (
-				<Container className="main-container">
+				<Container fluid className="main-container">
 					<ProfileContainer
 						id={this.state.id}
 						name={this.state.full_name}
@@ -1033,7 +981,7 @@ class User extends Component {
 						bio={this.state.bio}
 						photo={urlForUserImage + this.state.image_url}
 						rating={this.state.rating}
-						
+
 						authenticated={this.state.authenticated}
 						self={this.state.self}
 						friend={this.state.friend}
@@ -1041,31 +989,31 @@ class User extends Component {
 						friend_request_received={this.state.friend_request_received}
 						donation_request={this.state.donation_request}
 						loan_request={this.state.loan_request}
-						
+
 						cookies={cookies}
 						function_update_donation_status={this.updateDonationStatus}
 						function_update_loan_status={this.updateLoanStatus}
 						function_block_user={this.blockUser}
 					/>
-					
+
 					<ExtrasContainer
 						title="My Services"
 						content={this.state.provides}
 						url="/service/"
 					/>
-					
+
 					<ExtrasContainer
 						title="My Needs"
 						content={this.state.requests}
 						url="/service/"
 					/>
-					
+
 					<ExtrasContainer
 						title="My Missions"
 						content={this.state.crowdfundings}
 						url="/crowdfunding/"
 					/>
-					
+
 					<ExtrasContainer
 						title="Friends"
 						content={this.state.friends}
