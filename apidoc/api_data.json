@@ -1,27 +1,24 @@
 [
   {
     "type": "put",
-    "url": "/crowdfundings/:crowdfunding_id/comments",
+    "url": "/comments/",
     "title": "Create comment",
     "name": "CreateComment",
-    "group": "Comment",
+    "group": "CommentStandard",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
       "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id that the comment belongs.</p>"
-          }
-        ],
         "RequestBody": [
+          {
+            "group": "RequestBody",
+            "optional": true,
+            "field": "Integer",
+            "description": "<p>crowdfunding_id Crowdfunding id that the comment belongs (XOR service_id).</p>"
+          },
           {
             "group": "RequestBody",
             "type": "String",
@@ -34,7 +31,7 @@
             "type": "Integer",
             "optional": false,
             "field": "in_reply_to",
-            "description": "<p>Comment id that this new comment is replying to.</p>"
+            "description": "<p>CommentStandard id that this new comment is replying to (can be null).</p>"
           }
         ]
       }
@@ -58,24 +55,24 @@
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get pages number.</p>"
+            "description": ""
           }
         ]
       }
     },
     "version": "0.0.0",
     "filename": "routes/comments.js",
-    "groupTitle": "Comment"
+    "groupTitle": "CommentStandard"
   },
   {
-    "type": "put",
-    "url": "/crowdfundings/:comment_id",
+    "type": "delete",
+    "url": "/comments/:comment_id",
     "title": "Delete comment",
     "name": "DeleteComment",
-    "group": "Comment",
+    "group": "CommentStandard",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
@@ -86,7 +83,7 @@
             "type": "Integer",
             "optional": false,
             "field": "comment_id",
-            "description": "<p>Comment id to update.</p>"
+            "description": "<p>CommentStandard id to delete.</p>"
           }
         ]
       }
@@ -110,30 +107,35 @@
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get pages number.</p>"
+            "description": ""
           }
         ]
       }
     },
     "version": "0.0.0",
     "filename": "routes/comments.js",
-    "groupTitle": "Comment"
+    "groupTitle": "CommentStandard"
   },
   {
     "type": "get",
-    "url": "/crowdfundings/:crowdfunding_id/comments",
-    "title": "Get crowdfunding comments",
-    "name": "GetCrowdfundingComments",
-    "group": "Comment",
+    "url": "/comments/:comment_id/nested_comments",
+    "title": "Get nested comments",
+    "name": "GetNestedComments",
+    "group": "CommentStandard",
+    "permission": [
+      {
+        "name": "CommentStandard creator"
+      }
+    ],
     "parameter": {
       "fields": {
-        "RequestParam": [
+        "RequestParams": [
           {
-            "group": "RequestParam",
+            "group": "RequestParams",
             "type": "Integer",
             "optional": false,
-            "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id that the comments belong.</p>"
+            "field": "comment_di",
+            "description": "<p>Comment id to get the nested comments from.</p>"
           }
         ]
       }
@@ -143,9 +145,45 @@
         "Success 200": [
           {
             "group": "Success 200",
+            "type": "Integer",
             "optional": false,
-            "field": "OK",
-            "description": ""
+            "field": "user_id",
+            "description": "<p>User id that the comment belongs.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "user_name",
+            "description": "<p>User name that the comment belongs.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_id",
+            "description": "<p>Comment id.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_message",
+            "description": "<p>Message that the comment holds.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "date_posted",
+            "description": "<p>Date the coment was posted.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>Comment id that the comment is replying (can be null).</p>"
           }
         ]
       }
@@ -157,24 +195,106 @@
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get pages number.</p>"
+            "description": ""
           }
         ]
       }
     },
     "version": "0.0.0",
     "filename": "routes/comments.js",
-    "groupTitle": "Comment"
+    "groupTitle": "CommentStandard"
+  },
+  {
+    "type": "get",
+    "url": "/comments/top_comments",
+    "title": "Get top comments (those that are not a reply)",
+    "name": "GetTopComments",
+    "group": "CommentStandard",
+    "parameter": {
+      "fields": {
+        "RequestQuery": [
+          {
+            "group": "RequestQuery",
+            "optional": true,
+            "field": "Integer",
+            "description": "<p>crowdfunding_id Crowdfunding id that the comment belongs (XOR service_id).</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User id that the comment belongs.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "user_name",
+            "description": "<p>User name that the comment belongs.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_id",
+            "description": "<p>Comment id.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "comment_message",
+            "description": "<p>Message that the comment holds.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "date_posted",
+            "description": "<p>Date the coment was posted.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "in_reply_to",
+            "description": "<p>Comment id that the comment is replying (can be null).</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "CommentStandard"
   },
   {
     "type": "put",
-    "url": "/crowdfundings/:comment_id",
+    "url": "/comments/:comment_id",
     "title": "Update comment",
     "name": "UpdateComment",
-    "group": "Comment",
+    "group": "CommentStandard",
     "permission": [
       {
-        "name": "Comment creator"
+        "name": "CommentStandard creator"
       }
     ],
     "parameter": {
@@ -185,7 +305,7 @@
             "type": "Integer",
             "optional": false,
             "field": "comment_id",
-            "description": "<p>Comment id to update.</p>"
+            "description": "<p>CommentStandard id to update.</p>"
           }
         ],
         "RequestBody": [
@@ -225,7 +345,7 @@
     },
     "version": "0.0.0",
     "filename": "routes/comments.js",
-    "groupTitle": "Comment"
+    "groupTitle": "CommentStandard"
   },
   {
     "type": "post",
@@ -350,10 +470,10 @@
         "Success 201": [
           {
             "group": "Success 201",
-            "type": "String",
+            "type": "Integer",
             "optional": false,
-            "field": "message",
-            "description": "<p>Sucessfully created a crowdfunding project.</p>"
+            "field": "id",
+            "description": "<p>Newly created crowdfunding id.</p>"
           }
         ]
       }
@@ -1025,86 +1145,6 @@
   },
   {
     "type": "get",
-    "url": "/crowdfundings/",
-    "title": "Get all crowdfundings",
-    "name": "GetAllCrowdfundings",
-    "group": "Crowdfunding",
-    "deprecated": {
-      "content": "use now (#Crowdfunding:SearchCrowdfunding)."
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "title",
-            "description": "<p>Crowdfunding title.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "category",
-            "description": "<p>Crowdfunding category.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "location",
-            "description": "<p>Location where the crowdfunding is going to take place.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "mygrant_target",
-            "description": "<p>Number of mygrants needed for the crowdfunding to success.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "status",
-            "description": "<p>Current crowdfunding status.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "creator_name",
-            "description": "<p>Creator user name.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "creator_id",
-            "description": "<p>Creator user id.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't get crowdfunding projects.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
-    "type": "get",
     "url": "/crowdfundings/:crowdfunding_id",
     "title": "Get crowdfunding",
     "name": "GetCrowdfunding",
@@ -1278,6 +1318,191 @@
   },
   {
     "type": "get",
+    "url": "/crowdfundings/search-count",
+    "title": "- Get number of results and pages of a crowdfundings search",
+    "name": "GetCrowdfundingsSearchCount",
+    "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "visitor"
+      }
+    ],
+    "description": "<p>Returns the number of pages of a crowdfundings search</p>",
+    "parameter": {
+      "fields": {
+        "RequestQueryParams": [
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "q",
+            "description": "<p>Search query; seraches among titles and descriptions (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Integer",
+            "optional": false,
+            "field": "items",
+            "description": "<p>Number of items per page default/max: 50 (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "desc",
+            "description": "<p>Searches in description ['yes', 'no'] default: 'yes' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "cat",
+            "description": "<p>Category of the crowdfunding [BUSINESS, ARTS, ...] (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "balancemax",
+            "description": "<p>Max bound for mygrant_balance (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "balancemin",
+            "description": "<p>Max bound for mygrant_balance (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "targetmax",
+            "description": "<p>Max bound for mygrant_target (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "targetmin",
+            "description": "<p>Max bound for mygrant_target (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemax",
+            "description": "<p>Max bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemin",
+            "description": "<p>Min bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "distmax",
+            "description": "<p>Max bound for user's distance to crowdfunding (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Status of the crowdfunding [COLLECTING, REQUESTING, FINISHED] (Optional)</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/crowdfundings/search-count?q=<QUERY>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "GET: /api/crowdfundings/search-count?q=adaptative+and+extranet",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/crowdfundings/search-count?desc=no",
+        "type": "json"
+      },
+      {
+        "title": "Example 3",
+        "content": "GET: /api/crowdfundings/search-count?q=adaptative paradigms&lang=english&limit=10&cat=fun",
+        "type": "json"
+      },
+      {
+        "title": "Example 4",
+        "content": "GET: /api/crowdfundings/search-count?q=adaptative paradigms&lang=english&limit=100&balancemax=50&balancemin=30&datemin=2018-01-01",
+        "type": "json"
+      },
+      {
+        "title": "Example 5",
+        "content": "GET: /api/crowdfundings/search-count?q=adaptative&order=distance&asc=false",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Number of individual results</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "pages",
+            "description": "<p>Number of pages</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "get",
     "url": "/crowdfundings/:crowdfunding_id/donations",
     "title": "Get donations.",
     "name": "GetDonations",
@@ -1335,69 +1560,6 @@
             "optional": false,
             "field": "InternalServerError",
             "description": "<p>Couldn't get donations.</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/crowdfundings.js",
-    "groupTitle": "Crowdfunding"
-  },
-  {
-    "type": "get",
-    "url": "/crowdfundings/filter/:from-:to/pages_number",
-    "title": "Get pages number",
-    "name": "GetPagesNumber",
-    "group": "Crowdfunding",
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "from",
-            "description": "<p>Crowdfunding number from returned.</p>"
-          },
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "to",
-            "description": "<p>Crowdfunding number to returned.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "pages_number",
-            "description": "<p>Number of crowdfunding pages when using :from and :to.</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid pages number data.</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Couldn't get pages number.</p>"
           }
         ]
       }
@@ -1685,6 +1847,13 @@
         "Success 200": [
           {
             "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Service request id.</p>"
+          },
+          {
+            "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "title",
@@ -1725,78 +1894,166 @@
   },
   {
     "type": "get",
-    "url": "/crowdfundings/filter/:from-:to",
-    "title": "Search crowdfunding.",
-    "name": "SearchCrowdfunding",
+    "url": "/crowdfundings",
+    "title": "- Get crowdfunding's list",
+    "name": "SearchCrowdfundings",
     "group": "Crowdfunding",
+    "permission": [
+      {
+        "name": "visitor"
+      }
+    ],
+    "description": "<p>Search for and filters listing of active crowdfundings according to parameters given</p>",
     "parameter": {
       "fields": {
-        "RequestParam": [
+        "RequestQueryParams": [
           {
-            "group": "RequestParam",
-            "type": "Integer",
+            "group": "RequestQueryParams",
+            "type": "String",
             "optional": false,
-            "field": "from",
-            "description": "<p>Crowdfunding number from returned.</p>"
+            "field": "q",
+            "description": "<p>Search query; seraches among titles and descriptions (Optional)</p>"
           },
           {
-            "group": "RequestParam",
+            "group": "RequestQueryParams",
             "type": "Integer",
             "optional": false,
-            "field": "to",
-            "description": "<p>Crowdfunding number to returned.</p>"
-          }
-        ],
-        "RequestQuery": [
-          {
-            "group": "RequestQuery",
-            "type": "String",
-            "allowedValues": [
-              "date_created",
-              "date_finished",
-              "title",
-              "percentage_achieved"
-            ],
-            "optional": true,
-            "field": "sorting_method",
-            "description": "<p>Sorting method selected.</p>"
+            "field": "page",
+            "description": "<p>Page number to return (Optional)</p>"
           },
           {
-            "group": "RequestQuery",
+            "group": "RequestQueryParams",
+            "type": "Integer",
+            "optional": false,
+            "field": "items",
+            "description": "<p>Number of items per page default/max: 50 (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
             "type": "String",
-            "allowedValues": [
-              "COLLECTING",
-              "RECRUITING",
-              "FINISHED"
-            ],
-            "optional": true,
+            "optional": false,
+            "field": "order",
+            "description": "<p>The field to be ordered by (defaults to search_score) (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Boolean",
+            "optional": false,
+            "field": "asc",
+            "description": "<p>Display in ascesding order (defaults to true) (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "desc",
+            "description": "<p>Searches in description ['yes', 'no'] default: 'yes' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "cat",
+            "description": "<p>Category of the crowdfunding [BUSINESS, ARTS, ...] (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "balancemax",
+            "description": "<p>Max bound for mygrant_balance (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "balancemin",
+            "description": "<p>Max bound for mygrant_balance (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "targetmax",
+            "description": "<p>Max bound for mygrant_target (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "targetmin",
+            "description": "<p>Max bound for mygrant_target (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemax",
+            "description": "<p>Max bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemin",
+            "description": "<p>Min bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "distmax",
+            "description": "<p>Max bound for user's distance to crowdfunding (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
             "field": "status",
-            "description": "<p>Current status.</p>"
-          },
-          {
-            "group": "RequestQuery",
-            "type": "String",
-            "optional": true,
-            "field": "category",
-            "description": "<p>Category to search.</p>"
-          },
-          {
-            "group": "RequestQuery",
-            "type": "String",
-            "optional": true,
-            "field": "location",
-            "description": "<p>Location to search.</p>"
-          },
-          {
-            "group": "RequestQuery",
-            "type": "String",
-            "optional": true,
-            "field": "keywords",
-            "description": "<p>Keywords to search either in the title or description.</p>"
+            "description": "<p>Status of the crowdfunding [COLLECTING, REQUESTING, FINISHED] (Optional)</p>"
           }
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/crowdfundings/?q=<QUERY>",
+        "type": "json"
+      },
+      {
+        "title": "Example 1",
+        "content": "GET: /api/crowdfundings/?q=adaptative+and+extranet",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/crowdfundings?desc=no",
+        "type": "json"
+      },
+      {
+        "title": "Example 3",
+        "content": "GET: /api/crowdfundings/?q=adaptative paradigms&lang=english&limit=10&cat=fun",
+        "type": "json"
+      },
+      {
+        "title": "Example 4",
+        "content": "GET: /api/crowdfundings/?q=adaptative paradigms&lang=english&limit=100&balancemax=50&balancemin=30&datemin=2018-01-01",
+        "type": "json"
+      },
+      {
+        "title": "Example 5",
+        "content": "GET: /api/crowdfundings/?q=adaptative&order=distance&asc=false",
+        "type": "json"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [
@@ -1805,63 +2062,98 @@
             "type": "Integer",
             "optional": false,
             "field": "crowdfunding_id",
-            "description": "<p>Crowdfunding id.</p>"
+            "description": "<p>ID of the crowdfunding</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "rating",
+            "description": "<p>Rating for the crowdfunding's creator</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "title",
-            "description": "<p>Crowdfunding title.</p>"
+            "description": "<p>Title of the crowdfunding</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": "<p>Description of the crowdfunding</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "category",
-            "description": "<p>Crowdfunding category.</p>"
+            "description": "<p>Category of the crowdfunding [BUSINESS, ARTS, ...]</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "location",
-            "description": "<p>Location where the crowdfunding is going to take place.</p>"
+            "description": "<p>Geographic coordinated of the crowdfunding</p>"
           },
           {
             "group": "Success 200",
             "type": "Integer",
             "optional": false,
-            "field": "mygrant_target",
-            "description": "<p>Number of mygrants needed for the crowdfunding to success.</p>"
+            "field": "acceptable_radius",
+            "description": "<p>Maximum distance from location where the crowdfunding can be done</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_value",
+            "description": "<p>Number of hours the crowdfunding will take</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Date",
+            "optional": false,
+            "field": "date_created",
+            "description": "<p>Date the crowdfunding was created</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
-            "field": "status",
-            "description": "<p>Current crowdfunding status.</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "creator_name",
-            "description": "<p>Creator user name.</p>"
+            "field": "crowdfunding_type",
+            "description": "<p>Type of the crowdfunding [PROVIDE, REQUEST]</p>"
           },
           {
             "group": "Success 200",
             "type": "Integer",
             "optional": false,
             "field": "creator_id",
-            "description": "<p>Creator user id.</p>"
+            "description": "<p>ID of the creator if created by a user</p>"
           },
           {
             "group": "Success 200",
-            "type": "Date",
+            "type": "String",
             "optional": false,
-            "field": "date_finished",
-            "description": "<p>Closing date.</p>"
+            "field": "provider_name",
+            "description": "<p>Name of the creator if created by a user</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "crowdfunding_title",
+            "description": "<p>Title of the crowdfunding if created by a crowdfunding</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "distance",
+            "description": "<p>Current user's distance to the crowdfunding's coordinates</p>"
           }
         ]
       }
@@ -1872,8 +2164,8 @@
           {
             "group": "Error 400",
             "optional": false,
-            "field": "BadRequest",
-            "description": "<p>Invalid search data.</p>"
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
           }
         ],
         "Error 500": [
@@ -1881,18 +2173,11 @@
             "group": "Error 500",
             "optional": false,
             "field": "InternalServerError",
-            "description": "<p>Couldn't get crowdfundings.</p>"
+            "description": "<p>Database Query Failed</p>"
           }
         ]
       }
     },
-    "examples": [
-      {
-        "title": "URL example:",
-        "content": "http://localhost:3001/api/crowdfundings/filter/1-10?&sorting_method=date_created&category=BUSINESS",
-        "type": "json"
-      }
-    ],
     "version": "0.0.0",
     "filename": "routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
@@ -3006,13 +3291,6 @@
             "optional": false,
             "field": "crowdfunding_id",
             "description": "<p>ID of the crowdfunding that made the offer (XOR partner_id)</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Date",
-            "optional": false,
-            "field": "date_scheduled",
-            "description": "<p>Date the service is goind to be provided</p>"
           }
         ]
       }
@@ -3048,95 +3326,14 @@
     },
     "error": {
       "fields": {
-        "Error 400": [
+        "Error 403": [
           {
-            "group": "Error 400",
+            "group": "Error 403",
             "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
+            "field": "Forbidden",
+            "description": "<p>You do not have permission to offer the specified service.</p>"
           }
         ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Database Query Failed</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-  },
-  {
-    "type": "post",
-    "url": "/services/:id/comments",
-    "title": "- Comment on a service",
-    "name": "CommentService",
-    "group": "Service",
-    "permission": [
-      {
-        "name": "authenticated user"
-      }
-    ],
-    "description": "<p>Create a new comment on a service. in_reply_to overrides :id in order make sure both reply and replied have the same service</p>",
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "id",
-            "description": "<p>ID of the service to comment on</p>"
-          }
-        ],
-        "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Content of the comment</p>"
-          },
-          {
-            "group": "RequestBody",
-            "type": "Integer",
-            "optional": false,
-            "field": "in_reply_to",
-            "description": "<p>ID of the message this one is replying to (Optional)</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "Syntax",
-        "content": "POST: /api/services/<ID>/comments",
-        "type": "json"
-      },
-      {
-        "title": "Example",
-        "content": "POST: /api/services/5/comments\nbody: {\n     message: 'This is a comment',\n     in_reply_to: 10\n}",
-        "type": "json"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "OK",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
         "Error 400": [
           {
             "group": "Error 400",
@@ -3256,7 +3453,7 @@
             "type": "Boolean",
             "optional": false,
             "field": "repeatable",
-            "description": "<p>If the service can be done more than one time</p>"
+            "description": "<p>If the service can be done more than one time (Optional)</p>"
           }
         ]
       }
@@ -3337,8 +3534,8 @@
             "group": "RequestFiles",
             "type": "File",
             "optional": false,
-            "field": "file",
-            "description": "<p>Image file of the image</p>"
+            "field": "image",
+            "description": "<p>Image file to upload</p>"
           }
         ]
       }
@@ -3446,79 +3643,6 @@
       {
         "title": "Example 2",
         "content": "[When the offer was made by a crowdfunding]\nPOST: /api/services/5/offers/decline\nbody: {\n     crowdfunding_id: 10,\n}",
-        "type": "json"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "OK",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Database Query Failed</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-  },
-  {
-    "type": "delete",
-    "url": "/services/comments/:id",
-    "title": "- Delete a comment",
-    "name": "DeleteComment",
-    "group": "Service",
-    "permission": [
-      {
-        "name": "comment sender"
-      }
-    ],
-    "description": "<p>Deletes the comment with the given id</p>",
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "id",
-            "description": "<p>ID of the comment to delete</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "Syntax",
-        "content": "DELETE: /api/services/comments/<ID>",
-        "type": "json"
-      },
-      {
-        "title": "Example",
-        "content": "DELETE: /api/services/comments/5",
         "type": "json"
       }
     ],
@@ -3672,88 +3796,6 @@
       {
         "title": "Example",
         "content": "DELETE: /api/services/5/images/http://dummyimage.com/965x531.png/dddddd/000000",
-        "type": "json"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "optional": false,
-            "field": "OK",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Database Query Failed</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-  },
-  {
-    "type": "put",
-    "url": "/services/comments/:id",
-    "title": "- Edit a comment",
-    "name": "EditComment",
-    "group": "Service",
-    "permission": [
-      {
-        "name": "comment sender"
-      }
-    ],
-    "description": "<p>Edits the content of a comment</p>",
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "id",
-            "description": "<p>ID of the comment to edit</p>"
-          }
-        ],
-        "RequestBody": [
-          {
-            "group": "RequestBody",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>New content of the comment</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "Syntax",
-        "content": "PUT: /api/services/comments/<ID>",
-        "type": "json"
-      },
-      {
-        "title": "Example",
-        "content": "PUT: /api/services/comments/5\nbody: {\n     message: 'This is an edited comment'\n}",
         "type": "json"
       }
     ],
@@ -4098,122 +4140,6 @@
   },
   {
     "type": "get",
-    "url": "/services/:id/comments",
-    "title": "- Get service comments",
-    "name": "GetServiceComments",
-    "group": "Service",
-    "permission": [
-      {
-        "name": "visitor"
-      }
-    ],
-    "description": "<p>Gets comments made on service</p>",
-    "parameter": {
-      "fields": {
-        "RequestParam": [
-          {
-            "group": "RequestParam",
-            "type": "Integer",
-            "optional": false,
-            "field": "id",
-            "description": "<p>ID of the service the comments are about</p>"
-          }
-        ]
-      }
-    },
-    "examples": [
-      {
-        "title": "Syntax",
-        "content": "GET: /api/services/<ID>/comments",
-        "type": "json"
-      },
-      {
-        "title": "Example",
-        "content": "GET: /api/services/5/comments",
-        "type": "json"
-      }
-    ],
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "comment_id",
-            "description": "<p>ID of the comment</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "sender_id",
-            "description": "<p>ID of the user that made the comment</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "sender_name",
-            "description": "<p>Name of the user that made the comment</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>Content of the comment</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Date",
-            "optional": false,
-            "field": "date_posted",
-            "description": "<p>Date the comment was made</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Integer",
-            "optional": false,
-            "field": "in_reply_to",
-            "description": "<p>ID of the comment this is replying to</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Boolean",
-            "optional": false,
-            "field": "edited",
-            "description": "<p>If the comment has been edited</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 400": [
-          {
-            "group": "Error 400",
-            "optional": false,
-            "field": "BadRequestError",
-            "description": "<p>Invalid URL Parameters</p>"
-          }
-        ],
-        "Error 500": [
-          {
-            "group": "Error 500",
-            "optional": false,
-            "field": "InternalServerError",
-            "description": "<p>Database Query Failed</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/services.js",
-    "groupTitle": "Service"
-  },
-  {
-    "type": "get",
     "url": "/services/:id/images",
     "title": "- Get service images' urls",
     "name": "GetServiceImages",
@@ -4344,7 +4270,7 @@
             "group": "Success 200",
             "optional": false,
             "field": "requesters",
-            "description": "<p>List of the users making the offers {type, requester_id, requester_name}</p>"
+            "description": "<p>List of the users making the offers {type, requester_id, requester_name, date_proposed}</p>"
           }
         ]
       }
@@ -4467,25 +4393,102 @@
   },
   {
     "type": "get",
-    "url": "/services/num-pages",
-    "title": "- Get number of pages of service list",
-    "name": "GetServicesNumPages",
+    "url": "/services/search-count",
+    "title": "- Get number of results and pages of a services search",
+    "name": "GetServicesSearchCount",
     "group": "Service",
     "permission": [
       {
         "name": "visitor"
       }
     ],
-    "description": "<p>Returns the number of pages of active services (with each page having up to N items)</p>",
+    "description": "<p>Returns the number of pages of a services search</p>",
     "parameter": {
       "fields": {
         "RequestQueryParams": [
           {
             "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "q",
+            "description": "<p>Search query; seraches among titles and descriptions (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
             "type": "Integer",
             "optional": false,
-            "field": "Items",
-            "description": "<p>number of items per page default/max: 50 (Optional)</p>"
+            "field": "items",
+            "description": "<p>Number of items per page default/max: 50 (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "desc",
+            "description": "<p>Searches in description ['yes', 'no'] default: 'yes' (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "cat",
+            "description": "<p>Category of the service [BUSINESS, ARTS, ...] (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Type of the service [PROVIDE, REQUEST] (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "mygmax",
+            "description": "<p>Max bound for mygrant_value (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "mygmin",
+            "description": "<p>Min bound for mygrant_value (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemax",
+            "description": "<p>Max bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Date",
+            "optional": false,
+            "field": "datemin",
+            "description": "<p>Min bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "distmax",
+            "description": "<p>Max bound for user's distance to service (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "ratingmin",
+            "description": "<p>Min bound for rating (Optional)</p>"
           }
         ]
       }
@@ -4493,12 +4496,32 @@
     "examples": [
       {
         "title": "Syntax",
-        "content": "GET: /api/services/num-pages?items=<ITEMS>",
+        "content": "GET: /api/services/search-count?q=<QUERY>",
         "type": "json"
       },
       {
-        "title": "Example",
-        "content": "GET: /api/services/num-pages?items=30",
+        "title": "Example 1",
+        "content": "GET: /api/services/search-count?q=support+tangible+extranet",
+        "type": "json"
+      },
+      {
+        "title": "Example 2",
+        "content": "GET: /api/services/search-count?q=tangible services&desc=no",
+        "type": "json"
+      },
+      {
+        "title": "Example 3",
+        "content": "GET: /api/services/search-count?q=support paradigms&lang=english&limit=10&cat=fun&type=request",
+        "type": "json"
+      },
+      {
+        "title": "Example 4",
+        "content": "GET: /api/services/search-count?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01",
+        "type": "json"
+      },
+      {
+        "title": "Example 5",
+        "content": "GET: /api/services/search-count?q=service&order=distance&asc=false",
         "type": "json"
       }
     ],
@@ -4509,8 +4532,15 @@
             "group": "Success 200",
             "type": "Integer",
             "optional": false,
-            "field": "n",
-            "description": "<p>Returns only the integer of the number of pages (No JSON key: value)</p>"
+            "field": "results",
+            "description": "<p>Number of individual results</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "pages",
+            "description": "<p>Number of pages</p>"
           }
         ]
       }
@@ -4568,7 +4598,21 @@
             "type": "Integer",
             "optional": false,
             "field": "crowdfunding_id",
-            "description": "<p>ID of the crowdfunding making the offer (Optional)</p>"
+            "description": "<p>ID of the crowdfunding making the offer (crowdfunding must be RECRUTING) (XOR partner_id)</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Integer",
+            "optional": false,
+            "field": "partner_id",
+            "description": "<p>ID of the user making the offer (XOR crowdfunding_id)</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Timestamp",
+            "optional": false,
+            "field": "date_propsosed",
+            "description": "<p>Proposed date for the service (Optional)</p>"
           }
         ]
       }
@@ -4586,7 +4630,7 @@
       },
       {
         "title": "Example 2",
-        "content": "[When the offer is being made in the name of a crowdfunding]\nPOST: /api/services/5/offers\nbody: {\n     crowdfunding_id: 10,\n}",
+        "content": "[When the offer is being made in the name of a crowdfunding]\nPOST: /api/services/5/offers\nbody: {\n partner_id: 10,\n data_proposed: \"2018-10-10 03:03:03+01\"\n}",
         "type": "json"
       }
     ],
@@ -4747,28 +4791,28 @@
             "type": "Integer",
             "optional": false,
             "field": "page",
-            "description": "<p>page number to return (Optional)</p>"
+            "description": "<p>Page number to return (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
             "type": "Integer",
             "optional": false,
             "field": "items",
-            "description": "<p>number of items per page default/max: 50 (Optional)</p>"
+            "description": "<p>Number of items per page default/max: 50 (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
             "type": "String",
             "optional": false,
-            "field": "the",
-            "description": "<p>field to be ordered by (defaults to search_score) (Optional)</p>"
+            "field": "order",
+            "description": "<p>The field to be ordered by (defaults to search_score) (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
             "type": "Boolean",
             "optional": false,
-            "field": "display",
-            "description": "<p>in ascesding order (defaults to true) (Optional)</p>"
+            "field": "asc",
+            "description": "<p>Display in ascesding order (defaults to true) (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
@@ -4800,14 +4844,14 @@
           },
           {
             "group": "RequestQueryParams",
-            "type": "Integer",
+            "type": "Number",
             "optional": false,
             "field": "mygmax",
             "description": "<p>Max bound for mygrant_value (Optional)</p>"
           },
           {
             "group": "RequestQueryParams",
-            "type": "Integer",
+            "type": "Number",
             "optional": false,
             "field": "mygmin",
             "description": "<p>Min bound for mygrant_value (Optional)</p>"
@@ -4825,6 +4869,20 @@
             "optional": false,
             "field": "datemin",
             "description": "<p>Min bound for created_date (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "distmax",
+            "description": "<p>Max bound for user's distance to service (Optional)</p>"
+          },
+          {
+            "group": "RequestQueryParams",
+            "type": "Number",
+            "optional": false,
+            "field": "ratingmin",
+            "description": "<p>Min bound for rating (Optional)</p>"
           }
         ]
       }
@@ -4832,32 +4890,32 @@
     "examples": [
       {
         "title": "Syntax",
-        "content": "GET: /api/services/search?q=<QUERY>",
+        "content": "GET: /api/services/?q=<QUERY>",
         "type": "json"
       },
       {
         "title": "Example 1",
-        "content": "GET: /api/services/search?q=support+tangible+extranet",
+        "content": "GET: /api/services/?q=support+tangible+extranet",
         "type": "json"
       },
       {
         "title": "Example 2",
-        "content": "GET: /api/services/search?q=tangible services&desc=no",
+        "content": "GET: /api/services/?q=tangible services&desc=no",
         "type": "json"
       },
       {
         "title": "Example 3",
-        "content": "GET: /api/services/search?q=support paradigms&lang=english&limit=10&cat=fun&type=request",
+        "content": "GET: /api/services/?q=support paradigms&lang=english&limit=10&cat=fun&type=request",
         "type": "json"
       },
       {
         "title": "Example 4",
-        "content": "GET: /api/services/search?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01",
+        "content": "GET: /api/services/?q=support paradigms&lang=english&limit=100&mygmax=50&mygmin=30&datemin=2018-01-01",
         "type": "json"
       },
       {
         "title": "Example 5",
-        "content": "GET: /api/services/search?q=service&order=distance&asc=false",
+        "content": "GET: /api/services/?q=service&order=distance&asc=false",
         "type": "json"
       }
     ],
@@ -4870,6 +4928,13 @@
             "optional": false,
             "field": "service_id",
             "description": "<p>ID of the service</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "rating",
+            "description": "<p>Rating for the service's creator</p>"
           },
           {
             "group": "Success 200",
@@ -4954,6 +5019,13 @@
             "optional": false,
             "field": "crowdfunding_title",
             "description": "<p>Title of the crowdfunding if created by a crowdfunding</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "distance",
+            "description": "<p>Current user's distance to the service's coordinates</p>"
           }
         ]
       }
@@ -5016,5 +5088,382 @@
     "version": "0.0.0",
     "filename": "routes/categories.js",
     "groupTitle": "Service_Categories"
+  },
+  {
+    "type": "get",
+    "url": "/users/mygrant_balalnce",
+    "title": "Get mygrant balance",
+    "name": "GetMygrantBalance",
+    "group": "User",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_balance",
+            "description": "<p>Current amount of mygrants owned by the user.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/users/mygrant_balalnce",
+    "title": "Get mygrant balance",
+    "name": "GetMygrantBalance",
+    "group": "User",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "mygrant_balance",
+            "description": "<p>Current amount of mygrants owned by the user.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/users.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/users/crowdfundings",
+    "title": "Get user's crowdfundings.",
+    "name": "GetUserCrowdfundings",
+    "group": "User",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "error": {
+      "fields": {
+        "Sucess 200": [
+          {
+            "group": "Sucess 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/comments.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/users/get_from_token",
+    "title": "get the authenticated user that is identified by a JWT",
+    "name": "getFromToken",
+    "group": "User",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/users.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/crowdfundings/:crowdfunding_id/images",
+    "title": "- Create crowdfunding image",
+    "name": "CreatecrowdfundingImage",
+    "group": "crowdfunding",
+    "permission": [
+      {
+        "name": "crowdfunding creator"
+      }
+    ],
+    "description": "<p>Upload image and add it to the crowdfunding's images</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>ID of the crowdfunding to get images of</p>"
+          }
+        ],
+        "RequestFiles": [
+          {
+            "group": "RequestFiles",
+            "type": "File",
+            "optional": false,
+            "field": "file",
+            "description": "<p>Image file of the image</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "PUT: /api/crowdfundings/<ID>/images",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "PUT: /api/crowdfundings/5/images\nfiles.image?",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "crowdfunding"
+  },
+  {
+    "type": "delete",
+    "url": "/crowdfundings/:crowdfunding_id/images/:image",
+    "title": "- Delete crowdfunding image",
+    "name": "DeletecrowdfundingImage",
+    "group": "crowdfunding",
+    "permission": [
+      {
+        "name": "crowdfunding creator"
+      }
+    ],
+    "description": "<p>Delete image of a crowdfunding by its URL</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>ID of the crowdfunding to get images of</p>"
+          },
+          {
+            "group": "RequestParam",
+            "type": "String",
+            "optional": false,
+            "field": "image",
+            "description": "<p>URL of the image to delete</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "DELETE: /api/crowdfundings/<ID>/images/<IMAGE_URL>",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "DELETE: /api/crowdfundings/5/images/http://dummyimage.com/965x531.png/dddddd/000000",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "OK",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "crowdfunding"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/images",
+    "title": "- Get crowdfunding images' urls",
+    "name": "GetcrowdfundingImages",
+    "group": "crowdfunding",
+    "permission": [
+      {
+        "name": "visitor"
+      }
+    ],
+    "description": "<p>Get images of a crowdfunding</p>",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>ID of the crowdfunding to get images of</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Syntax",
+        "content": "GET: /api/crowdfundings/<ID>/images",
+        "type": "json"
+      },
+      {
+        "title": "Example",
+        "content": "GET: /api/crowdfundings/5/images",
+        "type": "json"
+      }
+    ],
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "optional": false,
+            "field": "images",
+            "description": "<p>List of images of the crowdfunding {crowdfunding_id, image_url}</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequestError",
+            "description": "<p>Invalid URL Parameters</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Database Query Failed</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/crowdfundings.js",
+    "groupTitle": "crowdfunding"
   }
 ]

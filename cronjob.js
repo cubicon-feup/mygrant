@@ -10,7 +10,7 @@ module.exports.scheduleJob = (crowdfundingId, date) => {
         let query =
             `SELECT mygrant_balance, mygrant_target
             FROM crowdfunding
-            WHERE crowdfunding_id = $(crowdfunding_id);`;
+            WHERE id = $(crowdfunding_id);`;
     
         db.one(query, {
             crowdfunding_id: crowdfundingId
@@ -29,9 +29,10 @@ module.exports.scheduleJob = (crowdfundingId, date) => {
             db.none(query, {
                 crowdfunding_id: crowdfundingId
             }).then(() => {
-                res.sendStatus(200);
+                console.log("Cronjob successfully updated the crowdfunding state.")
             }).catch(error => {
-                res.status(500).json({error});
+                console.error("Error: Cronjob couldn't update the crowdfunding state.")
+                console.error(error);
             })
         })
     }

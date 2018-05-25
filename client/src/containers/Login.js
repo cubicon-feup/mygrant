@@ -87,7 +87,7 @@ class Login extends Component {
                             path: '/'
                         });
                         // Redirect to new page
-                        this.props.history.push('/');
+                        this.props.history.push('/dashboard');
                         window.location.reload();
                     });
             } else {

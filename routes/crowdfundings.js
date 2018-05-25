@@ -10,6 +10,270 @@ const expressJwt = require('express-jwt');
 const appSecret = require('../config/config').secret;
 const authenticate = expressJwt({ secret: appSecret });
 
+
+// SEARCH
+// ===============================================================================
+
+/**
+ * @api {get} /crowdfundings - Get crowdfunding's list
+ * @apiName SearchCrowdfundings
+ * @apiGroup Crowdfunding
+ * @apiPermission visitor
+ *
+ * @apiDescription Search for and filters listing of active crowdfundings according to parameters given
+ *
+ * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
+ * @apiParam (RequestQueryParams) {Integer} page Page number to return (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items Number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} order The field to be ordered by (defaults to search_score) (Optional)
+ * @apiParam (RequestQueryParams) {Boolean} asc Display in ascesding order (defaults to true) (Optional)
+ * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
+ * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
+ * @apiParam (RequestQueryParams) {String} cat Category of the crowdfunding [BUSINESS, ARTS, ...] (Optional)
+ * @apiParam (RequestQueryParams) {Number} balancemax Max bound for mygrant_balance (Optional)
+ * @apiParam (RequestQueryParams) {Number} balancemin Max bound for mygrant_balance (Optional)
+ * @apiParam (RequestQueryParams) {Number} targetmax Max bound for mygrant_target (Optional)
+ * @apiParam (RequestQueryParams) {Number} targetmin Max bound for mygrant_target (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Number} distmax Max bound for user's distance to crowdfunding (Optional)
+ * @apiParam (RequestQueryParams) {String} status Status of the crowdfunding [COLLECTING, REQUESTING, FINISHED] (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/crowdfundings/?q=<QUERY>
+ * @apiExample Example 1
+ * GET: /api/crowdfundings/?q=adaptative+and+extranet
+ * @apiExample Example 2
+ * GET: /api/crowdfundings?desc=no
+ * @apiExample Example 3
+ * GET: /api/crowdfundings/?q=adaptative paradigms&lang=english&limit=10&cat=fun
+ * @apiExample Example 4
+ * GET: /api/crowdfundings/?q=adaptative paradigms&lang=english&limit=100&balancemax=50&balancemin=30&datemin=2018-01-01
+ * @apiExample Example 5
+ * GET: /api/crowdfundings/?q=adaptative&order=distance&asc=false
+ *
+ * @apiSuccess (Success 200) {Integer} crowdfunding_id ID of the crowdfunding
+ * @apiSuccess (Success 200) {Number} rating Rating for the crowdfunding's creator
+ * @apiSuccess (Success 200) {String} title Title of the crowdfunding
+ * @apiSuccess (Success 200) {String} description Description of the crowdfunding
+ * @apiSuccess (Success 200) {String} category Category of the crowdfunding [BUSINESS, ARTS, ...]
+ * @apiSuccess (Success 200) {String} location Geographic coordinated of the crowdfunding
+ * @apiSuccess (Success 200) {Integer} acceptable_radius Maximum distance from location where the crowdfunding can be done
+ * @apiSuccess (Success 200) {Integer} mygrant_value Number of hours the crowdfunding will take
+ * @apiSuccess (Success 200) {Date} date_created Date the crowdfunding was created
+ * @apiSuccess (Success 200) {String} crowdfunding_type Type of the crowdfunding [PROVIDE, REQUEST]
+ * @apiSuccess (Success 200) {Integer} creator_id ID of the creator if created by a user
+ * @apiSuccess (Success 200) {String} provider_name Name of the creator if created by a user
+ * @apiSuccess (Success 200) {Integer} crowdfunding_id ID of the crowdfunding if created by a crowdfunding
+ * @apiSuccess (Success 200) {String} crowdfunding_title Title of the crowdfunding if created by a crowdfunding
+ * @apiSuccess (Success 200) {Number} distance Current user's distance to the crowdfunding's coordinates
+ *
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.get('/', expressJwt({credentialsRequired: false, secret: appSecret}), policy.search, function(req, res) {
+    try {
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        const page = req.query.hasOwnProperty('page') && req.query.page > 1 ? req.query.page : 1;
+        var offset = (page - 1) * itemsPerPage;
+        // order by:
+        var order = req.query.hasOwnProperty('order') ? req.query.order.replace(/[|&;$%@"<>()+,]/g, "") : req.query.hasOwnProperty('q') ? 'search_score' : 'title';
+        // ascending / descending
+        var asc = req.query.hasOwnProperty('asc') ? req.query.asc == 'true' : true;
+        // filters:
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
+        var inc_descr = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        var balancemax = req.query.hasOwnProperty('balancemax') ? req.query.balancemax : false;
+        var balancemin = req.query.hasOwnProperty('balancemin') ? req.query.balancemin : false;
+        var targetmax = req.query.hasOwnProperty('targetmax') ? req.query.targetmax : false;
+        var targetmin = req.query.hasOwnProperty('targetmin') ? req.query.targetmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var distmax = req.query.hasOwnProperty('distmax') ? req.query.distmax : false;
+        var status = req.query.hasOwnProperty('status') ? req.query.status.toUpperCase() : false;
+        // user id
+        var user_id = req.hasOwnProperty('user') && req.user.hasOwnProperty('id') ? req.user.id : null;
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+        return;
+    }
+    // define query
+    const query = `
+        SELECT * 
+        FROM (
+        WITH refs AS (
+            SELECT 
+            COALESCE((SELECT latitude FROM users WHERE id = $(user_id)),NULL) AS latitude_ref,
+            COALESCE((SELECT longitude FROM users WHERE id = $(user_id)),NULL) AS longitude_ref
+        )
+        SELECT crowdfunding.id AS crowdfunding_id, crowdfunding.title, crowdfunding.description, crowdfunding.category, crowdfunding.mygrant_target, crowdfunding.mygrant_balance, crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target as percentage_achieved, crowdfunding.location, crowdfunding.date_created, crowdfunding.date_finished, crowdfunding.status, crowdfunding.creator_id, users.full_name AS creator_name,
+        1.60934 * 2 * 3961 * asin(sqrt((sin(radians((crowdfunding.latitude - latitude_ref) / 2))) ^ 2 + cos(radians(latitude_ref)) * cos(radians(crowdfunding.latitude)) * (sin(radians((crowdfunding.longitude - longitude_ref) / 2))) ^ 2)) AS distance
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), crowdfunding.title ${inc_descr ? '|| \'. \' || crowdfunding.description' : ''} || '. ' || crowdfunding.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
+        FROM refs, crowdfunding
+        LEFT JOIN users ON users.id = crowdfunding.creator_id
+        WHERE crowdfunding.deleted = false
+        ${cat ? ' AND crowdfunding.category = $(cat)' : ''}
+        ${balancemax ? ' AND crowdfunding.mygrant_balance <= $(balancemax)' : ''}
+        ${balancemin ? ' AND crowdfunding.mygrant_balance >= $(balancemin)' : ''}
+        ${targetmax ? ' AND crowdfunding.mygrant_target <= $(targetmax)' : ''}
+        ${targetmin ? ' AND crowdfunding.mygrant_target >= $(targetmin)' : ''}
+        ${datemax ? ' AND crowdfunding.date_created <= $(datemax)' : ''}
+        ${datemin ? ' AND crowdfunding.date_created >= $(datemin)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
+        ${status ? ' AND crowdfunding.status = $(status)' : ''}
+        ) s 
+        ${q ? 'WHERE search_score > 0' : ''}
+        ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
+        LIMIT $(itemsPerPage) OFFSET $(offset);`;
+
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+
+    // place query
+    db.any(query, {
+        q,
+        itemsPerPage,
+        offset,
+        lang,
+        cat,
+        balancemax,
+        balancemin,
+        targetmax,
+        targetmin,
+        datemax,
+        datemin,
+        order,
+        distmax,
+        status,
+        user_id
+    })
+    .then(data => {
+        res.status(200).json(data);
+    })
+    .catch(error => {
+        res.status(500).json(error);
+    });
+});
+
+
+/**
+ * @api {get} /crowdfundings/search-count - Get number of results and pages of a crowdfundings search
+ * @apiName GetCrowdfundingsSearchCount
+ * @apiGroup Crowdfunding
+ * @apiPermission visitor
+ *
+ * @apiDescription Returns the number of pages of a crowdfundings search
+ *
+ * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
+ * @apiParam (RequestQueryParams) {Integer} items Number of items per page default/max: 50 (Optional)
+ * @apiParam (RequestQueryParams) {String} lang Language of the query ['portuguese', 'english', ...] default: 'english' (Optional)
+ * @apiParam (RequestQueryParams) {String} desc Searches in description ['yes', 'no'] default: 'yes' (Optional)
+ * @apiParam (RequestQueryParams) {String} cat Category of the crowdfunding [BUSINESS, ARTS, ...] (Optional)
+ * @apiParam (RequestQueryParams) {Number} balancemax Max bound for mygrant_balance (Optional)
+ * @apiParam (RequestQueryParams) {Number} balancemin Max bound for mygrant_balance (Optional)
+ * @apiParam (RequestQueryParams) {Number} targetmax Max bound for mygrant_target (Optional)
+ * @apiParam (RequestQueryParams) {Number} targetmin Max bound for mygrant_target (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemax Max bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Date} datemin Min bound for created_date (Optional)
+ * @apiParam (RequestQueryParams) {Number} distmax Max bound for user's distance to crowdfunding (Optional)
+ * @apiParam (RequestQueryParams) {String} status Status of the crowdfunding [COLLECTING, REQUESTING, FINISHED] (Optional)
+ *
+ * @apiExample Syntax
+ * GET: /api/crowdfundings/search-count?q=<QUERY>
+ * @apiExample Example 1
+ * GET: /api/crowdfundings/search-count?q=adaptative+and+extranet
+ * @apiExample Example 2
+ * GET: /api/crowdfundings/search-count?desc=no
+ * @apiExample Example 3
+ * GET: /api/crowdfundings/search-count?q=adaptative paradigms&lang=english&limit=10&cat=fun
+ * @apiExample Example 4
+ * GET: /api/crowdfundings/search-count?q=adaptative paradigms&lang=english&limit=100&balancemax=50&balancemin=30&datemin=2018-01-01
+ * @apiExample Example 5
+ * GET: /api/crowdfundings/search-count?q=adaptative&order=distance&asc=false
+ *
+ * @apiSuccess (Success 200) {Integer} results Number of individual results
+ * @apiSuccess (Success 200) {Integer} pages Number of pages
+ *
+ * @apiError (Error 400) BadRequestError Invalid URL Parameters
+ * @apiError (Error 500) InternalServerError Database Query Failed
+ */
+router.get(['/num-pages', '/search-count', '/count', '/npages'], policy.search, function(req, res) {
+    try {
+
+        var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
+        // paging
+        var itemsPerPage = req.query.hasOwnProperty('items') && req.query.items < 50 ? req.query.items : 50;
+        // filters:
+        var lang = req.query.hasOwnProperty('lang') ? req.query.lang : 'english'; // lang can either be 'english' or 'portuguese':
+        var inc_descr = req.query.hasOwnProperty('desc') ? req.query.desc != 'no' : true;
+        var cat = req.query.hasOwnProperty('cat') ? req.query.cat.toUpperCase() : false;
+        var balancemax = req.query.hasOwnProperty('balancemax') ? req.query.balancemax : false;
+        var balancemin = req.query.hasOwnProperty('balancemin') ? req.query.balancemin : false;
+        var targetmax = req.query.hasOwnProperty('targetmax') ? req.query.targetmax : false;
+        var targetmin = req.query.hasOwnProperty('targetmin') ? req.query.targetmin : false;
+        var datemax = req.query.hasOwnProperty('datemax') ? req.query.datemax : false;
+        var datemin = req.query.hasOwnProperty('datemin') ? req.query.datemin : false;
+        var distmax = req.query.hasOwnProperty('distmax') ? req.query.distmax : false;
+        var status = req.query.hasOwnProperty('status') ? req.query.status.toUpperCase() : false;
+    } catch (err) {
+        res.status(400).json({ 'error': err.toString() });
+        return;
+    }
+    // define query
+    const query = `
+        SELECT COUNT(*) as COUNT
+        FROM (
+        SELECT crowdfunding.id 
+        ${q ? `, ts_rank_cd(to_tsvector($(lang), crowdfunding.title ${inc_descr ? '|| \'. \' || crowdfunding.description' : ''} || '. ' || crowdfunding.location || '. ' || users.full_name),
+        to_tsquery($(lang), $(q))) AS search_score` : ``}
+        FROM crowdfunding
+        LEFT JOIN users ON users.id = crowdfunding.creator_id
+        WHERE crowdfunding.deleted = false
+        ${cat ? ' AND crowdfunding.category = $(cat)' : ''}
+        ${balancemax ? ' AND crowdfunding.mygrant_balance <= $(balancemax)' : ''}
+        ${balancemin ? ' AND crowdfunding.mygrant_balance >= $(balancemin)' : ''}
+        ${targetmax ? ' AND crowdfunding.mygrant_target <= $(targetmax)' : ''}
+        ${targetmin ? ' AND crowdfunding.mygrant_target >= $(targetmin)' : ''}
+        ${datemax ? ' AND crowdfunding.date_created <= $(datemax)' : ''}
+        ${datemin ? ' AND crowdfunding.date_created >= $(datemin)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
+        ${distmax ? ' AND distance <= $(distmax)' : ''}
+        ${status ? ' AND crowdfunding.status = $(status)' : ''}
+        ) s 
+        ${q ? 'WHERE search_score > 0' : ''}`;
+    // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
+    // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
+
+    // place query
+    db.one(query, {
+            q,
+            lang,
+            cat,
+            balancemax,
+            balancemin,
+            targetmax,
+            targetmin,
+            datemax,
+            datemin,
+            distmax,
+            status
+        })
+        .then(data => {
+            res.status(200).json({
+                'results': data.count,
+                'pages': Math.ceil(data.count / itemsPerPage)
+            });
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+
 // CROWDFUNDING.
 // ===============================================================================
 
@@ -36,12 +300,14 @@ router.post('/', authenticate, policy.valid, function(req, res) {
     let description = req.body.description;
     let category = req.body.category;
     let location = req.body.location;
+    let latitude = req.body.latitude;
+    let longitude = req.body.longitude;
     let mygrantTarget = req.body.mygrant_target;
     let timeInterval = req.body.time_interval;
     let creatorId = req.user.id;
     let query =
-        `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
+        `INSERT INTO crowdfunding (title, description, category, location, latitude, longitude, mygrant_target, date_created, date_finished, status, creator_id)
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
         RETURNING id, date_finished;`;
 
     db.one(query, {
@@ -49,6 +315,8 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         description: description,
         category: category,
         location: location,
+        latitude: latitude,
+        longitude: longitude,
         mygrant_target: mygrantTarget,
         time_interval: timeInterval,
         creator_id: creatorId
@@ -87,7 +355,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
+        `SELECT title, description, category, location, crowdfunding.latitude, crowdfunding.longitude, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
             ( SELECT avg (total_ratings.rating) as average_rating
                 FROM (
                     SELECT rating
@@ -104,6 +372,7 @@ router.get('/:crowdfunding_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.log("Opa")
         res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
     });
 });
@@ -204,36 +473,6 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
         res.status(200).json(data);
     }).catch(error => {
         res.status(500).json({error: 'Couldn\'t get the rating.'});
-    });
-});
-
-/**
- * @api {get} /crowdfundings/ Get all crowdfundings
- * @apiName GetAllCrowdfundings
- * @apiGroup Crowdfunding
- * @apiDeprecated use now (#Crowdfunding:SearchCrowdfunding).
- *
- * @apiSuccess (Success 200) {String} title Crowdfunding title.
- * @apiSuccess (Success 200) {String} category Crowdfunding category.
- * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
- * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
- * @apiSuccess (Success 200) {String} status Current crowdfunding status.
- * @apiSuccess (Success 200) {String} creator_name Creator user name.
- * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
- *
- * @apiError (Error 500) InternalServerError Couldn't get crowdfunding projects.
- */
-router.get('/', function(req, res) {
-    let query =
-        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
-        FROM crowdfunding
-        INNER JOIN users ON users.id = crowdfunding.creator_id;`;
-
-    db.manyOrNone(query)
-    .then(data => {
-        res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get crowdfunding projects.'});
     });
 });
 
@@ -675,7 +914,8 @@ router.post('/:crowdfunding_id/services_requested', authenticate, function(req, 
  * @apiPermission authenticated user
  *
  * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id associated with the service requests.
- *
+ * 
+ * @apiSuccess (Success 200) {Integer} id Service request id.
  * @apiSuccess (Success 200) {String} title Service request title.
  * @apiSuccess (Success 200) {Integer} mygrant_value Mygrants amount to transfer.
  * @apiSuccess (Success 200) {String} category Service request category.
@@ -921,129 +1161,6 @@ router.put('/:crodfunding_id/services', function(req, res) {
     let query =
         `UPDATE service_instance
         SET `;
-});
-
-// SEARCH
-// ===============================================================================
-
-/**
- * @api {get} /crowdfundings/filter/:from-:to Search crowdfunding.
- * @apiName SearchCrowdfunding
- * @apiGroup Crowdfunding
- *
- * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
- * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
- * @apiParam (RequestQuery) {String=date_created, date_finished, title, percentage_achieved} [sorting_method] Sorting method selected.
- * @apiParam (RequestQuery) {String=COLLECTING, RECRUITING, FINISHED} [status] Current status.
- * @apiParam (RequestQuery) {String} [category] Category to search.
- * @apiParam (RequestQuery) {String} [location] Location to search.
- * @apiParam (RequestQuery) {String} [keywords] Keywords to search either in the title or description.
- *
- * @apiSuccess (Success 200) {Integer} crowdfunding_id Crowdfunding id.
- * @apiSuccess (Success 200) {String} title Crowdfunding title.
- * @apiSuccess (Success 200) {String} category Crowdfunding category.
- * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
- * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
- * @apiSuccess (Success 200) {String} status Current crowdfunding status.
- * @apiSuccess (Success 200) {String} creator_name Creator user name.
- * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
- * @apiSuccess (Success 200) {Date} date_finished Closing date.
- *
- * @apiError (Error 400) BadRequest Invalid search data.
- * @apiError (Error 500) InternalServerError Couldn't get crowdfundings.
- *
- * @apiExample URL example:
- * http://localhost:3001/api/crowdfundings/filter/1-10?&sorting_method=date_created&category=BUSINESS
- */
-router.get('/filter/:from-:to', policy.search, function(req, res) {
-    let from = req.params.from - 1; // We're subtracting so that we can include the 'from' crowdfunding.
-    let to = req.params.to;
-    let sortingMethod = req.query.hasOwnProperty('sorting_method') && (allowedSortingMethods.indexOf(req.query.sorting_method) >= 0) ? req.query.sorting_method : false;
-    let category = req.query.hasOwnProperty('category') ? req.query.category.toUpperCase() : false;    // Category enumators are upper case.
-    let location = req.query.hasOwnProperty('location') ? req.query.location : false;
-    let keywords = req.query.hasOwnProperty('keywords') ? req.query.keywords : false;
-    let status = req.query.hasOwnProperty('status') ? req.query.status.toUpperCase() : false;   // Status enumators are upper case.
-
-    let textSearch = `to_tsvector('english', title || ' ' || description)`;
-    let textSearchQuery = `plainto_tsquery('english', $(keywords))`;
-
-    if(sortingMethod) {
-        switch(sortingMethod) {
-            case 'percentage_achieved':
-                sortingMethod = `(crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target) DESC`;
-                break;
-            /*case 'rating':
-                sortingMethod = `total_ratings DESC`;
-                break;*/
-            default:
-                sortingMethod = `crowdfunding.${sortingMethod} ASC`;
-                break;
-        }
-    }
-
-    var query =
-        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, crowdfunding.mygrant_balance, crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target as percentage_achieved, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
-        FROM crowdfunding
-        INNER JOIN users ON users.id = crowdfunding.creator_id
-        WHERE true `
-        + (category ? `AND crowdfunding.category = $(category) ` : ``)
-        + (location ? `AND crowdfunding.location = $(location) ` : ``)
-        + (status ? `AND crowdfunding.status = $(status) ` : ``)
-        + (keywords ? `AND ${textSearch} @@ ${textSearchQuery} ` : ``)
-        + (sortingMethod ? `ORDER BY ${sortingMethod} ` + (
-            keywords ? `, ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
-        ) : (
-            keywords ? `ORDER BY ts_rank_cd(${textSearch}, ${textSearchQuery}) DESC ` : ``
-        ))
-        + `LIMIT $(num_crowdfundings)
-        OFFSET $(num_offset);`;
-
-    console.log(query);
-
-    db.manyOrNone(query, {
-        keywords: keywords,
-        num_crowdfundings: (to - from),
-        num_offset: from,
-        category: category,
-        location: location,
-        status: status
-    }).then(data => {
-        res.status(200).json(data);
-    }).catch(error => {
-        console.error(error);
-        res.status(500).json({error: 'Couldn\'t get crowdfundings.'})
-    });
-})
-
-/**
- * @api {get} /crowdfundings/filter/:from-:to/pages_number Get pages number
- * @apiName GetPagesNumber
- * @apiGroup Crowdfunding
- *
- * @apiParam (RequestParam) {Integer} from Crowdfunding number from returned.
- * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
- * @apiParam (RequestParam) {Integer} to Crowdfunding number to returned.
- *
- * @apiSuccess (Success 200) {Integer} pages_number Number of crowdfunding pages when using :from and :to.
- *
- * @apiError (Error 400) BadRequest Invalid pages number data.
- * @apiError (Error 500) InternalServerError Couldn't get pages number.
- */
-router.get('/filter/:from-:to/pages_number', function(req, res) {
-    let from = req.params.from - 1;
-    let to = req.params.to;
-    let query =
-        `SELECT COUNT(*) as crowdfundings_number
-        FROM crowdfunding;`;
-
-    db.one(query)
-    .then(data => {
-        let crowdfundingsNumber = data.crowdfundings_number;
-        let pagesNumber = Math.ceil(crowdfundingsNumber / (to - from));
-        res.status(200).json({pages_number: pagesNumber});
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get pages number.'});
-    })
 });
 
 module.exports = router;
