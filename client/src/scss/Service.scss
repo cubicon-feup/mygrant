@@ -30,20 +30,19 @@ h2.ui.header {
     margin-bottom: 1.01em;
 }
 
-.purple-divider {
-    position: absolute;
+#purple-divider {
     width: 80%;
-    left: -15%;
-    margin-top: -0.8em;
+    float: left;
+    margin-top: 0.2em;
     padding-bottom: 1em;
     background: $purple;
     border-top-right-radius: 500em;
     border-bottom-right-radius: 500em;
 }
 
-.green-divider {
-    position: absolute;
-    right: -20%;
+#green-divider {
+    width: 80%;
+    float: right;
     padding-bottom: 1em;
     background: $green;
     border-top-left-radius: 500em;

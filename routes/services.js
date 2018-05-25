@@ -6,12 +6,6 @@ var image = require('../images/Image');
 const expressJwt = require('express-jwt');
 const appSecret = require('../config/config').secret;
 const authenticate = expressJwt({ secret: appSecret });
-//
-//
-// SERVICES
-//
-//
-
 
 /**
  * @api {get} /services - Get service's list
@@ -95,9 +89,9 @@ router.get('/', function(req, res) { // check for valid input
     const query_latlon = `SELECT latitude, longitude FROM users WHERE id=$(user_id)`;
     db.one(query_latlon, {user_id: req.user.id})
         .then(data => {
-            const latitude_ref = data.latitude; 
+            const latitude_ref = data.latitude;
             const longitude_ref = data.longitude;
-            
+
             // define query
             const query = `
                 SELECT *
@@ -118,7 +112,7 @@ router.get('/', function(req, res) { // check for valid input
                 ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
                 ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
                 ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-                ) s 
+                ) s
                 ${q ? 'WHERE search_score > 0' : ''}
                 ORDER BY ${order} ${asc ? 'ASC' : 'DESC'}
                 LIMIT $(itemsPerPage) OFFSET $(offset);`;
@@ -251,7 +245,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], function(req, r
         ${mygmin ? ' AND service.mygrant_value >= $(mygmin)' : ''}
         ${datemax ? ' AND service.date_created <= $(datemax)' : ''}
         ${datemin ? ' AND service.date_created >= $(datemin)' : ''}
-        ) s 
+        ) s
         ${q ? 'WHERE search_score > 0' : ''}`;
     // distance based on: http://daynebatten.com/2015/09/latitude-longitude-distance-sql/
     // graphical representation of LatLong: http://www.learner.org/jnorth/images/graphics/mclass/Lat_Long.gif
@@ -323,7 +317,7 @@ router.get('/:id', function(req, res) {
     }
     // define query
     const query = `
-        SELECT service.title, service.description, service.category, service.location, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title
+        SELECT service.title, service.description, service.category, service.location, service.latitude, service.longitude, service.acceptable_radius, service.mygrant_value, service.date_created, service.service_type, service.creator_id, users.full_name as provider_name, service.crowdfunding_id, crowdfunding.title as crowdfunding_title
         FROM service
         LEFT JOIN users on users.id = service.creator_id
         LEFT JOIN crowdfunding on crowdfunding.id = service.crowdfunding_id
@@ -698,7 +692,7 @@ router.delete('/:id/images/:image', authenticate, function(req, res) {
     }
     // define query //TODO: must be restricted to user
     const query = `
-        DELETE FROM service_image 
+        DELETE FROM service_image
         WHERE service_id=$(service_id) AND image_url=$(image_url);`;
     db.none(query, {
             service_id,
@@ -977,12 +971,12 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // 
+    //
     // TODO: don't allow offers on deleted services -> make this constraint in db
     // TODO: only allow instances to be created when an offer exists -> make this constraint in db
     // ...
 
-    // check if req.user.id is service creator 
+    // check if req.user.id is service creator
     const creator_id = req.user.id;
     const query_check_creator = `
         SELECT 1 AS exists WHERE EXISTS (
@@ -992,7 +986,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
         ) OR EXISTS (
             SELECT crowdfunding.creator_id
             FROM service
-            INNER JOIN crowdfunding 
+            INNER JOIN crowdfunding
             ON crowdfunding.id=service.crowdfunding_id
             WHERE service.id=$(service_id) AND crowdfunding.creator_id=$(creator_id)
         )`;
@@ -1011,25 +1005,25 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
             let query;
             if (req.body.hasOwnProperty('crowdfunding_id')){
                 // crowdfunding_offer -> service_instance
-                query = ` 
+                query = `
                     INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
-                    SELECT service.id, null, crowdfunding_offer.crowdfunding_id, crowdfunding_offer.date_proposed 
+                    SELECT service.id, null, crowdfunding_offer.crowdfunding_id, crowdfunding_offer.date_proposed
                     FROM crowdfunding_offer
                     LEFT JOIN service
-                    ON service.id = crowdfunding_offer.service_id 
+                    ON service.id = crowdfunding_offer.service_id
                     WHERE service.id=$(service_id) AND crowdfunding_offer.crowdfunding_id=$(crowdfunding_id) AND service.deleted=false
                     RETURNING service_id;`;
             }
             else {
                 // service_offer -> service_instance
-                query = ` 
+                query = `
                     INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
-                    SELECT service.id, service_offer.candidate_id, null, service_offer.date_proposed 
+                    SELECT service.id, service_offer.candidate_id, null, service_offer.date_proposed
                     FROM service_offer
                     LEFT JOIN service
-                    ON service.id = service_offer.service_id 
+                    ON service.id = service_offer.service_id
                     WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
-                    RETURNING service_id;`; 
+                    RETURNING service_id;`;
             }
             // place query
             db.one(query, {
