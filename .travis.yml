@@ -14,8 +14,11 @@ cache:
     - "node_modules"
     - "client/node_modules"
 
-before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS mygrant_test;'
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database mygrant_test;' -U postgres
 
 install: sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 
