@@ -70,6 +70,9 @@ class MygrantHeader extends Component {
                             </Menu.Item>
                         : null
                 }
+                    <Menu.Item>
+                        <Link to={'/search'}>Search</Link>
+                    </Menu.Item>
                 {
                     this.state.user.userId
                         ? <Menu.Item >
