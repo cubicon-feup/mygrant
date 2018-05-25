@@ -52,9 +52,14 @@ class MygrantHeader extends Component {
     }
 
     render() {
+        let logoLink;
+        if(this.state.user)
+            logoLink = "/dashboard";
+        else logoLink = "/";
+
         return (
             <Menu className="site-header" fixed="top">
-                <Menu.Item header as="h2" name="mygrant" ><Link to="/">mygrant</Link></Menu.Item>
+                <Menu.Item header as="h2" name="mygrant" ><Link to={logoLink}>mygrant</Link></Menu.Item>
                 {
                     this.state.user.userId
                         ? <Menu.Item >
