@@ -1,8 +1,22 @@
 import React, { Component } from 'react';
-import '../css/App.css';
-import { Container, Header, Form, Select } from 'semantic-ui-react';
+import '../css/Service.css';
+import {
+    Button,
+    Container,
+    Header,
+    Icon,
+    Form,
+    Modal,
+    Select
+} from 'semantic-ui-react';
+import ReactRouterPropTypes from 'react-router-prop-types';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+import PidgeonMaps from './Map';
+import SearchLocation from './SearchLocation';
 
-const urlForData = 'http://localhost:3001/api/services';
+const urlForData = '/api/services';
+const urlForCategories = '/api/service_categories';
 
 const radiusoptions = [
     {
@@ -21,49 +35,6 @@ const radiusoptions = [
         value: 50
     }
 ];
-const service_categories = [
-    {
-        key: '0',
-        text: 'ARTS',
-        value: 'ARTS'
-    },
-    {
-        key: '1',
-        text: 'BUSINESS',
-        value: 'BUSINESS'
-    },
-    {
-        key: '2',
-        text: 'FITNESS',
-        value: 'FITNESS'
-    },
-    {
-        key: '3',
-        text: 'FUN',
-        value: 'FUN'
-    },
-    {
-        key: '4',
-        text: 'HOME',
-        value: 'HOME'
-    },
-    {
-        key: '5',
-        text: 'LEARNING',
-        value: 'LEARNING'
-    },
-    {
-        key: '6',
-        text: 'PETS',
-        value: 'PETS'
-    },
-    {
-        key: '7',
-        text: 'REQUEST',
-        value: 'REQUEST'
-    }
-];
-const service_types = ['PROVIDE', 'REQUEST'];
 
 class TextInput extends Component {
     constructor(props) {
@@ -79,6 +50,7 @@ class TextInput extends Component {
      */
     invalidInput(value) {
         const test = /[^\wÀ-û\s]/;
+
         return test.test(value) || value.length < 5;
     }
 
@@ -87,17 +59,16 @@ class TextInput extends Component {
     }
 
     handleBlur = () => {
-        this.setState({
-            touched: true
-        });
+        this.setState({ touched: true });
     };
 
     handleChange = (e, { name, value }) => {
         this.setState(
-            {
-                error: this.invalidInput(this.props.value)
-            },
-            this.props.onChange(e, { name, value })
+            { error: this.invalidInput(this.props.value) },
+            this.props.onChange(e, {
+                name,
+                value
+            })
         );
     };
 
@@ -112,7 +83,7 @@ class TextInput extends Component {
                 value={this.props.value}
                 onChange={this.handleChange}
                 onBlur={this.handleBlur}
-                required
+                required={varName === 'title'}
             />
         );
     }
@@ -122,6 +93,11 @@ class TextInput extends Component {
  * Creates the form that allows the creation of a new Service.
  */
 class CreateService extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired,
+        location: ReactRouterPropTypes.location.isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -129,125 +105,191 @@ class CreateService extends Component {
             description: '',
             category: '',
             location: '',
-            acceptable_radius: '',
-            mygrant_value: '',
+            latitude: '',
+            longitude: '',
+            acceptable_radius: 0,
+            mygrant_value: 0,
             service_type: '',
-            creator_id: 1
+            creator_id: 0,
+            repeatable: false
         };
-        this.required = ['title', 'category', 'mygrant_value', 'service_type'];
+        this.service_categories = [];
+    }
+
+    componentDidMount() {
+        const { cookies } = this.props;
+
+        this.setState({
+            creator_id: parseInt(cookies.get('user_id'), 10),
+            service_type: this.props.match.params.type
+        });
+
+        fetch(urlForCategories)
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+
+                return response;
+            })
+            .then(result => result.json())
+            .then(
+                result => {
+                    result.forEach(category => {
+                        this.service_categories = [
+                            ...this.service_categories,
+                            {
+                                text: category.service_category,
+                                value: category.service_category
+                            }
+                        ];
+                    });
+                    this.forceUpdate();
+                },
+                () => {
+                    console.log('ERROR', 'Failed to fetch service categories.');
+                }
+            );
     }
 
     handleChange = (e, { name, value }) => {
+        this.setState({ [name]: value });
+    };
+
+    handleBooleanChange = (e, { name, value }) => {
+        this.setState({ [name]: !this.state[name] });
+    };
+
+    handleLocationChange = data => {
         this.setState({
-            [name]: value
+            location: data.title,
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
         });
     };
 
     handleNumberChange = (e, { name, value }) => {
         var newValue = parseInt(value, 10);
-        this.setState({
-            [name]: newValue
-        });
+        this.setState({ [name]: newValue });
     };
 
     handleSubmit = e => {
+        const { cookies } = this.props;
         e.preventDefault();
-        this.setState({
-            acceptable_radius: parseInt(this.state.acceptable_radius, 10),
-            mygrant_value: parseInt(this.state.mygrant_value, 10),
-            creator_id: parseInt(this.state.creator_id, 10)
-        });
-
-        console.log(JSON.stringify(this.state));
 
         fetch(urlForData, {
             method: 'PUT',
             body: JSON.stringify(this.state),
             headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
                 'Content-Type': 'application/json'
             }
         })
-            .then(result => {
-                result.json();
-                console.log(result);
-            })
-            .then(result =>
-                this.setState({
-                    title: '',
-                    description: '',
-                    category: '',
-                    location: '',
-                    acceptable_radius: 0,
-                    mygrant_value: 0,
-                    service_type: ''
-                })
+            .then(result => result.json())
+            .then(
+                service => {
+                    this.setState({
+                        title: '',
+                        description: '',
+                        category: '',
+                        location: '',
+                        acceptable_radius: 0,
+                        mygrant_value: 0,
+                        repeatable: false
+                    });
+                    this.props.history.push(`/service/${service.id}`);
+                },
+                () => console.log('ERROR', 'Failed to create the service')
             );
     };
 
-    render() {
-        var radioServiceTypes = service_types.map(type => {
-            return (
-                <Form.Radio
-                    label={type.charAt(0) + type.slice(1).toLowerCase()}
-                    name="service_type"
-                    value={type}
-                    checked={this.state.service_type === type}
-                    onChange={this.handleChange}
-                />
-            );
-        });
+    createHeader() {
+        if (this.state.service_type === 'PROVIDE') {
+            return 'Provide Service';
+        } else if (this.state.service_type === 'REQUEST') {
+            return 'Request Service';
+        }
 
+        return 'ERROR';
+    }
+
+    renderMap() {
+        return (
+            <Modal trigger={<Button content={'Open Map'} />}>
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
+    }
+
+    render() {
         return (
             <Container className="main-container">
-                <div>
-                    <Header as="h1">Create a Service</Header>
-                    <Form method="POST" onSubmit={this.handleSubmit}>
-                        <TextInput
-                            placeholder="Title"
-                            value={this.state.title}
-                            onChange={this.handleChange}
-                        />
-                        <TextInput
-                            placeholder="Description"
-                            value={this.state.description}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Dropdown
-                            placeholder="Category"
-                            name="category"
-                            fluid
-                            search
-                            selection
-                            options={service_categories}
-                            onChange={this.handleChange}
-                        />
-                        <TextInput
-                            placeholder="Location"
-                            value={this.state.location}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Field
-                            placeholder="Acceptable Radius"
-                            name="acceptable_radius"
-                            control={Select}
-                            options={radiusoptions}
-                            onChange={this.handleNumberChange}
-                        />
-                        <Form.Input
-                            placeholder="MyGrant Value"
-                            name="mygrant_value"
-                            value={this.state.mygrant_value}
-                            type="number"
-                            onChange={this.handleNumberChange}
-                            required
-                        />
-                        <Form.Group inline>{radioServiceTypes}</Form.Group>
-                        <Form.Button content="Submit" />
-                    </Form>
-                </div>
+                <Header size="huge" textAlign="center">
+                    <Icon name="external" />
+                    {this.createHeader()}
+                </Header>
+                <Form
+                    className="mygrant-createform"
+                    method="POST"
+                    onSubmit={this.handleSubmit}
+                >
+                    <TextInput
+                        placeholder="Title"
+                        value={this.state.title}
+                        onChange={this.handleChange}
+                    />
+                    <TextInput
+                        placeholder="Description"
+                        value={this.state.description}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Dropdown
+                        placeholder="Category"
+                        name="category"
+                        fluid
+                        search
+                        selection
+                        options={this.service_categories}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Field>
+                        <SearchLocation handleChange={this.handleLocationChange} />
+                    </Form.Field>
+                    <Form.Field
+                        placeholder="Acceptable Radius"
+                        name="acceptable_radius"
+                        control={Select}
+                        options={radiusoptions}
+                        onChange={this.handleNumberChange}
+                    />
+                    <Form.Input
+                        placeholder="MyGrant Value"
+                        name="mygrant_value"
+                        value={this.state.mygrant_value}
+                        type="number"
+                        onChange={this.handleNumberChange}
+                        required
+                    />
+                    <Form.Checkbox
+                        label="Repeatable"
+                        name="repeatable"
+                        onChange={this.handleBooleanChange}
+                    />
+                    {this.renderMap()}
+                    <Form.Button id="dark-button" content="Submit" />
+                </Form>
             </Container>
         );
     }
 }
 
-export default CreateService;
+export default withCookies(CreateService);

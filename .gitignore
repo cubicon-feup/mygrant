@@ -58,3 +58,8 @@ typings/
 .env
 
 .idea/
+
+.apidoc/
+
+# images
+images/*/*

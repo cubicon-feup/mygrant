@@ -1,0 +1,98 @@
+@import 'common';
+
+.modal-container {
+    display: flex;
+    height: 0vh;
+}
+
+.ui.button,
+.ui.labeled.icon.button {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: $dark-green;
+    color: white;
+
+    height: 39px;
+    border-radius: 500em;
+
+    &:hover {
+        color: white;
+        background-color: $green;
+    }
+}
+
+h2 > h4 {
+    display: inline;
+    font-weight: normal;
+}
+
+h2.ui.header {
+    margin-bottom: 1.01em;
+}
+
+.purple-divider {
+    position: absolute;
+    width: 80%;
+    left: -15%;
+    margin-top: -0.8em;
+    padding-bottom: 1em;
+    background: $purple;
+    border-top-right-radius: 500em;
+    border-bottom-right-radius: 500em;
+}
+
+.green-divider {
+    position: absolute;
+    right: -20%;
+    padding-bottom: 1em;
+    background: $green;
+    border-top-left-radius: 500em;
+    border-bottom-left-radius: 500em;
+}
+
+.ui.form .field .ui.input input,
+.ui.form .field > .selection.dropdown {
+    border-color: $green;
+}
+
+.ui.center.aligned.header,
+.ui.centered.header {
+    color: $green;
+}
+
+.ui.container.grid {
+    &.main {
+        margin: 1.5em 1em;
+        padding: 0em;
+    }
+
+    &.desc {
+        margin: 2.25em 1em;
+        padding: 0em;
+    }
+
+    &.img {
+        padding: 0em;
+
+        & > .row > .column {
+            margin: 0px;
+            padding: 0em;
+        }
+    }
+}
+
+p.value {
+    font-size: 1em;
+    b {
+        font-size: 1.5em;
+    }
+}
+
+#fartop {
+    margin-top: 3.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.ui.form {
+    margin: 2em 0em;
+}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Container, Grid, Header, Icon, Responsive, Segment } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { MygrantDivider } from './Common';
+import { MygrantDivider } from '../components/Common';
 import '../css/App.css';
 
 
@@ -26,7 +26,7 @@ class App extends Component {
 
             { /* Buttons Start */ }
             <Container className="landing-page-buttons" >
-                <Grid > 
+                <Grid >
                     <Grid.Row >
                         <Grid.Column computer={6} mobile={16} floated="right" >
                             <Link to='/login'><Button fluid circular className="mygrant-button" >Log In</Button></Link>
@@ -46,8 +46,8 @@ class App extends Component {
                     </Grid.Row>
                     <Grid.Row>
                         <Grid.Column computer={6} mobile={16} floated="right" >
-                            <Button fluid circular color="facebook" verticalAlign="middle" >
-                                <Icon name="fab fa-facebook-f" />Log In with Facebook
+                            <Button fluid circular color="google plus" verticalAlign="middle" >
+                                <Icon name="google" />Log In with Google
                             </Button>
                         </Grid.Column>
                     </Grid.Row>
