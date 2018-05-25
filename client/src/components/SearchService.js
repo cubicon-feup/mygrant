@@ -175,7 +175,7 @@ class SearchService extends Component {
     handlePageChange = (event, object) => {
         const { cookies } = this.props;
         var url = urlForServices + "&page=" + object.activePage;
-        if(this.paginationState.search_text != ""){
+        if(this.paginationState.search_text && this.paginationState.search_text != ""){
             url += '&q=' + this.paginationState.search_text;
         }
         if(this.paginationState.category){
