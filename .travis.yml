@@ -14,12 +14,7 @@ cache:
     - "node_modules"
     - "client/node_modules"
 
-services:
-  - postgresql
 
-    
-before_install:
-  - mysql -e 'CREATE mygrant_test IF NOT EXISTS test;'
 
 install: sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 
