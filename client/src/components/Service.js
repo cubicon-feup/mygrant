@@ -71,7 +71,6 @@ class Service extends Component {
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    // TODO: Check body of the message
     handleSubmit = e => {
         const { cookies } = this.props;
         e.preventDefault();
@@ -221,11 +220,11 @@ class Service extends Component {
                         } . `}
                         <h4>{this.state.service.category}</h4>
                     </Header>
-                    <Container fluid className="purple-divider" />
-                    {this.renderMainGrid()}
-                    <Container fluid className="green-divider" />
-                    {this.renderOffers()}
                 </Container>
+                <Container fluid id="purple-divider" />
+                {this.renderMainGrid()}
+                <Container fluid id="green-divider" />
+                {this.renderOffers()}
                 {this.renderMap()}
                 <CommentsSection type="services" id={this.state.id} />
             </Container>
