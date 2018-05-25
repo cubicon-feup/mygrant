@@ -272,7 +272,7 @@ class SearchService extends Component {
 
                 );
             });
-            this.categorie_body = this.state.categories.map(categorie => {
+            this.state.categories.map(categorie => {
                 this.categories.push({text:categorie.service_category, value: categorie.service_category});
             });
         }

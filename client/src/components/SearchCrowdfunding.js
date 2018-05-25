@@ -1,28 +1,82 @@
 import React, { Component } from 'react';
 import '../css/common.css';
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
 import { Link } from 'react-router-dom';
 import { Container, Header, Loader, Item, Divider, Form, Pagination, Icon, Radio} from 'semantic-ui-react';
+import ReactRouterPropTypes from 'react-router-prop-types';
 import ListCrowdfunding from './ListCrowdfunding';
 
-const urlForCrowdfundings = 'http://localhost:3001/api/crowdfundings/filter/';
+const urlForCrowdfundings = 'http://localhost:3001/api/crowdfundings/?items=10';
 const urlForCategories = 'http://localhost:3001/api/service_categories';
+const urlForTotalPages = 'http://localhost:3001/api/crowdfundings/search-count/?items=10';
 
-const panels = [
-    {
-        title: 'Optional Details',
-        content: {
-            as: Form.Input,
-            key: 'content',
-            label: 'Maiden Name',
-            placeholder: 'Maiden Name',
-        },
-    },
-]
+class SearchCrowdfunding extends Component{
+    static propTypes = {
+        cookies: instanceOf(Cookies),
+        location: ReactRouterPropTypes.location
+    };
 
-class SearchCrowdfunding extends Component {
+    getTotalPages() {
+        const { cookies } = this.props;
+        var url = urlForTotalPages;
+        if(this.state) {
+            if (this.state.search_text && this.state.search_text != "") {
+                url += '&q=' + this.state.search_text;
+            }
+            if (this.state.category) {
+                url += '&cat=' + this.state.category;
+            }
+            if (this.state.type && this.state.type != "both") {
+                url += '&type=' + this.state.type;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmin=' + this.state.mygmin;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmax=' + this.state.mygmax;
+            }
+            if (this.state.datemin) {
+                url += '&datemin=' + this.state.datemin;
+            }
+            if (this.state.datemax) {
+                url += '&datemax=' + this.state.datemax;
+            }
+            if (this.state.order) {
+                url += '&order=' + this.state.order;
+            }
+        }
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+                return response;
+            })
+            .then(result => result.json())
+            .then(result => {
+                this.setState({ total_pages : result.pages });
+            }, () => {
+                // "catch" the error
+                this.setState({ requestFailed: true });
+            });
+    }
 
     componentDidMount() {
-        fetch(urlForCrowdfundings + '1-10')
+        const { cookies } = this.props;
+        fetch(urlForCrowdfundings, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -58,22 +112,33 @@ class SearchCrowdfunding extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = (event) => {
-        //this.setState({ amount: "" });
-        var url = urlForCrowdfundings + '1-10?';
-        if(this.state.order){
-            url += '&sorting_method=' + this.state.order;
-        }
-        if(this.state.category){
-            url += '&category=' + this.state.category;
-        }
-        if(this.state.location){
-            url += '&location=' + this.state.location;
-        }
-        if(this.state.status){
-            //url += '&status=' + this.state.status;
-        }
-        if(this.state.search_text){
-            url += '&keywords=' + this.state.search_text;
+        const { cookies } = this.props;
+        var url = urlForCrowdfundings;
+        if(this.state) {
+            if (this.state.search_text && this.state.search_text != "") {
+                url += '&q=' + this.state.search_text;
+            }
+            if (this.state.category) {
+                url += '&cat=' + this.state.category;
+            }
+            if (this.state.type && this.state.type != "both") {
+                url += '&type=' + this.state.type;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmin=' + this.state.mygmin;
+            }
+            if (this.state.mygmin) {
+                url += '&mygmax=' + this.state.mygmax;
+            }
+            if (this.state.datemin) {
+                url += '&datemin=' + this.state.datemin;
+            }
+            if (this.state.datemax) {
+                url += '&datemax=' + this.state.datemax;
+            }
+            if (this.state.order) {
+                url += '&order=' + this.state.order;
+            }
         }
         fetch(url, {
             method: 'GET',
@@ -97,23 +162,39 @@ class SearchCrowdfunding extends Component {
     }
 
     handlePageChange = (event, object) => {
-        var url = urlForCrowdfundings + (1+(object.activePage-1)*10) + '-' + (10+(object.activePage-1)*10) + '?';
-        if(this.paginationState.order){
-            url += '&sorting_method=' + this.paginationState.order;
+        const { cookies } = this.props;
+        var url = urlForCrowdfundings + "&page=" + object.activePage;
+        if(this.paginationState.search_text && this.paginationState.search_text != ""){
+            url += '&q=' + this.paginationState.search_text;
         }
         if(this.paginationState.category){
-            url += '&category=' + this.paginationState.category;
+            url += '&cat=' + this.paginationState.category;
         }
-        if(this.paginationState.location){
-            url += '&location=' + this.paginationState.location;
+        if(this.paginationState.type && this.paginationState.type != "both"){
+            url += '&type=' + this.paginationState.type;
         }
-        if(this.paginationState.status){
-            //url += '&status=' + this.paginationState.status;
+        if(this.paginationState.mygmin){
+            url += '&mygmin=' + this.paginationState.mygmin;
         }
-        if(this.paginationState.search_text){
-            url += '&keywords=' + this.paginationState.search_text;
+        if(this.paginationState.mygmin){
+            url += '&mygmax=' + this.paginationState.mygmax;
         }
-        fetch(url)
+        if(this.paginationState.datemin){
+            url += '&datemin=' + this.paginationState.datemin;
+        }
+        if(this.paginationState.datemax){
+            url += '&datemax=' + this.paginationState.datemax;
+        }
+        if(this.paginationState.order){
+            url += '&order=' + this.paginationState.order;
+        }
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${cookies.get('id_token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw Error('Network request failed');
@@ -167,8 +248,8 @@ class SearchCrowdfunding extends Component {
                     <ListCrowdfunding crowdfunding={table_row}/>
                 );
             });
-            this.categorie_body = this.state.categories.map(categorie => {
-                this.categories.push({text:categorie.service_category, value: categorie.service_category});
+            this.state.categories.map(categorie => {
+                this.categories.push({text: categorie.service_category, value: categorie.service_category});
             });
         }
         return (
@@ -217,4 +298,4 @@ class SearchCrowdfunding extends Component {
     }
 }
 
-export default SearchCrowdfunding;
+export default withCookies(SearchCrowdfunding);
