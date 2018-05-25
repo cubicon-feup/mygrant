@@ -8,11 +8,10 @@
 .ui.button.mygrant-button3 {
     margin-top: 10px;
     margin-right: 20px;
-    background-color: lighten($purple, 30%);
+    background-color: $light-purple;
     color: white;
-    width: 20em;
     height: 39px;
-    border-radius: 500em;
+    border-radius: 0em;
 
     &:hover {
         background-color: lighten($purple, 40%);

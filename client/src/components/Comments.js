@@ -352,16 +352,15 @@ class CommentsSection extends Component {
     render() {
         return (
             <Container fluid className="purple-background">
-                <Container>
-                    {this.state.showComments
-                        ? this.renderComments()
-                     : <Button
-                            className="mygrant-button3"
-                            content="Show Comments"
-                            onClick={() => this.fetchTopComments()}
-                        />
-                    }
-                </Container>
+                {this.state.showComments
+                    ? <Container>{this.renderComments()}</Container>
+                 : <Button
+                        fluid
+                        className="mygrant-button3"
+                        content="Show Comments"
+                        onClick={() => this.fetchTopComments()}
+                    />
+                }
             </Container>
         );
     }
