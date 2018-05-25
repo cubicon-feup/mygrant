@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import '../css/Service.css';
-import { Container, Header, Icon, Form, Select } from 'semantic-ui-react';
+import {
+    Button,
+    Container,
+    Header,
+    Icon,
+    Form,
+    Modal,
+    Select
+} from 'semantic-ui-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import PidgeonMaps from './Map';
+import SearchLocation from './SearchLocation';
 
 const urlForData = '/api/services';
 const urlForCategories = '/api/service_categories';
@@ -96,6 +105,8 @@ class CreateService extends Component {
             description: '',
             category: '',
             location: '',
+            latitude: '',
+            longitude: '',
             acceptable_radius: 0,
             mygrant_value: 0,
             service_type: '',
@@ -149,6 +160,21 @@ class CreateService extends Component {
         this.setState({ [name]: !this.state[name] });
     };
 
+    handleLocationChange = data => {
+        this.setState({
+            location: data.title,
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+    };
+
+    handleMapChange = latlng => {
+        this.setState({
+            latitude: latlng[0],
+            longitude: latlng[1]
+        });
+    };
+
     handleNumberChange = (e, { name, value }) => {
         var newValue = parseInt(value, 10);
         this.setState({ [name]: newValue });
@@ -194,6 +220,16 @@ class CreateService extends Component {
         return 'ERROR';
     }
 
+    renderMap() {
+        return (
+            <Modal trigger={<Button content={'Open Map'} />}>
+                <Modal.Content>
+                    <PidgeonMaps handleChange={this.handleMapChange} />
+                </Modal.Content>
+            </Modal>
+        );
+    }
+
     render() {
         return (
             <Container className="main-container">
@@ -225,11 +261,9 @@ class CreateService extends Component {
                         options={this.service_categories}
                         onChange={this.handleChange}
                     />
-                    <TextInput
-                        placeholder="Location"
-                        value={this.state.location}
-                        onChange={this.handleChange}
-                    />
+                    <Form.Field>
+                        <SearchLocation handleChange={this.handleLocationChange} />
+                    </Form.Field>
                     <Form.Field
                         placeholder="Acceptable Radius"
                         name="acceptable_radius"
@@ -250,6 +284,7 @@ class CreateService extends Component {
                         name="repeatable"
                         onChange={this.handleBooleanChange}
                     />
+                    {this.renderMap()}
                     <Form.Button id="dark-button" content="Submit" />
                 </Form>
             </Container>

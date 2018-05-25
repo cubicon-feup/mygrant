@@ -34,15 +34,17 @@ router.post('/signup', function(req, res) {
                             // register new user
                             bcrypt.hash(req.body.password, saltRounds, function(_err, hash) {
 
-                                query = `INSERT INTO users (email, pass_hash, full_name, phone, mygrant_balance) 
-                                VALUES ($(email), $(passHash), $(fullName), $(phone), $(initialMygrantBalance)) RETURNING id`;
+                                query = `INSERT INTO users (email, pass_hash, full_name, phone, latitude, longitude, mygrant_balance)
+                                VALUES ($(email), $(passHash), $(fullName), $(phone), $(latitude), $(longitude), $(initialMygrantBalance)) RETURNING id`;
 
                                 db.one(query, {
                                     email: req.body.email,
                                     fullName: req.body.name,
                                     initialMygrantBalance,
                                     passHash: hash,
-                                    phone: req.body.phone
+                                    phone: req.body.phone,
+                                    latitude: req.body.latitude,
+                                    longitude: req.body.longitude
                                 })
                                     .then(() => {
                                         res.status(201).send('Sucessfully added user');
@@ -103,4 +105,3 @@ router.get('/logout', authenticate, function(req, res) {
 });
 
 module.exports = router;
-
