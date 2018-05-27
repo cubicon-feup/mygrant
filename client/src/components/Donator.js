@@ -10,7 +10,7 @@ class Donator extends Component {
 
     render() {
         return (
-            <Grid columns={3} textAlign="center">
+            <Grid stackable columns={3} textAlign="center">
                 <Grid.Column width={3}>
                     <Image size='tiny' src='/img/user.jpg' />
                 </Grid.Column>

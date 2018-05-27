@@ -21,7 +21,7 @@ const authenticate = expressJwt({ secret: appSecret });
  *
  * @apiDescription Search for and filters listing of active services according to parameters given
  *
- * @apiParam (RequestQueryParams) {String} q Search query; seraches among titles and descriptions (Optional)
+ * @apiParam (RequestQueryParams) {String} q Search query; searches among titles and descriptions (Optional)
  * @apiParam (RequestQueryParams) {Integer} page page number to return (Optional)
  * @apiParam (RequestQueryParams) {Integer} items number of items per page default/max: 50 (Optional)
  * @apiParam (RequestQueryParams) {String} the field to be ordered by (defaults to search_score) (Optional)
@@ -65,7 +65,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/', function(req, res) { // check for valid input
+router.get('/', authenticate, function(req, res) { // check for valid input
     try {
         var q = req.query.hasOwnProperty('q') ? req.query.q.split(' ').join(' | ') : null;
         // paging
@@ -95,9 +95,9 @@ router.get('/', function(req, res) { // check for valid input
     const query_latlon = `SELECT latitude, longitude FROM users WHERE id=$(user_id)`;
     db.one(query_latlon, {user_id: req.user.id})
         .then(data => {
-            const latitude_ref = data.latitude; 
+            const latitude_ref = data.latitude;
             const longitude_ref = data.longitude;
-            
+
             // define query
             const query = `
                 SELECT *
@@ -977,12 +977,12 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
         res.status(400).json({ 'error': err.toString() });
         return;
     }
-    // 
+    //
     // TODO: don't allow offers on deleted services -> make this constraint in db
     // TODO: only allow instances to be created when an offer exists -> make this constraint in db
     // ...
 
-    // check if req.user.id is service creator 
+    // check if req.user.id is service creator
     const creator_id = req.user.id;
     const query_check_creator = `
         SELECT 1 AS exists WHERE EXISTS (
@@ -1029,7 +1029,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                     LEFT JOIN service
                     ON service.id = service_offer.service_id 
                     WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
-                    RETURNING service_id;`; 
+                    RETURNING service_id;`;
             }
             // place query
             db.one(query, {
