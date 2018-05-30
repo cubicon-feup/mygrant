@@ -46,7 +46,9 @@ class CrowdfundingOffers extends Component {
             <Container>
                 <h3 align="center">Services</h3>
                 {requestedServices}
-                <a href="/crowdfunding/1001/createservice">Create Service</a>
+                {this.props.crowdfundingStatus === 'RECRUITING' &&
+                <a href={"/crowdfunding/"+this.props.crowdfundingId+"/createservice"}>Create Service</a>
+                }
             </Container>
         );
     }

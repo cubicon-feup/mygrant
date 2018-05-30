@@ -88,7 +88,7 @@ class Service extends Component {
             }
         })
             .then(result => {
-                result.json();
+                
             })
             .then(
                 result => {

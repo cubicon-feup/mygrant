@@ -19,12 +19,15 @@ class RequestedServiceItem extends Component {
 
     constructor(props) {
         super(props);
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+        let role = userId == this.props.crowdfundingCreatorId ? Role.CROWDFUNDING_CREATOR : Role.NONE;        
         this.state = {
             serviceId: this.props.requestedService.id,
             crowdfundingCreatorId: this.props.crowdfundingCreatorId,
             candidates: [],
             serviceInstanceInfo: {},
-            role: Role.NONE
+            role: role
         }
     }
 
@@ -63,32 +66,22 @@ class RequestedServiceItem extends Component {
 
     acceptCandidate(candidate) {
         this.setState({candidates: []});
-
-        // TODO: test if state applies.
-        let serviceInstanceInfo = {
-            date_scheduled: new Date('2018-06-15 20:00:00'),
-            // TODO: find a calendar framework;
-            // TODO: can only schedule after today.
-            requester_id: candidate.requester_id,
-            requester_name: candidate.requester_name,
-            creator_rating: null,
-            requester_rating: null
-        }
-        this.setState({serviceInstanceInfo: serviceInstanceInfo});
-
+        const { cookies } = this.props;
         fetch(urlAcceptCandidate(this.state.serviceId), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
             },
             body: JSON.stringify({
-                partner_id: serviceInstanceInfo.requester_id,
-                date_scheduled: serviceInstanceInfo.date_scheduled
+                partner_id: candidate.requester_id,
+                date_scheduled: candidate.date_proposed
             })
         })
     }
 
     rejectCandidate(candidate) {
+        const { cookies } = this.props;
         let updatedCandidates = this.state.candidates;
         let indexToRemove = updatedCandidates.indexOf(candidate);
         if(indexToRemove >= 0) {
@@ -97,7 +90,8 @@ class RequestedServiceItem extends Component {
             fetch(urlRejectCandidate(this.state.serviceId), {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${cookies.get('id_token')}`
                 },
                 body: JSON.stringify({
                     partner_id: candidate.requester_id
@@ -119,13 +113,16 @@ class RequestedServiceItem extends Component {
 
     render() {
         let candidates;
+        const { cookies } = this.props;
         if(this.state.role === Role.CROWDFUNDING_CREATOR && this.state.candidates.length > 0) {
             candidates = this.state.candidates.map(candidate => {
                 return (
                     <Candidate key={candidate.requester_id} candidate={candidate} onAccept={this.acceptCandidate.bind(this)} onReject={this.rejectCandidate.bind(this)} />
                 )
             });
-        }  else candidates = null;
+        } else {
+            candidates = null;
+        }
 
         let selectedRequester;
         let candicateToPosition;
@@ -135,8 +132,8 @@ class RequestedServiceItem extends Component {
         return (
             <Container>
                 <ListService crowdfunding={this.props.requestedService}/>
-                {/*candidates}
-                {selectedRequester*/}
+                {candidates}
+                {/*selectedRequester*/}
                 <Link to={"/service/" + this.props.requestedService.id}>{this.props.requestedService.title}</Link>
             </Container>
         );

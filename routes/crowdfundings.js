@@ -23,7 +23,6 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiParam (RequestBody) {String} description Crowdfunding description.
  * @apiParam (RequestBody) {String} category Crowdfunding category.
  * @apiParam (RequestBody) {String} location Location where the crowdfunding is going to take place.
- * @apiParam (RequestBody) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
  * @apiParam (RequestBody) {Integer} time_interval Number of week to collect donators.
  *
  * @apiSuccess (Success 201) {Integer} id Newly created crowdfunding id.
@@ -36,12 +35,11 @@ router.post('/', authenticate, policy.valid, function(req, res) {
     let description = req.body.description;
     let category = req.body.category;
     let location = req.body.location;
-    let mygrantTarget = req.body.mygrant_target;
     let timeInterval = req.body.time_interval;
     let creatorId = req.user.id;
     let query =
-        `INSERT INTO crowdfunding (title, description, category, location, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
+        `INSERT INTO crowdfunding (title, description, category, location, date_created, date_finished, creator_id)
+        VALUES ($(title), $(description), $(category), $(location), NOW(), NOW() + INTERVAL '$(time_interval) weeks', $(creator_id))
         RETURNING id, date_finished;`;
 
     db.one(query, {
@@ -49,7 +47,6 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         description: description,
         category: category,
         location: location,
-        mygrant_target: mygrantTarget,
         time_interval: timeInterval,
         creator_id: creatorId
     }).then(data => {
@@ -58,6 +55,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         cronJob.scheduleJob(crowdfundingId, dateFinished);
         res.status(201).send({id: crowdfundingId});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
 });
@@ -73,7 +71,8 @@ router.post('/', authenticate, policy.valid, function(req, res) {
  * @apiSuccess (Success 200) {String} description Crowdfunding description.
  * @apiSuccess (Success 200) {String} category Crowdfunding category.
  * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
- * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {Integer} recruiting_balance Number of mygrants needed for the payment of needed services.
+ * @apiSuccess (Success 200) {Integer} collected_balance Number of mygrants collected from donations.
  * @apiSuccess (Success 200) {Date} date_created Creation date.
  * @apiSuccess (Success 200) {Date} date_finished Close date.
  * @apiSuccess (Success 200) {String} status Current crowdfunding status.
@@ -87,7 +86,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
 router.get('/:crowdfunding_id', function(req, res) {
     let id = req.params.crowdfunding_id;
     let query =
-        `SELECT title, description, category, location, mygrant_target, crowdfunding.mygrant_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id, 
+        `SELECT title, description, category, location, recruiting_balance, collected_balance, date_created, date_finished, status, creator_id, users.full_name as creator_name, users.id as creator_id,
             ( SELECT avg (total_ratings.rating) as average_rating
                 FROM (
                     SELECT rating
@@ -104,6 +103,36 @@ router.get('/:crowdfunding_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
+        console.log(error);
+        res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
+    });
+});
+
+/**
+ * @api {get} /crowdfundings/:crowdfunding_id/start_collecting Sets crowdfunding status to COLLECTING
+ * @apiName StartCollectingCrowdfunding
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding id.
+ *
+ * @apiSuccess (Success 200)
+ *
+ * @apiError (Error 500) InternalServerError Could't get the crowdfunding project.
+ */
+router.post('/:crowdfunding_id/start_collecting', authenticate, function(req, res) {
+    let id = req.params.crowdfunding_id;
+    let query =
+        `UPDATE crowdfunding
+        SET status='COLLECTING'
+        WHERE id=$(id) AND creator_id=$(user_id)`;
+
+    db.oneOrNone(query, {
+        id: id,
+        user_id: req.user.id,
+    }).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
     });
 });
@@ -216,7 +245,8 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
  * @apiSuccess (Success 200) {String} title Crowdfunding title.
  * @apiSuccess (Success 200) {String} category Crowdfunding category.
  * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
- * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {Integer} recruiting_balance Number of mygrants needed for the payment of needed services.
+ * @apiSuccess (Success 200) {Integer} collected_balance Number of mygrants collected from donations.
  * @apiSuccess (Success 200) {String} status Current crowdfunding status.
  * @apiSuccess (Success 200) {String} creator_name Creator user name.
  * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
@@ -225,7 +255,7 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
+        `SELECT title, category, location, recruiting_balance, collected_balance, status, users.full_name as creator_name, users.id as creator_id
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
 
@@ -266,6 +296,7 @@ router.post('/:crowdfunding_id/donations', authenticate, policy.donate, function
     }).then(() => {
         res.status(201).send({message: 'Successfully donated to crowdfunding.'});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t donate.'});
     });
 });
@@ -943,7 +974,7 @@ router.put('/:crodfunding_id/services', function(req, res) {
  * @apiSuccess (Success 200) {String} title Crowdfunding title.
  * @apiSuccess (Success 200) {String} category Crowdfunding category.
  * @apiSuccess (Success 200) {String} location Location where the crowdfunding is going to take place.
- * @apiSuccess (Success 200) {Integer} mygrant_target Number of mygrants needed for the crowdfunding to success.
+ * @apiSuccess (Success 200) {Integer} recruiting_balance Number of mygrants needed for the crowdfunding to success.
  * @apiSuccess (Success 200) {String} status Current crowdfunding status.
  * @apiSuccess (Success 200) {String} creator_name Creator user name.
  * @apiSuccess (Success 200) {Integer} creator_id Creator user id.
@@ -970,7 +1001,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
     if(sortingMethod) {
         switch(sortingMethod) {
             case 'percentage_achieved':
-                sortingMethod = `(crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target) DESC`;
+                sortingMethod = `(crowdfunding.collected_balance * 100 / crowdfunding.recruiting_balance) DESC`;
                 break;
             /*case 'rating':
                 sortingMethod = `total_ratings DESC`;
@@ -982,7 +1013,7 @@ router.get('/filter/:from-:to', policy.search, function(req, res) {
     }
 
     var query =
-        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, crowdfunding.mygrant_balance, crowdfunding.mygrant_balance * 100 / crowdfunding.mygrant_target as percentage_achieved, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
+        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, recruiting_balance, crowdfunding.collected_balance, crowdfunding.collected_balance * 100 / crowdfunding.recruiting_balance as percentage_achieved, status, users.full_name as creator_name, users.id as creator_id, crowdfunding.date_finished
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id
         WHERE true `

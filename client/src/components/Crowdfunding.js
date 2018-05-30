@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
+import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form, Button} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -18,6 +18,7 @@ const urlForDonations = crowdfundingId => `/api/crowdfundings/` + crowdfundingId
 const urlForServices = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/services`;
 const urlForDonate = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
 const urlGetDonators = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
+const urlForStartCollecting = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/start_collecting`;
 const Role = require('../Role').role;
 
 const second = 1000;
@@ -48,6 +49,7 @@ class Crowdfunding extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.tick = this.tick.bind(this);
+        this.startCollecting = this.startCollecting.bind(this);
 
         const { cookies } = this.props;
         console.log(cookies);
@@ -102,7 +104,7 @@ class Crowdfunding extends Component {
             .then(result => {
                 this.setState({ crowdfunding: result });
                 let timeDiff = new Date(result.date_finished) - new Date().getTime();
-                if(this.state.crowdfunding.status === 'COLLECTING')
+                if(this.state.crowdfunding.status !== 'FINISHED')
                     this.setState({ timeDiff: timeDiff});
                 this.assignRole();
             }, () => {
@@ -122,6 +124,24 @@ class Crowdfunding extends Component {
         this.setState({minutes: Math.floor((this.state.timeDiff % hour) / minute)})
         this.setState({seconds: Math.floor((this.state.timeDiff % minute) / second)})
         this.setState({timeDiff: this.state.timeDiff - 1000});
+    }
+    
+    startCollecting() {
+        const { cookies } = this.props;
+        fetch(urlForStartCollecting(this.state.crowdfundingId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw Error('Network request failed');
+                }
+
+                this.setState({ crowdfunding: {status: 'COLLECTING'} });
+            });
     }
 
     getRating(){
@@ -206,6 +226,14 @@ class Crowdfunding extends Component {
             </Container>
         );
       }
+      
+      let startCollecting;
+      if (this.state.role == Role.CROWDFUNDING_CREATOR && this.state.crowdfunding.status === 'RECRUITING') {
+          startCollecting = <Button onClick={this.startCollecting}>Start Collecting</Button>
+      }
+      else {
+          startCollecting = null;
+      }
 
       let donate;
       if(this.state.role != Role.CROWDFUNDING_CREATOR && this.state.role != Role.NONE && this.state.crowdfunding.status === 'COLLECTING')
@@ -253,10 +281,10 @@ class Crowdfunding extends Component {
                 <p>This mission has finished its collecting and rcruitment process.</p>
 
         let timer;
-        if(this.state.crowdfunding.status === 'COLLECTING' && this.state.timeDiff > 0)
-            timer = <p>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
-        else timer = <p>Already ended</p>;
-
+        if(this.state.crowdfunding.status === 'FINISHED')
+            timer = <p>Already ended</p>;
+        else timer = <p>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
+        
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container textAlign="center">
@@ -267,15 +295,18 @@ class Crowdfunding extends Component {
             </Container>
               <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
               <Container>
+                  {startCollecting}
                   <Grid stackable columns={2} className="crowdfunding_grid">
                       <Grid.Column width={6} className="left_col">
                           <Image src='/img/mission.png' />
                           <div id="crowdfunding_progress">
                               <h5>Current State: {this.state.crowdfunding.status}</h5>
                               {statusExplanation}
-                              <Progress progress='percentage' value={this.state.crowdfunding.mygrant_balance} precision={0} total={this.state.crowdfunding.mygrant_target} size="small" color='green' active={true}/>
-                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.mygrant_balance}
-                                <div id="crowdfunding_target">Target : {this.state.crowdfunding.mygrant_target}</div>
+                              {(this.state.crowdfunding.status !== 'RECRUITING') && 
+                              <Progress progress='percentage' value={this.state.crowdfunding.collected_balance} precision={0} total={this.state.crowdfunding.recruiting_balance} size="small" color='green' active={true}/>
+                              }
+                              <p id="crowdfunding_earned">Earned : {this.state.crowdfunding.collected_balance}
+                                <div id="crowdfunding_target">Target : {this.state.crowdfunding.recruiting_balance}</div>
                               </p>
                           </div>
                       </Grid.Column>
@@ -312,7 +343,7 @@ class Crowdfunding extends Component {
             <Container id="services_donators">
                 <Grid stackable columns={3}>
                     <Grid.Column width={9}>
-                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} crowdfundingCreatorId={this.state.crowdfunding.creator_id} />
+                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} crowdfundingCreatorId={this.state.crowdfunding.creator_id} crowdfundingStatus={this.state.crowdfunding.status}/>
                         {/*<h4 align="center">Services</h4>
                         <Item.Group divided>
                             <Item>

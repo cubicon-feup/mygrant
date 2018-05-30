@@ -26,7 +26,6 @@ class CreateCrowdfunding extends Component {
             location: "",
             latitude: "",
             longitude: "",
-            mygrant_target: "",
             categories: []
         };
     }
@@ -89,8 +88,7 @@ class CreateCrowdfunding extends Component {
                 location: this.state.location,
                 latitude: this.state.latitude,
                 longitude: this.state.longitude,
-                time_interval: crowdfundingCollectingWeeks,
-                mygrant_target: this.state.mygrant_target,
+                time_interval: crowdfundingCollectingWeeks
             })
         }).then(res => {
             if(res.status === 201) {
@@ -116,7 +114,6 @@ class CreateCrowdfunding extends Component {
         const {
             title,
             description,
-            mygrant_target,
             categories
         } = this.state;
 
@@ -150,14 +147,6 @@ class CreateCrowdfunding extends Component {
                         <Form.Field>
                             <SearchLocation handleChange={this.handleLocationChange} />
                         </Form.Field>
-                        <Form.Input
-                            placeholder="MyGrant Target"
-                            name="mygrant_target"
-                            value={mygrant_target}
-                            type="number"
-                            onChange={this.handleChange}
-                            required
-                        />
                         {this.renderMap()}
                         <Form.Button content="Submit" />
                     </Form>

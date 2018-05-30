@@ -739,7 +739,7 @@ router.delete('/:id/images/:image', authenticate, function(req, res) {
  * @apiError (Error 400) BadRequestError Invalid URL Parameters
  * @apiError (Error 500) InternalServerError Database Query Failed
  */
-router.get('/:id/offers', authenticate, function(req, res) {
+router.get('/:id/offers', function(req, res) {
     // check for valid input
     try {
         var service_id = req.params.id;
@@ -751,13 +751,13 @@ router.get('/:id/offers', authenticate, function(req, res) {
     // define query
     const query = `
         SELECT *
-        FROM (SELECT 'user' as type, users.id as requester_id, users.full_name as requester_name
+        FROM (SELECT 'user' as type, users.id as requester_id, users.full_name as requester_name, service_offer.date_proposed as date_proposed
             FROM users
             INNER JOIN service_offer ON service_offer.candidate_id = users.id
             INNER JOIN service ON service_offer.service_id = service.id
             WHERE service_offer.service_id = $(service_id)
             UNION
-            SELECT 'crowdfunding' as type, crowdfunding.id as requester_id, crowdfunding.title as requester_name
+            SELECT 'crowdfunding' as type, crowdfunding.id as requester_id, crowdfunding.title as requester_name, crowdfunding_offer.date_proposed as date_proposed
             FROM crowdfunding
             INNER JOIN crowdfunding_offer ON crowdfunding_offer.crowdfunding_id = crowdfunding.id
             INNER JOIN service ON crowdfunding_offer.service_id = service.id
@@ -966,6 +966,7 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
     try {
         var service_id = req.params.id;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
+        var date_scheduled = req.body.hasOwnProperty('date_scheduled') ? req.body.date_scheduled : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
         if (partner_id == null && crowdfunding_id == null) {
             throw new Error('Missing either partner_id or crowdfunding_id');
@@ -1042,11 +1043,12 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                     res.sendStatus(200);
                 })
                 .catch(error => {
-                    console.log(error);
+                    console.log(1 + error);
                     res.status(500).json(error);
                 });
         })
         .catch(error => {
+            console.log(2 + error);
             res.status(500).json(error);
         });
 });
@@ -1266,7 +1268,7 @@ router.get('/:service_id/instance/partner', authenticate, function(req, res) {
 });
 
 // TODO: finish api doc.
-router.get('/:service_id/instance', authenticate, function(req, res) {
+router.get('/:service_id/instance', function(req, res) {
     let serviceId = req.params.service_id;
     let query =
         `SELECT partner_id, users.full_name as partner_name, date_scheduled, creator_rating, partner_rating
