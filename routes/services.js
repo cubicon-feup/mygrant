@@ -1282,7 +1282,7 @@ router.get('/:service_id/instance', authenticate, function(req, res) {
     }).catch(error => {
         res.status(500).json({error});
     })
-})
+});
 
 // TODO: finish api doc
 // TODO: are we using this route???
@@ -1307,6 +1307,6 @@ router.get('/:service_id/is_owner_or_partner', authenticate, function(req, res) 
     }).catch(error => {
         res.status(500).json({error});
     })
-})
+});
 
 module.exports = router;

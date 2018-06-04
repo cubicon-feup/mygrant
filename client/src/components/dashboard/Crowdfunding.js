@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form} from 'semantic-ui-react';
@@ -44,14 +45,16 @@ class Crowdfunding extends Component {
         if(this.state.services) {
             services = this.state.services.map(service => {
                 return (
-                    <Service key={service.id} service={service} crowdfundingId={this.state.crowdfunding.id} type={'CROWDFUNDING'}/>
-                )
+                    <Container fluid className="crowdfunding-service-container">
+                        <Service key={service.id} service={service} crowdfundingId={this.state.crowdfunding.id} type={'CROWDFUNDING'}/>
+                    </Container>
+                );
             })
         } else services = null;
 
         return (
             <Container>
-                <h2>{this.state.crowdfunding.title}</h2>
+                <h3><Link to={"/crowdfunding/" + this.state.crowdfunding.id} className="crowdfunding-title">{this.state.crowdfunding.title}</Link></h3>
                 {services}
             </Container>
         )

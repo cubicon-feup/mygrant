@@ -3,10 +3,12 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Progress, Responsive, Form, Card } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import '../css/Dashboard.css';
 
-import Service from '../components/dashboard/Service'; 
+import Service from '../components/dashboard/Service';
 import Crowdfunding from '../components/dashboard/Crowdfunding';
 import DonatedCrowdfunding from '../components/dashboard/DonatedCrowdfunding';
+import { MygrantDividerLeft, MygrantDividerRight } from '../components/Common';
 
 const urlGetMygrantBalance = `/api/comments/mygrant_balance`;
 const urlGetMyServices = `/api/comments/my_services`;
@@ -134,21 +136,31 @@ class Dashboard extends Component {
         let myServices;
         if(this.state.myServices.length > 0) {
             myServices = this.state.myServices.map(myService => {
-                return <Service key={myService.id} service={myService} type={'MY_SERVICES'} />
+                return (
+                    <Container fluid className="service-container">
+                        <Service key={myService.id} service={myService} type={'MY_SERVICES'} />
+                    </Container>
+                );
             })
         } else myServices = 'No services.';
 
         let partnedServices;
         if(this.state.partnedServices.length > 0) {
             partnedServices = this.state.partnedServices.map(partnedService => {
-                return <Service key={partnedService.service_id} service={partnedService} type={'PARTNED'}/>
+                return (
+                    <Service key={partnedService.service_id} service={partnedService} type={'PARTNED'}/>
+                );
             })
         } else partnedServices = 'Nothing yet.';
 
         let crowdfundings;
         if(this.state.crowdfundings.length > 0) {
             crowdfundings = this.state.crowdfundings.map(crowdfunding => {
-                return <Crowdfunding key={crowdfunding.id} crowdfunding={crowdfunding} />
+                return (
+                    <Container fluid className="crowdfunding-container">
+                        <Crowdfunding key={crowdfunding.id} crowdfunding={crowdfunding} />
+                    </Container>
+                );
             })
         } else crowdfundings = 'Nothing yet.';
 
@@ -171,27 +183,38 @@ class Dashboard extends Component {
         } else donatedCrowdfundings = 'Nothing yet.';
 
         return (
-            <Container>
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <p>Mygrant Balance: {this.state.mygrant_balance}</p>
-                
-                <h2>My Services</h2>
-                {myServices}
+            <Container fluid id="dashboard_base_container" className="main-container">
+                <Container>
+                    <div id="balance">
+                        <h3 id="balance_label">Mygrant Balance</h3>
+                        <h1 id="mygrant_balance">{this.state.mygrant_balance}</h1>
+                    </div>
+                    <h2>My Services</h2>
+                </Container>
+                <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
+                <Container>
+                    {myServices}
 
-                <h2>Partned Services</h2>
-                {partnedServices}
+                    <h2>Partned Services</h2>
+                </Container>
+                <Responsive as={MygrantDividerRight} minWidth={768} className="intro-divider" color="green" />
+                <Container>
+                    <Card.Group Stacked>
+                    {partnedServices}
+                    </Card.Group>
 
-                <h2>Crowdfundings</h2>
-                {crowdfundings}
+                    <h2>Crowdfundings</h2>
+                </Container>
+                <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
+                <Container>
+                    {crowdfundings}
 
-                <h2>Donated Crowdfundings</h2>
-                {donatedCrowdfundings}
+                    <h2>Donated Crowdfundings</h2>
+                </Container>
+                <Responsive as={MygrantDividerRight} minWidth={768} className="intro-divider" color="green" />
+                <Container>
+                    {donatedCrowdfundings}
+                </Container>
             </Container>
         )
     }

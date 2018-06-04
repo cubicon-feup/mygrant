@@ -295,7 +295,7 @@ router.get(['/num-pages', '/search-count', '/count', '/npages'], policy.search, 
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500) InternalServerError Couldn't create a crowdfunding.
  */
-router.post('/', authenticate, policy.valid, function(req, res) {
+router.post('/', authenticate, function(req, res) {
     let title = req.body.title;
     let description = req.body.description;
     let category = req.body.category;
@@ -326,6 +326,7 @@ router.post('/', authenticate, policy.valid, function(req, res) {
         cronJob.scheduleJob(crowdfundingId, dateFinished);
         res.status(201).send({id: crowdfundingId});
     }).catch(error => {
+        console.log(error);
         res.status(500).json({error: 'Couldn\'t create a crowdfunding.'});
     });
 });

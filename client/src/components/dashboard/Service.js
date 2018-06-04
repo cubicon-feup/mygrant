@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import { Container, Button, Card, Image, Form } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -23,7 +23,7 @@ class Service extends Component {
             rate: null
         }
     }
-    
+
     componentDidMount() {
         if(this.state.type === 'CROWDFUNDING' || this.state.type === 'MY_SERVICES')  // PARTNED, CROWDFUNDING
             this.getCandidates();
@@ -231,14 +231,21 @@ class Service extends Component {
 
         }
 
+        if(this.state.type == 'PARTNED'){
+            return (
+                    serviceInstance
+            );
+        }
+
         return (
             <Container>
-                <h3><Link to={`/service/${this.state.service.id}`}>{this.state.service.title}</Link></h3>
-                <Card.Group>
+                <h3><Link to={`/service/${this.state.service.id}`} className="service-title">{this.state.service.title}</Link></h3>
+                <Card.Group stackable>
                     {candidates}
                     {serviceInstance}
                 </Card.Group>
             </Container>
+
         )
     }
 }

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import '../css/Service.css';
-import ServiceOffer from './ServiceOffers';
-import ImgGrid from './ImgGrid';
-import CommentsSection from './Comments';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import ServiceOffer from './ServiceOffers';
+import ImgGrid from './ImgGrid';
+import CommentsSection from './Comments';
+import PidgeonMaps from './Map';
 
 import {
     Button,
@@ -183,6 +184,19 @@ class Service extends Component {
             </Container>;
 }
 
+    renderMap() {
+        if (this.state.service.latitude && this.state.service.longitude) {
+            return (
+                <PidgeonMaps
+                    latlng={[
+                        this.state.service.latitude,
+                        this.state.service.longitude
+                    ]}
+                />
+            );
+        }
+    }
+
     render() {
         if (this.state.isFetching) {
             return (
@@ -212,6 +226,7 @@ class Service extends Component {
                     <Container fluid className="green-divider" />
                     {this.renderOffers()}
                 </Container>
+                {this.renderMap()}
                 <CommentsSection type="services" id={this.state.id} />
             </Container>
         );
