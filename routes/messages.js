@@ -67,7 +67,6 @@ router.post('/', authenticate, function(req, res) {
                                 .btn:hover {
                                     background-color: green
                                 }
-
                             </style>
                         </head>
                         <body>
