@@ -71,8 +71,24 @@ class Login extends Component {
                             // secure: true
                             path: '/'
                         });
+                        cookies.set('user_full_name', parsed.user.full_name, {
+                            // httpOnly: true,
+                            // secure: true
+                            path: '/'
+                        });
+                        cookies.set('user_id', parsed.user.id, {
+                            // httpOnly: true,
+                            // secure: true
+                            path: '/'
+                        });
+                        cookies.set('user_image_url', parsed.user.image_url, {
+                            // httpOnly: true,
+                            // secure: true
+                            path: '/'
+                        });
                         // Redirect to new page
-                        this.props.history.push('/');
+                        this.props.history.push('/dashboard');
+                        window.location.reload();
                     });
             } else {
                 this.setState({ formError: true });
