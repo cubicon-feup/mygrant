@@ -38,16 +38,28 @@ module.exports = {
         }
     },
 
-    removeImage(req, res, image_url) {
+    removeImage(req, res, image_url, replaced=false) {
         try {
             fs.unlinkSync(__dirname + '/' + image_url);
-            res.status(200).send('Successfully removed an image.');
+            if (replaced) { 
+                console.log('Successfully replaced image.');
+            } else {
+                res.status(200).send('Successfully removed an image.');
+            }
         } catch (err){
             if (err.errno == -2){
-                res.status(200).send('Image already removed.');
+                if (replaced) { 
+                    console.log('Replace: Image already removed.');
+                } else {
+                    res.status(200).send('Image already removed.');
+                }
             }
             else {
-                res.status(500).send(err);
+                if (replaced) { 
+                    console.log(err);
+                } else {
+                    res.status(500).send(err);
+                }
             }
         }
         return;
