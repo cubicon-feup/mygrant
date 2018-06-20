@@ -14,6 +14,8 @@ module.exports = {
             location: Joi.string().regex(
                 new RegExp(config.regex.line)
             ),
+            //latitude: Joi.required(),
+            //longitude: Joi.required(),
             mygrant_target: Joi.number().min(1).required(),
             time_interval: Joi.number().min(1).required(),
         }
@@ -126,32 +128,28 @@ module.exports = {
 
     search(req, res, next) {
         const schema = {
-            from: Joi.number().min(1).required().less(parseInt(req.params.to)),
-            to: Joi.number().min(2).required(),
-            sorting_method: Joi.string(),
-            category: Joi.string(),
-            location: Joi.string(),
-            keywords: Joi.string(),
-            status: Joi.string()
+            q: Joi.string(),
+            page: Joi.number().integer().min(1),
+            items: Joi.number().integer().min(10).max(100),
+            order: Joi.string().alphanum(),
+            asc: Joi.string(),
+            lang: Joi.string(),
+            desc: Joi.string(),
+            cat: Joi.string(),
+            balancemax: Joi.number().min(0),
+            balancemin: Joi.number().min(0),
+            targetmax: Joi.number().min(0),
+            targetmin: Joi.number().min(0),
+            datemax: Joi.date().timestamp(),
+            datemin: Joi.date().timestamp(),
+            distmax: Joi.number().min(0),
+            status: Joi.string(),
         }
 
         const {error} = Joi.validate(req.params, schema, config.joiOptions);
 
         if(error)
             res.status(400).send({error: 'Invalid search data.'});
-        else next();
-    },
-
-    pagesNumber(req, res, next) {
-        const schema = {
-            from: Joi.number().min(1).required().less(parseInt(req.params.to)),
-            to: Joi.number().min(2).required()
-        }
-
-        const {error} = Joi.validate(req.params, schema, config.joiOptions);
-
-        if(error)
-            res.status(400).send({error: 'Invalid pages number data.'});
         else next();
     }
 }

@@ -290,4 +290,154 @@ router.delete('/:comment_id', authenticate, function(req, res) {
         });
 });
 
+router.get('/provided_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    const query =
+        `SELECT service.id as service_id, service.title as service_title
+        FROM service
+        INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+        INNER JOIN users ON users.id = crowdfunding.creator_id
+        WHERE users.id = $(user_id)
+        ORDER BY crowdfunding.id;`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
+
+
+
+
+
+// TODO: move to user.js file. Not working there, so I put them here.
+
+
+// TODO: finish api doc.
+/**
+ * @api {get} /users/crowdfundings Get user's crowdfundings.
+ * @apiName GetUserCrowdfundings
+ * @apiGroup User
+ * @apiPermission authenticated user
+ *
+ * @apiError (Sucess 200) OK
+ * 
+ * @apiError (Error 500) InternalServerError
+ */router.get('/crowdfundings', authenticate, function(req, res) {
+    let userId = req.user.id;
+    const query =
+        `SELECT *
+        FROM crowdfunding
+        WHERE crowdfunding.creator_id = $(user_id);`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+});
+
+/**
+ * @api {get} /users/mygrant_balalnce Get mygrant balance
+ * @apiName GetMygrantBalance
+ * @apiGroup User
+ * @apiPermission authenticated user
+ *
+ * @apiSuccess (Success 200) {Integer} mygrant_balance Current amount of mygrants owned by the user.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
+router.get('/mygrant_balance', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT mygrant_balance
+        FROM users
+        WHERE users.id = $(user_id);`;
+
+    db.one(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({mygrant_balance: data.mygrant_balance});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+});
+
+// Gets all services that the user helped/worked.
+router.get('/partned_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT *
+        FROM (
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id, service.id as service_id, service.title as service_title
+            FROM service_instance
+            INNER JOIN service ON service.id = service_instance.service_id
+            INNER JOIN users ON users.id = service.creator_id
+            WHERE service_instance.partner_id = $(user_id)
+            UNION
+            SELECT service_instance.service_id as id, service_instance.date_scheduled, service_instance.creator_rating, service_instance.partner_rating, service_instance.partner_id, users.id as creator_id, users.full_name as creator_name, service_instance.id as service_instance_id, service.id as service_id, service.title as service_title
+            FROM service_instance
+            INNER JOIN service ON service.id = service_instance.service_id
+            INNER JOIN crowdfunding ON crowdfunding.id = service.crowdfunding_id
+            INNER JOIN users ON users.id = crowdfunding.creator_id
+            WHERE service_instance.partner_id = $(user_id)
+        ) s;`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
+// Gets all the user's services.
+router.get('/my_services', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT *
+        FROM service
+        WHERE service.creator_id = $(user_id);`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
+router.get('/donated_crowdfundings', authenticate, function(req, res) {
+    let userId = req.user.id;
+    let query =
+        `SELECT crowdfunding.id as crowdfunding_id, crowdfunding.title as crowdfunding_title, crowdfunding_donation.amount
+        FROM crowdfunding_donation
+        INNER JOIN crowdfunding ON crowdfunding.id = crowdfunding_donation.crowdfunding_id
+        WHERE crowdfunding_donation.donator_id = $(user_id)
+            AND crowdfunding_donation.rating IS NULL
+            AND crowdfunding."status" = 'FINISHED';`;
+
+    db.manyOrNone(query, {
+        user_id: userId
+    }).then(data => {
+        res.status(200).json({data});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error});
+    })
+})
+
 module.exports = router;
