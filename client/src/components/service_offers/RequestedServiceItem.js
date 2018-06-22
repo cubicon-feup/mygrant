@@ -57,8 +57,7 @@ class RequestedServiceItem extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
-                        this.setState({serviceInstanceInfo: data});
-                        this.assignRole();
+                        this.setState({serviceInstanceInfo: data}, this.assignRole());
                     })
             }
         })
