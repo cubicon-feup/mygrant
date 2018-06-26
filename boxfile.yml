@@ -11,6 +11,9 @@ run.config:
 deploy.config:
   extra_steps:
     - cd client && npm install &> /dev/null && ./node_modules/.bin/node-sass ./src/scss/ -o ./src/css --output-style compressed && npm run-script build 
+  before_live:
+    web.main:
+      - cd migrations/ && ../node_modules/.bin/pg-migrator postgres://$DATA_DB_USER:$DATA_DB_PASS@$DATA_DB_HOST:5432/gonano
 
 data.db:
   image: nanobox/postgresql:9.6
