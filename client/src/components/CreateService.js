@@ -50,7 +50,6 @@ class TextInput extends Component {
      */
     invalidInput(value) {
         const test = /[^\wÀ-û\s]/;
-
         return test.test(value) || value.length < 5;
     }
 

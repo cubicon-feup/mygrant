@@ -66,7 +66,6 @@ class OffersListHeader extends Component {
         } else if (this.props.typeService === 'PROVIDE') {
             return <Header as="h1">Users that asked for the service</Header>;
         }
-
         return 'ERROR';
     }
 }
