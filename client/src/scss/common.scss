@@ -1,0 +1,172 @@
+/* Color settings */
+$green: #8EE8BC;
+$text-green: #5A9B73;
+$light-green: #CAF3D9;
+$dark-green: #2EC88F;
+$purple: #593569;
+$light-purple: #9872A8;
+$grey: #696969;
+$light-grey: #BEC0C1;
+$lighter-grey: rgba(0,0,0,0.05);
+$red: #EF5350;
+$dark-red: #C62828;
+$lightest-grey: rgba(0,0,0,0.02);
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+div.ui.container.main-container {
+    div{
+        font-family: Helvetica, sans-serif !important;
+    }
+}
+
+#root {
+    min-height: 100%;
+    position: relative;
+}
+
+
+button.ui.button {
+    font-family: Helvetica, sans-serif !important;
+    height: 50px;
+}
+
+/* Mygrant button start */
+button.ui.button.mygrant-button {
+    background-color: $dark-green;
+    color: white;
+
+    &:hover {
+        background-color: $green;
+    }
+}
+/* Mygrant button end */
+
+/* Header Start */
+div.site-header {
+    height: 50px;
+    border-bottom: 5px solid $light-purple !important;
+
+    a {
+        color: $purple;
+    }
+
+    .item.header a {
+        font-family: Helvetica, sans-serif !important;
+        color: $purple;
+    }
+}
+/* Header End */
+
+/* Divider Start */
+div.mygrant-divider {
+    overflow: auto;
+
+    &.green {
+        .divider {
+            background-color: $green;
+        }
+    }
+
+    &.light-green {
+        .divider {
+            background-color: $light-green;
+        }
+    }
+
+    &.purple {
+        .divider {
+            background-color: $purple;
+        }
+    }
+
+    &.light-purple {
+        .divider {
+            background-color: $light-purple;
+        }
+    }
+
+    .divider {
+        min-height: 9px;
+    }
+
+    .first-divider.divider {
+        border: 0;
+        box-shadow: 0;
+        width: 95%;
+        border-top-left-radius: 500em;
+        border-bottom-left-radius: 500em;
+        float: right;
+        margin-right: 0;
+        margin-bottom: 26px;
+    }
+
+    .second-divider.divider {
+        border: 0;
+        box-shadow: 0;
+        margin-top: 37px;
+        width: 80%;
+        border-top-right-radius: 500em;
+        border-bottom-right-radius: 500em;
+        margin-right: 0;
+    }
+}
+/* Divider End */
+
+/* Footer Start */
+.container.site-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding-bottom: 50px;
+    width: 100%;
+
+    .mygrant-divider {
+        margin-top: 10px;
+    }
+
+    .header {
+        font-family: Helvetica, sans-serif !important;
+        color: $dark-green;
+        padding-left: 30px;
+        margin-left: 5%;
+        margin-bottom: -20px;
+    }
+
+    .sub.header {
+        color: $dark-green;
+        text-align: center;
+    }
+}
+/* Footer End */
+
+/* Nav Start */
+div.site-nav-mobile {
+    border-top: 5px solid $green !important;
+
+    .item.header {
+        color: $dark-green;
+        border: none;
+    }
+    text-align: center;
+}
+/* Nav End */
+
+/* Main Container Start */
+.main-container {
+    padding-top: 75px;
+    padding-bottom: 150px;
+}
+/* Main Container End */
+
+.modals.visible.transition {
+    display: flex !important;
+}
+
+#search-location {
+    display: block !important;
+}

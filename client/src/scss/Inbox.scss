@@ -1,0 +1,42 @@
+@import 'common';
+
+@media (min-width: 768px) {
+    .ui.container.main-container.inbox {
+        width: 35%;
+    }
+}
+
+div.conversation-card {
+    padding: 10px 10px 10px;
+    div.conversation-image {
+        i {
+            color: black;
+        }
+    }
+
+
+    &:hover {
+        background-color: $lighter-grey;
+        cursor: pointer;
+    }
+
+    h4.header {
+        margin-bottom: 0px;
+        font-weight: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; 
+    }
+
+    .sub.header {
+        color: rgba(0,0,0,0.5);
+        font-size: 0.95em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; 
+    }
+
+    .conversation-image {
+        text-align: center;
+    }
+}

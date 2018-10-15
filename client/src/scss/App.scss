@@ -1,0 +1,118 @@
+@import 'common';
+
+/* Buttons section Start */
+
+div.landing-page-buttons {
+    margin-top: 150px;
+    margin-bottom: 150px;
+}
+
+div.huge.header.mobile-only-header {
+    color: $dark-green;
+    margin-top: 0em;
+    margin-bottom: -2em;
+}
+
+.fa-circle {
+    color: $green;
+    margin-right: 20px;
+
+    &:first-child {
+        margin-left: 20px;
+    }
+}
+
+/* Buttons section End */
+
+/* Segment sections Start */
+div.oneliner-container.container,
+div.use-case-container.container {
+    overflow: hidden; // Respect the height of the children
+    margin-bottom: 150px;
+
+    .oneliner-segment-mobile.segment {
+        width: 100%;
+        color: $purple;
+        border: 0;
+
+        .header {
+            color: $purple;
+        }
+    }
+
+    .oneliner-segment.segment {
+        background-color: $purple;
+        color: white;
+
+        .header {
+            color: white;
+        }
+
+        width: 90%;
+
+        padding-top: 50px;
+        padding-bottom: 50px;
+
+        margin-right: 0;
+
+        border-top-left-radius: 500em;
+        border-bottom-left-radius: 500em;
+    }
+
+    .use-case-segment.segment {
+        background-color: $purple;
+        color: white;
+
+        .header {
+            color: white;
+        }
+        .row {
+            margin-bottom: 75px;
+        }
+
+        div.sub.header {
+            margin-top: 25px;
+            font-size: 1.1em;
+        }
+
+        border-top-right-radius: 500em;
+        border-bottom-right-radius: 500em;
+
+        padding-top: 100px;
+        padding-bottom: 25px;
+
+        width: 80%;
+        padding-right: 150px;
+
+        box-shadow: 0 0 4000px 100px $green;
+    }
+}
+/* Segment sections End */
+
+/* Use case segment mobile start */
+div.use-case-mobile.container {
+    .header {
+        color: $dark-green;
+    }
+
+    svg {
+        color: $grey;
+    }
+
+    .sub.header {
+        color: $grey;
+    }
+}
+/* Use case segment mobile end */
+
+/* Intro section Start */
+.header.intro-header {
+    color: $dark-green;
+}
+
+div.intro-container.container {
+    line-height: 2;
+    color: $grey;
+    margin-bottom: 150px;
+}
+/* Intro section End */
