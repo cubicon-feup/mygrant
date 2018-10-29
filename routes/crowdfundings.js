@@ -373,7 +373,8 @@ router.get('/:crowdfunding_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        console.log("Opa")
+        //console.log("Opa");
+        //console.log("Data");
         res.status(500).json({error: 'Could\'t get the crowdfunding project.'});
     });
 });
