@@ -80,7 +80,8 @@ class SignUp extends Component {
             longitude: this.state.longitude,
             name: this.state.name,
             password: this.state.password,
-            phone: this.state.phone
+            phone: this.state.phone,
+            country_id: "184"
         };
 
         fetch('/api/auth/signup', {
