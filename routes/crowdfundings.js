@@ -496,7 +496,7 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
+        `SELECT crowdfunding.id as crowdfunding_id, title, category, location, mygrant_target, status, users.full_name as creator_name, users.id as creator_id
         FROM crowdfunding
         INNER JOIN users ON users.id = crowdfunding.creator_id;`;
 
