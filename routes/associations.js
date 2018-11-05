@@ -8,7 +8,7 @@ router.get('/:id', function(req, res) {
         FROM association
         WHERE id = $(associationId)`;
 
-    db.manyOrNone(query, { associationId: req.params.id })
+    db.one(query, { associationId: req.params.id })
         .then(data => {
             res.status(200).json({ data });
         })
