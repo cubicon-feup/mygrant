@@ -23,6 +23,7 @@ const categoriesRouter = require('./routes/categories');
 const commentsRouter = require('./routes/comments');
 const imagesRouter = require('./routes/images');
 const postsRouter = require('./routes/posts');
+const associationsRouter = require('./routes/associations');
 
 const app = express();
 
@@ -66,6 +67,7 @@ app.use('/api/service_categories', categoriesRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/images', imagesRouter);
 app.use('/api/posts', postsRouter);
+app.use('/api/associations', associationsRouter);
 
 app.use(express.static('images'));
 
