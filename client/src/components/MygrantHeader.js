@@ -99,6 +99,15 @@ class MygrantHeader extends Component {
                 {
                     this.state.user.userId
                         ? <Menu.Item >
+                            <Link to={'/crowdfundings'} >
+                                    {'Crowdfunding Projects'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
                             <Link to={'/createcrowdfunding'} >
                                     {'Create a Crowdfunding Project'}
                                 </Link>
