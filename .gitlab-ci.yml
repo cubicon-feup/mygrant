@@ -1,27 +1,10 @@
-image: base/devel
+image: nanobox/base
 
 stages:
   - install
   - build
   - test
   - deploy
-
-cache:
-  paths:
-    - node_modules/
-    - client/node_modules/
-
-install:
-  stage: install
-  only:
-    - dev
-  script:
-    - echo Installing nanobox
-    - sudo pacman --noconfirm -Sy wget
-    - wget https://d1ormdui8qdvue.cloudfront.net/installers/v2/linux/nanobox-2-1-x86_64.pkg.tar.xz
-    - tar xf nanobox-2-1-x86_64.pkg.tar.xz
-    - cp usr/bin/nanobox /usr/bin/nanobox
-    - rm -rf usr/* && rm .MTREE && rm .PKGINFO && rm nanobox-2-1-x86_64.pkg.tar.xz
 
 build:
   stage: build
@@ -47,3 +30,4 @@ deploy:
   script:
     - echo Deploying application
     - nanobox deploy
+
