@@ -2,6 +2,19 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
+/**
+ * @api {get} /associations/:id Get association
+ * @apiName getAssociation
+ * @apiGroup Associations
+ *
+ * @apiParam (RequestBody) {Integer} id Association id.
+ *
+ * @apiSuccess (Success 200) {Integer} association_id Association id.
+ * @apiSuccess (Success 200) {Text} association_name Association name.
+ * @apiSuccess (Success 200) {Text} association_description Association description.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
 router.get('/:id', function(req, res) {
     const query = `
         SELECT id, name, description

@@ -466,7 +466,7 @@ router.get('/:id/provides', function(req, res) {
  * @apiName getPosts
  * @apiGroup User
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) get user posts
  *
  */
 router.get('/:id/posts', authenticate, function(req, res) {
@@ -521,7 +521,7 @@ router.get('/:id/requests', function(req, res) {
  * @apiName getPosts
  * @apiGroup User
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) get user postcount
  *
  */
 router.get('/:id/postcount', authenticate, function(req, res) {
@@ -580,7 +580,7 @@ router.get('/:id/rating', function(req, res) {
  * @apiName PostPost
  * @apiGroup User
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) post user post
  *
  */
 router.post('/:id/posts', authenticate, function(req, res) {
@@ -605,7 +605,7 @@ router.post('/:id/posts', authenticate, function(req, res) {
  * @apiName getFeed
  * @apiGroup User
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) get user feed
  * */
 router.get('/:id/getfeed', authenticate, function(req, res) {
     const offset = req.query.page * 20;
