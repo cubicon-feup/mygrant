@@ -818,7 +818,7 @@ ALTER TABLE public.crowdfunding
 ALTER TABLE public.crowdfunding_donation
 	ADD CONSTRAINT amount_positive CHECK ((amount > 0));
 ALTER TABLE public.crowdfunding_donation
-	ADD CONSTRAINT rating_from_0_to_3 CHECK (((rating >= 0) AND (rating <= 3)));
+	ADD CONSTRAINT rating_from_0_to_5 CHECK (((rating >= 0) AND (rating <= 5)));
 
 ALTER TABLE public.crowdfunding_offer
 	ADD CONSTRAINT can_only_offer_to_service_provides CHECK ((public.get_service_type(service_id) = 'PROVIDE'::text));
