@@ -1,4 +1,4 @@
-image: node:latest
+image: ubuntu:trusty
 
 stages:
   - install
@@ -17,7 +17,7 @@ install:
     - dev
   script:
     - echo Installing nanobox
-    - bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
+    - sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 
 build:
   stage: build
