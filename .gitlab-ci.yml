@@ -1,38 +1,24 @@
-image: ubuntu:trusty
+image: node:latest
 
 stages:
-  - install
-  - build
-  - test
-  - deploy
+  - build_express
+  - build_react
 
-install:
-  stage: install
-  only:
-    - dev
+cache:
+  paths:
+    - node_modules/
+    - client/node_modules/
+
+test_build_express:
+  stage: build_express
   script:
-    - echo Installing nanobox
-    - sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
-build:
-  stage: build
-  only:
-    - dev
+    - npm install
+
+test_build_react:
+  stage: build_react
   script:
-    - echo Building nanobox image
-    - nanobox build
-test:
-  stage: test
-  only:
-    - dev
-  script:
-    - echo Running tests
-    - nanobox run npm test
-  allow_failure: true
-deploy:
-  stage: deploy
-  only:
-    - dev
-  script:
-    - echo Deploying application
-    - nanobox deploy
+    - cd client/
+    - npm install
+    - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
+   
 
