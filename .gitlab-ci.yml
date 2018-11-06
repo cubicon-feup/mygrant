@@ -1,4 +1,4 @@
-image: nanobox/base
+image: ubuntu:trusty
 
 stages:
   - install
@@ -6,6 +6,13 @@ stages:
   - test
   - deploy
 
+install:
+  stage: install
+  only:
+    - dev
+  script:
+    - echo Installing nanobox
+    - sudo bash -c "$(curl -fsSL https://s3.amazonaws.com/tools.nanobox.io/bootstrap/ci.sh)"
 build:
   stage: build
   only:
@@ -13,7 +20,6 @@ build:
   script:
     - echo Building nanobox image
     - nanobox build
-
 test:
   stage: test
   only:
@@ -22,7 +28,6 @@ test:
     - echo Running tests
     - nanobox run npm test
   allow_failure: true
-
 deploy:
   stage: deploy
   only:
