@@ -1,0 +1,51 @@
+image: docker
+services:
+  - docker:dind
+
+stages:
+  - install
+  - build
+  - test
+  - deploy
+
+install:
+  stage: install
+  only:
+    - dev
+    - master
+  script:
+    - echo Installing docker-compose...
+    - sudo chmod +x /usr/local/bin/docker-compose
+    - docker-compose --version
+build:
+  stage: build
+  only:
+    - dev
+    - master
+  script:
+    - echo Building docker image...
+    - docker-compose -f docker-compose.prod.yml build
+test:
+  stage: test
+  only:
+    - dev
+    - master
+  script:
+    - echo Running tests!...
+    - docker-compose -f docker-compose.prod.yml start
+    - container_id=$(sudo docker ps -aqf "name=t1g2_app")
+    - echo "Cabazes de Natal App container ID -> $container_id"
+    - docker exec -i $container_id echo "Run tests here."
+    - docker-compose -f docker-compose.prod.yml stop
+
+deploy:
+  stage: deploy
+  only:
+    - dev
+    - master
+  script:
+    - echo "Deploying application..."
+    - sudo docker-compose -f docker-compose.prod.yml start
+  environment: dev
+  when: manual
+  
