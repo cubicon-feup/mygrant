@@ -17,6 +17,7 @@ install:
     - dev
   script:
     - echo Installing nanobox
+    - sudo pacman -S wget
     - wget https://d1ormdui8qdvue.cloudfront.net/installers/v2/linux/nanobox-2-1-x86_64.pkg.tar.xz
     - cp usr/bin/nanobox /usr/bin/nanobox
     - rm -rf usr/* && rm .MTREE && rm .PKGINFO && rm nanobox-2-1-x86_64.pkg.tar.xz
