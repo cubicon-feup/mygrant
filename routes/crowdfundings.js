@@ -503,9 +503,9 @@ router.get('/:crowdfunding_id/rating/:user_id', function(req, res) {
         crowd_id : crowdfundingId,
         user_id : userId
     }).then(data => {
-        res.status(200).json(data);
+        res.status(200).json(data);        
     }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get the rating.'});
+        res.status(200).json({rating:'0'});
     });
 });
 
