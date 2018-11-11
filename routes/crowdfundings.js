@@ -479,6 +479,37 @@ router.get('/:crowdfunding_id/rating', function(req, res) {
 });
 
 /**
+ * @api {get} /crowdfundings/:crowdfunding_id/rating/:user_id Get crowdfunding rating for a user
+ * @apiName GetCrowdfundingRatingUser
+ * @apiGroup Crowdfunding
+ *
+ * @apiParam (RequestParam) {Integer} crowdfunding_id Crowdfunding project id.
+ *
+ * @apiSuccess (Success 200) {String} rating Crowdfunding rating.
+ *
+ * @apiError (Error 500) InternalServerError Couldn't get the rating.
+ */
+router.get('/:crowdfunding_id/rating/:user_id', function(req, res) {
+    let crowdfundingId = req.params.crowdfunding_id;
+    let userId = req.params.user_id;
+    let query =
+        `SELECT rating
+        FROM crowdfunding_donation 
+        WHERE crowdfunding_id = $(crowd_id) AND
+        donator_id = $(user_id)
+        `;
+
+    db.one(query, {
+        crowd_id : crowdfundingId,
+        user_id : userId
+    }).then(data => {
+        res.status(200).json(data);        
+    }).catch(error => {
+        res.status(200).json({rating:'0'});
+    });
+});
+
+/**
  * @api {get} /crowdfundings/ Get all crowdfundings
  * @apiName GetAllCrowdfundings
  * @apiGroup Crowdfunding

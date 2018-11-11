@@ -29,7 +29,7 @@ module.exports = {
     },
     rating: {
         min: 1,
-        max: 3
+        max: 5
     },
     secret,
     transporterOptions: {

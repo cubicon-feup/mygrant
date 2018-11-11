@@ -5,6 +5,7 @@ import { Container, Header, Grid, Divider, Image, Icon, Item, Rating, Loader,Pro
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
+import { Link } from 'react-router-dom';
 
 import CrowdfundingOffers from './service_offers/CrowdfundingOffers';
 import Donator from './Donator';
@@ -14,6 +15,7 @@ import PidgeonMaps from './Map';
 const apiPath = require('../config').apiPath;
 const urlForData = crowdfundingId => `/api/crowdfundings/` + crowdfundingId;
 const urlForRating = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/rating`;
+const urlForRatingUser = (crowdfundingId,userID) => `/api/crowdfundings/` + crowdfundingId + `/rating/` + userID;
 const urlForDonations = crowdfundingId => `/api/crowdfundings/` + crowdfundingId  + `/donations`;
 const urlForServices = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/services`;
 const urlForDonate = crowdfundingId => `/api/crowdfundings/` + crowdfundingId + `/donations`;
@@ -35,6 +37,7 @@ class Crowdfunding extends Component {
             donators: [],
             timeDiff: '',
             role: Role.NONE,
+            showWarningMessage : 0,
 
             timer: null,
             counter: 0,
@@ -48,6 +51,8 @@ class Crowdfunding extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.tick = this.tick.bind(this);
+        this.handleRate = this.handleRate.bind(this);
+        
 
         const { cookies } = this.props;
         console.log(cookies);
@@ -57,6 +62,7 @@ class Crowdfunding extends Component {
         this.getData();
         this.getRating();
         this.getDonators();
+        this.getUserRating();
 
         let timer = setInterval(this.tick, 1000);
         this.setState({timer});
@@ -83,6 +89,7 @@ class Crowdfunding extends Component {
             if(res.status === 200) {
                 res.json()
                     .then(data => {
+                        console.log({donators: data});
                         this.setState({donators: data});
                     })
             }
@@ -145,6 +152,32 @@ class Crowdfunding extends Component {
             });
     }
 
+    getUserRating(){
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+        fetch(urlForRatingUser(this.state.crowdfundingId, userId))
+            .then(response => {
+                if (!response.ok) {
+                    this.setState({ userRating: 0});
+                }
+
+                return response;
+            })
+            .then(result => result.json())
+            .then(result => {
+                console.log(result);
+                this.setState({ userRating: result});
+                if(!this.state.userRating.rating){
+                    this.setState({ userRating: { rating : "0"}});
+                }
+                
+            }, () => {
+                // "catch" the error
+                this.setState({ requestFailed: true });
+            });
+        
+    }
+
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = (event) => {
@@ -171,7 +204,30 @@ class Crowdfunding extends Component {
             }
         })
     }
-    
+
+    handleRate = (e, {rating}) => {
+        /*this.setState({ newRate : rating });
+        console.log(this.state.newRate);*/
+        
+        
+        const { cookies } = this.props;
+        fetch(urlForRating(this.state.crowdfundingId), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                rating: parseInt(rating)
+            })
+        }).then(res => {
+            if (res.status === 200){
+                this.getRating();
+            }
+        })
+    }
+
+
     getProgress() {
         if(this.state.crowdfunding.status === 'COLLECTING')
             return (
@@ -210,7 +266,7 @@ class Crowdfunding extends Component {
         );
       }
 
-      if(!this.state.crowdfunding || !this.state.rating || !this.state.rating.average_rating) {
+      if(!this.state.crowdfunding || !this.state.rating || !this.state.rating.average_rating || !this.state.userRating || !this.state.userRating.rating) {
         return (
             <Container className="main-container">
             <div>
@@ -234,6 +290,33 @@ class Crowdfunding extends Component {
                 </Grid>
             </Form>
         else donate = null;
+
+      let rate;
+      if(this.state.role != Role.NONE){
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+
+        for (let donator of this.state.donators){ 
+            if (donator.donator_id == userId){
+                rate=
+                <div id="rating">
+                    <Rating icon='star' onRate={this.handleRate} defaultRating={parseInt(this.state.userRating.rating)} maxRating={5} />({parseFloat(this.state.rating.average_rating).toFixed(2)})   
+                </div>;
+                break;
+            } else
+            {
+                rate=
+                <div id="rating" onClick={this.warningMessage}>
+                    <Rating disabled icon='star' defaultRating={parseInt(this.state.userRating.rating)} maxRating={5} />({parseFloat(this.state.rating.average_rating).toFixed(2)})
+                    <br></br> Donate to rate.
+                </div>
+            }
+        }
+
+      } else{
+        rate=
+        <div id="rating"></div>
+      }
 
       let donators;
       if(this.state.donators) {
@@ -300,13 +383,13 @@ class Crowdfunding extends Component {
                                           <Image size='tiny' src='/img/user.jpg' />
                                       </Grid.Column>
                                       <Grid.Column width={10}>
-                                          {this.state.crowdfunding.creator_name}
-                                          <div id="rating">
-                                              <Rating disabled icon='star' defaultRating={this.state.rating.average_rating} maxRating={5} />
-                                          </div>
+                                      <Link to={"/user/" + this.state.crowdfunding.creator_id}>
+                                        {this.state.crowdfunding.creator_name}
+                                        </Link>
+                                        {rate}
                                       </Grid.Column>
                                   </Grid>
-                              </Grid.Column>
+                              </Grid.Column>    
                               <Grid.Column width={8} align="right">
                                   <h4>Ends in</h4>
                                   {timer}
