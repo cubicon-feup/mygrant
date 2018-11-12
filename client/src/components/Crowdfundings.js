@@ -69,10 +69,10 @@ class Crowdfundings extends Component {
 
                         <Item.Content verticalAlign='middle'>
                             <Item.Header>{table_row.title}</Item.Header>
-                            <Item.Meta><a>{table_row.category}</a> <a>{table_row.creator_name}</a></Item.Meta>
+                            <Item.Meta><a>{table_row.category}</a> <Link to={"/user/" + table_row.creator_id}>{table_row.creator_name}</Link></Item.Meta>
                             <Item.Description>{table_row.status}</Item.Description>
                             <Item.Extra>
-                                <Link to={"/crowdfunding/" + table_row.id}><Button  floated="right">See Details</Button></Link>
+                                <Link to={"/crowdfunding/" + table_row.crowdfunding_id}><Button  floated="right">See Details</Button></Link>
                             </Item.Extra>
                         </Item.Content>
                     </Item>

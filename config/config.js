@@ -1,7 +1,7 @@
 const secret = process.env.MYGRANT_SECRET || 'lamesecret';
 const dbDatabase = process.env.DATA_DB_DB || 'mygrant';
 const dbHost = process.env.DATA_DB_HOST || 'localhost';
-const dbPass = process.env.DATA_DB_PASS || 'mygrant';
+const dbPass = process.env.DATA_DB_PASS || 'pgsql';
 const dbUser = process.env.DATA_DB_USER || 'postgres';
 
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
     },
     rating: {
         min: 1,
-        max: 3
+        max: 5
     },
     secret,
     transporterOptions: {
