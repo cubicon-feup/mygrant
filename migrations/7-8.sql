@@ -26,6 +26,5 @@ ALTER TABLE ONLY public.polls ADD CONSTRAINT polls_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.polls ADD CONSTRAINT polls_creator_id_fkey FOREIGN KEY (id_creator) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
-ALTER TABLE ONLY public.polls_answers ADD CONSTRAINT polls_answers_pkey PRIMARY KEY (id_poll, id_user);
 ALTER TABLE ONLY public.polls_answers ADD CONSTRAINT polls_answers_user_id_fkey FOREIGN KEY (id_user) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE ONLY public.polls_answers ADD CONSTRAINT polls_answers_poll_id_fkey FOREIGN KEY (id_poll) REFERENCES public.polls(id) ON UPDATE CASCADE ON DELETE CASCADE;

@@ -9,7 +9,6 @@ const authenticate = expressJwt({ secret: appSecret });
 
 router.get('/:poll_id', function(req, res) {
     let id = req.params.poll_id;
-    console.log(req.params.poll_id);
     let query =
         `SELECT question, free_text, options
         FROM polls
@@ -20,7 +19,7 @@ router.get('/:poll_id', function(req, res) {
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error: 'Could\'t get the poll.'});
+        res.status(500).json({error: 'Couldn\'t get the poll.'});
     });
 });
 
@@ -45,16 +44,16 @@ router.post('/', authenticate, function(req, res) {
 router.get('/:poll_id/answers', function(req, res) {
     let id = req.params.poll_id;
     let query =
-        `SELECT answer
+        `SELECT id_user, answer
         FROM polls_answers
-        WHERE polls_answers.id_poll = $(id);`;
+        WHERE id_poll = $(id);`;
 
-    db.oneOrNone(query, {
+    db.manyOrNone(query, {
         id: id
     }).then(data => {
         res.status(200).json(data);
     }).catch(error => {
-        res.status(500).json({error: 'Could\'t get the poll.'});
+        res.status(500).json({error});
     });
 });
 
