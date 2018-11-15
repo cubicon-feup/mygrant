@@ -57,7 +57,7 @@ ReactDom.render(
                 <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id/createservice" component={CreateServiceCrowdfunding} />
                 <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
-                <Route exact path="/poll/:poll_id" component={Poll} />
+                <ProtectedRoute exact path="/poll/:poll_id" component={Poll} />
             </CookiesProvider>
         </div>
     </Router>,

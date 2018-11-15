@@ -57,4 +57,53 @@ router.get('/:poll_id/answers', function(req, res) {
     });
 });
 
+router.post('/:poll_id/answers', authenticate, function(req, res) {
+    
+    let queryUserHasVoted =
+        `SELECT answer
+        FROM public.polls_answers
+        WHERE id_poll = $(id_poll)
+        AND id_user = $(id_user);`;
+    
+    db.none(queryUserHasVoted, {
+        id_poll: req.params.poll_id,
+        id_user: req.user.id
+    }).then(() => {
+        let queryAnswerExists =         
+        `SELECT options
+        FROM public.polls
+        WHERE id = $(id_poll);`
+
+        db.one(queryAnswerExists, {
+            id_poll: req.params.poll_id,
+        }).then((data) => {
+            var options = data['options'].split('|||');
+
+            if (options.includes(req.body.answer)){
+                let query =
+                `INSERT INTO polls_answers(id_poll, id_user, answer)
+                VALUES ($(id_poll), $(id_user), $(answer));`;
+        
+                db.none(query, {
+                    id_poll: req.params.poll_id,
+                    id_user: req.user.id,
+                    answer: req.body.answer
+                }).then(() => {
+                    res.status(201).send('Sucessfully added poll answer.');
+                }).catch(error => {
+                        res.status(500).json('Error adding asnwer.');
+                });
+            }
+
+        }).catch(error => {
+            res.status(500).json('Answer does not exist in this poll.');
+        });
+
+    }).catch(error => {
+        res.status(403).json('User has Voted');
+    });
+
+});
+
+
 module.exports = router;
