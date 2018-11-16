@@ -29,6 +29,7 @@ import { Responsive } from 'semantic-ui-react';
 import MygrantHeader from './components/MygrantHeader';
 import { MygrantFooter, MygrantNav } from './components/Common';
 import Poll from './components/Poll';
+import Polls from './components/Polls';
 
 ReactDom.render(
     <Router>
@@ -58,6 +59,7 @@ ReactDom.render(
                 <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <ProtectedRoute exact path="/poll/:poll_id" component={Poll} />
+                <Route exact path="/polls" component={Polls} />
             </CookiesProvider>
         </div>
     </Router>,

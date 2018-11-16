@@ -23,6 +23,20 @@ router.get('/:poll_id', function(req, res) {
     });
 });
 
+
+router.get('/', function(req, res) {
+    let query =
+        `SELECT id, question, free_text, options, id_creator
+        FROM polls`;
+
+    db.manyOrNone(query).then(data => {
+        res.status(200).json(data);
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get the poll.'});
+    });
+});
+
+
 router.post('/', authenticate, function(req, res) {
     
     let query =
