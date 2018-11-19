@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
+const expressJwt = require('express-jwt');
+const appSecret = require('../config/config').secret;
+const authenticate = expressJwt({ secret: appSecret });
+
 /**
  * @api {get} /associations/:id Get association
  * @apiName getAssociation
@@ -15,19 +19,81 @@ var db = require('../config/database');
  *
  * @apiError (Error 500) InternalServerError
  */
-router.get('/:id', function(req, res) {
+router.get('/:association_id', function(req, res) {
     const query = `
         SELECT id, name, description
         FROM association
-        WHERE id = $(associationId)`;
+        WHERE association_id = $(associationId);`;
 
-    db.one(query, { associationId: req.params.id })
+    db.one(query, { associationId: req.params.association_id })
         .then(data => {
             res.status(200).json({ data });
         })
         .catch(error => {
             res.status(500).json({ error });
         });
+});
+
+/**
+ * @api {put} /associations/:association_id Update association
+ * @apiName UpdateAssociation
+ * @apiGroup Associations
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} association_id Association id.
+ * @apiParam (RequestBody) {String} title
+ * @apiParam (RequestBody) {String} description
+ *
+ * @apiSuccess (Success 200) {String} message Successfully updated association.
+ *
+ * @apiError (Error 400) BadRequest Invalid crowdfunding data.
+ * @apiError (Error 500) InternalServerError Could't update the association.
+ */
+router.put('/:association_id', authenticate, policy.edit, function(req, res) {
+    let query = `
+        UPDATE association
+        SET name = $(newName)
+        WHERE id = $(associationId)
+            AND id_creator = $(creatorId);`;
+    db.none(query, {
+        associationId: req.params.association_id,
+        creatorId = req.user.id,
+        newName: req.params.name
+    }).then(() => {
+        res.status(200).send({message: 'Successfully updated association.'});
+    }).catch(error => {
+        res.status(500).json({error: 'Could\'t update the association.'});
+    });
+});
+
+/**
+ * @api {delete} /associations/:id Delete association
+ * @apiName DeleteAssociations
+ * @apiGroup Associations
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} id Associations id.
+ *
+ * @apiSuccess (Success 200) {String} message Successfully deleted association.
+ *
+ * @apiError (Error 500) InternalServerError Could't delete the Association.
+ */
+router.delete('/:association_id', authenticate, function(req, res) {
+    const query = `
+        DELETE FROM crowdfunding
+        WHERE id = $(associationId)
+        AND id_creator = $(creatorId);`;
+
+    db.none(query, {
+        associationId: req.params.association_id,
+        creatorId: req.user.id
+    })
+    .then(() => {
+        res.status(200).send({ message: 'Sucessfully deleted association.' });
+    })
+    .catch(error => {
+        res.status(500).json({ error: 'Could\'t delete the association.' });
+    });
 });
 
 module.exports = router;

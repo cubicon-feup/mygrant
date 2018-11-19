@@ -3,7 +3,7 @@ ALTER TABLE public.crowdfunding ADD latitude double precision, ADD longitude dou
 
 -- CREATE TABLES
 CREATE TABLE public.association (
-	id serial,
+	id SERIAL,
 	id_creator integer NOT NULL,
 	ass_name text UNIQUE NOT NULL,
 	missao text,
@@ -88,4 +88,6 @@ CREATE TRIGGER acceptAssociationInvite
 			EXECUTE PROCEDURE acceptAssociationInvite();
 
 -- INSERTS
-INSERT INTO  public.association(id_creator,ass_name) VALUES (1001, 'ass');
+--INSERT INTO  public.association(id_creator,ass_name) VALUES (1001, 'ass');
+--INSERT INTO  public.ass_invitation(id_sender,id_receiver) VALUES (1001, 1001);
+--UPDATE public.ass_invitation SET date_accepted = now() WHERE id = NEW.id;
