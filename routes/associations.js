@@ -21,7 +21,7 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/:association_id', function(req, res) {
     const query = `
-        SELECT id, name, description
+        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota
         FROM association
         WHERE association_id = $(associationId);`;
 

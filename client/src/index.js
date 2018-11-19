@@ -38,7 +38,7 @@ ReactDom.render(
                 <Route exact path="/" component={App} />
                 <Route exact path="/login" component={Login} />
                 <Route exact path="/signup" component={SignUp} />
-                <Route exact path="/associations/:id" component={Association} />
+                <Route exact path="/association/:id" component={Association} />
                 <Route
                     exact path="/createservice/:type(PROVIDE|REQUEST)"
                     component={CreateService}
