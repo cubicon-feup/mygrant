@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import '../css/common.css';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Container, Header, Divider, Transition, Message, Grid, Table, Form, Card, Loader, Label, Modal, Item, Button, Icon, Menu} from 'semantic-ui-react';
 import { withCookies, cookies } from 'react-cookie';
 
 const apiPath = require('../config').apiPath;
 const urlForPolls = 'http://localhost:3001/api/polls';
 const urlForUser = id => `/api/users/${id}`;
+const urlForPoll = poll_id => '/api/polls/' + poll_id;
 
 class Polls extends Component {
     
@@ -87,20 +88,31 @@ class Polls extends Component {
         return can_send;
     }
 
+
     handleSubmit = (event) => {
 
         var can_send = true;
         var question_exists = this.check_empty_field(this.state.question, 'No question provided.');
         var answers_exist = true;
-        if (this.state.answers.length < 2) 
+        var answers_different = true;
+
+        var user_answers =  this.state.answers;
+        if (user_answers.length < 2) 
             answers_exist = false;
+        else
+            for (var i = 0; i < user_answers.length; i++)
+                for (var j = 0; j < user_answers.length; j++)
+                    if (i != j)
+                        if (user_answers[i] == user_answers[j])
+                            answers_different = false;
 
         var message_to_send = '';
         if (!question_exists)
             message_to_send = message_to_send.concat('No question provided. '); 
         if (!answers_exist)
             message_to_send = message_to_send.concat('You need at least 2 answers to start a poll.');
-
+        if (!answers_different)
+            message_to_send =  message_to_send.concat("You can't use duplicate answers.");
     
         if (message_to_send == ''){
 
@@ -121,9 +133,10 @@ class Polls extends Component {
                     free_text : 'false'
                 })
             }).then(res => {
-                if(res.status === 201) {
-
-                }
+                res.json()
+                .then(data => {
+                    this.props.history.push(`/poll/${data.id}`);
+                })
             })
         } else
             this.show_message(message_to_send);
