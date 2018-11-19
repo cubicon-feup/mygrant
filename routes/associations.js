@@ -17,7 +17,7 @@ var db = require('../config/database');
  */
 router.get('/:id', function(req, res) {
     const query = `
-        SELECT id, name, description
+        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota
         FROM association
         WHERE id = $(associationId)`;
 
