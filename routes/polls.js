@@ -41,15 +41,17 @@ router.post('/', authenticate, function(req, res) {
     
     let query =
         `INSERT INTO polls(id_creator, question, free_text, options)
-        VALUES ($(id_creator), $(question), $(free_text), $(options));`;
+        VALUES ($(id_creator), $(question), $(free_text), $(options))
+        RETURNING id;`;
 
     db.one(query, {
         id_creator: req.user.id,
-        question: req.body.name,
+        question: req.body.question,
         free_text: req.body.free_text,
         options: req.body.options
-    }).then(() => {
-        res.status(201).send('Sucessfully added poll.');
+    }).then(data => {
+        let poll_id = data.id;
+        res.status(201).send({id: poll_id});
     }).catch(error => {
             res.status(500).json({ error });
     });

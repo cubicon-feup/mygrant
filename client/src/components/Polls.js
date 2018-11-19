@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Container, Header, Divider, Transition, Message, Grid, Table, Form, Card, Loader, Label, Modal, Item, Button, Icon, Menu} from 'semantic-ui-react';
 import { withCookies, cookies } from 'react-cookie';
 
+const apiPath = require('../config').apiPath;
 const urlForPolls = 'http://localhost:3001/api/polls';
 const urlForUser = id => `/api/users/${id}`;
 
@@ -17,14 +18,15 @@ class Polls extends Component {
             nr_answers:2,
             message_content : '',
             visible : false,
-            answer0 : '',
-            answer1 : ''
+            answers : []
         };
         this.table_body = {};
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleChangeAnswer = this.handleChangeAnswer.bind(this);
         this.add_answers = this.add_answers.bind(this);
         this.remove_answers = this.remove_answers.bind(this);
+        this.max_answers = 10;
     }
 
     componentDidMount() {
@@ -51,6 +53,12 @@ class Polls extends Component {
     show = dimmer => () => this.setState({ dimmer, open: true });
     close = () => this.setState({ open: false });
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
+    handleChangeAnswer = (e, { name, value }) => {
+        var index = name.split('_')[1];
+        var answers = this.state.answers;
+        answers[index] = value;
+        this.setState({ answers : answers });
+    };
     toggleVisibility = () => this.setState({ visible: !this.state.visible });
 
     show_message(message){
@@ -83,19 +91,23 @@ class Polls extends Component {
 
         var can_send = true;
         var question_exists = this.check_empty_field(this.state.question, 'No question provided.');
-        var answer1_exists = this.check_empty_field(this.state.answer0, 'Missing 1st answer.');
-        var answer2_exists = this.check_empty_field(this.state.answer1, 'Missing 2nd answer.');
-        
+        var answers_exist = true;
+        if (this.state.answers.length < 2) 
+            answers_exist = false;
+
         var message_to_send = '';
         if (!question_exists)
             message_to_send = message_to_send.concat('No question provided. '); 
-        if (!answer1_exists)
-            message_to_send = message_to_send.concat('Missing 1st answer. ')
-        if (!answer2_exists)
-            message_to_send = message_to_send.concat('Missing 2nd answer. ')
-        
+        if (!answers_exist)
+            message_to_send = message_to_send.concat('You need at least 2 answers to start a poll.');
 
+    
         if (message_to_send == ''){
+
+            var answers = this.state.answers.join('|||');
+
+            console.log(this.state.question + answers);
+
             const { cookies } = this.props;
             fetch(urlForPolls, {
                 method: 'POST',
@@ -104,7 +116,9 @@ class Polls extends Component {
                     Authorization: `Bearer ${cookies.get('id_token')}`
                 },
                 body: JSON.stringify({
-                    question: this.state.question
+                    question : this.state.question,
+                    options : answers,
+                    free_text : 'false'
                 })
             }).then(res => {
                 if(res.status === 201) {
@@ -143,7 +157,7 @@ class Polls extends Component {
 
     add_answers(){
         var current_answers = parseInt(this.state.nr_answers);
-        if (current_answers < 10){
+        if (current_answers < this.max_answers){
             var new_answer = parseInt(this.state.nr_answers) + 1;
             this.setState({nr_answers : new_answer});
         }
@@ -169,9 +183,9 @@ class Polls extends Component {
                 <Form.Input
                     type='text'
                     placeholder={"Answer #" + (i+1)}
-                    name={"answer" + i}
+                    name={"answer_" + i}
                     value={this.state.answer}
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeAnswer}
                 />
             );
         }
