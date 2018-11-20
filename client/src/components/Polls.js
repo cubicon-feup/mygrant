@@ -267,7 +267,6 @@ class Polls extends Component {
                 </Container>
             );
         }else{
-            console.log(this.state.polls);
             var polls = this.state.polls;
             const { cookies } = this.props;
             let userId = cookies.get('user_id');
@@ -278,7 +277,6 @@ class Polls extends Component {
                     return true;
             });
 
-            console.log(user_created_polls);
             if (user_created_polls != undefined)
             {
                 user_created_header = <Header> User created polls</Header>;

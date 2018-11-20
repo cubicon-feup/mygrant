@@ -59,7 +59,7 @@ ReactDom.render(
                 <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <ProtectedRoute exact path="/poll/:poll_id" component={Poll} />
-                <Route exact path="/polls" component={Polls} />
+                <ProtectedRoute exact path="/polls" component={Polls} />
             </CookiesProvider>
         </div>
     </Router>,
