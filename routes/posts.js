@@ -11,7 +11,7 @@ const authenticate = expressJwt({ secret: appSecret });
  * @apiName getComments
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 201) get post comments.
  *
  */
 router.get('/:id/comments', authenticate, function(req, res) {
@@ -45,7 +45,7 @@ router.get('/:id/comments', authenticate, function(req, res) {
  * @apiName getPost
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) get post
  *
  */
 router.get('/:id', authenticate, function(req, res) {
@@ -77,7 +77,7 @@ router.get('/:id', authenticate, function(req, res) {
  * @apiName PostComment
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) post post comment
  *
  */
 router.post('/:id/comment', authenticate, function(req, res) {
@@ -99,7 +99,7 @@ router.post('/:id/comment', authenticate, function(req, res) {
  * @apiName LikePost
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) post post like
  *
  */
 router.post('/:id/like', authenticate, function(req, res) {
@@ -122,7 +122,7 @@ router.post('/:id/like', authenticate, function(req, res) {
  * @apiName UnlikePost
  * @apiGroup Post
  *
- * @apiSuccess (Success 204)
+ * @apiSuccess (Success 204) delete post like
  *
  */
 router.delete('/:id/like', authenticate, function(req, res) {
@@ -145,7 +145,7 @@ router.delete('/:id/like', authenticate, function(req, res) {
  * @apiName EditPost
  * @apiGroup Post
  *
- * @apiSuccess (Success 200)
+ * @apiSuccess (Success 200) post post edit
  *
  */
 router.post('/:id/edit', authenticate, function(req, res) {
@@ -168,7 +168,7 @@ router.post('/:id/edit', authenticate, function(req, res) {
  * @apiName DeletePost
  * @apiGroup Post
  *
- * @apiSuccess (Success 204)
+ * @apiSuccess (Success 204) delete post
  *
  */
 router.delete('/:id/delete', authenticate, function(req, res) {
