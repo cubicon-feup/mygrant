@@ -1,6 +1,7 @@
 CREATE TABLE public.polls (
 	id integer NOT NULL,
 	id_creator integer NOT NULL,
+	creator_name text,
 	question text NOT NULL,
     free_text boolean NOT NULL,
 	options text

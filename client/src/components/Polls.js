@@ -43,7 +43,9 @@ class Polls extends Component {
             .then(result => result.json())
             .then(result => {
                 
-                this.add_creator_names(result);
+                //this.add_creator_names(result);
+
+                this.setState({polls: result});
                 
             }, () => {
                 // "catch" the error
@@ -117,9 +119,6 @@ class Polls extends Component {
     
         if (message_to_send == ''){
 
-            var answers = this.state.answers.join('|||');
-
-            console.log(this.state.question + answers);
 
             const { cookies } = this.props;
             fetch(urlForPolls, {
@@ -130,8 +129,9 @@ class Polls extends Component {
                 },
                 body: JSON.stringify({
                     question : this.state.question,
-                    options : answers,
-                    free_text : 'false'
+                    options : this.state.answers,
+                    free_text : 'false',
+                    creator_name : cookies.get('user_full_name')
                 })
             }).then(res => {
                 res.json()
@@ -144,7 +144,7 @@ class Polls extends Component {
         
     }
 
-    add_creator_names = async (result) => {
+    /*add_creator_names = async (result) => {
         for (var i = 0; i < result.length; i++){
             
             await fetch(urlForUser(result[i]['id_creator']))
@@ -167,7 +167,7 @@ class Polls extends Component {
 
 
         this.setState({polls: result});
-    }
+    }*/
 
     add_answers(){
         var current_answers = parseInt(this.state.nr_answers);

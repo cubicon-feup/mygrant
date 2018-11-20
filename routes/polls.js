@@ -22,7 +22,7 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT id, question, free_text, options, id_creator
+        `SELECT id, question, free_text, options, id_creator, creator_name
         FROM polls`;
 
     db.manyOrNone(query).then(data => {
@@ -50,15 +50,16 @@ router.post('/', authenticate, function(req, res) {
     var answers = req.body.options.join('|||');
 
     let query =
-        `INSERT INTO polls(id_creator, question, free_text, options)
-        VALUES ($(id_creator), $(question), $(free_text), $(options))
+        `INSERT INTO polls(id_creator, question, free_text, options, creator_name)
+        VALUES ($(id_creator), $(question), $(free_text), $(options),$(creator_name))
         RETURNING id;`;
 
     db.one(query, {
         id_creator: req.user.id,
         question: req.body.question,
         free_text: req.body.free_text,
-        options: answers
+        options: answers,
+        creator_name: req.body.creator_name
     }).then(data => {
         let poll_id = data.id;
         res.status(201).send({id: poll_id});
