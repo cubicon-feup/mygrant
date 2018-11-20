@@ -3,6 +3,7 @@ import '../css/common.css';
 import { Link, Redirect } from 'react-router-dom';
 import { Container, Header, Divider, Transition, Message, Grid, Table, Form, Card, Loader, Label, Modal, Item, Button, Icon, Menu} from 'semantic-ui-react';
 import { withCookies, cookies } from 'react-cookie';
+import { Z_PARTIAL_FLUSH } from 'zlib';
 
 const apiPath = require('../config').apiPath;
 const urlForPolls = 'http://localhost:3001/api/polls';
@@ -21,7 +22,7 @@ class Polls extends Component {
             visible : false,
             answers : []
         };
-        this.table_body = {};
+        this.table_body = [];
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeAnswer = this.handleChangeAnswer.bind(this);
@@ -206,6 +207,56 @@ class Polls extends Component {
         return forms; 
     }
 
+
+    compare_ids(id1, id2, operation){
+        switch(operation){
+            case '==':
+                if (id1 == id2){
+                    return true;
+                } else
+                    return false;
+            case '!=':
+                if (id1 != id2){
+                    return true;
+                } else
+                return false;
+        }
+    }
+
+    poll_divider(operation){
+
+        const { cookies } = this.props;
+        var userId = cookies.get('user_id');
+        var card_group;
+
+        this.state.polls.map((table_row,index) => {
+
+            if (this.compare_ids(table_row.id_creator,userId,operation)){
+
+                this.table_body.push(
+                    <Card>
+                        <Card.Content>
+                        <Card.Header>{table_row.question}</Card.Header>
+                        <Card.Meta>
+                        <span>Created by <Link to={"/user/" + table_row.id_creator}>{table_row.creator_name}</Link></span>
+                        </Card.Meta>
+                        </Card.Content>
+                        <Card.Content extra style={{textAlign: 'right'}}>
+                            <Link to={"/poll/" + table_row.id}>Vote<Icon name='chevron right' /></Link>
+                        </Card.Content>
+                    </Card>
+                );
+
+            }
+
+        });
+
+        card_group = this.table_body;
+        this.table_body = [];
+
+        return card_group;
+    }
+
     render() {
         if(!this.state.polls || !this.state.nr_answers){
             return (
@@ -216,23 +267,23 @@ class Polls extends Component {
                 </Container>
             );
         }else{
-            this.table_body = this.state.polls.map((table_row,index) => {
-                return (
-                    <Card>
-                            <Card.Content>
-                            <Card.Header>{table_row.question}</Card.Header>
-                            <Card.Meta>
-                            <span>Created by <Link to={"/user/" + table_row.id_creator}>{table_row.creator_name}</Link></span>
-                            </Card.Meta>
-                            </Card.Content>
-                            <Card.Content extra style={{textAlign: 'right'}}>
-                                <Link to={"/poll/" + table_row.id}>Vote<Icon name='chevron right' /></Link>
-                            </Card.Content>
-                    </Card>
-
-
-                );
+            console.log(this.state.polls);
+            var polls = this.state.polls;
+            const { cookies } = this.props;
+            let userId = cookies.get('user_id');
+            var user_created_header;
+            
+            var user_created_polls = polls.find(function(poll){
+                if (poll['id_creator'] == userId)
+                    return true;
             });
+
+            console.log(user_created_polls);
+            if (user_created_polls != undefined)
+            {
+                user_created_header = <Header> User created polls</Header>;
+            }
+
         }
         const { open, dimmer } = this.state;
         const { visible } = this.state
@@ -287,11 +338,14 @@ class Polls extends Component {
                             </Modal.Description>
                         </Modal.Content>
                     </Modal>
-
+                    {user_created_header}
                     <Card.Group divided="true">
-                        {this.table_body}
+                        {this.poll_divider('==')}
                     </Card.Group>
-
+                    <Header>Public Polls</Header>
+                    <Card.Group divided="true">
+                        {this.poll_divider('!=')}
+                    </Card.Group>
                 </div>
             </Container>
         );
