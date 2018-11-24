@@ -28,6 +28,8 @@ import Dashboard from './containers/Dashboard';
 import { Responsive } from 'semantic-ui-react';
 import MygrantHeader from './components/MygrantHeader';
 import { MygrantFooter, MygrantNav } from './components/Common';
+import Poll from './components/Poll';
+import Polls from './components/Polls';
 
 ReactDom.render(
     <Router>
@@ -56,6 +58,8 @@ ReactDom.render(
                 <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id/createservice" component={CreateServiceCrowdfunding} />
                 <ProtectedRoute exact path="/dashboard" component={Dashboard} />
                 <Responsive as={MygrantFooter} minWidth={768} />
+                <ProtectedRoute exact path="/poll/:poll_id" component={Poll} />
+                <ProtectedRoute exact path="/polls" component={Polls} />
             </CookiesProvider>
         </div>
     </Router>,
