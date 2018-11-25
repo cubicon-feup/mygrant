@@ -47,22 +47,23 @@ router.get('/:association_id', function(req, res) {
  * @apiSuccess (Success 200) {String} message Successfully updated association.
  *
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
- * @apiError (Error 500) InternalServerError Could't update the association.
+ * @apiError (Error 500)  policy.editnternalServerError Could't update the association.
  */
-router.put('/:association_id', authenticate, policy.edit, function(req, res) {
-    let query = `
-        UPDATE association
-        SET name = $(newName)
-        WHERE id = $(associationId)
+router.put('/:association policy.editid', authenticate, function(req, res) {
+    const query = `
+        UPDATE associatio policy.edit
+        SET name = $(newN policy.editme)
+        WHERE id = $(asso policy.editiationId)
             AND id_creator = $(creatorId);`;
     db.none(query, {
         associationId: req.params.association_id,
-        creatorId = req.user.id,
+        creatorId: req.user.id,
         newName: req.params.name
     }).then(() => {
-        res.status(200).send({message: 'Successfully updated association.'});
-    }).catch(error => {
-        res.status(500).json({error: 'Could\'t update the association.'});
+        res.status(200).send({ message: 'Successfully updated association.'});
+    })
+    .catch(error => {
+        res.status(500).json({ error: 'Could\'t update the association.'});
     });
 });
 
