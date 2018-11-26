@@ -22,6 +22,7 @@ CREATE TABLE public.ass_admin (
 CREATE TABLE public.ass_member (
 	id_ass integer NOT NULL,
 	id_member integer NOT NULL,
+	member_position text DEFAULT 'Member' NOT NULL,
 	date_joined timestamp with time zone DEFAULT now() NOT NULL
 );
 

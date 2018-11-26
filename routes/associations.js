@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
-const expressJwt = require('express-jwt');
-const appSecret = require('../config/config').secret;
-const authenticate = expressJwt({ secret: appSecret });
+//const expressJwt = require('express-jwt');
+//const appSecret = require('../config/config').secret;
+//const authenticate = expressJwt({ secret: appSecret });
 
 /**
  * @api {get} /associations/:id Get association
@@ -21,9 +21,9 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/:association_id', function(req, res) {
     const query = `
-        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota
+        SELECT id, id_creator, ass_name
         FROM association
-        WHERE association_id = $(associationId);`;
+        WHERE id = $(associationId);`;
 
     db.one(query, { associationId: req.params.association_id })
         .then(data => {
@@ -49,7 +49,7 @@ router.get('/:association_id', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid crowdfunding data.
  * @apiError (Error 500)  policy.editnternalServerError Could't update the association.
  */
-router.put('/:association policy.editid', authenticate, function(req, res) {
+router.put('/:association policy.editid', function(req, res) {
     const query = `
         UPDATE associatio policy.edit
         SET name = $(newN policy.editme)
@@ -79,7 +79,7 @@ router.put('/:association policy.editid', authenticate, function(req, res) {
  *
  * @apiError (Error 500) InternalServerError Could't delete the Association.
  */
-router.delete('/:association_id', authenticate, function(req, res) {
+router.delete('/:association_id', function(req, res) {
     const query = `
         DELETE FROM crowdfunding
         WHERE id = $(associationId)
