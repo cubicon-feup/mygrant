@@ -7,6 +7,7 @@ import Adapter from 'enzyme-adapter-react-16';
 import { Button, Loader, Card, Header, Checkbox, Progress, Item} from 'semantic-ui-react';
 import { Pie } from 'react-chartjs-2';
 
+//change package.json test to "test": "react-scripts test" to get a more detailed test information
 
 import { mountWrap, shallowWrap } from '../tests/contextWrapper';
 

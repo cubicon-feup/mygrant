@@ -38,7 +38,7 @@ class Poll extends Component{
         this.handleSubmit = this.handleSubmit.bind(this);
 
         const { cookies } = this.props;
-        console.log(cookies);
+        //console.log(cookies);
     }
 
     

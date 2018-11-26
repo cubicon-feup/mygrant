@@ -19,6 +19,7 @@
         "semantic-ui-react": "0.79.1"
     },
     "devDependencies": {
+        "cross-env": "^5.2.0",
         "enzyme": "^3.3.0",
         "enzyme-adapter-react-16": "^1.1.1",
         "enzyme-to-json": "^3.3.4",
@@ -31,7 +32,7 @@
         "start": "react-scripts start",
         "start:dev": "webpack-dev-server",
         "build": "react-scripts build",
-        "test": "react-scripts test",
+        "test": "cross-env CI=true react-scripts test",
         "eject": "react-scripts eject",
         "watch-sass": "node_modules/.bin/node-sass -w src/scss -o src/css --output-style compressed"
     },
