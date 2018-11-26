@@ -3,9 +3,9 @@ image: node:latest
 stages:
   - build_express
   - build_react
-  - react_tests
   - express_tests
-
+  - react_tests
+ 
 cache:
   paths:
     - node_modules/
