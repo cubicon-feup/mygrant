@@ -114,3 +114,92 @@ describe('<Polls />', () => {
 });
 
 
+describe('<Polls answers/>', () => {
+    // <Poll answer tests>
+
+    var poll = {
+        "question": "Ready?",
+        "free_text": false,
+        "options": "Yes|||No|||Maybe"
+    };
+
+    var poll_answers = [
+            {
+              "id_user": 1002,
+              "answer": "Yes"
+            },
+            {
+                "id_user": 1003,
+                "answer": "No"
+            },
+            {
+                "id_user": 1004,
+                "answer": "Yes"
+            }
+    ];
+
+    const wrapper = mountWrap(<Poll poll={poll} answers={poll_answers} has_voted={false}  match={{params: {poll_id: 1007}}}/>);
+
+
+    it('poll title is loaded', () => {
+        
+        //console.log(wrapper.debug());
+        //expect(wrapper.find(Card).length).toBe(2);
+        expect(wrapper.find(Header).length).toBe(1);
+        expect(wrapper.find(Header).text()).toBe('Ready?');
+
+    });
+
+
+    it('poll answers are loaded', () => {
+        
+
+        expect(wrapper.find(Checkbox).length).toBe(3);
+
+        const answers = ['Yes','No','Maybe'];
+
+        wrapper.find(Checkbox).forEach((node,index) => {
+            expect(node.props().value).toBe(answers[index]);
+        });
+        
+    });
+    
+
+    const wrapper2 = mountWrap(<Poll poll={poll} answers={poll_answers} has_voted={true}  match={{params: {poll_id: 1007}}}/>);
+
+
+    it('progress bars have answers assigned correctly', () => {
+
+        const values = [2,1,0];
+
+        wrapper2.find(Progress).forEach((node,index) => {
+            expect(node.props().value).toBe(values[index]);
+        });
+
+
+    });
+
+    it('progress bars have vote quantity assigned correctly', () => {
+
+        const answers = ['Yes','No','Maybe'];
+
+        wrapper2.find(Item.Header).forEach((node,index) => {
+            expect(node.text()).toBe(answers[index]);
+        });
+
+    });
+
+    it('correct number of total votes', () => {
+
+        const total_votes = 'Total votes: 3';
+
+        wrapper2.find(Item.Extra).forEach((node,index) => {
+            expect(node.text()).toBe(total_votes);
+        });
+
+    });
+
+
+    // </Poll answer tests>
+
+});
