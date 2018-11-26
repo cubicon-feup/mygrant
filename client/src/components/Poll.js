@@ -20,8 +20,9 @@ class Poll extends Component{
         this.state = {
             requestFailed: false,
             poll_id : this.props.match.params.poll_id,
-            poll:{},
-            poll_answers:[],
+            poll: this.props.poll,
+            poll_answers: this.props.answers,
+            has_voted : this.props.has_voted,
             options_values: null,
             total_answers:null,
             optionChecked: 'No option',
@@ -172,7 +173,7 @@ class Poll extends Component{
 
             if (this.state.has_voted){
                 answers.push (
-                    <Item>
+                    <Item key={`Item_${i}`} >
                     <Item.Content>
                         <Item.Header>{options[i]}</Item.Header>
                         <Item.Description><Progress progress='value' value={options_values[i]} total={total_answers} color={this.state.colors[i]} /></Item.Description>
@@ -182,7 +183,7 @@ class Poll extends Component{
                 );
             } else {
                 answers.push(
-                    <Form.Field>
+                    <Form.Field key={`Form.Field_${i}`}>
                       <Checkbox
                         radio
                         label={options[i]}
@@ -217,7 +218,7 @@ class Poll extends Component{
 
     visible_pie_graph(pie_chart_data){
         if (this.state.has_voted)
-            return (<Pie data={pie_chart_data} legend={false} width={200} height={200}/>);
+            return (<Pie data={pie_chart_data} legend={{display:false,position:'bottom'}} width={200} height={200}/>);
     }
 
     displayDecision(answers){
@@ -244,7 +245,7 @@ class Poll extends Component{
           );
         }
         
-        if(!this.state.poll.options || !this.state.poll_answers || this.state.has_voted == undefined) {
+        if(this.state.poll == undefined || this.state.poll_answers == undefined || this.state.has_voted == undefined) {
             return (
                 <Container className="main-container">
                 <div>
@@ -263,11 +264,11 @@ class Poll extends Component{
         return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container>
-                <p>
-                    <Header as="h1" id="crowdfunding_mission">
-                        {this.state.poll.question}
-                    </Header>
-                </p>
+                
+                <Header as="h1" id="crowdfunding_mission">
+                    {this.state.poll.question}
+                </Header>
+            
             </Container>
             <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
             <Container>
