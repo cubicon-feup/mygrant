@@ -22,6 +22,7 @@ import Inbox from './containers/Inbox';
 import Conversation from './containers/Conversation';
 import Search from './containers/SearchPage';
 import CreateCrowdfunding from './components/CreateCrowdfunding';
+import CreateAssociation from './components/Association';
 import Crowdfunding from './components/Crowdfunding';
 import Crowdfundings from './components/Crowdfundings';
 import CreateServiceCrowdfunding from './components/CreateServiceCrowdfunding';
@@ -53,6 +54,7 @@ ReactDom.render(
                 <Route exact path="/tableservices" component={TableServices} />
                 <Route exact path="/search" component={Search} />
                 <Route exact path="/crowdfundings" component={Crowdfundings} />
+                <Route exact path="/association" component={CreateAssociation} />
                 <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id" component={Crowdfunding} />
                 <Route exact path="/createcrowdfunding" component={CreateCrowdfunding} />
                 <ProtectedRoute exact path="/crowdfunding/:crowdfunding_id/createservice" component={CreateServiceCrowdfunding} />

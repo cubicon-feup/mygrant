@@ -116,6 +116,15 @@ class MygrantHeader extends Component {
                 }
                 {
                     this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/association'} >
+                                    {'Association'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
                         ? <Menu.Item position="right" onClick={this.signOut.bind(this)}>
                                 <strong>Sign Out</strong>
                             </Menu.Item>
