@@ -4,6 +4,7 @@ stages:
   - build_express
   - build_react
   - react_tests
+  - express_tests
 
 cache:
   paths:
@@ -22,10 +23,16 @@ test_build_react:
     - npm install
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed 
 
+express_unit_tests:
+  stage: express_tests
+  script:
+    - npm install
+    - npm test
+
 react_unit_tests:
   stage: react_tests
   script:
     - cd client/
     - npm install
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
-    - CI=true npm test
+    - npm test
