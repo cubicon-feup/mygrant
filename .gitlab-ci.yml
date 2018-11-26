@@ -21,4 +21,5 @@ test_build_react:
     - npm install
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
     - npm test
+   
 
