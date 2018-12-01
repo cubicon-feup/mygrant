@@ -203,4 +203,6 @@ describe('<Polls answers/>', () => {
 
     // </Poll answer tests>
     jest.resetAllMocks();
+
+    afterAll(() => setTimeout(() => process.exit(), 1000));
 });
