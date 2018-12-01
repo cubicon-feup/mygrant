@@ -3,7 +3,9 @@ image: node:latest
 stages:
   - build_express
   - build_react
-
+  - express_tests
+  - react_tests
+ 
 cache:
   paths:
     - node_modules/
@@ -19,6 +21,19 @@ test_build_react:
   script:
     - cd client/
     - npm install
-    - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
-   
+    - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed 
 
+express_unit_tests:
+  stage: express_tests
+  script:
+    - npm install
+    - npm test
+
+react_unit_tests:
+  stage: react_tests
+  script:
+    - cd client/
+    - npm install
+    - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
+    - npm test
+    - echo "Job done."

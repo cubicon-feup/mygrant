@@ -20,8 +20,10 @@ class Polls extends Component {
             nr_answers:2,
             message_content : '',
             visible : false,
-            answers : []
+            answers : [],
+            polls : this.props.polls
         };
+        
         this.table_body = [];
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -194,7 +196,8 @@ class Polls extends Component {
 
         for (var i = 0; i < nr_answers; i++){
             forms.push(
-                <Form.Input
+                <Form.Input 
+                    key={`Form.input_${i}`}
                     type='text'
                     placeholder={"Answer #" + (i+1)}
                     name={"answer_" + i}
@@ -228,17 +231,19 @@ class Polls extends Component {
         const { cookies } = this.props;
         var userId = cookies.get('user_id');
         var card_group;
+        var index = 0;
 
-        this.state.polls.map((table_row,index) => {
+
+        for (let table_row of this.state.polls){
 
             if (this.compare_ids(table_row.id_creator,userId,operation)){
 
                 this.table_body.push(
-                    <Card>
+                    <Card key={`card_${index}`}>
                         <Card.Content>
                         <Card.Header>{table_row.question}</Card.Header>
                         <Card.Meta>
-                        <span>Created by <Link to={"/user/" + table_row.id_creator}>{table_row.creator_name}</Link></span>
+                        Created by <Link to={"/user/" + table_row.id_creator}><span className='creator_name'>{table_row.creator_name}</span></Link>
                         </Card.Meta>
                         </Card.Content>
                         <Card.Content extra style={{textAlign: 'right'}}>
@@ -248,8 +253,8 @@ class Polls extends Component {
                 );
 
             }
-
-        });
+            index++;
+        }
 
         card_group = this.table_body;
         this.table_body = [];
