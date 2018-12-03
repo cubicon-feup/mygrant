@@ -22,7 +22,7 @@
         ]
     },
     "dependencies": {
-        "apidoc": "^0.17.6",
+        "apidoc": "^0.17.7",
         "bcrypt": "^2.0.1",
         "body-parser": "^1.18.3",
         "cookie-parser": "~1.4.3",
