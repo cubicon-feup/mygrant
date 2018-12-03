@@ -6,7 +6,6 @@ stages:
   - express_tests
   - react_tests
  
-
 cache:
   paths:
     - node_modules/
@@ -38,5 +37,3 @@ react_unit_tests:
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
     - npm test
     - echo "Job done."
-   
-
