@@ -19,7 +19,8 @@
     "jest": {
         "testPathIgnorePatterns": [
             "<rootDir>/client"
-        ]
+        ],
+        "testURL": "http://localhost:3000"
     },
     "dependencies": {
         "apidoc": "^0.17.7",
