@@ -24,7 +24,6 @@ const commentsRouter = require('./routes/comments');
 const imagesRouter = require('./routes/images');
 const postsRouter = require('./routes/posts');
 const pollsRouter = require('./routes/polls');
-const associationsRouter = require('./routes/associations');
 
 const app = express();
 
@@ -69,7 +68,6 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/images', imagesRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/polls', pollsRouter);
-app.use('/api/associations', associationsRouter);
 
 app.use(express.static('images'));
 
