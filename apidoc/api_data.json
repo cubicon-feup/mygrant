@@ -1,5 +1,135 @@
 [
   {
+    "type": "delete",
+    "url": "/associations/:id",
+    "title": "Delete association",
+    "name": "DeleteAssociations",
+    "group": "Associations",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Associations id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully deleted association.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Could't delete the Association.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/associations.js",
+    "groupTitle": "Associations"
+  },
+  {
+    "type": "put",
+    "url": "/associations/:association_id",
+    "title": "Update association",
+    "name": "UpdateAssociation",
+    "group": "Associations",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "association_id",
+            "description": "<p>Association id.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": ""
+          },
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Successfully updated association.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 400": [
+          {
+            "group": "Error 400",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid crowdfunding data.</p>"
+          }
+        ],
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "policy.editnternalServerError",
+            "description": "<p>Could't update the association.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/associations.js",
+    "groupTitle": "Associations"
+  },
+  {
     "type": "get",
     "url": "/associations/:id",
     "title": "Get association",
@@ -58,7 +188,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/associations.js",
+    "filename": "./routes/associations.js",
     "groupTitle": "Associations"
   },
   {
@@ -123,7 +253,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "CommentStandard"
   },
   {
@@ -175,7 +305,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "CommentStandard"
   },
   {
@@ -263,7 +393,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "CommentStandard"
   },
   {
@@ -345,7 +475,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "CommentStandard"
   },
   {
@@ -406,7 +536,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "CommentStandard"
   },
   {
@@ -465,7 +595,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -561,7 +691,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -631,7 +761,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -701,7 +831,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -771,7 +901,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -849,7 +979,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -947,7 +1077,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1000,7 +1130,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1062,7 +1192,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1132,7 +1262,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1202,7 +1332,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1282,7 +1412,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1407,7 +1537,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1455,7 +1585,55 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
+    "groupTitle": "Crowdfunding"
+  },
+  {
+    "type": "get",
+    "url": "/crowdfundings/:crowdfunding_id/rating/:user_id",
+    "title": "Get crowdfunding rating for a user",
+    "name": "GetCrowdfundingRatingUser",
+    "group": "Crowdfunding",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "crowdfunding_id",
+            "description": "<p>Crowdfunding project id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "rating",
+            "description": "<p>Crowdfunding rating.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get the rating.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1640,7 +1818,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1707,7 +1885,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1795,7 +1973,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1883,7 +2061,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -1957,7 +2135,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -2024,7 +2202,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -2314,7 +2492,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -2391,7 +2569,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "Crowdfunding"
   },
   {
@@ -2459,7 +2637,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/images.js",
+    "filename": "./routes/images.js",
     "groupTitle": "Images"
   },
   {
@@ -2530,7 +2708,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/messages.js",
+    "filename": "./routes/messages.js",
     "groupTitle": "Messages"
   },
   {
@@ -2575,7 +2753,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/messages.js",
+    "filename": "./routes/messages.js",
     "groupTitle": "Messages"
   },
   {
@@ -2634,7 +2812,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/messages.js",
+    "filename": "./routes/messages.js",
     "groupTitle": "Messages"
   },
   {
@@ -2706,7 +2884,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -2771,7 +2949,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -2845,7 +3023,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -2970,7 +3148,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -3113,7 +3291,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -3256,7 +3434,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -3321,7 +3499,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
   },
   {
@@ -3386,8 +3564,390 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/newsfeed.js",
+    "filename": "./routes/newsfeed.js",
     "groupTitle": "Newsfeed"
+  },
+  {
+    "type": "post",
+    "url": "/polls/:poll_id/close",
+    "title": "Close poll",
+    "name": "ClosePoll",
+    "group": "Poll",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "poll_id",
+            "description": "<p>Poll id.</p>"
+          }
+        ],
+        "RequestUser": [
+          {
+            "group": "RequestUser",
+            "type": "Integer",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>Id of user that wants to close his poll.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "Boolean",
+            "optional": false,
+            "field": "closed",
+            "description": "<p>Poll closed state.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Poll updated.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't change poll state.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
+  },
+  {
+    "type": "post",
+    "url": "/polls/",
+    "title": "Create poll",
+    "name": "CreatePoll",
+    "group": "Poll",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "question",
+            "description": "<p>Poll question.</p>"
+          },
+          {
+            "group": "RequestBody",
+            "type": "Boolean",
+            "optional": false,
+            "field": "free_text",
+            "description": "<p>Poll answers are free text.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Newly created poll id.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't create a poll.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
+  },
+  {
+    "type": "post",
+    "url": "/polls/:poll_id/answers",
+    "title": "Create poll asnwer",
+    "name": "CreatePollAnswer",
+    "group": "Poll",
+    "permission": [
+      {
+        "name": "authenticated user"
+      }
+    ],
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "poll_id",
+            "description": "<p>Poll id.</p>"
+          }
+        ],
+        "RequestUser": [
+          {
+            "group": "RequestUser",
+            "type": "Integer",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>Id of user that answered.</p>"
+          }
+        ],
+        "RequestBody": [
+          {
+            "group": "RequestBody",
+            "type": "String",
+            "optional": false,
+            "field": "answer",
+            "description": "<p>Poll answer.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Sucessfully added poll answer.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Error adding answer.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
+  },
+  {
+    "type": "get",
+    "url": "/polls/",
+    "title": "Get all polls",
+    "name": "GetAllPolls",
+    "group": "Poll",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Poll id.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "question",
+            "description": "<p>Poll question.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "free_text",
+            "description": "<p>Free text poll status.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "options",
+            "description": "<p>Poll possible answers.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "id_creator",
+            "description": "<p>Id of poll creator.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Couldn't get polls.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
+  },
+  {
+    "type": "get",
+    "url": "/polls/:poll_id",
+    "title": "Get poll",
+    "name": "GetPoll",
+    "group": "Poll",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "poll_id",
+            "description": "<p>Poll id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "question",
+            "description": "<p>Poll question.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "free_text",
+            "description": "<p>Free text poll status.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "options",
+            "description": "<p>Poll possible answers.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Could't get the poll.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
+  },
+  {
+    "type": "get",
+    "url": "/polls/:poll_id",
+    "title": "Get poll answers",
+    "name": "GetPollAnswers",
+    "group": "Poll",
+    "parameter": {
+      "fields": {
+        "RequestParam": [
+          {
+            "group": "RequestParam",
+            "type": "Integer",
+            "optional": false,
+            "field": "poll_id",
+            "description": "<p>Poll id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Integer",
+            "optional": false,
+            "field": "id_user",
+            "description": "<p>Id of user that answered.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "answer",
+            "description": "<p>Answer of the user.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 500": [
+          {
+            "group": "Error 500",
+            "optional": false,
+            "field": "InternalServerError",
+            "description": "<p>Could't get the poll.</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "./routes/polls.js",
+    "groupTitle": "Poll"
   },
   {
     "type": "post",
@@ -3408,7 +3968,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3430,7 +3990,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3452,7 +4012,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3474,7 +4034,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3496,7 +4056,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3518,7 +4078,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3540,7 +4100,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/posts.js",
+    "filename": "./routes/posts.js",
     "groupTitle": "Post"
   },
   {
@@ -3642,7 +4202,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -3792,7 +4352,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -3874,7 +4434,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -3968,7 +4528,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4041,7 +4601,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4121,7 +4681,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4266,7 +4826,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4424,7 +4984,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4497,7 +5057,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4512,7 +5072,7 @@
       }
     ],
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4585,7 +5145,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4677,7 +5237,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4855,7 +5415,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -4956,7 +5516,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -5050,7 +5610,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -5340,7 +5900,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/services.js",
+    "filename": "./routes/services.js",
     "groupTitle": "Service"
   },
   {
@@ -5375,7 +5935,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/categories.js",
+    "filename": "./routes/categories.js",
     "groupTitle": "Service_Categories"
   },
   {
@@ -5415,7 +5975,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "User"
   },
   {
@@ -5455,7 +6015,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5490,7 +6050,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/comments.js",
+    "filename": "./routes/comments.js",
     "groupTitle": "User"
   },
   {
@@ -5512,7 +6072,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5534,7 +6094,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5561,7 +6121,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5583,7 +6143,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5605,7 +6165,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "User"
   },
   {
@@ -5687,7 +6247,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "crowdfunding"
   },
   {
@@ -5767,7 +6327,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "crowdfunding"
   },
   {
@@ -5840,7 +6400,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/crowdfundings.js",
+    "filename": "./routes/crowdfundings.js",
     "groupTitle": "crowdfunding"
   },
   {
@@ -5908,7 +6468,7 @@
       }
     },
     "version": "0.0.0",
-    "filename": "../t1g1/routes/users.js",
+    "filename": "./routes/users.js",
     "groupTitle": "user"
   }
 ]
