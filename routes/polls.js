@@ -47,7 +47,7 @@ router.get('/', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't create a poll.
  */
 router.post('/', authenticate, function(req, res) {
-    
+
     var answers = req.body.options.join('|||');
 
     let query =
@@ -145,9 +145,9 @@ router.get('/:poll_id/answers', function(req, res) {
  * @apiName CreatePollAnswer
  * @apiGroup Poll
  * @apiPermission authenticated user
- * 
+ *
  * @apiParam (RequestParam) {Integer} poll_id Poll id.
- * 
+ *
  * @apiParam (RequestUser) {Integer} user_id Id of user that answered.
  *
  * @apiParam (RequestBody) {String} answer Poll answer.
@@ -157,13 +157,13 @@ router.get('/:poll_id/answers', function(req, res) {
  * @apiError (Error 500) InternalServerError Error adding answer.
  */
 router.post('/:poll_id/answers', authenticate, function(req, res) {
-    
+
     let queryUserHasVoted =
         `SELECT answer
         FROM public.polls_answers
         WHERE id_poll = $(id_poll)
         AND id_user = $(id_user);`;
-    
+
     db.none(queryUserHasVoted, {
         id_poll: req.params.poll_id,
         id_user: req.user.id
@@ -186,7 +186,7 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
                     let query =
                     `INSERT INTO polls_answers(id_poll, id_user, answer)
                     VALUES ($(id_poll), $(id_user), $(answer));`;
-            
+
                     db.none(query, {
                         id_poll: req.params.poll_id,
                         id_user: req.user.id,
@@ -214,9 +214,9 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
  * @apiName ClosePoll
  * @apiGroup Poll
  * @apiPermission authenticated user
- * 
+ *
  * @apiParam (RequestParam) {Integer} poll_id Poll id.
- * 
+ *
  * @apiParam (RequestUser) {Integer} user_id Id of user that wants to close his poll.
  *
  * @apiParam (RequestBody) {Boolean} closed Poll closed state.
@@ -226,7 +226,7 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't change poll state.
  */
 router.post('/:poll_id/close', authenticate, function(req, res) {
-    
+
     let queryUserIsPollCreator =
         `SELECT id_creator
         FROM public.polls
@@ -237,11 +237,11 @@ router.post('/:poll_id/close', authenticate, function(req, res) {
     }).then((data) => {
 
         if (data.id_creator == req.user.id){
-            let queryAnswerExists =         
+            let queryAnswerExists =
             `UPDATE public.polls
             SET closed=$(closed)
             WHERE id = $(id_poll);`
-    
+
             db.none(queryAnswerExists, {
                 closed: req.body.closed,
                 id_poll: req.params.poll_id
@@ -250,7 +250,7 @@ router.post('/:poll_id/close', authenticate, function(req, res) {
             }).catch(error => {
                 res.status(500).json('Couldn\'t change poll state');
             });
-    
+
         }else
             res.status(500).json('Invalid action.');
 

@@ -46,9 +46,9 @@ class Poll extends Component{
         //console.log(cookies);
     }
 
-    
+
     componentDidMount() {
-       this.getData(); 
+       this.getData();
     }
 
     show = dimmer => () => this.setState({ dimmer, open: true });
@@ -58,15 +58,15 @@ class Poll extends Component{
     close2 = () => this.setState({ open2: false });
 
     /* componentWillUnmount() {
-        
-    } */ 
+
+    } */
 
     handleChange = (e, { value }) => this.setState({ optionChecked : value })
 
     handleSubmit = (event) => {
         const { cookies } = this.props;
         if (this.state.optionChecked != 'No option' && this.state.has_voted == false){
-            
+
             fetch(urlForPollAnswers(this.state.poll_id), {
                 method: 'POST',
                 headers: {
@@ -93,7 +93,7 @@ class Poll extends Component{
         var closed_state = this.state.poll.closed;
 
         closed_state = !closed_state;
-            
+
         fetch(urlForPollClose(this.state.poll_id), {
             method: 'POST',
             headers: {
@@ -113,7 +113,7 @@ class Poll extends Component{
 
             }
         })
-        
+
     }
 
     handleModalDeleteClick = (event) => {
@@ -165,7 +165,7 @@ class Poll extends Component{
         .then(result => result.json())
         .then(result => {
             this.setState({ poll_answers: result });
-            
+
             const { cookies } = this.props;
             let userId = cookies.get('user_id');
             for (let voter of result){
@@ -204,13 +204,13 @@ class Poll extends Component{
 
         var options = this.state.poll.options.split('|||');
 
-        
+
         var options_values = [];
 
         for (var i = 0; i < options.length; i++){
             options_values[i] = 0;
         }
-        
+
 
         var total_answers = 0;
 
@@ -228,7 +228,7 @@ class Poll extends Component{
         var data = [];
         var backgroundColor = [];
         var hoverBackgroundColor =[];
-        
+
         for (var i = 0; i < options.length; i++){
 
             if (this.state.has_voted || this.state.poll.closed){
@@ -272,7 +272,7 @@ class Poll extends Component{
                 hoverBackgroundColor : hoverBackgroundColor
             }]
         };
-        
+
         return [answers,pie_chart_data];
     }
 
@@ -292,8 +292,8 @@ class Poll extends Component{
             return(<Item.Group> {answers} </Item.Group>);
         else
             return(
-                <Form> 
-                    {answers} 
+                <Form>
+                    {answers}
                     {this.visible_vote_button()}
                 </Form>
                 );
@@ -305,7 +305,7 @@ class Poll extends Component{
         var userId = cookies.get('user_id');
         var poll_creator_id = this.state.poll.id_creator;
 
-       
+
 
         if (closed){
 
@@ -318,8 +318,8 @@ class Poll extends Component{
                 );
 
             }
-            
-            return( 
+
+            return(
             <Label color='red' attached='top right'>
                 Closed
             </Label>);
@@ -429,7 +429,7 @@ class Poll extends Component{
               </Container>
           );
         }
-        
+
         if(this.state.poll == undefined || this.state.poll_answers == undefined || this.state.has_voted == undefined) {
             return (
                 <Container className="main-container">
@@ -438,7 +438,7 @@ class Poll extends Component{
                 </div>
                 </Container>
             );
-        } 
+        }
 
         var mountData = this.displayData();
 
@@ -449,7 +449,7 @@ class Poll extends Component{
         return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container>
-                <Grid columns={3}> 
+                <Grid columns={3}>
                     <Grid.Column>
                         <Header as="h1" id="crowdfunding_mission">
                             {this.state.poll.question}
@@ -460,7 +460,7 @@ class Poll extends Component{
                     <Grid.Column textAlign='right' verticalAlign='middle'>
                         {this.poll_creator_options()}
                     </Grid.Column>
-                </Grid>    
+                </Grid>
             </Container>
             <Responsive as={MygrantDividerLeft} minWidth={768} className="intro-divider" color="purple" />
             <Container>
@@ -476,7 +476,7 @@ class Poll extends Component{
             </Container>
 
         </Container>
-        
+
         );
 
     }
