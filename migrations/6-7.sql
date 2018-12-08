@@ -5,7 +5,8 @@ CREATE TABLE public.polls (
 	question text NOT NULL,
     free_text boolean NOT NULL,
 	options text,
-	closed boolean NOT NULL
+	closed boolean NOT NULL,
+	deleted boolean NOT NULL
 );
 CREATE SEQUENCE public.poll_id_seq
 	START WITH 1
