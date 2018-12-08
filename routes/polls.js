@@ -22,8 +22,9 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT id, question, free_text, options, id_creator, creator_name
-        FROM polls`;
+        `SELECT id, question, free_text, options, id_creator, creator_name, deleted
+        FROM polls
+        WHERE deleted = false`;
 
     db.manyOrNone(query).then(data => {
         res.status(200).json(data);
@@ -50,8 +51,8 @@ router.post('/', authenticate, function(req, res) {
     var answers = req.body.options.join('|||');
 
     let query =
-        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed)
-        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed))
+        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed, deleted)
+        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed), $(deleted))
         RETURNING id;`;
 
     db.one(query, {
@@ -60,7 +61,8 @@ router.post('/', authenticate, function(req, res) {
         free_text: req.body.free_text,
         options: answers,
         creator_name: req.body.creator_name,
-        closed : false
+        closed : false,
+        deleted : false
     }).then(data => {
         let poll_id = data.id;
         res.status(201).send({id: poll_id});
@@ -85,9 +87,9 @@ router.post('/', authenticate, function(req, res) {
 router.get('/:poll_id', function(req, res) {
     let id = req.params.poll_id;
     let query =
-        `SELECT question, free_text, options, id_creator, closed
+        `SELECT question, free_text, options, id_creator, closed, deleted
         FROM polls
-        WHERE polls.id = $(id);`;
+        WHERE polls.id = $(id) AND deleted = false ;`;
 
     db.oneOrNone(query, {
         id: id
@@ -111,18 +113,30 @@ router.get('/:poll_id', function(req, res) {
  * @apiError (Error 500) InternalServerError Could't get the poll.
  */
 router.get('/:poll_id/answers', function(req, res) {
-    let id = req.params.poll_id;
-    let query =
-        `SELECT id_user, answer
-        FROM polls_answers
-        WHERE id_poll = $(id);`;
+    let queryPollisNotDeleted =
+    `SELECT deleted
+    FROM public.polls
+    WHERE id = $(id_poll) AND deleted = true`;
 
-    db.manyOrNone(query, {
-        id: id
-    }).then(data => {
-        res.status(200).json(data);
+    db.none(queryPollisNotDeleted, {
+        id_poll: req.params.poll_id
+    }).then((data) => {
+    
+        let id = req.params.poll_id;
+        let query =
+            `SELECT id_user, answer
+            FROM polls_answers
+            WHERE id_poll = $(id);`;
+
+        db.manyOrNone(query, {
+            id: id
+        }).then(data => {
+            res.status(200).json(data);
+        }).catch(error => {
+            res.status(500).json('Coudln\'t get poll answers');
+        });
     }).catch(error => {
-        res.status(500).json('Coudln\'t get poll answers');
+        res.status(500).json('Poll is closed.');
     });
 });
 
@@ -155,9 +169,9 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
         id_user: req.user.id
     }).then(() => {
         let queryAnswerExists =         
-        `SELECT options,closed
+        `SELECT options,closed,deleted
         FROM public.polls
-        WHERE id = $(id_poll);`
+        WHERE id = $(id_poll) AND deleted = false;`
 
         db.one(queryAnswerExists, {
             id_poll: req.params.poll_id,
@@ -186,7 +200,7 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
 
             }
         }).catch(error => {
-            res.status(500).json('Answer does not exist in this poll.');
+            res.status(500).json('Answer does not exist in this poll./Poll is closed.');
         });
 
     }).catch(error => {
@@ -230,6 +244,57 @@ router.post('/:poll_id/close', authenticate, function(req, res) {
     
             db.none(queryAnswerExists, {
                 closed: req.body.closed,
+                id_poll: req.params.poll_id
+            }).then((data) => {
+                res.status(201).json('Poll updated.');
+            }).catch(error => {
+                res.status(500).json('Couldn\'t change poll state');
+            });
+    
+        }else
+            res.status(500).json('Invalid action.');
+
+    }).catch(error => {
+        res.status(403).json('User has no polls created');
+    });
+
+});
+
+/**
+ * @api {post} /polls/:poll_id/delete Delete poll
+ * @apiName DeletePoll
+ * @apiGroup Poll
+ * @apiPermission authenticated user
+ * 
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ * 
+ * @apiParam (RequestUser) {Integer} user_id Id of user that wants to delete the poll.
+ *
+ * @apiParam (RequestBody) {Boolean} deleted Poll deleted state.
+ *
+ * @apiSuccess (Success 201) {String} message Poll updated.
+ *
+ * @apiError (Error 500) InternalServerError Couldn't change poll state.
+ */
+router.post('/:poll_id/delete', authenticate, function(req, res) {
+    
+    let queryUserIsPollCreator =
+        `SELECT id_creator
+        FROM public.polls
+        WHERE id = $(id_poll)`;
+
+    db.one(queryUserIsPollCreator, {
+        id_poll: req.params.poll_id
+    }).then((data) => {
+
+        if (data.id_creator == req.user.id){
+            let queryAnswerExists =         
+            `UPDATE public.polls
+            SET deleted = $(deleted)
+            WHERE id = $(id_poll);`
+    
+            db.none(queryAnswerExists, {
+                deleted: req.body.deleted,
                 id_poll: req.params.poll_id
             }).then((data) => {
                 res.status(201).json('Poll updated.');
