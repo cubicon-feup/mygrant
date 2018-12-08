@@ -1,3 +1,9 @@
+
+## Sprint 5
+* As the poll creator, I want to be able to close a poll so that no more votes are accepted.
+* As a user i want to upload a image to the website.
+
+## Sprint 1-4
 * As a User I want to acess the crowdfing list.
 * As a Project Pledger I want to be able to donate to a specific project so I can contribute to the community
 * As a Project Pledger I want to be able to check the crowdfunding project's performance

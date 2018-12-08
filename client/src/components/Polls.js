@@ -11,7 +11,7 @@ const urlForUser = id => `/api/users/${id}`;
 const urlForPoll = poll_id => '/api/polls/' + poll_id;
 
 class Polls extends Component {
-    
+
     constructor(props) {
         super(props);
         this.state = {
@@ -20,8 +20,10 @@ class Polls extends Component {
             nr_answers:2,
             message_content : '',
             visible : false,
-            answers : []
+            answers : [],
+            polls : this.props.polls
         };
+
         this.table_body = [];
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -42,11 +44,11 @@ class Polls extends Component {
             })
             .then(result => result.json())
             .then(result => {
-                
+
                 //this.add_creator_names(result);
 
                 this.setState({polls: result});
-                
+
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
@@ -100,7 +102,7 @@ class Polls extends Component {
         var answers_different = true;
 
         var user_answers =  this.state.answers;
-        if (user_answers.length < 2) 
+        if (user_answers.length < 2)
             answers_exist = false;
         else
             for (var i = 0; i < user_answers.length; i++)
@@ -111,12 +113,12 @@ class Polls extends Component {
 
         var message_to_send = '';
         if (!question_exists)
-            message_to_send = message_to_send.concat('No question provided. '); 
+            message_to_send = message_to_send.concat('No question provided. ');
         if (!answers_exist)
             message_to_send = message_to_send.concat('You need at least 2 answers to start a poll.');
         if (!answers_different)
             message_to_send =  message_to_send.concat("You can't use duplicate answers.");
-    
+
         if (message_to_send == ''){
 
 
@@ -141,12 +143,12 @@ class Polls extends Component {
             })
         } else
             this.show_message(message_to_send);
-        
+
     }
 
     /*add_creator_names = async (result) => {
         for (var i = 0; i < result.length; i++){
-            
+
             await fetch(urlForUser(result[i]['id_creator']))
             .then(response => {
                 if (!response.ok) {
@@ -177,7 +179,7 @@ class Polls extends Component {
         }
     }
 
-    
+
     remove_answers(){
         var current_answers = parseInt(this.state.nr_answers);
         if (current_answers > 2){
@@ -195,6 +197,7 @@ class Polls extends Component {
         for (var i = 0; i < nr_answers; i++){
             forms.push(
                 <Form.Input
+                    key={`Form.input_${i}`}
                     type='text'
                     placeholder={"Answer #" + (i+1)}
                     name={"answer_" + i}
@@ -204,7 +207,7 @@ class Polls extends Component {
             );
         }
 
-        return forms; 
+        return forms;
     }
 
 
@@ -228,17 +231,19 @@ class Polls extends Component {
         const { cookies } = this.props;
         var userId = cookies.get('user_id');
         var card_group;
+        var index = 0;
 
-        this.state.polls.map((table_row,index) => {
+
+        for (let table_row of this.state.polls){
 
             if (this.compare_ids(table_row.id_creator,userId,operation)){
 
                 this.table_body.push(
-                    <Card>
+                    <Card key={`card_${index}`}>
                         <Card.Content>
                         <Card.Header>{table_row.question}</Card.Header>
                         <Card.Meta>
-                        <span>Created by <Link to={"/user/" + table_row.id_creator}>{table_row.creator_name}</Link></span>
+                        Created by <Link to={"/user/" + table_row.id_creator}><span className='creator_name'>{table_row.creator_name}</span></Link>
                         </Card.Meta>
                         </Card.Content>
                         <Card.Content extra style={{textAlign: 'right'}}>
@@ -248,8 +253,8 @@ class Polls extends Component {
                 );
 
             }
-
-        });
+            index++;
+        }
 
         card_group = this.table_body;
         this.table_body = [];
@@ -271,7 +276,7 @@ class Polls extends Component {
             const { cookies } = this.props;
             let userId = cookies.get('user_id');
             var user_created_header;
-            
+
             var user_created_polls = polls.find(function(poll){
                 if (poll['id_creator'] == userId)
                     return true;
@@ -301,14 +306,14 @@ class Polls extends Component {
                             <Modal.Description>
                             <Form>
                                 <Header size='medium'>What do you want to ask?</Header>
-                                <Form.Input 
+                                <Form.Input
                                     type='text'
                                     placeholder="Question"
                                     name="question"
                                     value={this.state.question}
                                     onChange={this.handleChange}
                                 />
-                                <Header size='medium'>Possible Answers 
+                                <Header size='medium'>Possible Answers
                                     <Label as='a' onClick={this.add_answers}>
                                         Add an answer
                                         <Label.Detail>
