@@ -13,6 +13,7 @@ const apiPath = require('../config').apiPath;
 const urlForPoll = poll_id => '/api/polls/' + poll_id;
 const urlForPollAnswers = poll_id => '/api/polls/' + poll_id + '/answers';
 const urlForPollClose = poll_id => '/api/polls/' + poll_id + '/close';
+const urlForPollDelete = poll_id => '/api/polls/' + poll_id + '/delete';
 
 
 class Poll extends Component{
@@ -32,12 +33,14 @@ class Poll extends Component{
             colors_hex_dimmed : ['#aaeecd','#3897e0','#ae49d0','#835ed4','#f4873e','#fcca36','#c08259','#e15151','#8c8c8c','#e765ae','#313335'],
             creator_id: 0,
             pie_chart_data: {},
-            open: false
+            open: false,
+            open2: false
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleModalClick = this.handleModalClick.bind(this);
+        this.handleModalDeleteClick = this.handleModalDeleteClick.bind(this);
 
         const { cookies } = this.props;
         //console.log(cookies);
@@ -50,6 +53,9 @@ class Poll extends Component{
 
     show = dimmer => () => this.setState({ dimmer, open: true });
     close = () => this.setState({ open: false });
+
+    show2 = dimmer2 => () => this.setState({ dimmer2, open2: true });
+    close2 = () => this.setState({ open2: false });
 
     /* componentWillUnmount() {
 
@@ -109,6 +115,27 @@ class Poll extends Component{
         })
 
     }
+
+    handleModalDeleteClick = (event) => {
+        const { cookies } = this.props;
+            
+        fetch(urlForPollDelete(this.state.poll_id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                deleted: true
+            })
+        }).then(res => {
+            if(res.status === 201) {
+                this.props.history.push(`/polls`);
+            }
+        })
+    }
+
+
 
     getData(){
         fetch(urlForPoll(this.state.poll_id))
@@ -284,9 +311,9 @@ class Poll extends Component{
 
             if (userId == poll_creator_id){
 
-                return(
-                <Label as='a' color='red' attached='top right'  onClick={this.show(true)}>
-                    Open
+                return(            
+                <Label as='a' color='green' attached='top right'  onClick={this.show(true)}>
+                    Open this poll
                 </Label>
                 );
 
@@ -300,17 +327,17 @@ class Poll extends Component{
         } else {
             if (userId == poll_creator_id){
                 if (this.state.has_voted){
-                    return(
-                    <Label as='a' color='red' attached='top right'  onClick={this.show(true)}>
-                        Close
+                    return(            
+                    <Label as='a' attached='top right'  onClick={this.show(true)}>
+                        Close this poll
                     </Label>
                     );
                 }
             }
 
             if (this.state.has_voted){
-                return(
-                <Label color='blue' attached='top right'>
+                return(            
+                <Label color='green' attached='top right'>
                     Open
                 </Label>);
             }
@@ -324,6 +351,73 @@ class Poll extends Component{
             return 'close';
     }
 
+    delete_poll_content(){
+        
+        const { cookies } = this.props;
+        var userId = cookies.get('user_id');
+        var poll_creator_id = this.state.poll.id_creator;
+
+
+        if (userId == poll_creator_id){
+            if (this.state.has_voted){
+                return(            
+                <Label as='a' color='red' attached='top right'  onClick={this.show2(true)}>
+                    Delete this poll
+                </Label>
+                );
+            }
+        }
+    }
+
+    poll_creator_options(){
+
+        const { open, dimmer, open2, dimmer2 } = this.state;
+
+        var modal_content = this.getModalContent();
+
+
+        const { cookies } = this.props;
+        var userId = cookies.get('user_id');
+        var poll_creator_id = this.state.poll.id_creator;
+
+        if (userId == poll_creator_id){
+        return(
+        <Grid columns={2}> 
+            <Grid.Column>
+                {this.open_voting()}
+                <Modal dimmer={dimmer} open={open} onClose={this.close} size='small' closeIcon>
+                    <Modal.Content>
+                    <p>Are you sure you want to {modal_content} this poll?</p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                    <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.handleModalClick} />
+                    <Button negative style={{height:'40px'}} onClick={this.close}>No</Button>
+                    </Modal.Actions>
+                </Modal>
+            </Grid.Column>
+            <Grid.Column style={{marginLeft:'-50px'}} >
+                {this.delete_poll_content()}
+                <Modal dimmer={dimmer2} open={open2} onClose={this.close2} size='small' closeIcon>
+                    <Modal.Content>
+                    <p>Are you sure you want to delete this poll?</p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                    <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.handleModalDeleteClick} />
+                    <Button negative style={{height:'40px'}} onClick={this.close}>No</Button>
+                    </Modal.Actions>
+                </Modal>
+            </Grid.Column>
+        </Grid>);
+        } else{
+            return(
+                <Grid columns={1}> 
+                    <Grid.Column style={{marginLeft:'-50px'}}>
+                    {this.open_voting()}
+                    </Grid.Column>
+                </Grid>
+            );
+        }
+    }
 
     render() {
         if(this.state.requestFailed) {
@@ -351,9 +445,6 @@ class Poll extends Component{
         var answers = mountData[0];
         var pie_chart_data = mountData[1];
 
-        const { open, dimmer } = this.state;
-
-        var modal_content = this.getModalContent();
 
         return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
@@ -366,17 +457,8 @@ class Poll extends Component{
                     </Grid.Column>
                     <Grid.Column>
                     </Grid.Column>
-                    <Grid.Column textAlign='right' style={{marginLeft:'-50px'}} verticalAlign='middle'>
-                        {this.open_voting()}
-                        <Modal dimmer={dimmer} open={open} onClose={this.close} size='small' closeIcon>
-                            <Modal.Content>
-                            <p>Are you sure you want to {modal_content} this poll?</p>
-                            </Modal.Content>
-                            <Modal.Actions>
-                            <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.handleModalClick} />
-                            <Button negative style={{height:'40px'}} onClick={this.close}>No</Button>
-                            </Modal.Actions>
-                        </Modal>
+                    <Grid.Column textAlign='right' verticalAlign='middle'>
+                        {this.poll_creator_options()}
                     </Grid.Column>
                 </Grid>
             </Container>
