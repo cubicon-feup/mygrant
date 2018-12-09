@@ -47,8 +47,9 @@ router.get('/', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't create a poll.
  */
 router.post('/', authenticate, function(req, res) {
-
-    var answers = req.body.options.join('|||');
+    
+    if (req.body.options != undefined)
+        var answers = req.body.options.join('|||');
 
     let query =
         `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed, deleted)
