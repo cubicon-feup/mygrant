@@ -63,36 +63,88 @@ class Poll extends Component{
 
     } */
 
-    handleChange = (e, { value }) => this.setState({ optionChecked : value })
+    handleChange = (e, { value }) => { 
+        this.setState({ optionChecked : value });
+        this.setState({ free_text_answer : ''});
+    }
 
     handleChangeFreeText = (e, { value }) => {
         
-        this.setState({ free_text_answer : value });
-        console.log(this.state.free_text_answer);
+        this.setState({ free_text_answer : value});
+        this.setState({ optionChecked : 'No option' })
+
+    };
+
+    
+
+    submit_answer(answer){
+        const { cookies } = this.props;
+        fetch(urlForPollAnswers(this.state.poll_id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                answer: answer
+            })
+        }).then(res => {
+            if(res.status === 201) {
+                console.log('Answer sent succesfully');
+                this.getData();
+                this.displayData();
+                this.setState({has_voted : true});
+            }
+        })
 
     }
 
-    handleSubmit = (event) => {
-        const { cookies } = this.props;
-        if (this.state.optionChecked != 'No option' && this.state.has_voted == false){
+    update_options(new_options){
 
-            fetch(urlForPollAnswers(this.state.poll_id), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${cookies.get('id_token')}`
-                },
-                body: JSON.stringify({
-                    answer: this.state.optionChecked
-                })
-            }).then(res => {
-                if(res.status === 201) {
-                    console.log('Answer sent succesfully');
-                    this.getData();
-                    this.displayData();
-                    this.setState({has_voted : true});
-                }
+        const { cookies } = this.props;
+        fetch(urlForPoll(this.state.poll_id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                options: new_options
             })
+        }).then(res => {
+            if(res.status === 200) {
+                if (this.state.free_text_answer != '')
+                    this.submit_answer(this.state.free_text_answer);
+                else
+                    this.submit_answer(this.state.optionChecked);
+            }
+        })
+    }
+
+    handleSubmit = (event) => {
+        
+        if (this.state.optionChecked != 'No option' && this.state.has_voted == false){
+            this.submit_answer(this.state.optionChecked);
+        }else if (this.state.free_text_answer != ''){
+
+            console.log(this.state.poll.options);
+
+            if(this.state.poll.options == null){
+                this.update_options(this.state.free_text_answer);
+            }else{
+
+                var options = this.state.poll.options.split('|||');
+
+                if (options.includes(this.state.free_text_answer)){
+                    console.log('here');
+                    this.submit_answer(this.state.free_text_answer);
+                } else { 
+                    var new_options = this.state.poll.options + '|||' + this.state.free_text_answer;
+                    console.log(new_options);
+                    this.update_options(new_options);
+                }
+            }
+
         }
     }
 
@@ -279,13 +331,14 @@ class Poll extends Component{
         }
 
         if (this.state.poll.free_text && !this.state.has_voted){
+            if (options.length < 11){
             answers.push(
-            <Form.Field>
+            <Form.Field  key={`Form.Field_Free_text_answer`}>
                 <Header size='medium'>Your own answer:</Header>
-                <Form.Input placeholder='Your answer' onChange={this.handleChangeFreeText} />
+                <Form.Input placeholder='Your answer' value={this.state.free_text_answer} onChange={this.handleChangeFreeText} />
             </Form.Field>
             );
-            
+            }
         }
 
 
