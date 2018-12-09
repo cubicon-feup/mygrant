@@ -102,7 +102,74 @@ router.get('/:poll_id', function(req, res) {
 });
 
 /**
- * @api {get} /polls/:poll_id Get poll answers
+ * @api {put} /polls/:poll_id Put poll
+ * @apiName PutPoll
+ * @apiGroup Poll
+ *
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ *
+ * @apiParam (RequestBody) {String} options New poll options.
+ * 
+ * @apiSuccess (Success 200) {String} message Update success message.
+ *
+ * @apiError (Error 500) InternalServerError Could't get the poll.
+ */
+router.put('/:poll_id', function(req, res) {
+    let id = req.params.poll_id;
+    let query =
+        `SELECT options
+        FROM polls
+        WHERE polls.id = $(id) AND deleted = false ;`;
+
+    db.oneOrNone(query, {
+        id: id
+    }).then(data => {
+
+        var answers = data['options'];
+
+        var can_update = true;
+
+        if (answers != null){
+            arr_answers = answers.split('|||');
+
+            options = req.body.options;
+
+            arr_options = options.split('|||');
+
+            for (var i = 0; i < arr_answers.length; i++){
+                if (arr_answers[i] != arr_options[i]){
+                    can_update = false;
+                }
+
+            }
+        }   
+
+        if (can_update){
+            let id = req.params.poll_id;
+            let query =
+                `UPDATE public.polls
+                SET options = $(options)
+                WHERE polls.id = $(id) AND deleted = false ;`;
+
+            db.none(query, {
+                id: id,
+                options: req.body.options
+            }).then(data => {
+                res.status(200).json(data);
+            }).catch(error => {
+                res.status(500).json({error: 'Couldn\'t update the poll.'});
+            });
+        } else{
+            res.status(500).json({error: 'Couldn\'t update the poll.'});
+        }
+    }).catch(error => {
+        res.status(500).json({error: 'Couldn\'t get the poll.'});
+    });
+
+});
+
+/**
+ * @api {get} /polls/:poll_id/answers Get poll answers
  * @apiName GetPollAnswers
  * @apiGroup Poll
  *
