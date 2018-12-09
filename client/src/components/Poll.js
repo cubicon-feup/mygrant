@@ -28,6 +28,7 @@ class Poll extends Component{
             options_values: null,
             total_answers:null,
             optionChecked: 'No option',
+            free_text_answer: '',
             colors : ['green','blue','purple','violet','orange','yellow','brown','red','grey','pink','black'],
             colors_hex : ['#8ee8bc','#2185d0','#a333c8','#6435c9','#f2711c','#fbbd08','#a5673f','#db2828','#767676','#e03997','#1b1c1d'],
             colors_hex_dimmed : ['#aaeecd','#3897e0','#ae49d0','#835ed4','#f4873e','#fcca36','#c08259','#e15151','#8c8c8c','#e765ae','#313335'],
@@ -38,6 +39,7 @@ class Poll extends Component{
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleChangeFreeText = this.handleChangeFreeText.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleModalClick = this.handleModalClick.bind(this);
         this.handleModalDeleteClick = this.handleModalDeleteClick.bind(this);
@@ -61,29 +63,88 @@ class Poll extends Component{
 
     } */
 
-    handleChange = (e, { value }) => this.setState({ optionChecked : value })
+    handleChange = (e, { value }) => { 
+        this.setState({ optionChecked : value });
+        this.setState({ free_text_answer : ''});
+    }
+
+    handleChangeFreeText = (e, { value }) => {
+        
+        this.setState({ free_text_answer : value});
+        this.setState({ optionChecked : 'No option' })
+
+    };
+
+    
+
+    submit_answer(answer){
+        const { cookies } = this.props;
+        fetch(urlForPollAnswers(this.state.poll_id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                answer: answer
+            })
+        }).then(res => {
+            if(res.status === 201) {
+                console.log('Answer sent succesfully');
+                this.getData();
+                this.displayData();
+                this.setState({has_voted : true});
+            }
+        })
+
+    }
+
+    update_options(new_options){
+
+        const { cookies } = this.props;
+        fetch(urlForPoll(this.state.poll_id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                options: new_options
+            })
+        }).then(res => {
+            if(res.status === 200) {
+                if (this.state.free_text_answer != '')
+                    this.submit_answer(this.state.free_text_answer);
+                else
+                    this.submit_answer(this.state.optionChecked);
+            }
+        })
+    }
 
     handleSubmit = (event) => {
-        const { cookies } = this.props;
+        
         if (this.state.optionChecked != 'No option' && this.state.has_voted == false){
+            this.submit_answer(this.state.optionChecked);
+        }else if (this.state.free_text_answer != ''){
 
-            fetch(urlForPollAnswers(this.state.poll_id), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${cookies.get('id_token')}`
-                },
-                body: JSON.stringify({
-                    answer: this.state.optionChecked
-                })
-            }).then(res => {
-                if(res.status === 201) {
-                    console.log('Answer sent succesfully');
-                    this.getData();
-                    this.displayData();
-                    this.setState({has_voted : true});
+            console.log(this.state.poll.options);
+
+            if(this.state.poll.options == null){
+                this.update_options(this.state.free_text_answer);
+            }else{
+
+                var options = this.state.poll.options.split('|||');
+
+                if (options.includes(this.state.free_text_answer)){
+                    console.log('here');
+                    this.submit_answer(this.state.free_text_answer);
+                } else { 
+                    var new_options = this.state.poll.options + '|||' + this.state.free_text_answer;
+                    console.log(new_options);
+                    this.update_options(new_options);
                 }
-            })
+            }
+
         }
     }
 
@@ -202,7 +263,12 @@ class Poll extends Component{
     displayData(){
         //Poll Answers
 
-        var options = this.state.poll.options.split('|||');
+        var options;
+
+        if (this.state.poll.free_text && this.state.poll.options == undefined)
+            options = [];
+        else
+            options = this.state.poll.options.split('|||');
 
 
         var options_values = [];
@@ -263,6 +329,19 @@ class Poll extends Component{
             hoverBackgroundColor.push(this.state.colors_hex_dimmed[i]);
 
         }
+
+        if (this.state.poll.free_text && !this.state.has_voted){
+            if (options.length < 11){
+            answers.push(
+            <Form.Field  key={`Form.Field_Free_text_answer`}>
+                <Header size='medium'>Your own answer:</Header>
+                <Form.Input placeholder='Your answer' value={this.state.free_text_answer} onChange={this.handleChangeFreeText} />
+            </Form.Field>
+            );
+            }
+        }
+
+
 
         var pie_chart_data = {
             labels : labels,
