@@ -4,7 +4,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Container, Card, Icon } from 'semantic-ui-react';
+import { Container, Card, Icon, Segment } from 'semantic-ui-react';
 
 const urlForAssociation = '/api/associations/';
 
@@ -17,9 +17,10 @@ class Association extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          associations: null,
-          requestFailed: false
-          };
+            loading: true,
+            associations: [],
+            requestFailed: false
+        };
     }
 
     componentDidMount () {
@@ -37,7 +38,7 @@ class Association extends Component {
         })
         .then(result => result.json())
         .then(result => {
-            this.setState({ associations: result });
+            this.setState({ associations: result, loading: false });
         }, () => {
             // "catch" the error
             this.setState({ requestFailed: true });
@@ -48,14 +49,14 @@ class Association extends Component {
         const rows = [];
         const {associations} = this.state;
 
-        associations.forEach((association) => {
+        associations.data.forEach((association) => {
           const element = (
             <Card>
-                <Card.Content header={association.data.ass_name} />
-                <Card.Content description={this.state.association.data.missao} />
+                <Card.Content header={association.ass_name} />
+                <Card.Content description={association.missao} />
                 <Card.Content extra>
                 <Icon name='user' />
-                {association.data.id_creator}
+                {association.id_creator}
                 </Card.Content>
             </Card>
           );
@@ -66,12 +67,27 @@ class Association extends Component {
       };
 
     render() {
+
+        const {loading} = this.state;
+
+        if(loading){
+            return (
+                <Container className="main-container">
+                    <div><h1>Associations</h1></div>
+                    <Segment loading={loading}>
+                    </Segment>
+                </Container>
+            );
+        }
+       
         return (
-            <Container className="main-container">
-                <div><h1>Associations</h1></div>
-                {console.log(this.state.associations)/* {this.renderAssociations()} */}
-            </Container>
-        );
+        <Container className="main-container">
+            <div><h1>Associations</h1></div>
+            <Segment loading={loading}>
+            {this.renderAssociations()}
+            </Segment>
+        </Container>
+);
     }
 }
 
