@@ -2,10 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
-//const expressJwt = require('express-jwt');
-//const appSecret = require('../config/config').secret;
-//const authenticate = expressJwt({ secret: appSecret });
-
 /**
  * @api {get} /associations/:id Get association
  * @apiName getAssociation
@@ -74,10 +70,10 @@ router.put('/:association policy.editid', function(req, res) {
         creatorId: req.user.id,
         newName: req.params.name
     }).then(() => {
-        res.status(200).send({ message: 'Successfully updated association.'});
+        res.status(200).send({ message: 'Successfully updated association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t update the association.'});
+        res.status(500).json({ error });
     });
 });
 
@@ -107,7 +103,7 @@ router.delete('/:association_id', function(req, res) {
         res.status(200).send({ message: 'Sucessfully deleted association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t delete the association.' });
+        res.status(500).json({ error });
     });
 });
 
