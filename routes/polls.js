@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+const cronJob = require('../cronjob');
 
 
 const expressJwt = require('express-jwt');
@@ -51,10 +52,24 @@ router.post('/', authenticate, function(req, res) {
     if (req.body.options != undefined)
         var answers = req.body.options.join('|||');
 
+    var time_interval = req.body.time_interval;
+    if (isNaN(time_interval)){
+        time_interval = 7;
+    } else {
+        if (time_interval < 1)
+            time_interval = 7;
+        if (time_interval > 365)
+            time_interval = 7;
+
+        if (!Number.isInteger(time_interval)){
+            time_interval = parseInt(time_interval);
+        }
+    }
+
     let query =
-        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed, deleted)
-        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed), $(deleted))
-        RETURNING id;`;
+        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed, deleted, date_created, date_finished)
+        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed), $(deleted), NOW(), NOW() +  '$(time_interval) days')
+        RETURNING id, date_finished;`;
 
     db.one(query, {
         id_creator: req.user.id,
@@ -63,11 +78,15 @@ router.post('/', authenticate, function(req, res) {
         options: answers,
         creator_name: req.body.creator_name,
         closed : false,
-        deleted : false
+        deleted : false,
+        time_interval : time_interval
     }).then(data => {
         let poll_id = data.id;
+        let dateFinished = new Date(data.date_finished);
+        cronJob.scheduleJobPoll(poll_id, dateFinished);
         res.status(201).send({id: poll_id});
     }).catch(error => {
+            console.log(error);
             res.status(500).json('Error creating poll.');
     });
 });
@@ -88,7 +107,7 @@ router.post('/', authenticate, function(req, res) {
 router.get('/:poll_id', function(req, res) {
     let id = req.params.poll_id;
     let query =
-        `SELECT question, free_text, options, id_creator, closed, deleted
+        `SELECT question, free_text, options, id_creator, closed, deleted, date_finished
         FROM polls
         WHERE polls.id = $(id) AND deleted = false ;`;
 

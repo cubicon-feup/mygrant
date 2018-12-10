@@ -15,6 +15,11 @@ const urlForPollAnswers = poll_id => '/api/polls/' + poll_id + '/answers';
 const urlForPollClose = poll_id => '/api/polls/' + poll_id + '/close';
 const urlForPollDelete = poll_id => '/api/polls/' + poll_id + '/delete';
 
+const second = 1000;
+const minute = second * 60;
+const hour = minute * 60;
+const day = hour * 24;
+
 
 class Poll extends Component{
     constructor(props) {
@@ -35,7 +40,9 @@ class Poll extends Component{
             creator_id: 0,
             pie_chart_data: {},
             open: false,
-            open2: false
+            open2: false,
+            timer: null,
+            timeDiff: this.props.timeDiff
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -43,6 +50,7 @@ class Poll extends Component{
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleModalClick = this.handleModalClick.bind(this);
         this.handleModalDeleteClick = this.handleModalDeleteClick.bind(this);
+        this.tick = this.tick.bind(this);
 
         const { cookies } = this.props;
         //console.log(cookies);
@@ -51,6 +59,8 @@ class Poll extends Component{
 
     componentDidMount() {
        this.getData();
+       let timer = setInterval(this.tick, 1000);
+       this.setState({timer});
     }
 
     show = dimmer => () => this.setState({ dimmer, open: true });
@@ -59,9 +69,22 @@ class Poll extends Component{
     show2 = dimmer2 => () => this.setState({ dimmer2, open2: true });
     close2 = () => this.setState({ open2: false });
 
-    /* componentWillUnmount() {
+    componentWillUnmount() {
+        clearInterval(this.state.timer);
+    }
 
-    } */
+    tick() {
+        if(this.state.timeDiff <= 0) {
+            clearInterval(this.state.timer);
+            // this.getData();
+        }
+
+        this.setState({days: Math.floor(this.state.timeDiff / day)})
+        this.setState({hours: Math.floor((this.state.timeDiff % day) / hour)})
+        this.setState({minutes: Math.floor((this.state.timeDiff % hour) / minute)})
+        this.setState({seconds: Math.floor((this.state.timeDiff % minute) / second)})
+        this.setState({timeDiff: this.state.timeDiff - 1000});
+    }
 
     handleChange = (e, { value }) => { 
         this.setState({ optionChecked : value });
@@ -210,9 +233,12 @@ class Poll extends Component{
             .then(result => result.json())
             .then(result => {
                 this.setState({ poll: result });
+                let timeDiff = new Date(result.date_finished) - new Date().getTime();
+                this.setState({ timeDiff: timeDiff});
             }, () => {
                 // "catch" the error
                 this.setState({ requestFailed: true });
+                
             });
 
         fetch(urlForPollAnswers(this.state.poll_id))
@@ -509,7 +535,7 @@ class Poll extends Component{
           );
         }
 
-        if(this.state.poll == undefined || this.state.poll_answers == undefined || this.state.has_voted == undefined) {
+        if(this.state.poll == undefined || this.state.poll_answers == undefined || this.state.has_voted == undefined || this.state.timeDiff == undefined) {
             return (
                 <Container className="main-container">
                 <div>
@@ -524,17 +550,23 @@ class Poll extends Component{
         var answers = mountData[0];
         var pie_chart_data = mountData[1];
 
-
+        let timer;
+        if (this.state.has_voted){
+            if(this.state.timeDiff > 0)
+                timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds left</Header>
+            else timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>Voting time has finished</Header>;
+        }
         return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container>
                 <Grid columns={3}>
                     <Grid.Column>
-                        <Header as="h1" id="crowdfunding_mission">
+                        <Header as="h1" id="crowdfunding_mission" style={{marginTop:' 35px'}}>
                             {this.state.poll.question}
                         </Header>
                     </Grid.Column>
                     <Grid.Column>
+                        {timer}
                     </Grid.Column>
                     <Grid.Column textAlign='right' verticalAlign='middle'>
                         {this.poll_creator_options()}

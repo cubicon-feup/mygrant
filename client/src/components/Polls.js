@@ -21,7 +21,8 @@ class Polls extends Component {
             message_content : '',
             visible : false,
             answers : [],
-            polls : this.props.polls
+            polls : this.props.polls,
+            time_interval : 7
         };
 
         this.table_body = [];
@@ -122,6 +123,15 @@ class Polls extends Component {
 
         if (message_to_send == ''){
 
+            var time_interval = this.state.time_interval;
+            if (isNaN(time_interval)){
+                time_interval = 7;
+            } else {
+                if (time_interval < 1)
+                    time_interval = 7;
+                if (time_interval > 365)
+                    time_interval = 7;
+            }
 
             const { cookies } = this.props;
             fetch(urlForPolls, {
@@ -134,7 +144,8 @@ class Polls extends Component {
                     question : this.state.question,
                     options : this.state.answers,
                     free_text : 'false',
-                    creator_name : cookies.get('user_full_name')
+                    creator_name : cookies.get('user_full_name'),
+                    time_interval : time_interval
                 })
             }).then(res => {
                 res.json()
@@ -150,6 +161,17 @@ class Polls extends Component {
     handleFreeTextSubmit = (event) => {
 
         if (this.state.question != ''){
+
+            var time_interval = this.state.time_interval;
+            if (isNaN(time_interval)){
+                time_interval = 7;
+            } else {
+                if (time_interval < 1)
+                    time_interval = 7;
+                if (time_interval > 365)
+                    time_interval = 7;
+            }
+
             const { cookies } = this.props;
             fetch(urlForPolls, {
                 method: 'POST',
@@ -160,7 +182,8 @@ class Polls extends Component {
                 body: JSON.stringify({
                     question : this.state.question,
                     free_text : 'true',
-                    creator_name : cookies.get('user_full_name')
+                    creator_name : cookies.get('user_full_name'),
+                    time_interval : time_interval
                 })
             }).then(res => {
                 res.json()
@@ -306,6 +329,17 @@ class Polls extends Component {
                         value={this.state.question}
                         onChange={this.handleChange}
                     />
+                    <Form.Group inline>
+                        <Header size='medium' style={{marginTop:'10px'}}>Close in (Days):</Header>
+                        <span>&nbsp;&nbsp;</span>
+                        <Form.Input
+                            type='text'
+                            placeholder="7"
+                            name="time_interval"
+                            value={this.state.time_interval}
+                            onChange={this.handleChange}
+                        />
+                    </Form.Group>
                     <Header size='medium'>Possible Answers
                         <Label as='a' onClick={this.add_answers}>
                             Add an answer
@@ -343,7 +377,17 @@ class Polls extends Component {
                         value={this.state.question}
                         onChange={this.handleChange}
                     />
-
+                    <Form.Group inline>
+                        <Header size='medium' style={{marginTop:'10px'}}>Close in (Days):</Header>
+                        <span>&nbsp;&nbsp;</span>
+                        <Form.Input
+                            type='text'
+                            placeholder="7"
+                            name="time_interval"
+                            value={this.state.time_interval}
+                            onChange={this.handleChange}
+                        />
+                    </Form.Group>
                     <Form.Button style={{marginBottom:'20px'}}  content="Submit" floated='right' onClick={this.handleFreeTextSubmit}/>
                 </Form>
             </Tab.Pane> },            

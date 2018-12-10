@@ -37,3 +37,27 @@ module.exports.scheduleJob = (crowdfundingId, date) => {
         })
     }
 };
+
+
+module.exports.scheduleJobPoll = (pollId, date) => {
+    job = schedule.scheduleJob(date, function() {
+        updatePollState(pollId);
+    });
+
+    function updatePollState(pollId) {
+        query =
+            `UPDATE polls
+            SET closed = true
+            WHERE id = $(poll_id);`;
+        
+        db.none(query, {
+            poll_id: pollId
+        }).then(() => {
+            console.log("Cronjob successfully updated the poll state.")
+        }).catch(error => {
+            console.error("Error: Cronjob couldn't update the poll state.")
+            console.error(error);
+        })
+       
+    }
+};
