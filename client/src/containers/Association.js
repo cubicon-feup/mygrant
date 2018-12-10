@@ -4,7 +4,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Container } from 'semantic-ui-react';
+import { Container, Card, Icon } from 'semantic-ui-react';
 
 class Association extends Component {
     static propTypes = {
@@ -12,10 +12,39 @@ class Association extends Component {
         history: ReactRouterPropTypes.history.isRequired
     };
 
+    constructor(props) {
+        super(props);
+        
+        const {associations} = this.props;
+        this.state = { associations};
+    }
+
+    renderAssociations = () => {
+        const rows = [];
+        const {associations} = this.state;
+    
+        associations.forEach((association) => {
+          const element = (
+            <Card>
+                <Card.Content header={association.data.ass_name} />
+                <Card.Content description={this.state.association.data.missao} />
+                <Card.Content extra>
+                <Icon name='user' />
+                {association.data.id_creator}
+                </Card.Content>
+            </Card>
+          );
+          rows.push(element);
+        });
+    
+        return rows;
+      };
+
     render() {
         return (
             <Container className="main-container">
                 <div><h1>Associations</h1></div>
+                {/* {this.renderAssociations()} */}
             </Container>
         );
     }

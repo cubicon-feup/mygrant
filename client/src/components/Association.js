@@ -70,8 +70,6 @@ class Association extends Component {
             );
         }
 
-        //console.log(this.state.association);
-
         return (
             <Container className="main-container">
                 <Header as='h1'> Association </Header>
