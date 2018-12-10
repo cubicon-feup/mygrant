@@ -17,7 +17,7 @@ Merge Requests:
         1. #37 Set a closing time for polls - As the poll creator, I want to be able to set a closing time for a poll so that it doesn't accept votes past certain date.  
 * !22 - Resolve "View an association" : View association information.  
     - Issues related:
-        1. #39 Set a closing time for polls - As as User I want to view an association so that I can see its status.  
+        1. #39 View an association - As as User I want to view an association so that I can see its status.  
 
 
 
