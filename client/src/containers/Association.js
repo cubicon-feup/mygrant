@@ -3,6 +3,7 @@ import '../css/Signup.css';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import { Link } from 'react-router-dom';
 
 import { Container, Card, Icon, Segment } from 'semantic-ui-react';
 
@@ -51,14 +52,16 @@ class Association extends Component {
 
         associations.data.forEach((association) => {
           const element = (
-            <Card>
-                <Card.Content header={association.ass_name} />
-                <Card.Content description={association.missao} />
-                <Card.Content extra>
-                <Icon name='user' />
-                {association.id_creator}
-                </Card.Content>
-            </Card>
+            <Link to={'/association/'+ association.id} >
+                <Card>
+                    <Card.Content header={association.ass_name} />
+                    <Card.Content description={association.missao} />
+                    <Card.Content extra>
+                    <Icon name='user' />
+                    {association.id_creator}
+                    </Card.Content>
+                </Card>
+            </Link>
           );
           rows.push(element);
         });
@@ -79,7 +82,7 @@ class Association extends Component {
                 </Container>
             );
         }
-       
+
         return (
         <Container className="main-container">
             <div><h1>Associations</h1></div>
