@@ -41,7 +41,7 @@ router.get('/', function(req, res) {
 
     db.any(query)
         .then(data => {
-            res.status(200).json(data);
+            res.status(200).json({ data });
             console.log(data);
         })
         .catch(error => {

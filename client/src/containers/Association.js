@@ -6,6 +6,8 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { Container, Card, Icon } from 'semantic-ui-react';
 
+const urlForAssociation = '/api/associations/';
+
 class Association extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired,
@@ -14,15 +16,38 @@ class Association extends Component {
 
     constructor(props) {
         super(props);
-        
-        const {associations} = this.props;
-        this.state = { associations};
+        this.state = {
+          associations: null,
+          requestFailed: false
+          };
+    }
+
+    componentDidMount () {
+        this.getData();
+    }
+
+    getData() {
+        fetch(urlForAssociation)
+        .then(response => {
+            if (!response.ok) {
+                throw Error('Network request failed');
+            }
+
+            return response;
+        })
+        .then(result => result.json())
+        .then(result => {
+            this.setState({ associations: result });
+        }, () => {
+            // "catch" the error
+            this.setState({ requestFailed: true });
+        });
     }
 
     renderAssociations = () => {
         const rows = [];
         const {associations} = this.state;
-    
+
         associations.forEach((association) => {
           const element = (
             <Card>
@@ -36,7 +61,7 @@ class Association extends Component {
           );
           rows.push(element);
         });
-    
+
         return rows;
       };
 
@@ -44,7 +69,7 @@ class Association extends Component {
         return (
             <Container className="main-container">
                 <div><h1>Associations</h1></div>
-                {/* {this.renderAssociations()} */}
+                {console.log(this.state.associations)/* {this.renderAssociations()} */}
             </Container>
         );
     }
