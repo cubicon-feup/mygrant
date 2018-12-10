@@ -99,33 +99,6 @@ class MygrantHeader extends Component {
                 {
                     this.state.user.userId
                         ? <Menu.Item >
-                            <Link to={'/crowdfundings'} >
-                                    {'Crowdfunding Projects'}
-                                </Link>
-                            </Menu.Item>
-                        : null
-                }
-                {
-                    this.state.user.userId
-                        ? <Menu.Item >
-                            <Link to={'/polls'} >
-                                    {'Polls'}
-                                </Link>
-                            </Menu.Item>
-                        : null
-                }
-                {
-                    this.state.user.userId
-                        ? <Menu.Item >
-                            <Link to={'/createcrowdfunding'} >
-                                    {'Create a Crowdfunding Project'}
-                                </Link>
-                            </Menu.Item>
-                        : null
-                }
-                {
-                    this.state.user.userId
-                        ? <Menu.Item >
                             <Link to={'/createservice/PROVIDE'} >
                                     {'Provide a Service'}
                                 </Link>
@@ -135,8 +108,44 @@ class MygrantHeader extends Component {
                 {
                     this.state.user.userId
                         ? <Menu.Item >
-                            <Link to={'/association'} >
-                                    {'Association'}
+                            <Link to={'/crowdfundings'} >
+                                    {'Crowdfundings'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/createcrowdfunding'} >
+                                    {'Create a Crowdfunding'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/associations'} >
+                                    {'Associations'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/createassociation'} >
+                                    {'Create an Association'}
+                                </Link>
+                            </Menu.Item>
+                        : null
+                }
+                {
+                    this.state.user.userId
+                        ? <Menu.Item >
+                            <Link to={'/polls'} >
+                                    {'Polls'}
                                 </Link>
                             </Menu.Item>
                         : null

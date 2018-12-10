@@ -2,10 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
-//const expressJwt = require('express-jwt');
-//const appSecret = require('../config/config').secret;
-//const authenticate = expressJwt({ secret: appSecret });
-
 /**
  * @api {get} /associations/:id Get association
  * @apiName getAssociation
@@ -21,11 +17,25 @@ var db = require('../config/database');
  */
 router.get('/:association_id', function(req, res) {
     const query = `
-        SELECT id, id_creator, ass_name
+        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
         FROM association
         WHERE id = $(associationId);`;
 
     db.one(query, { associationId: req.params.association_id })
+        .then(data => {
+            res.status(200).json({ data });
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+router.get('/', function(req, res) {
+    const query = `
+    SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
+    FROM association;`;
+
+    db.any(query)
         .then(data => {
             res.status(200).json({ data });
         })
@@ -60,10 +70,10 @@ router.put('/:association policy.editid', function(req, res) {
         creatorId: req.user.id,
         newName: req.params.name
     }).then(() => {
-        res.status(200).send({ message: 'Successfully updated association.'});
+        res.status(200).send({ message: 'Successfully updated association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t update the association.'});
+        res.status(500).json({ error });
     });
 });
 
@@ -93,7 +103,7 @@ router.delete('/:association_id', function(req, res) {
         res.status(200).send({ message: 'Sucessfully deleted association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t delete the association.' });
+        res.status(500).json({ error });
     });
 });
 

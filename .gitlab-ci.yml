@@ -36,7 +36,7 @@ react_unit_tests:
     - cd client/
     - npm install
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
-    - npm test
+    - npm test -- --coverage
     - echo "Job done."
 
 eslint:

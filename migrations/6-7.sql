@@ -5,7 +5,10 @@ CREATE TABLE public.polls (
 	question text NOT NULL,
     free_text boolean NOT NULL,
 	options text,
-	closed boolean NOT NULL
+	closed boolean NOT NULL,
+	deleted boolean NOT NULL,
+	date_created timestamp with time zone DEFAULT now() NOT NULL,
+	date_finished timestamp with time zone NOT NULL
 );
 CREATE SEQUENCE public.poll_id_seq
 	START WITH 1
