@@ -1,102 +1,89 @@
-import React, { Component } from "react";
-import "../css/common.css";
-import { Container, Header, Form } from "semantic-ui-react";
+import React, { Component } from 'react';
+import '../css/Crowdfunding.css';
+
+import { Container, Button, Checkbox, Header, Grid, Label, Modal, Icon, Item, Rating, Loader,Progress, Responsive, Form, Radio} from 'semantic-ui-react';
+import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import ReactRouterPropTypes from 'react-router-prop-types';
+import { Link } from 'react-router-dom';
+//import ReactRouterPropTypes from 'react-router-prop-types';
 
+const apiPath = require('../config').apiPath;
+const urlForAssociation = association_id => '/api/associations/' + association_id;
 
-class CreateAssociation extends Component {
+class Association extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired,
-        history: ReactRouterPropTypes.history.isRequired
+        //history: ReactRouterPropTypes.history.isRequired
     };
-
 
     constructor(props) {
         super(props);
         this.state = {
-            associationCreator: "",
-            associationName: "",
-            mission: "",
-            acceptanceCriteria: "",
-            jewelry: "",
-            share: "",
-            date: ""
+          association: this.props.association,
+          associationId: this.props.match.params.association_id,
+          requestFailed: false
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
+        this.getData();
     }
 
-    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+    getData() {
+        fetch(urlForAssociation(this.state.associationId))
+        .then(response => {
+            if (!response.ok) {
+                throw Error('Network request failed');
+            }
+
+            return response;
+        })
+        .then(result => result.json())
+        .then(result => {
+            this.setState({ association: result });
+        }, () => {
+            // "catch" the error
+            this.setState({ requestFailed: true });
+        });
+    }
 
     render() {
-        const {
-            associationCreator,
-            associationName,
-            mission,
-            acceptanceCriteria,
-            jewelry,
-            share,
-            date
-        } = this.state;
+
+        if (this.state.requestFailed) {
+            return (
+                <Container className="main-container">
+                    <div>
+                        <h1>Request Failed</h1>
+                    </div>
+                </Container>
+            );
+        }
+
+        if (this.state.association == undefined) {
+            return (
+                <Container className="main-container">
+                    <div>
+                        <Loader active inline='centered' />
+                    </div>
+                </Container>
+            );
+        }
+
+        //console.log(this.state.association);
 
         return (
             <Container className="main-container">
-                <div>
-                    <Header as="h1">Create a Association</Header>
-                    <Form onSubmit={this.handleSubmit}>
-                    <Form.Input
-                            placeholder="Association Creator"
-                            name="association Creator"
-                            value={associationCreator}
-                            onChange={this.handleChange}
-                            required
-                        />
-                        <Form.Input
-                            placeholder="Association Name"
-                            name="association Name"
-                            value={associationName}
-                            onChange={this.handleChange}
-                            required
-                        />
-                        <Form.Input
-                            placeholder="Mission"
-                            name="mission"
-                            value={mission}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Input
-                            placeholder="Acceptance Criteria"
-                            name="acceptance Criteria"
-                            value={acceptanceCriteria}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Input
-                            placeholder="Jewelry"
-                            name="jewelry"
-                            value={jewelry}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Input
-                            placeholder="Share"
-                            name="share"
-                            value={share}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Input
-                            placeholder="Date"
-                            name="date"
-                            value={date}
-                            onChange={this.handleChange}
-                        />
-                        <Form.Button content="Create Association" />
-                    </Form>
-                </div>
+                <h1>Association</h1><hr></hr>
+                <h2>{this.state.association.data.ass_name}</h2>
+                <b>Creator:{this.state.association.data.id_creator}</b><br></br>
+                <b>Missao: {this.state.association.data.missao}</b><br></br>
+                <b>Criterios de entrada: {this.state.association.data.criterios_entrada}</b><br></br>
+                <b>Joia: {this.state.association.joia}</b><br></br>
+                <b>Quota: {this.state.association.quota}</b><br></br>
             </Container>
         );
     }
 }
 
-export default withCookies(CreateAssociation);
+export default withCookies(Association);

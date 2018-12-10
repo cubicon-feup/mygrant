@@ -15,7 +15,7 @@ const urlForPollAnswers = poll_id => '/api/polls/' + poll_id + '/answers';
 const urlForPollClose = poll_id => '/api/polls/' + poll_id + '/close';
 
 
-class Poll extends Component{
+class Poll extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -110,7 +110,7 @@ class Poll extends Component{
         
     }
 
-    getData(){
+    getData() {
         fetch(urlForPoll(this.state.poll_id))
             .then(response => {
                 if (!response.ok) {
