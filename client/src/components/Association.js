@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Button, Checkbox, Header, Grid, Label, Modal, Icon, Item, Rating, Loader,Progress, Responsive, Form, Radio} from 'semantic-ui-react';
+import { Container, Loader, Header, Grid, Icon, Segment } from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -74,13 +74,51 @@ class Association extends Component {
 
         return (
             <Container className="main-container">
-                <h1>Association</h1><hr></hr>
-                <h2>{this.state.association.data.ass_name}</h2>
-                <b>Creator:{this.state.association.data.id_creator}</b><br></br>
-                <b>Missao: {this.state.association.data.missao}</b><br></br>
-                <b>Criterios de entrada: {this.state.association.data.criterios_entrada}</b><br></br>
-                <b>Joia: {this.state.association.joia}</b><br></br>
-                <b>Quota: {this.state.association.quota}</b><br></br>
+                <Header as='h1'> Association </Header>
+                <Grid columns={2} divided>
+                    <Grid.Row>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="home" />
+                            Name: {this.state.association.data.ass_name}
+                        </Segment>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="male" />
+                            Creator Id: {this.state.association.data.id_creator}
+                        </Segment>
+                    </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="question circle outline" />
+                            Mission: {this.state.association.data.missao}
+                        </Segment>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="key" />
+                            Entrance Criteria: {this.state.association.data.criterios_entrada}
+                        </Segment>
+                    </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="gem" />
+                            Entry fee: {this.state.association.data.joia}
+                        </Segment>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Segment>
+                            <Icon name="envelope" />
+                            Monthly fee: {this.state.association.data.quota}
+                        </Segment>
+                    </Grid.Column>
+                    </Grid.Row>
+                </Grid>
             </Container>
         );
     }
