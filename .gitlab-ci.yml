@@ -5,6 +5,7 @@ stages:
   - build_react
   - express_tests
   - react_tests
+  - lint
  
 cache:
   paths:
@@ -37,3 +38,10 @@ react_unit_tests:
     - ./node_modules/.bin/node-sass src/scss -o src/css --output-style compressed
     - npm test
     - echo "Job done."
+
+eslint:
+  stage: lint
+  script:
+    - npm install -g eslint
+    - eslint --init
+    - eslint 'routes/associations.js'
