@@ -34,6 +34,21 @@ router.get('/:association_id', function(req, res) {
         });
 });
 
+router.get('/', function(req, res) {
+    const query = `
+    SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
+    FROM association;`;
+
+    db.any(query)
+        .then(data => {
+            res.status(200).json(data);
+            console.log(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
 /**
  * @api {put} /associations/:association_id Update association
  * @apiName UpdateAssociation

@@ -79,8 +79,8 @@ class Association extends Component {
                 <b>Creator:{this.state.association.data.id_creator}</b><br></br>
                 <b>Missao: {this.state.association.data.missao}</b><br></br>
                 <b>Criterios de entrada: {this.state.association.data.criterios_entrada}</b><br></br>
-                <b>Joia: {this.state.association.joia}</b><br></br>
-                <b>Quota: {this.state.association.quota}</b><br></br>
+                <b>Joia: {this.state.association.data.joia}</b><br></br>
+                <b>Quota: {this.state.association.data.quota}</b><br></br>
             </Container>
         );
     }
