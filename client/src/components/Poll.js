@@ -21,7 +21,7 @@ const hour = minute * 60;
 const day = hour * 24;
 
 
-class Poll extends Component{
+class Poll extends Component {
     constructor(props) {
         super(props);
         this.state = {

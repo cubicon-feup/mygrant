@@ -30,8 +30,9 @@ import MygrantHeader from './components/MygrantHeader';
 import { MygrantFooter, MygrantNav } from './components/Common';
 import Poll from './components/Poll';
 import Polls from './components/Polls';
-import Association from './containers/Association';
-import CreateAssociation from './components/Association';
+import Association from './components/Association';
+import Associations from './containers/Association';
+import CreateAssociation from './components/CreateAssociation';
 
 ReactDom.render(
     <Router>
@@ -62,8 +63,9 @@ ReactDom.render(
                 <Responsive as={MygrantFooter} minWidth={768} />
                 <ProtectedRoute exact path="/poll/:poll_id" component={Poll} />
                 <ProtectedRoute exact path="/polls" component={Polls} />
-                <Route exact path="/association/:id" component={Association} />
-                <Route exact path="/association" component={CreateAssociation} />
+                <Route exact path="/association/:association_id" component={Association} />
+                <Route exact path="/associations" component={Associations} />
+                <Route exact path="/createassociation" component={CreateAssociation} />
             </CookiesProvider>
         </div>
     </Router>,
