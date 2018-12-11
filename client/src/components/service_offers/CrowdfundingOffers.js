@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Button, Select, Header, Modal } from 'semantic-ui-react';
+import { withCookies, Cookies } from 'react-cookie';
 
 import RequestedServiceItem from './RequestedServiceItem';
 import CreateServiceCrowdfunding from '../CreateServiceCrowdfunding';
@@ -14,6 +15,7 @@ class CrowdfundingOffers extends Component {
         this.state = {
             requestedServices: []
         }
+        const { cookies } = this.props;
     }
 
     getRequestedServices() {
@@ -42,11 +44,15 @@ class CrowdfundingOffers extends Component {
                 );
             });
         }
+        let createServices;
+        if (this.props.userId == this.props.crowdfundingCreatorId)
+            createServices = <Link to={`/crowdfunding/${this.props.crowdfundingId}/createservice`}>Create Service</Link>
+
         return (
             <Container>
                 <h3 align="center">Services</h3>
                 {requestedServices}
-                <Link to={`/crowdfunding/${this.props.crowdfundingId}/createservice`}>Create Service</Link>
+                {createServices}
             </Container>
         );
     }
