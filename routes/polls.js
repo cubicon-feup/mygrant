@@ -23,7 +23,7 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT id, question, free_text, options, id_creator, creator_name, deleted
+        `SELECT id, question, free_text, options, id_creator, creator_name, deleted, date_finished
         FROM polls
         WHERE deleted = false`;
 

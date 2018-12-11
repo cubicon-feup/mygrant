@@ -553,7 +553,7 @@ class Poll extends Component {
         let timer;
         if (this.state.has_voted){
             if(this.state.timeDiff > 0)
-                timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds left</Header>
+                timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>{this.state.days} days, {this.state.hours}:{this.state.minutes}:{this.state.seconds} hours left</Header>
             else timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>Voting time has finished</Header>;
         }
         return (

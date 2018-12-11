@@ -307,7 +307,7 @@ router.post('/', authenticate, function(req, res) {
     let creatorId = req.user.id;
     let query =
         `INSERT INTO crowdfunding (title, description, category, location, latitude, longitude, mygrant_target, date_created, date_finished, status, creator_id)
-        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'COLLECTING', $(creator_id))
+        VALUES ($(title), $(description), $(category), $(location), $(latitude), $(longitude), $(mygrant_target), NOW(), NOW() + INTERVAL '$(time_interval) weeks', 'RECRUITING', $(creator_id))
         RETURNING id, date_finished;`;
 
     db.one(query, {
@@ -324,6 +324,7 @@ router.post('/', authenticate, function(req, res) {
         let crowdfundingId = data.id;
         let dateFinished = new Date(data.date_finished);
         cronJob.scheduleJob(crowdfundingId, dateFinished);
+        cronJob.scheduleCrowdfundingJob(crowdfundingId);
         res.status(201).send({id: crowdfundingId});
     }).catch(error => {
         console.log(error);
@@ -371,6 +372,7 @@ router.get('/:crowdfunding_id', function(req, res) {
     db.oneOrNone(query, {
         id: id
     }).then(data => {
+        cronJob.scheduleCrowdfundingJob(id);
         res.status(200).json(data);
     }).catch(error => {
         //console.log("Opa");
