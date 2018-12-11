@@ -42,6 +42,7 @@ react_unit_tests:
 eslint:
   stage: lint
   script:
+    - npm install
     - npm install -g eslint
     - npm install -g eslint-plugin-react
-    - eslint 'routes/associations.js'
+    - eslint 'routes/polls.js'
