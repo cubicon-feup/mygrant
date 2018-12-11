@@ -10,6 +10,7 @@ const urlForFriends = id => `/api/users/${id}/friends`;
 const urlForProvides = id => `/api/users/${id}/provides`;
 const urlForRequests = id => `/api/users/${id}/requests`;
 const urlForCrowdfundings = id => `/api/users/${id}/crowdfundings`;
+const urlForAssociations = id => `/api/users/${id}/associations`;
 const urlForBlockUser = `/api/users/block_user`;
 const urlForFriend = `/api/users/add_friend`;
 const urlForFriendRequest = `/api/users/friend_request`;
@@ -834,7 +835,7 @@ class ExtrasContainer extends Component {
 class User extends Component {
     constructor(props) {
         super(props);
-        this.state = {id: this.getID()};
+		this.state = {id: this.getID()};
 		this.blockUser = this.blockUser.bind(this);
 		this.updateDonationStatus = this.updateDonationStatus.bind(this);
 		this.updateLoanStatus = this.updateLoanStatus.bind(this);
@@ -946,6 +947,22 @@ class User extends Component {
 			result => this.setState({crowdfundings: result}),
 			() => console.log('ERROR')
 		);
+
+		// Associations
+		fetch(urlForAssociations(this.state.id))
+		.then(response => {
+			if (!response.ok) {
+				throw Error('Network request failed');
+			}
+		
+			return response;
+		})
+		.then(result => result.json())
+		.then(
+			result => this.setState({associations: result}),
+			() => console.log('ERROR'),
+			console.log(this.state.associations)
+		);
     }
 
 	blockUser() {
@@ -1012,6 +1029,12 @@ class User extends Component {
 						title="My Missions"
 						content={this.state.crowdfundings}
 						url="/crowdfunding/"
+					/>
+
+					<ExtrasContainer
+						title="My Associations"
+						content={this.state.associations}
+						url="/association/"
 					/>
 
 					<ExtrasContainer
