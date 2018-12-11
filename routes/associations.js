@@ -30,6 +30,17 @@ router.get('/:association_id', function(req, res) {
         });
 });
 
+/**
+ * @api {get} / Get associations
+ * @apiName getAssociations
+ * @apiGroup Associations
+ *
+ * @apiSuccess (Success 200) {Integer} association_id Association id.
+ * @apiSuccess (Success 200) {Text} association_name Association name.
+ * @apiSuccess (Success 200) {Text} association_description Association description.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
 router.get('/', function(req, res) {
     const query = `
     SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
@@ -45,6 +56,37 @@ router.get('/', function(req, res) {
 });
 
 /**
+ * @api {post} /associations/:association_id Create association
+ * @apiName CreateAssociation
+ * @apiGroup Associations
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} association_id Association id.
+ * @apiParam (RequestBody) {String} title
+ * @apiParam (RequestBody) {String} description
+ *
+ * @apiSuccess (Success 200) {String} message Successfully created association.
+ *
+ * @apiError (Error 400) BadRequest Invalid association data.
+ * @apiError (Error 500)  policy.editnternalServerError Could't create the association.
+ */
+router.post('/:association_id', function(req, res) {
+    const query = ` INSERT INTO association(id_creator,ass_name) 
+                        VALUES ($(idCreator), $(assName));`;
+
+    db.one(query, {
+        assName: req.body.associationName,
+        idCreator: req.body.creatorId
+    }).then(data => {
+        const associationId = data.id;
+        res.status(201).send({ id: associationId });
+    })
+    .catch(error => {
+        res.status(500).json({ error });
+    });
+});
+
+/**
  * @api {put} /associations/:association_id Update association
  * @apiName UpdateAssociation
  * @apiGroup Associations
@@ -56,10 +98,10 @@ router.get('/', function(req, res) {
  *
  * @apiSuccess (Success 200) {String} message Successfully updated association.
  *
- * @apiError (Error 400) BadRequest Invalid crowdfunding data.
+ * @apiError (Error 400) BadRequest Invalid association data.
  * @apiError (Error 500)  policy.editnternalServerError Could't update the association.
  */
-router.put('/:association policy.editid', function(req, res) {
+router.put('/:association_id', function(req, res) {
     const query = `
         UPDATE associatio policy.edit
         SET name = $(newN policy.editme)

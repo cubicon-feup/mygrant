@@ -88,11 +88,11 @@ ALTER TABLE ONLY public.ass_invitation
 -- TRIGGER PROCEDURES
 CREATE FUNCTION adminYourAssociation() RETURNS TRIGGER AS $adminYourAssociation$
 	BEGIN
-		IF EXISTS (SELECT * FROM public.ass_admin WHERE id_ass = NEW.id_ass AND id_admin = NEW.id_creator) THEN
-			RAISE INFO 'I am already an admin of this Association';
-		ELSE
+		--IF EXISTS (SELECT * FROM public.ass_admin WHERE id_ass = NEW.id_ass AND id_admin = NEW.id_creator) THEN
+		--	RAISE INFO 'I am already an admin of this Association';
+		--ELSE
 			INSERT INTO public.ass_admin (id_ass,id_admin) VALUES (NEW.id_ass, NEW.id_creator);
-		END IF;
+		--END IF;
 		RETURN NEW;
 	END;
 $adminYourAssociation$ LANGUAGE plpgsql;
@@ -104,11 +104,11 @@ CREATE TRIGGER adminYourAssociation
 
 CREATE FUNCTION acceptAssociationInvite() RETURNS TRIGGER AS $acceptAssociationInvite$
 	BEGIN
-		IF EXISTS (SELECT * FROM public.ass_member WHERE OLD.id_ass = id_ass AND OLD.id_sender = id_member) THEN
-			RAISE INFO 'I am already an member of this Association';
-		ELSE
+		--IF EXISTS (SELECT * FROM public.ass_member WHERE OLD.id_ass = id_ass AND OLD.id_sender = id_member) THEN
+		--	RAISE INFO 'I am already an member of this Association';
+		--ELSE
 			INSERT INTO public.ass_member (id_ass,id_member) VALUES (OLD.id_ass, OLD.id_sender);
-		END IF;
+		--END IF;
 		RETURN NEW;
 	END;
 $acceptAssociationInvite$ LANGUAGE plpgsql;
