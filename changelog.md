@@ -1,5 +1,5 @@
 ## No Sprint  
-2018/12/11
+2018/12/11  
 Merge requests:  
 * !26 - Resolve "Fix crowdfunding process" : Fixes crowdfunding process which didn't work as expected as it had no recruiting phase. 
     - Issues related:
