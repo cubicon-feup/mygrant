@@ -809,9 +809,8 @@ ALTER TABLE public.comment
 	ADD CONSTRAINT comment_on_service_or_crowdfunding CHECK (((service_id IS NULL) <> (crowdfunding_id IS NULL)));
 ALTER TABLE public.comment
 	ADD CONSTRAINT comment_same_service_as_reply CHECK (((in_reply_to IS NULL) OR ((in_reply_to IS NOT NULL) AND (service_id = public.get_service_of_comment(in_reply_to)) AND (crowdfunding_id = public.get_crowdfunding_of_comment(in_reply_to)))));
-
-ALTER TABLE public.crowdfunding
-	ADD CONSTRAINT balance_non_negative CHECK ((mygrant_balance >= 0));
+--ALTER TABLE public.crowdfunding
+--	ADD CONSTRAINT balance_non_negative CHECK ((mygrant_balance >= 0));
 ALTER TABLE public.crowdfunding
 	ADD CONSTRAINT target_positive CHECK ((mygrant_target > 0));
 
@@ -872,22 +871,21 @@ ALTER TABLE public.report
 	
 ALTER TABLE public.service
 	ADD CONSTRAINT can_only_be_created_by_user_xor_crowdfunding CHECK (((creator_id IS NULL) <> (crowdfunding_id IS NULL)));
-ALTER TABLE public.service
-	ADD CONSTRAINT crowdfunding_cant_provide_service CHECK ((((crowdfunding_id IS NULL) AND (service_type = 'PROVIDE'::public.service_types)) OR (service_type = 'REQUEST'::public.service_types)));
+--ALTER TABLE public.service
+--	ADD CONSTRAINT crowdfunding_cant_provide_service CHECK ((((crowdfunding_id IS NULL) AND (service_type = 'PROVIDE'::public.service_types)) OR (service_type = 'REQUEST'::public.service_types)));
 ALTER TABLE public.service
 	ADD CONSTRAINT radius_non_negative CHECK ((acceptable_radius >= 0));
 ALTER TABLE public.service
 	ADD CONSTRAINT value_positive CHECK ((mygrant_value > 0));
 	
-ALTER TABLE public.service_instance
-	ADD CONSTRAINT crowdfunding_cant_provide_service CHECK ((((public.get_service_type(service_id) = 'REQUEST'::text) AND (partner_id IS NOT NULL) AND (crowdfunding_id IS NULL)) OR ((public.get_service_type(service_id) = 'PROVIDE'::text))));
+--ALTER TABLE public.service_instance
+--	ADD CONSTRAINT crowdfunding_cant_provide_service CHECK ((((public.get_service_type(service_id) = 'REQUEST'::text) AND (partner_id IS NOT NULL) AND (crowdfunding_id IS NULL)) OR ((public.get_service_type(service_id) = 'PROVIDE'::text))));
 ALTER TABLE public.service_instance
 	ADD CONSTRAINT partner_xor_crowdfunding CHECK ((partner_id IS NULL) <> (crowdfunding_id IS NULL));
 ALTER TABLE public.service_instance
 	ADD CONSTRAINT rating_between_0_and_3 CHECK (((creator_rating >= 0) AND (creator_rating <= 3) AND (partner_rating >= 0) AND (partner_rating <= 3)));
-ALTER TABLE public.service_instance
-	ADD CONSTRAINT scheduled_after_creation_of_service CHECK ((date_scheduled > date_agreed));
-	
+--ALTER TABLE public.service_instance
+--	ADD CONSTRAINT scheduled_after_creation_of_service CHECK ((date_scheduled > date_agreed));		
 ALTER TABLE public.service_offer
 	ADD CONSTRAINT cant_offer_on_own_service CHECK ((NOT public.check_if_service_creator(service_id, candidate_id)));
 	
