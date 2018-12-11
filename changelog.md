@@ -1,3 +1,10 @@
+## No Sprint  
+2018/12/11
+Merge requests:  
+* !26 - Resolve "Fix crowdfunding process" : Fixes crowdfunding process which didn't work as expected as it had no recruiting phase. 
+    - Issues related:
+        1. #42 Fix crowdfunding process - As a crowdfund owner, I want there to be a recruiting phase before the collection of funds so that I can set the services for this crowdfunding event.
+
 ## Sprint 5
 Merge Requests:
 * !19 - Adding ci test coverage : Adds coverage for the existing tests.  
