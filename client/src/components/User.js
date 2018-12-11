@@ -960,8 +960,7 @@ class User extends Component {
 		.then(result => result.json())
 		.then(
 			result => this.setState({associations: result}),
-			() => console.log('ERROR'),
-			console.log(this.state.associations)
+			() => console.log('ERROR')
 		);
     }
 
