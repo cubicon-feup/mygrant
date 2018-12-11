@@ -27,7 +27,7 @@ Merge Requests:
 
 
 
-## Sprint 1-4
+## Sprint 1-4(Incomplete)
 * As a User I want to acess the crowdfing list.
 * As a Project Pledger I want to be able to donate to a specific project so I can contribute to the community
 * As a Project Pledger I want to be able to check the crowdfunding project's performance
