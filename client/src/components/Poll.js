@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/Crowdfunding.css';
 
-import { Container, Button, Checkbox, Header, Grid, Label, Modal, Icon, Item, Rating, Loader,Progress, Responsive, Form, Radio} from 'semantic-ui-react';
+import { Container, Button, Checkbox, Header, Grid, Label, Modal, Icon, Item, Message, Loader,Progress, Responsive, Form, Transition} from 'semantic-ui-react';
 import { MygrantDividerLeft, MygrantDividerRight } from './Common';
 import { Pie } from 'react-chartjs-2';
 import { instanceOf } from 'prop-types';
@@ -14,6 +14,7 @@ const urlForPoll = poll_id => '/api/polls/' + poll_id;
 const urlForPollAnswers = poll_id => '/api/polls/' + poll_id + '/answers';
 const urlForPollClose = poll_id => '/api/polls/' + poll_id + '/close';
 const urlForPollDelete = poll_id => '/api/polls/' + poll_id + '/delete';
+const urlForPollRate = poll_id => '/api/polls/' + poll_id + '/rate';
 
 const second = 1000;
 const minute = second * 60;
@@ -42,7 +43,10 @@ class Poll extends Component {
             open: false,
             open2: false,
             timer: null,
-            timeDiff: this.props.timeDiff
+            timeDiff: this.props.timeDiff,
+            poll_rating : null,
+            visible : false,
+            approval_perc : 0
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -50,6 +54,7 @@ class Poll extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleModalClick = this.handleModalClick.bind(this);
         this.handleModalDeleteClick = this.handleModalDeleteClick.bind(this);
+        this.handleRatingClick = this.handleRatingClick.bind(this);
         this.tick = this.tick.bind(this);
 
         const { cookies } = this.props;
@@ -68,6 +73,8 @@ class Poll extends Component {
 
     show2 = dimmer2 => () => this.setState({ dimmer2, open2: true });
     close2 = () => this.setState({ open2: false });
+
+    toggleVisibility = () => this.setState({ visible: !this.state.visible });
 
     componentWillUnmount() {
         clearInterval(this.state.timer);
@@ -97,8 +104,6 @@ class Poll extends Component {
         this.setState({ optionChecked : 'No option' })
 
     };
-
-    
 
     submit_answer(answer){
         const { cookies } = this.props;
@@ -200,6 +205,45 @@ class Poll extends Component {
 
     }
 
+    handleRatingClick = (e, { name, value }) => {
+        const { cookies } = this.props;
+
+        fetch(urlForPollRate(this.state.poll_id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                was_useful: value
+            })
+        }).then(res => {
+            if(res.status === 201) {
+                this.setState({visible : false});
+
+                const { cookies } = this.props;
+                let userId = cookies.get('user_id');
+
+                var poll_answers = this.state.poll_answers;
+
+                for (var i = 0; i < poll_answers.length; i++){
+                    
+
+                    if (poll_answers[i]['id_user'] == userId){
+                        poll_answers[i]['was_useful'] = value;
+                        //Object.assign(poll_answers[i],{was_useful : value});
+                        break;
+                    }
+                }
+                console.log(poll_answers);
+                this.setState({poll_answers : poll_answers}, this.update_approval_rate());
+
+            }
+        })
+    
+    };
+
+
     handleModalDeleteClick = (event) => {
         const { cookies } = this.props;
             
@@ -255,13 +299,30 @@ class Poll extends Component {
 
             const { cookies } = this.props;
             let userId = cookies.get('user_id');
+
+            var total_rating_answers = 0;
+            var pos_rating_answers = 0;
+    
             for (let voter of result){
                 if (voter['id_user'] == userId)
                 {
                     this.setState({has_voted : true});
-                    break;
+                    if (voter['was_useful'] == null)
+                        this.setState({visible : true});
+                }
+    
+                if (voter['was_useful'] != null){
+                    total_rating_answers++;
+                }
+    
+                if (voter['was_useful'] == 1){
+                    pos_rating_answers++;
                 }
             }
+    
+            var ratio = (pos_rating_answers/total_rating_answers)*100;
+    
+            this.setState({approval_perc : ratio});
 
             if (this.state.has_voted == undefined)
             {
@@ -273,16 +334,48 @@ class Poll extends Component {
             this.setState({ requestFailed: true });
         });
 
+    }
 
+    update_approval_rate(){
 
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+
+        var total_rating_answers = 0;
+        var pos_rating_answers = 0;
+
+        for (let voter of this.state.poll_answers){
+
+            if (voter['was_useful'] != null){
+                total_rating_answers++;
+            }
+
+            if (voter['was_useful'] == 1){
+                pos_rating_answers++;
+            }
+        }
+
+        var ratio = (pos_rating_answers/total_rating_answers)*100;
+
+        this.setState({approval_perc : ratio});
     }
 
 
     totalVotes(index, total_answers){
         var options = this.state.poll.options.split('|||');
 
-        if (index == options.length - 1)
-            return(<Item.Extra>Total votes: {total_answers}</Item.Extra>);
+        if (index == options.length - 1){
+            if (this.state.visible == true)
+                return(<Item.Extra>Total votes: {total_answers} </Item.Extra>);
+            else
+                return(
+                    <Item.Extra>
+                        Total votes: {total_answers} 
+                        <span>&nbsp;&nbsp;</span> | <span>&nbsp;&nbsp;</span>
+                        {this.state.approval_perc}% of the users thought this poll was useful
+                    </Item.Extra>);
+        }
+
     }
 
 
@@ -524,6 +617,30 @@ class Poll extends Component {
         }
     }
 
+    ratePoll(){
+        const { visible } = this.state;
+        if (this.state.has_voted){
+            return(
+                <Transition visible={visible} animation='scale' duration={500}>
+                    <Message info>
+                        <Message.Content>
+                        <Message.Header>Please give us your thoughts.</Message.Header>
+                        <Grid columns={2}>
+                            <Grid.Column>
+                                Was this poll useful?
+                            </Grid.Column>
+                            <Grid.Column textAlign='right'>
+                                <Label as='a' size='large' name='poll_rating' value='1' onClick={this.handleRatingClick}>Yes</Label>
+                                <Label as='a' size='large' name='poll_rating' value='0' onClick={this.handleRatingClick} style={{marginLeft:'20px'}}>No</Label>
+                            </Grid.Column>
+                        </Grid>
+                        </Message.Content>
+                    </Message>
+                </Transition>
+            );
+        }
+    }
+
     render() {
         if(this.state.requestFailed) {
           return (
@@ -556,6 +673,8 @@ class Poll extends Component {
                 timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>{this.state.days} days, {this.state.hours}:{this.state.minutes}:{this.state.seconds} hours left</Header>
             else timer = <Header as="h3" style={{marginTop:' 42px',textAlign:'right'}}>Voting time has finished</Header>;
         }
+
+        
         return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container>
@@ -578,6 +697,7 @@ class Poll extends Component {
                 <Grid stackable columns={3} className="crowdfunding_grid">
                     <Grid.Column width={8} className="left_col">
                         {this.displayDecision(answers)}
+                        {this.ratePoll()}
                     </Grid.Column>
                     <Grid.Column width={2} />
                     <Grid.Column width={6} className="right_col">
