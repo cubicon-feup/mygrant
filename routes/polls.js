@@ -323,16 +323,16 @@ router.post('/:poll_id/rate', authenticate, function(req, res) {
 
         var vote_value = req.body.was_useful;
 
-        if (isNaN(vote_value))
+        if (isNaN(vote_value)) {
             vote_value = 1;
+        }
 
-        if (vote_value > 1)
+        if (vote_value > 1) {
             vote_value = 1;
-
-        if (vote_value < 0)
+        }
+        if (vote_value < 0) {
             vote_value = 0;
-
-
+        }
         let query =
         `UPDATE public.polls_answers
         SET was_useful = $(was_useful)
