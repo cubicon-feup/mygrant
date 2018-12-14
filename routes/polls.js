@@ -211,7 +211,7 @@ router.get('/:poll_id/answers', function(req, res) {
 
         let id = req.params.poll_id;
         let query =
-            `SELECT id_user, answer
+            `SELECT id_user, answer, was_useful
             FROM polls_answers
             WHERE id_poll = $(id);`;
 
@@ -288,6 +288,69 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
 
     }).catch(() => {
         res.status(403).json('User has Voted');
+    });
+
+});
+
+/**
+ * @api {post} /polls/:poll_id/rate Rate poll
+ * @apiName Rate
+ * @apiGroup Poll
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ *
+ * @apiParam (RequestUser) {Integer} user_id Id of user that answered.
+ *
+ * @apiParam (RequestBody) {String} was_useful Poll rating.
+ *
+ * @apiSuccess (Success 201) {String} message Sucessfully rated poll.
+ *
+ * @apiError (Error 500) InternalServerError Error adding rating.
+ */
+router.post('/:poll_id/rate', authenticate, function(req, res) {
+
+    let queryUserHasVoted =
+        `SELECT answer
+        FROM public.polls_answers
+        WHERE id_poll = $(id_poll)
+        AND id_user = $(id_user);`;
+
+    db.one(queryUserHasVoted, {
+        id_poll: req.params.poll_id,
+        id_user: req.user.id
+    }).then(() => {
+
+        var vote_value = req.body.was_useful;
+
+        if (isNaN(vote_value))
+            vote_value = 1;
+
+        if (vote_value > 1)
+            vote_value = 1;
+
+        if (vote_value < 0)
+            vote_value = 0;
+
+
+        let query =
+        `UPDATE public.polls_answers
+        SET was_useful = $(was_useful)
+        WHERE id_poll = $(id_poll) 
+        AND id_user = $(id_user);`;
+
+        db.none(query, {
+            id_poll: req.params.poll_id,
+            id_user: req.user.id,
+            was_useful: vote_value
+        }).then(() => {
+            res.status(201).send('Sucessfully rated poll.');
+        }).catch(() => {
+            res.status(500).json('Error rating poll.');
+        });
+
+    }).catch(() => {
+        res.status(403).json('User has not voted');
     });
 
 });
