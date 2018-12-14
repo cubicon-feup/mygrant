@@ -1,4 +1,11 @@
-## No Sprint(2018/12/11)
+## No Sprint
+### 2018/12/14
+Merge requests:  
+* !27 - Resolve "Poll was useful"  : Gives users capabilities to rate the polls usefulness.
+    - Issues related:
+        1. #43 Poll was useful - As a poll voter, I want to be able to rate polls so as to determine if they were useful or not.
+
+### 2018/12/11
 Merge requests:  
 * !26 - Resolve "Fix crowdfunding process" : Fixes crowdfunding process which didn't work as expected as it had no recruiting phase. 
     - Issues related:
