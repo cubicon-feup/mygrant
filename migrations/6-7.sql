@@ -22,7 +22,8 @@ ALTER SEQUENCE public.poll_id_seq OWNED BY public.polls.id;
 CREATE TABLE public.polls_answers (
 	id_poll integer NOT NULL,
 	id_user integer NOT NULL,
-	answer text NOT NULL
+	answer text NOT NULL,
+	was_useful integer 
 );
 
 
