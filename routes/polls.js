@@ -220,7 +220,7 @@ router.get('/:poll_id/answers', function(req, res) {
         }).then(data => {
             res.status(200).json(data);
         }).catch(() => {
-            res.status(500).json('Coudln\'t get poll answers');
+            res.status(200).json('Coudln\'t get poll answers');
         });
     }).catch(() => {
         res.status(500).json('Poll is closed.');
