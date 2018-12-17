@@ -5,7 +5,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-const urlForCreate = '/api/associations';
+const urlForCreate = 'http://localhost:3001/api/associations/createassociation';
 
 class CreateAssociation extends Component {
     static propTypes = {
@@ -13,20 +13,19 @@ class CreateAssociation extends Component {
         history: ReactRouterPropTypes.history.isRequired
     };
 
-
     constructor(props) {
         super(props);
         this.state = {
             acceptanceCriteria: '',
             associationName: '',
+            creatorId: '',
             initialFee: '',
             mission: '',
             monthlyFee: ''
         };
     }
 
-    componentDidMount(){
-        
+    componentDidMount() {
     };
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
@@ -43,12 +42,14 @@ class CreateAssociation extends Component {
             body: JSON.stringify({
                 associationName: this.state.associationName,
                 acceptanceCriteria: this.state.acceptanceCriteria,
+                // get current user
+                creatorId: 1001,
                 mission: this.state.mission,
                 initialFee: this.state.initialFee,
                 monthlyFee: this.state.monthlyFee
             })
         }).then(res => {
-            if(res.status === 201) {
+            if (res.status === 201) {
                 res.json()
                     .then(data => {
                         this.props.history.push(`/association/${data.id}`);

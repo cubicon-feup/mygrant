@@ -70,7 +70,7 @@ router.get('/', function(req, res) {
  * @apiError (Error 400) BadRequest Invalid association data.
  * @apiError (Error 500)  policy.editnternalServerError Could't create the association.
  */
-router.post('/:association_id', function(req, res) {
+router.post('/simpleassociation', function(req, res) {
     const query = ` INSERT INTO association(id_creator,ass_name)
                         VALUES ($(idCreator), $(assName));`;
 
@@ -103,7 +103,7 @@ router.post('/:association_id', function(req, res) {
  */
 router.put('/:association_id', function(req, res) {
     const query = `
-        UPDATE associatio policy.edit
+        UPDATE association policy.edit
         SET name = $(newN policy.editme)
         WHERE id = $(asso policy.editiationId)
             AND id_creator = $(creatorId);`;
@@ -149,7 +149,7 @@ router.delete('/:association_id', function(req, res) {
     });
 });
 
-router.post('/', authenticate, function(req, res) {
+router.post('/createassociation', function(req, res) {
     let associationName = req.body.associationName;
     let acceptanceCriteria = req.body.acceptanceCriteria;
     let mission = req.body.mission;
@@ -157,7 +157,7 @@ router.post('/', authenticate, function(req, res) {
     let monthlyFee = req.body.monthlyFee;
     let creatorId = req.user.id;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     let query =
         `INSERT INTO association (id_creator, ass_name, missao, criterios_entrada, joia, quota)
@@ -173,10 +173,10 @@ router.post('/', authenticate, function(req, res) {
         creatorId: creatorId
     }).then(data => {
         let associationId = data.id;
-        res.status(201).send({id: associationId});
+        res.status(201).send({ id: associationId });
     }).catch(error => {
-        console.log(error);
-        res.status(500).json({error: 'Couldn\'t create an association.'});
+        // console.log(error);
+        res.status(500).json({ error });
     });
 });
 
