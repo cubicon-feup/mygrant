@@ -5,6 +5,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
+const urlForCreate = '/api/associations';
 
 class CreateAssociation extends Component {
     static propTypes = {
@@ -24,10 +25,37 @@ class CreateAssociation extends Component {
         };
     }
 
-    componentDidMount() {
-    }
+    componentDidMount(){
+        
+    };
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
+
+    handleSubmit = () => {
+        console.log('here');
+        const { cookies } = this.props;
+        fetch(urlForCreate, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cookies.get('id_token')}`
+            },
+            body: JSON.stringify({
+                associationName: this.state.associationName,
+                acceptanceCriteria: this.state.acceptanceCriteria,
+                mission: this.state.mission,
+                initialFee: this.state.initialFee,
+                monthlyFee: this.state.monthlyFee
+            })
+        }).then(res => {
+            if(res.status === 201) {
+                res.json()
+                    .then(data => {
+                        this.props.history.push(`/association/${data.id}`);
+                    })
+            }
+        })
+    }
 
     render() {
         const {
@@ -41,11 +69,11 @@ class CreateAssociation extends Component {
         return (
             <Container className="main-container">
                 <div>
-                    <Header as="h1">Create a Association</Header>
+                    <Header as="h1">Create an Association</Header>
                     <Form onSubmit={this.handleSubmit}>
                         <Form.Input
                             placeholder="Association Name"
-                            name="association Name"
+                            name="associationName"
                             value={associationName}
                             onChange={this.handleChange}
                             required
@@ -58,7 +86,7 @@ class CreateAssociation extends Component {
                         />
                         <Form.Input
                             placeholder="Acceptance Criteria"
-                            name="acceptance Criteria"
+                            name="acceptanceCriteria"
                             value={acceptanceCriteria}
                             onChange={this.handleChange}
                         />
@@ -66,12 +94,14 @@ class CreateAssociation extends Component {
                             placeholder="Initial Fee"
                             name="initialFee"
                             value={initialFee}
+                            type="number"
                             onChange={this.handleChange}
                         />
                         <Form.Input
                             placeholder="Monthly Fee"
                             name="monthlyFee"
                             value={monthlyFee}
+                            type="number"
                             onChange={this.handleChange}
                         />
                         <Form.Button content="Create Association" />

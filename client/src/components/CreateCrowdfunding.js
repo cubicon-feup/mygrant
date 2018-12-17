@@ -90,7 +90,7 @@ class CreateCrowdfunding extends Component {
                 latitude: this.state.latitude,
                 longitude: this.state.longitude,
                 time_interval: crowdfundingCollectingWeeks,
-                mygrant_target: this.state.mygrant_target,
+                mygrant_target: this.state.mygrant_target
             })
         }).then(res => {
             if(res.status === 201) {

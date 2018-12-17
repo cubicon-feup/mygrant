@@ -71,7 +71,7 @@ router.get('/', function(req, res) {
  * @apiError (Error 500)  policy.editnternalServerError Could't create the association.
  */
 router.post('/:association_id', function(req, res) {
-    const query = ` INSERT INTO association(id_creator,ass_name) 
+    const query = ` INSERT INTO association(id_creator,ass_name)
                         VALUES ($(idCreator), $(assName));`;
 
     db.one(query, {
@@ -146,6 +146,37 @@ router.delete('/:association_id', function(req, res) {
     })
     .catch(error => {
         res.status(500).json({ error });
+    });
+});
+
+router.post('/', authenticate, function(req, res) {
+    let associationName = req.body.associationName;
+    let acceptanceCriteria = req.body.acceptanceCriteria;
+    let mission = req.body.mission;
+    let initialFee = req.body.initialFee;
+    let monthlyFee = req.body.monthlyFee;
+    let creatorId = req.user.id;
+
+    console.log(req.body);
+
+    let query =
+        `INSERT INTO association (id_creator, ass_name, missao, criterios_entrada, joia, quota)
+        VALUES ($(creatorId), $(associationName), $(mission), $(acceptanceCriteria), $(initialFee), $(monthlyFee))
+        RETURNING id`;
+
+    db.one(query, {
+        associationName: associationName,
+        acceptanceCriteria: acceptanceCriteria,
+        mission: mission,
+        initialFee: initialFee,
+        monthlyFee: monthlyFee,
+        creatorId: creatorId
+    }).then(data => {
+        let associationId = data.id;
+        res.status(201).send({id: associationId});
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({error: 'Couldn\'t create an association.'});
     });
 });
 
