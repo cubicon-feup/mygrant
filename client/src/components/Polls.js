@@ -6,7 +6,7 @@ import { withCookies, cookies } from 'react-cookie';
 import { Z_PARTIAL_FLUSH } from 'zlib';
 
 const apiPath = require('../config').apiPath;
-const urlForPolls = 'http://localhost:3001/api/polls';
+const urlForPolls = `/api/polls`;
 const urlForUser = id => `/api/users/${id}`;
 const urlForPoll = poll_id => '/api/polls/' + poll_id;
 
