@@ -77,8 +77,9 @@ class Service extends Component {
                 Authorization: `Bearer ${cookies.get('id_token')}`
             },
             body: JSON.stringify({
-                partner_id: candidate.requester_id,
-                date_scheduled: candidate.date_proposed
+                service_id: this.state.service.id,
+                date_scheduled: candidate.date_proposed,
+                crowdfunding_id: this.props.crowdfundingId
             })
         }).then(res => {
             if(res.status === 200) {

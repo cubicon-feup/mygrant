@@ -139,7 +139,7 @@ describe('<Polls answers/>', () => {
             }
     ];
 
-    const wrapper = mountWrap(<Poll poll={poll} answers={poll_answers} has_voted={false}  match={{params: {poll_id: 1007}}}/>);
+    const wrapper = mountWrap(<Poll poll={poll} answers={poll_answers} has_voted={false} timeDiff={0}  match={{params: {poll_id: 1007}}}/>);
 
 
     it('poll title is loaded', () => {

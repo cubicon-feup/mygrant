@@ -2,10 +2,6 @@ var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
 
-//const expressJwt = require('express-jwt');
-//const appSecret = require('../config/config').secret;
-//const authenticate = expressJwt({ secret: appSecret });
-
 /**
  * @api {get} /associations/:id Get association
  * @apiName getAssociation
@@ -21,7 +17,7 @@ var db = require('../config/database');
  */
 router.get('/:association_id', function(req, res) {
     const query = `
-        SELECT id, id_creator, ass_name
+        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
         FROM association
         WHERE id = $(associationId);`;
 
@@ -32,6 +28,62 @@ router.get('/:association_id', function(req, res) {
         .catch(error => {
             res.status(500).json({ error });
         });
+});
+
+/**
+ * @api {get} / Get associations
+ * @apiName getAssociations
+ * @apiGroup Associations
+ *
+ * @apiSuccess (Success 200) {Integer} association_id Association id.
+ * @apiSuccess (Success 200) {Text} association_name Association name.
+ * @apiSuccess (Success 200) {Text} association_description Association description.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
+router.get('/', function(req, res) {
+    const query = `
+    SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
+    FROM association;`;
+
+    db.any(query)
+        .then(data => {
+            res.status(200).json({ data });
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
+/**
+ * @api {post} /associations/:association_id Create association
+ * @apiName CreateAssociation
+ * @apiGroup Associations
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} association_id Association id.
+ * @apiParam (RequestBody) {String} title
+ * @apiParam (RequestBody) {String} description
+ *
+ * @apiSuccess (Success 200) {String} message Successfully created association.
+ *
+ * @apiError (Error 400) BadRequest Invalid association data.
+ * @apiError (Error 500)  policy.editnternalServerError Could't create the association.
+ */
+router.post('/simpleassociation', function(req, res) {
+    const query = ` INSERT INTO association(id_creator,ass_name)
+                        VALUES ($(idCreator), $(assName));`;
+
+    db.one(query, {
+        assName: req.body.associationName,
+        idCreator: req.body.creatorId
+    }).then(data => {
+        const associationId = data.id;
+        res.status(201).send({ id: associationId });
+    })
+    .catch(error => {
+        res.status(500).json({ error });
+    });
 });
 
 /**
@@ -46,12 +98,12 @@ router.get('/:association_id', function(req, res) {
  *
  * @apiSuccess (Success 200) {String} message Successfully updated association.
  *
- * @apiError (Error 400) BadRequest Invalid crowdfunding data.
+ * @apiError (Error 400) BadRequest Invalid association data.
  * @apiError (Error 500)  policy.editnternalServerError Could't update the association.
  */
-router.put('/:association policy.editid', function(req, res) {
+router.put('/:association_id', function(req, res) {
     const query = `
-        UPDATE associatio policy.edit
+        UPDATE association policy.edit
         SET name = $(newN policy.editme)
         WHERE id = $(asso policy.editiationId)
             AND id_creator = $(creatorId);`;
@@ -60,10 +112,10 @@ router.put('/:association policy.editid', function(req, res) {
         creatorId: req.user.id,
         newName: req.params.name
     }).then(() => {
-        res.status(200).send({ message: 'Successfully updated association.'});
+        res.status(200).send({ message: 'Successfully updated association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t update the association.'});
+        res.status(500).json({ error });
     });
 });
 
@@ -93,7 +145,29 @@ router.delete('/:association_id', function(req, res) {
         res.status(200).send({ message: 'Sucessfully deleted association.' });
     })
     .catch(error => {
-        res.status(500).json({ error: 'Could\'t delete the association.' });
+        res.status(500).json({ error });
+    });
+});
+
+router.post('/createassociation', function(req, res) {
+
+    const query =
+        `INSERT INTO association (id_creator, ass_name, missao, criterios_entrada, joia, quota)
+        VALUES ($(creatorId), $(associationName), $(mission), $(acceptanceCriteria), $(initialFee), $(monthlyFee))
+        RETURNING id`;
+
+    db.one(query, {
+        associationName: req.body.associationName,
+        acceptanceCriteria: req.body.acceptanceCriteria,
+        mission: req.body.mission,
+        initialFee: req.body.initialFee,
+        monthlyFee: req.body.monthlyFee,
+        creatorId: req.body.creatorId
+    }).then(data => {
+        const associationId = data.id;
+        res.status(201).send({ id: associationId });
+    }).catch(error => {
+        res.status(500).json({ error });
     });
 });
 

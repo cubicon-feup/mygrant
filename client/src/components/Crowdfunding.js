@@ -353,6 +353,9 @@ class Crowdfunding extends Component {
             timer = <p>{this.state.days} days, {this.state.hours} hours, {this.state.minutes} minutes, {this.state.seconds} seconds</p>
         else timer = <p>Already ended</p>;
 
+        const { cookies } = this.props;
+        let userId = cookies.get('user_id');
+
       return (
         <Container className="main-container" id="crowdfunding_base_container" fluid={true}>
             <Container textAlign="center">
@@ -405,7 +408,7 @@ class Crowdfunding extends Component {
             <Container id="services_donators">
                 <Grid stackable columns={3}>
                     <Grid.Column width={9}>
-                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} crowdfundingCreatorId={this.state.crowdfunding.creator_id} />
+                        <CrowdfundingOffers crowdfundingId={this.state.crowdfundingId} crowdfundingCreatorId={this.state.crowdfunding.creator_id} userId={userId}/>
                         {/*<h4 align="center">Services</h4>
                         <Item.Group divided>
                             <Item>

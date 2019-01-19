@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import '../css/common.css';
 import { Link, Redirect } from 'react-router-dom';
-import { Container, Header, Divider, Transition, Message, Grid, Table, Form, Card, Loader, Label, Modal, Item, Button, Icon, Menu} from 'semantic-ui-react';
+import { Container, Header, Divider, Transition, Message, Grid, Tab, Form, Card, Loader, Label, Modal, Item, Button, Icon, Menu} from 'semantic-ui-react';
 import { withCookies, cookies } from 'react-cookie';
 import { Z_PARTIAL_FLUSH } from 'zlib';
 
 const apiPath = require('../config').apiPath;
-const urlForPolls = 'http://localhost:3001/api/polls';
+const urlForPolls = `/api/polls`;
 const urlForUser = id => `/api/users/${id}`;
 const urlForPoll = poll_id => '/api/polls/' + poll_id;
 
@@ -21,7 +21,8 @@ class Polls extends Component {
             message_content : '',
             visible : false,
             answers : [],
-            polls : this.props.polls
+            polls : this.props.polls,
+            time_interval : 7
         };
 
         this.table_body = [];
@@ -30,6 +31,7 @@ class Polls extends Component {
         this.handleChangeAnswer = this.handleChangeAnswer.bind(this);
         this.add_answers = this.add_answers.bind(this);
         this.remove_answers = this.remove_answers.bind(this);
+        this.handleFreeTextSubmit = this.handleFreeTextSubmit.bind(this);
         this.max_answers = 10;
     }
 
@@ -121,6 +123,15 @@ class Polls extends Component {
 
         if (message_to_send == ''){
 
+            var time_interval = this.state.time_interval;
+            if (isNaN(time_interval)){
+                time_interval = 7;
+            } else {
+                if (time_interval < 1)
+                    time_interval = 7;
+                if (time_interval > 365)
+                    time_interval = 7;
+            }
 
             const { cookies } = this.props;
             fetch(urlForPolls, {
@@ -133,7 +144,8 @@ class Polls extends Component {
                     question : this.state.question,
                     options : this.state.answers,
                     free_text : 'false',
-                    creator_name : cookies.get('user_full_name')
+                    creator_name : cookies.get('user_full_name'),
+                    time_interval : time_interval
                 })
             }).then(res => {
                 res.json()
@@ -145,6 +157,44 @@ class Polls extends Component {
             this.show_message(message_to_send);
 
     }
+
+    handleFreeTextSubmit = (event) => {
+
+        if (this.state.question != ''){
+
+            var time_interval = this.state.time_interval;
+            if (isNaN(time_interval)){
+                time_interval = 7;
+            } else {
+                if (time_interval < 1)
+                    time_interval = 7;
+                if (time_interval > 365)
+                    time_interval = 7;
+            }
+
+            const { cookies } = this.props;
+            fetch(urlForPolls, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${cookies.get('id_token')}`
+                },
+                body: JSON.stringify({
+                    question : this.state.question,
+                    free_text : 'true',
+                    creator_name : cookies.get('user_full_name'),
+                    time_interval : time_interval
+                })
+            }).then(res => {
+                res.json()
+                .then(data => {
+                    this.props.history.push(`/poll/${data.id}`);
+                })
+            })
+        }
+
+    }
+
 
     /*add_creator_names = async (result) => {
         for (var i = 0; i < result.length; i++){
@@ -262,6 +312,89 @@ class Polls extends Component {
         return card_group;
     }
 
+    define_panes(){
+
+        const { open, dimmer } = this.state;
+        const { visible } = this.state
+
+        this.state.panes = [
+            { menuItem: 'Multiple choice poll', render: () => 
+            <Tab.Pane style={{border:'0px'}}>
+                <Form>
+                    <Header size='medium'>What do you want to ask?</Header>
+                    <Form.Input
+                        type='text'
+                        placeholder="Question"
+                        name="question"
+                        value={this.state.question}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Group inline>
+                        <Header size='medium' style={{marginTop:'10px'}}>Close in (Days):</Header>
+                        <span>&nbsp;&nbsp;</span>
+                        <Form.Input
+                            type='text'
+                            placeholder="7"
+                            name="time_interval"
+                            value={this.state.time_interval}
+                            onChange={this.handleChange}
+                        />
+                    </Form.Group>
+                    <Header size='medium'>Possible Answers
+                        <Label as='a' onClick={this.add_answers}>
+                            Add an answer
+                            <Label.Detail>
+                                <Icon name='plus'/>
+                            </Label.Detail>
+                        </Label>
+                        <Label as='a' style={{width:'30px'}} onClick={this.remove_answers}>
+                            <Icon name='minus'/>
+                        </Label>
+                    </Header>
+                    {this.create_answer_forms()}
+
+                    <Form.Button style={{marginBottom:'20px'}}  content="Submit" floated='right' onClick={this.handleSubmit}/>
+                </Form>
+                <div>
+                        <Transition visible={visible} animation='scale' duration={500}>
+                        <Message
+                            warning
+                            header='Missing content'
+                            content={this.state.message_content}
+                            style={{width:'80%',height:'65px'}}
+                        />
+                        </Transition>
+                </div>
+            </Tab.Pane> },
+            { menuItem: 'Free text poll', render: () => 
+            <Tab.Pane style={{border:'0px'}}>
+                <Form>
+                    <Header size='medium'>What do you want to ask?</Header>
+                    <Form.Input
+                        type='text'
+                        placeholder="Question"
+                        name="question"
+                        value={this.state.question}
+                        onChange={this.handleChange}
+                    />
+                    <Form.Group inline>
+                        <Header size='medium' style={{marginTop:'10px'}}>Close in (Days):</Header>
+                        <span>&nbsp;&nbsp;</span>
+                        <Form.Input
+                            type='text'
+                            placeholder="7"
+                            name="time_interval"
+                            value={this.state.time_interval}
+                            onChange={this.handleChange}
+                        />
+                    </Form.Group>
+                    <Form.Button style={{marginBottom:'20px'}}  content="Submit" floated='right' onClick={this.handleFreeTextSubmit}/>
+                </Form>
+            </Tab.Pane> },            
+          ];
+
+    }
+
     render() {
         if(!this.state.polls || !this.state.nr_answers){
             return (
@@ -300,44 +433,12 @@ class Polls extends Component {
                     <Button style={{height:'35px'}} onClick={this.show(true)}>Add a poll</Button>
                     </Header>
 
-                    <Modal style={{height:'420px'}} dimmer={dimmer} open={open} onClose={this.close} size='small' closeIcon>
+                    <Modal style={{height:'400px'}} dimmer={dimmer} open={open} onClose={this.close} size='small' closeIcon>
                         <Modal.Header>Create a poll</Modal.Header>
                         <Modal.Content scrolling>
                             <Modal.Description>
-                            <Form>
-                                <Header size='medium'>What do you want to ask?</Header>
-                                <Form.Input
-                                    type='text'
-                                    placeholder="Question"
-                                    name="question"
-                                    value={this.state.question}
-                                    onChange={this.handleChange}
-                                />
-                                <Header size='medium'>Possible Answers
-                                    <Label as='a' onClick={this.add_answers}>
-                                        Add an answer
-                                        <Label.Detail>
-                                            <Icon name='plus'/>
-                                        </Label.Detail>
-                                    </Label>
-                                    <Label as='a' style={{width:'30px'}} onClick={this.remove_answers}>
-                                       <Icon name='minus'/>
-                                    </Label>
-                                </Header>
-                                {this.create_answer_forms()}
-        
-                                <Form.Button style={{marginBottom:'20px'}}  content="Submit" floated='right' onClick={this.handleSubmit}/>
-                            </Form>
-                            <div>
-                                    <Transition visible={visible} animation='scale' duration={500}>
-                                    <Message
-                                        warning
-                                        header='Missing content'
-                                        content={this.state.message_content}
-                                        style={{width:'80%',height:'65px'}}
-                                    />
-                                    </Transition>
-                            </div>
+                                {this.define_panes()}
+                                <Tab menu={{ secondary: true, pointing: true }} panes={this.state.panes} />
                             </Modal.Description>
                         </Modal.Content>
                     </Modal>
