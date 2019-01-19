@@ -18,7 +18,7 @@ class CreateAssociation extends Component {
         this.state = {
             acceptanceCriteria: '',
             associationName: '',
-            creatorId: '',
+            creatorId: 1001,
             initialFee: '',
             mission: '',
             monthlyFee: ''
@@ -26,12 +26,13 @@ class CreateAssociation extends Component {
     }
 
     componentDidMount() {
-    };
+        const { cookies } = this.props;
+        this.setState({ creatorId: parseInt(cookies.get('user_id'), 10) });
+    }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleSubmit = () => {
-        console.log('here');
         const { cookies } = this.props;
         fetch(urlForCreate, {
             method: 'POST',
@@ -42,8 +43,7 @@ class CreateAssociation extends Component {
             body: JSON.stringify({
                 associationName: this.state.associationName,
                 acceptanceCriteria: this.state.acceptanceCriteria,
-                // get current user
-                creatorId: 1001,
+                creatorId: this.state.creatorId,
                 mission: this.state.mission,
                 initialFee: this.state.initialFee,
                 monthlyFee: this.state.monthlyFee

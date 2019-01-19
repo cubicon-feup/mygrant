@@ -150,32 +150,23 @@ router.delete('/:association_id', function(req, res) {
 });
 
 router.post('/createassociation', function(req, res) {
-    let associationName = req.body.associationName;
-    let acceptanceCriteria = req.body.acceptanceCriteria;
-    let mission = req.body.mission;
-    let initialFee = req.body.initialFee;
-    let monthlyFee = req.body.monthlyFee;
-    let creatorId = req.user.id;
 
-    // console.log(req.body);
-
-    let query =
+    const query =
         `INSERT INTO association (id_creator, ass_name, missao, criterios_entrada, joia, quota)
         VALUES ($(creatorId), $(associationName), $(mission), $(acceptanceCriteria), $(initialFee), $(monthlyFee))
         RETURNING id`;
 
     db.one(query, {
-        associationName: associationName,
-        acceptanceCriteria: acceptanceCriteria,
-        mission: mission,
-        initialFee: initialFee,
-        monthlyFee: monthlyFee,
-        creatorId: creatorId
+        associationName: req.body.associationName,
+        acceptanceCriteria: req.body.acceptanceCriteria,
+        mission: req.body.mission,
+        initialFee: req.body.initialFee,
+        monthlyFee: req.body.monthlyFee,
+        creatorId: req.body.creatorId
     }).then(data => {
-        let associationId = data.id;
+        const associationId = data.id;
         res.status(201).send({ id: associationId });
     }).catch(error => {
-        // console.log(error);
         res.status(500).json({ error });
     });
 });
