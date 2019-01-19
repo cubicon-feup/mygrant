@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../config/database');
+const cronJob = require('../cronjob');
 
 
 const expressJwt = require('express-jwt');
@@ -22,13 +23,14 @@ const authenticate = expressJwt({ secret: appSecret });
  */
 router.get('/', function(req, res) {
     let query =
-        `SELECT id, question, free_text, options, id_creator, creator_name
-        FROM polls`;
+        `SELECT id, question, free_text, options, id_creator, creator_name, deleted, date_finished
+        FROM polls
+        WHERE deleted = false`;
 
     db.manyOrNone(query).then(data => {
         res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get polls.'});
+    }).catch(() => {
+        res.status(500).json({ error: 'Couldn\'t get polls.' });
     });
 });
 
@@ -46,13 +48,29 @@ router.get('/', function(req, res) {
  * @apiError (Error 500) InternalServerError Couldn't create a poll.
  */
 router.post('/', authenticate, function(req, res) {
+    if (req.body.options != undefined) {
+        var answers = req.body.options.join('|||');
+    }
+    var time_interval = req.body.time_interval;
+    if (isNaN(time_interval)) {
+        time_interval = 7;
+    } else {
+        if (time_interval < 1) {
+            time_interval = 7;
+        }
+        if (time_interval > 365) {
+            time_interval = 7;
+        }
 
-    var answers = req.body.options.join('|||');
+        if (!Number.isInteger(time_interval)) {
+            time_interval = parseInt(time_interval);
+        }
+    }
 
     let query =
-        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed)
-        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed))
-        RETURNING id;`;
+        `INSERT INTO polls(id_creator, question, free_text, options, creator_name, closed, deleted, date_created, date_finished)
+        VALUES ($(id_creator), $(question), $(free_text), $(options), $(creator_name), $(closed), $(deleted), NOW(), NOW() +  '$(time_interval) days')
+        RETURNING id, date_finished;`;
 
     db.one(query, {
         id_creator: req.user.id,
@@ -60,11 +78,15 @@ router.post('/', authenticate, function(req, res) {
         free_text: req.body.free_text,
         options: answers,
         creator_name: req.body.creator_name,
-        closed : false
+        closed: false,
+        deleted: false,
+        time_interval
     }).then(data => {
         let poll_id = data.id;
-        res.status(201).send({id: poll_id});
-    }).catch(error => {
+        let dateFinished = new Date(data.date_finished);
+        cronJob.scheduleJobPoll(poll_id, dateFinished);
+        res.status(201).send({ id: poll_id });
+    }).catch(() => {
             res.status(500).json('Error creating poll.');
     });
 });
@@ -85,21 +107,88 @@ router.post('/', authenticate, function(req, res) {
 router.get('/:poll_id', function(req, res) {
     let id = req.params.poll_id;
     let query =
-        `SELECT question, free_text, options, id_creator, closed
+        `SELECT question, free_text, options, id_creator, closed, deleted, date_finished
         FROM polls
-        WHERE polls.id = $(id);`;
+        WHERE polls.id = $(id) AND deleted = false ;`;
 
     db.oneOrNone(query, {
-        id: id
+        id
     }).then(data => {
         res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json({error: 'Couldn\'t get the poll.'});
+    }).catch(() => {
+        res.status(500).json({ error: 'Couldn\'t get the poll.' });
     });
 });
 
 /**
- * @api {get} /polls/:poll_id Get poll answers
+ * @api {put} /polls/:poll_id Put poll
+ * @apiName PutPoll
+ * @apiGroup Poll
+ *
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ *
+ * @apiParam (RequestBody) {String} options New poll options.
+ *
+ * @apiSuccess (Success 200) {String} message Update success message.
+ *
+ * @apiError (Error 500) InternalServerError Could't get the poll.
+ */
+router.put('/:poll_id', function(req, res) {
+    let id = req.params.poll_id;
+    let query =
+        `SELECT options
+        FROM polls
+        WHERE polls.id = $(id) AND deleted = false ;`;
+
+    db.oneOrNone(query, {
+        id
+    }).then(data => {
+
+        var answers = data.options;
+
+        var can_update = true;
+
+        if (answers != null) {
+            var arr_answers = answers.split('|||');
+
+            var options = req.body.options;
+
+            var arr_options = options.split('|||');
+
+            for (var i = 0; i < arr_answers.length; i++) {
+                if (arr_answers[i] != arr_options[i]) {
+                    can_update = false;
+                }
+
+            }
+        }
+
+        if (can_update) {
+            let id = req.params.poll_id;
+            let query =
+                `UPDATE public.polls
+                SET options = $(options)
+                WHERE polls.id = $(id) AND deleted = false ;`;
+
+            db.none(query, {
+                id,
+                options: req.body.options
+            }).then(data => {
+                res.status(200).json(data);
+            }).catch(() => {
+                res.status(500).json({ error: 'Couldn\'t update the poll.' });
+            });
+        } else {
+            res.status(500).json({ error: 'Couldn\'t update the poll.' });
+        }
+    }).catch(() => {
+        res.status(500).json({ error: 'Couldn\'t get the poll.' });
+    });
+
+});
+
+/**
+ * @api {get} /polls/:poll_id/answers Get poll answers
  * @apiName GetPollAnswers
  * @apiGroup Poll
  *
@@ -111,18 +200,30 @@ router.get('/:poll_id', function(req, res) {
  * @apiError (Error 500) InternalServerError Could't get the poll.
  */
 router.get('/:poll_id/answers', function(req, res) {
-    let id = req.params.poll_id;
-    let query =
-        `SELECT id_user, answer
-        FROM polls_answers
-        WHERE id_poll = $(id);`;
+    let queryPollisNotDeleted =
+    `SELECT deleted
+    FROM public.polls
+    WHERE id = $(id_poll) AND deleted = true`;
 
-    db.manyOrNone(query, {
-        id: id
-    }).then(data => {
-        res.status(200).json(data);
-    }).catch(error => {
-        res.status(500).json('Coudln\'t get poll answers');
+    db.none(queryPollisNotDeleted, {
+        id_poll: req.params.poll_id
+    }).then(() => {
+
+        let id = req.params.poll_id;
+        let query =
+            `SELECT id_user, answer, was_useful
+            FROM polls_answers
+            WHERE id_poll = $(id);`;
+
+        db.manyOrNone(query, {
+            id
+        }).then(data => {
+            res.status(200).json(data);
+        }).catch(() => {
+            res.status(200).json('Coudln\'t get poll answers');
+        });
+    }).catch(() => {
+        res.status(500).json('Poll is closed.');
     });
 });
 
@@ -155,20 +256,18 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
         id_user: req.user.id
     }).then(() => {
         let queryAnswerExists =
-        `SELECT options,closed
+        `SELECT options,closed,deleted
         FROM public.polls
-        WHERE id = $(id_poll);`
+        WHERE id = $(id_poll) AND deleted = false;`;
 
         db.one(queryAnswerExists, {
-            id_poll: req.params.poll_id,
-        }).then((data) => {
-            var options = data['options'].split('|||');
+            id_poll: req.params.poll_id
+        }).then(data => {
+            var options = data.options.split('|||');
 
-            if (data['closed']){
+            if (data.closed) {
                 res.status(500).json('Poll is closed.');
-            }else{
-
-                if (options.includes(req.body.answer)){
+            } else if (options.includes(req.body.answer)) {
                     let query =
                     `INSERT INTO polls_answers(id_poll, id_user, answer)
                     VALUES ($(id_poll), $(id_user), $(answer));`;
@@ -179,18 +278,79 @@ router.post('/:poll_id/answers', authenticate, function(req, res) {
                         answer: req.body.answer
                     }).then(() => {
                         res.status(201).send('Sucessfully added poll answer.');
-                    }).catch(error => {
+                    }).catch(() => {
                         res.status(500).json('Error adding asnwer.');
                     });
                 }
-
-            }
-        }).catch(error => {
-            res.status(500).json('Answer does not exist in this poll.');
+        }).catch(() => {
+            res.status(500).json('Answer does not exist in this poll./Poll is closed.');
         });
 
-    }).catch(error => {
+    }).catch(() => {
         res.status(403).json('User has Voted');
+    });
+
+});
+
+/**
+ * @api {post} /polls/:poll_id/rate Rate poll
+ * @apiName Rate
+ * @apiGroup Poll
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ *
+ * @apiParam (RequestUser) {Integer} user_id Id of user that answered.
+ *
+ * @apiParam (RequestBody) {String} was_useful Poll rating.
+ *
+ * @apiSuccess (Success 201) {String} message Sucessfully rated poll.
+ *
+ * @apiError (Error 500) InternalServerError Error adding rating.
+ */
+router.post('/:poll_id/rate', authenticate, function(req, res) {
+
+    let queryUserHasVoted =
+        `SELECT answer
+        FROM public.polls_answers
+        WHERE id_poll = $(id_poll)
+        AND id_user = $(id_user);`;
+
+    db.one(queryUserHasVoted, {
+        id_poll: req.params.poll_id,
+        id_user: req.user.id
+    }).then(() => {
+
+        var vote_value = req.body.was_useful;
+
+        if (isNaN(vote_value)) {
+            vote_value = 1;
+        }
+
+        if (vote_value > 1) {
+            vote_value = 1;
+        }
+        if (vote_value < 0) {
+            vote_value = 0;
+        }
+        let query =
+        `UPDATE public.polls_answers
+        SET was_useful = $(was_useful)
+        WHERE id_poll = $(id_poll) 
+        AND id_user = $(id_user);`;
+
+        db.none(query, {
+            id_poll: req.params.poll_id,
+            id_user: req.user.id,
+            was_useful: vote_value
+        }).then(() => {
+            res.status(201).send('Sucessfully rated poll.');
+        }).catch(() => {
+            res.status(500).json('Error rating poll.');
+        });
+
+    }).catch(() => {
+        res.status(403).json('User has not voted');
     });
 
 });
@@ -220,27 +380,80 @@ router.post('/:poll_id/close', authenticate, function(req, res) {
 
     db.one(queryUserIsPollCreator, {
         id_poll: req.params.poll_id
-    }).then((data) => {
+    }).then(data => {
 
-        if (data.id_creator == req.user.id){
+        if (data.id_creator == req.user.id) {
             let queryAnswerExists =
             `UPDATE public.polls
             SET closed=$(closed)
-            WHERE id = $(id_poll);`
+            WHERE id = $(id_poll);`;
 
             db.none(queryAnswerExists, {
                 closed: req.body.closed,
                 id_poll: req.params.poll_id
-            }).then((data) => {
+            }).then(() => {
                 res.status(201).json('Poll updated.');
-            }).catch(error => {
+            }).catch(() => {
                 res.status(500).json('Couldn\'t change poll state');
             });
 
-        }else
+        } else {
             res.status(500).json('Invalid action.');
+        }
 
-    }).catch(error => {
+    }).catch(() => {
+        res.status(403).json('User has no polls created');
+    });
+
+});
+
+/**
+ * @api {post} /polls/:poll_id/delete Delete poll
+ * @apiName DeletePoll
+ * @apiGroup Poll
+ * @apiPermission authenticated user
+ *
+ * @apiParam (RequestParam) {Integer} poll_id Poll id.
+ *
+ * @apiParam (RequestUser) {Integer} user_id Id of user that wants to delete the poll.
+ *
+ * @apiParam (RequestBody) {Boolean} deleted Poll deleted state.
+ *
+ * @apiSuccess (Success 201) {String} message Poll updated.
+ *
+ * @apiError (Error 500) InternalServerError Couldn't change poll state.
+ */
+router.post('/:poll_id/delete', authenticate, function(req, res) {
+
+    let queryUserIsPollCreator =
+        `SELECT id_creator
+        FROM public.polls
+        WHERE id = $(id_poll)`;
+
+    db.one(queryUserIsPollCreator, {
+        id_poll: req.params.poll_id
+    }).then(data => {
+
+        if (data.id_creator == req.user.id) {
+            let queryAnswerExists =
+            `UPDATE public.polls
+            SET deleted = $(deleted)
+            WHERE id = $(id_poll);`;
+
+            db.none(queryAnswerExists, {
+                deleted: req.body.deleted,
+                id_poll: req.params.poll_id
+            }).then(() => {
+                res.status(201).json('Poll updated.');
+            }).catch(() => {
+                res.status(500).json('Couldn\'t change poll state');
+            });
+
+        } else {
+            res.status(500).json('Invalid action.');
+        }
+
+    }).catch(() => {
         res.status(403).json('User has no polls created');
     });
 

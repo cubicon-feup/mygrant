@@ -745,4 +745,32 @@ router.put('/change-image', authenticate, function(req, res) {
     });
 });
 
+/**
+ * @api {get} /:id/associations/ Get user associations
+ * @apiName getAssociations
+ * @apiGroup user
+ *
+ * @apiParam (RequestBody) {Integer} id Creator id.
+ *
+ * @apiSuccess (Success 200) {Integer} association_id Association id.
+ * @apiSuccess (Success 200) {Text} association_name Association name.
+ * @apiSuccess (Success 200) {Text} association_description Association description.
+ *
+ * @apiError (Error 500) InternalServerError
+ */
+router.get('/:id/associations', function(req, res) {
+    const query = `
+        SELECT id, id_creator, ass_name, missao, criterios_entrada, joia, quota, date_created
+        FROM association
+        WHERE id_creator = $(userId);`;
+
+    db.any(query, { userId: req.params.id })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error });
+        });
+});
+
 module.exports = router;

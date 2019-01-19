@@ -958,7 +958,7 @@ router.post('/:id/offers', authenticate, function(req, res) {
 router.post('/:id/offers/accept', authenticate, function(req, res) {
     // check for valid input
     try {
-        var service_id = req.params.id;
+        var service_id = req.body.service_id;
         var date_scheduled = req.body.date_scheduled;
         var partner_id = req.body.hasOwnProperty('partner_id') ? req.body.partner_id : null;
         var crowdfunding_id = req.body.hasOwnProperty('crowdfunding_id') ? req.body.crowdfunding_id : null;
@@ -1004,16 +1004,30 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
 
             // define query
             let query;
+            console.log(req.body.hasOwnProperty('crowdfunding_id'));
             if (req.body.hasOwnProperty('crowdfunding_id')){
                 // crowdfunding_offer -> service_instance
                 query = ` 
                     INSERT INTO service_instance (service_id, partner_id, crowdfunding_id, date_scheduled)
-                    SELECT service.id, null, crowdfunding_offer.crowdfunding_id, crowdfunding_offer.date_proposed 
-                    FROM crowdfunding_offer
+                    SELECT service.id, null, $(crowdfunding_id), service_offer.date_proposed 
+                    FROM service_offer
                     LEFT JOIN service
-                    ON service.id = crowdfunding_offer.service_id 
-                    WHERE service.id=$(service_id) AND crowdfunding_offer.crowdfunding_id=$(crowdfunding_id) AND service.deleted=false
+                    ON service.id = service_offer.service_id 
+                    WHERE service.id=$(service_id)
                     RETURNING service_id;`;
+
+                db.one(query, {
+                        service_id,
+                        crowdfunding_id: req.body.crowdfunding_id,
+                        date_scheduled
+                })
+                .then(() => {
+                    res.sendStatus(200);
+                })
+                .catch(error => {
+                    console.log(error);
+                    res.status(500).json(error);
+                });
             }
             else {
                 // service_offer -> service_instance
@@ -1025,21 +1039,24 @@ router.post('/:id/offers/accept', authenticate, function(req, res) {
                     ON service.id = service_offer.service_id 
                     WHERE service.id=$(service_id) AND service_offer.candidate_id=$(partner_id) AND service.deleted=false
                     RETURNING service_id;`;
+
+                    db.one(query, {
+                        service_id,
+                        partner_id,
+                        crowdfunding_id: req.body.crowdfunding_id,
+                        date_scheduled
+                    })
+                    .then(() => {
+                        res.sendStatus(200);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        res.status(500).json(error);
+                    });
             }
             // place query
-            db.one(query, {
-                    service_id,
-                    partner_id,
-                    crowdfunding_id,
-                    date_scheduled
-                })
-                .then(() => {
-                    res.sendStatus(200);
-                })
-                .catch(error => {
-                    console.log(error);
-                    res.status(500).json(error);
-                });
+            console.log('crowdfunding_id ' + req.body.crowdfunding_id);
+
         })
         .catch(error => {
             console.log(error);

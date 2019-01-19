@@ -3,7 +3,7 @@ import '../css/common.css';
 import { Link } from 'react-router-dom';
 import { Container, Header, Grid, Table, Loader, Item, Button} from 'semantic-ui-react';
 
-const urlForCrowdfundings = 'http://localhost:3001/api/crowdfundings';
+const urlForCrowdfundings = `/api/crowdfundings`;
 
 class Crowdfundings extends Component {
 
